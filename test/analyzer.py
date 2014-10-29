@@ -4,7 +4,7 @@
 #
 #-----------------------------------------
 import os
-PyFilePath = os.environ['CMMSW_BASE']+"/src/test/"
+PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/"
 
 #samples list (it could be moved to a cfg file for better reading
 samples = []

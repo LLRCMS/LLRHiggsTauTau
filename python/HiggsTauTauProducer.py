@@ -284,7 +284,7 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ##
 process.taus = cms.EDFilter("PATTauRefSelector",
    src = cms.InputTag("slimmedTaus"),
-   cut = cms.string("pt>7 && abs(eta)<2.5 &&")
+   cut = cms.string("pt>7 && abs(eta)<2.5")
    )
 
 #Leptons
@@ -293,11 +293,16 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
     src = cms.VInputTag(cms.InputTag("appendPhotons:muons"), cms.InputTag("appendPhotons:electrons"),cms.InputTag("taus"))
 )
 
-
+##
+##Jets
+##
+process.jets = cms.EDFilter("PATJetRefSelector",
+                           src = cms.InputTag("slimmedJets"),
+                           cut = cms.string("pt>10")
+)
 ##
 ## Build ll candidates (here OS)
 ##
-
 process.barellCand = cms.EDProducer("CandViewShallowCombiner",
                                     decay = cms.string("softLeptons@+ softLeptons@-"),
                                     cut = cms.string("mass > 0"),
@@ -308,13 +313,12 @@ process.barellCand = cms.EDProducer("CandViewShallowCombiner",
 ##
 ## SV fit
 ##
-process.SVllCand = cms.EDProducer("SVfitter",
-                                  src = cms.VInputTag("barellCand"))
+#process.SVllCand = cms.EDProducer("SVfitter",
+#                                  src = cms.InputTag("barellCand"))
 
 ##
 ## Paths
 ##
-
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
 # Prepare lepton collections
@@ -324,14 +328,9 @@ process.Candidates = cms.Path(
        #process.fsrPhotonSequence + process.appendPhotons     +#RH
        process.taus              +
        process.softLeptons       +
+       process.jets              #+
 # Build dilepton candidates
-       process.SVllCand
-       #process.bareEECand        + process.EECand   +  
-       #process.bareMMCand        + process.MMCand   + 
-       #process.bareMMMMCand      + process.MMMMCand  +
-       #process.bareEEEECand      + process.EEEECand  +
-       #process.bareEEMMCand      + process.EEMMCand  +
-       #process.ZZCand
+       #process.SVllCand
   )
 
 SkimPaths = cms.vstring('PVfilter') #Do not apply skim 
