@@ -8,7 +8,7 @@ Modules and plugins are called by python/HiggsTauTauProducer.py
 The stored variables are set in plugins/HTauTauNtupleMaker.cc
 
 Instruction to get and run the package:
-git clone https://github.com/LLRCMS/LLRHiggsTauTau.py 
+git clone https://github.com/LLRCMS/LLRHiggsTauTau.git
 (cd LLRHiggsTauTau; git checkout master)
 
 #effective areas (to be updated)
