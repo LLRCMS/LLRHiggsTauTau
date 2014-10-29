@@ -16,12 +16,12 @@ PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/"
 execfile(PyFilePath+"python/HiggsTauTauProducer.py")
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents = 1000
+process.maxEvents.input = 1000
 
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',filename=cms.string('HTauTauAnalysis.root'))
+process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
 
 #Global configuration
 TreeSetup = cms.EDAnalyzer("HTauTauNtupleMaker",
