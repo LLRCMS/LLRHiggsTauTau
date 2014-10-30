@@ -4,7 +4,7 @@
 #
 #-----------------------------------------
 import os
-PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/"
+PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
 #samples list (it could be moved to a cfg file for better reading
 #samples = [

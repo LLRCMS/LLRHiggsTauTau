@@ -6,6 +6,7 @@
 <use name="AnalysisDataFormats/CMGTools"/>
 <use name="RecoParticleFlow/PFClusterTools" />
 <use name="PhysicsTools/KinFitter"/>
+<use name="EgammaAnalysis/ElectronTools"/>
 <use name="TrackingTools/Records"/>
 <use name="RecoVertex/KinematicFit"/>
 <use name="root"/>
