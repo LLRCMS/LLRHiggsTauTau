@@ -1,31 +1,45 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
-#set this cut in the cfg file
-try: IsMC
-except NameError:
-    IsMC=True
-try: LEPTON_SETUP
-except NameError:
-    LEPTON_SETUP="2012"
-try: ELEREGRESSION
-except NameError:
-    ELEREGRESSION="Paper"
-try: ELECORRTYPE
-except NameError:
-    ELECORRTYPE="Paper"
+#flags (move to cfg?)
 try:
-    GOODLEPTON
+    IsMC
 except NameError:
-    GOODLEPTON = "mass>0"
+    IsMC = True
+try:
+    LEPTON_SETUP
+except NameError:
+    LEPTON_SETUP = 2012 # define the set of effective areas, rho corrections, etc.
+try:
+    SAMPLE_TYPE
+except NameError:
+    SAMPLE_TYPE = LEPTON_SETUP # This is the actual sqrts of the sample. LEPTON_SETUP can be different from SAMPLE_TYPE for samples
+                               # which are rescaled to a different sqrts. FIXME: at the moment this is not used correctly in
+                               # ZZCandidateFiller, it would need to be reviewed.
+try:
+    APPLYMUCORR
+except NameError:
+    APPLYMUCORR = True
+try:
+    ELEREGRESSION
+except NameError:
+    ELEREGRESSION = "Paper"
+#Type of electron scale correction/smearing
+try:
+    ELECORRTYPE
+except NameError:
+    ELECORRTYPE = "Paper"
+
+
+GOODLEPTON = "mass>0"
 print GOODLEPTON
-
-
+#except ConfigFileReadError:
+#    print "ciccio"
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'PLS170_V6AN1::All'#'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
+process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
 print process.GlobalTag.globaltag
 
 ### ----------------------------------------------------------------------
@@ -38,10 +52,29 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 
+### ----------------------------------------------------------------------
+### Source
+### ----------------------------------------------------------------------
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+        #'/store/cmst3/user/cmgtools/CMG/GluGluToHToZZTo4L_M-130_7TeV-powheg-pythia6/Fall11-PU_S6_START42_V14B-v1/AODSIM/V5/PAT_CMG_V5_2_0/patTuple_1.root'
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/1062D5FF-2D09-E411-943C-0025900EB52A.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/2640D54D-2D09-E411-9FAA-003048D47670.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/304D2104-2D09-E411-9BBC-0025900EB52A.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/540AB9B2-2D09-E411-B413-001517357DDE.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/6A959CA1-2D09-E411-8B84-0025900EB1A0.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/78F2C486-2D09-E411-A993-0025903451A8.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/A871CFAE-2D09-E411-B079-0025900EB232.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/C214279B-2C09-E411-B39F-0025903451A8.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/DA6898EF-2C09-E411-BE79-003048D410ED.root",
+        "/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/E42DB840-2E09-E411-9B3A-003048D410ED.root"
+    )
+)
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-
+#process.maxEvents.input = 1000
 ### ----------------------------------------------------------------------
 ### Trigger bit Requests 
 ### ----------------------------------------------------------------------
@@ -81,6 +114,33 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(True),
 )
 
+##
+## DEFINE CUTS HERE
+##
+
+#Muon stuff from HZZ4L, in case revisit it
+# Mu e-scale corrections (MuScleFit)
+process.calibratedMuons = cms.EDProducer("MuScleFitPATMuonCorrector", 
+                         src = cms.InputTag("slimmedMuons"),#patMuonsWithTrigger"), 
+                         debug = cms.bool(False), 
+                         identifier = cms.string("Summer12_DR53X_smearReReco"), 
+                         applySmearing = cms.bool(IsMC), 
+                         fakeSmearing = cms.bool(False)
+                         )
+
+# Set correct identifier for MuScleFit muon corrections
+if LEPTON_SETUP == 2011:
+    if IsMC:
+        process.calibratedMuons.identifier = cms.string("Fall11_START42")
+    else:
+        process.calibratedMuons.identifier = cms.string("Data2011_42X")
+else:
+    if IsMC:
+        process.calibratedMuons.identifier = cms.string("Summer12_DR53X_smearReReco")
+    else:
+        process.calibratedMuons.identifier = cms.string("Data2012_53X_ReReco")
+        
+
 ### Mu Ghost cleaning
 process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
                                    src = cms.InputTag("calibratedMuons"),
@@ -89,7 +149,7 @@ process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
                                    fractionOfSharedSegments = cms.double(0.499))
 
 
-process.softMuons = cms.EDFilter("PATMuonRefSelector",
+process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("cleanedMu"),
     cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
                      "pt>5 && abs(eta)<2.4")
@@ -112,7 +172,24 @@ process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pic
                                    resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
                                    )
 
-process.muons =  cms.Sequence(process.cleanedMu + process.softMuons)
+process.softMuons = cms.EDProducer("MuFiller",
+    src = cms.InputTag("bareSoftMuons"),
+    sampleType = cms.int32(SAMPLE_TYPE),                     
+    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+#    cut = cms.string("userFloat('SIP')<100"),
+    cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1."),
+    flags = cms.PSet(
+        ID = cms.string("userFloat('isPFMuon')" ), # PF ID
+        isGood = cms.string(GOODLEPTON)
+    )
+)
+
+
+if APPLYMUCORR :
+    process.muons =  cms.Sequence(process.calibratedMuons + process.cleanedMu + process.bareSoftMuons + process.softMuons)
+else:
+    process.cleanedMu.src = src = cms.InputTag("slimmedMuons")#patMuonsWithTrigger")
+    process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons + process.softMuons)
     
 
 ##
@@ -132,17 +209,17 @@ process.calibratedPatElectrons.lumiRatio = cms.double(1.0)
 process.calibratedPatElectrons.isMC    = IsMC
 process.calibratedPatElectrons.synchronization = cms.bool(False)
 
-#if (LEPTON_SETUP == 2011):
-#   process.eleRegressionEnergy.rhoCollection = cms.InputTag('kt6PFJetsForIso:rho')
-#   if (IsMC):
-#       process.calibratedPatElectrons.inputDataset = "Fall11"
-#   else :
-#       process.calibratedPatElectrons.inputDataset = "Jan16ReReco"
-#else :
-#if (IsMC):
-process.calibratedPatElectrons.inputDataset = "Summer12_LegacyPaper"
-#   else :
-#process.calibratedPatElectrons.inputDataset = "22Jan2013ReReco"
+if (LEPTON_SETUP == 2011):
+   process.eleRegressionEnergy.rhoCollection = cms.InputTag('kt6PFJetsForIso:rho')
+   if (IsMC):
+       process.calibratedPatElectrons.inputDataset = "Fall11"
+   else :
+       process.calibratedPatElectrons.inputDataset = "Jan16ReReco"
+else :
+   if (IsMC):
+       process.calibratedPatElectrons.inputDataset = "Summer12_LegacyPaper"
+   else :
+       process.calibratedPatElectrons.inputDataset = "22Jan2013ReReco"
 
     
 
@@ -153,7 +230,20 @@ process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
                     )
    )
 
-process.electrons = cms.Sequence(process.eleRegressionEnergy + process.calibratedPatElectrons + process.bareSoftElectrons) #+ process.softElectrons)
+process.softElectrons = cms.EDProducer("EleFiller",
+   src    = cms.InputTag("bareSoftElectrons"),
+   sampleType = cms.int32(SAMPLE_TYPE),          
+   setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+#    cut = cms.string("userFloat('SIP')<100"),
+   cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
+   flags = cms.PSet(
+        ID = cms.string("userFloat('isBDT')"), # BDT MVA ID
+        isGood = cms.string(GOODLEPTON)
+        )
+   )
+
+
+process.electrons = cms.Sequence(process.eleRegressionEnergy + process.calibratedPatElectrons + process.bareSoftElectrons + process.softElectrons)
 
 # Handle special cases
 if ELEREGRESSION == "None" and ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
