@@ -115,45 +115,46 @@ process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pic
 process.muons =  cms.Sequence(process.cleanedMu + process.softMuons)
     
 
-##
-## Electrons
-##
-#--- Electron regression+calibrarion must be applied after BDT is recomputed
-# NOTE patElectronsWithRegression->eleRegressionEnergy;  calibratedElectrons-> calibratedPatElectrons
-# Default: NEW ECAL regression + NEW calibration + NEW combination
-process.load('EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi')
-process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('patElectronsWithTrigger')
-process.eleRegressionEnergy.energyRegressionType = 2 ## 1: ECAL regression w/o subclusters 2 (default): ECAL regression w/ subclusters)
-#process.eleRegressionEnergy.vertexCollection = cms.InputTag('goodPrimaryVertices')
-process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
-process.calibratedPatElectrons.correctionsType = 2 # 1 = old regression, 2 = new regression, 3 = no regression, 0 = nothing
-process.calibratedPatElectrons.combinationType = 3
-process.calibratedPatElectrons.lumiRatio = cms.double(1.0)
-process.calibratedPatElectrons.isMC    = IsMC
-process.calibratedPatElectrons.synchronization = cms.bool(False)
-
-#if (LEPTON_SETUP == 2011):
-#   process.eleRegressionEnergy.rhoCollection = cms.InputTag('kt6PFJetsForIso:rho')
-#   if (IsMC):
-#       process.calibratedPatElectrons.inputDataset = "Fall11"
-#   else :
-#       process.calibratedPatElectrons.inputDataset = "Jan16ReReco"
-#else :
-#if (IsMC):
-process.calibratedPatElectrons.inputDataset = "Summer12_LegacyPaper"
-#   else :
-#process.calibratedPatElectrons.inputDataset = "22Jan2013ReReco"
+###
+### Electrons
+###
+##--- Electron regression+calibrarion must be applied after BDT is recomputed
+## NOTE patElectronsWithRegression->eleRegressionEnergy;  calibratedElectrons-> calibratedPatElectrons
+## Default: NEW ECAL regression + NEW calibration + NEW combination
+#process.load('EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi')
+#process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('patElectronsWithTrigger')
+#process.eleRegressionEnergy.energyRegressionType = 2 ## 1: ECAL regression w/o subclusters 2 (default): ECAL regression w/ subclusters)
+##process.eleRegressionEnergy.vertexCollection = cms.InputTag('goodPrimaryVertices')
+#process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
+#process.calibratedPatElectrons.correctionsType = 2 # 1 = old regression, 2 = new regression, 3 = no regression, 0 = nothing
+#process.calibratedPatElectrons.combinationType = 3
+#process.calibratedPatElectrons.lumiRatio = cms.double(1.0)
+#process.calibratedPatElectrons.isMC    = IsMC
+#process.calibratedPatElectrons.synchronization = cms.bool(False)
+#
+##if (LEPTON_SETUP == 2011):
+##   process.eleRegressionEnergy.rhoCollection = cms.InputTag('kt6PFJetsForIso:rho')
+##   if (IsMC):
+##       process.calibratedPatElectrons.inputDataset = "Fall11"
+##   else :
+##       process.calibratedPatElectrons.inputDataset = "Jan16ReReco"
+##else :
+##if (IsMC):
+#process.calibratedPatElectrons.inputDataset = "Summer12_LegacyPaper"
+##   else :
+##process.calibratedPatElectrons.inputDataset = "22Jan2013ReReco"
 
     
 
 process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
-   src = cms.InputTag("calibratedPatElectrons"),
+   src = cms.InputTag("slimmedElectrons"),#"calibratedPatElectrons"),
    cut = cms.string("pt>7 && abs(eta)<2.5 &&" +
                     "gsfTrack.trackerExpectedHitsInner.numberOfHits<=1"
                     )
    )
 
-process.electrons = cms.Sequence(process.eleRegressionEnergy + process.calibratedPatElectrons + process.bareSoftElectrons) #+ process.softElectrons)
+#process.electrons = cms.Sequence(process.eleRegressionEnergy + process.calibratedPatElectrons + process.bareSoftElectrons) #+ process.softElectrons)
+process.electrons = cms.Sequence(process.bareSoftElectrons) #+ process.softElectrons)
 
 # Handle special cases
 if ELEREGRESSION == "None" and ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
