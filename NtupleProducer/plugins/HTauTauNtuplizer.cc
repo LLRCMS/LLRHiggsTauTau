@@ -69,7 +69,8 @@
 
 using namespace std;
 using namespace edm;
-//
+using namespace reco;
+
 // class declaration
 
 
@@ -196,15 +197,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
 
   //Get candidate collection
-  edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
+  //edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
+  //event.getByLabel("barellCand",candHandle);
+  //const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
+  edm::Handle<edm::View<reco::CompositeCandidate>>candHandle;
   event.getByLabel("barellCand",candHandle);
-  const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
+  const edm::View<reco::CompositeCandidate>* cands = candHandle.product();
 
   //myNtuple->InitializeVariables();
 
-  for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
+  for(edm::View<reco::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
     Npairs++;
-    const pat::CompositeCandidate& cand = (*candi);
+    const reco::CompositeCandidate& cand = (*candi);
     //Do all the stuff here
     //Compute the variables needed for the output and store them in the ntuple
     float fillArray[nOutVars]={
@@ -229,8 +233,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 }
 
 void HTauTauNtuplizer::endJob(){
-  hCounter->SetBinContent(0,Nevt_Gen);
-  hCounter->SetBinContent(1,Npairs);
+  hCounter->SetBinContent(1,Nevt_Gen);
+  hCounter->SetBinContent(2,Npairs);
 }
 
 void HTauTauNtuplizer::beginRun(edm::Run const&, edm::EventSetup const&){

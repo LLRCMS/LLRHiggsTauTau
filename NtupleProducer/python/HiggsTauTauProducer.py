@@ -46,6 +46,15 @@ process.maxEvents = cms.untracked.PSet(
 ### Trigger bit Requests 
 ### ----------------------------------------------------------------------
 import HLTrigger.HLTfilters.hltHighLevel_cfi 
+# !!!!!!!!!!!!
+print "Trigger part"
+## LUCA: added trigger path for tet purposes
+process.hltFilterDiMu = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+process.hltFilterDiMu.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+process.hltFilterDiMu.throw = cms.bool(False) #FIXME: beware of this!
+process.hltFilterDiMu.HLTPaths = ["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012
+process.triggerDiMu = cms.Path(process.hltFilterDiMu)
+# !!!!!!!!!!!!
 
 #MC stuff
 
@@ -83,7 +92,7 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
 
 ### Mu Ghost cleaning
 process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
-                                   src = cms.InputTag("calibratedMuons"),
+                                   src = cms.InputTag("slimmedMuons"),
                                    preselection = cms.string("track.isNonnull"),
                                    passthrough = cms.string("isGlobalMuon && numberOfMatches >= 2"),
                                    fractionOfSharedSegments = cms.double(0.499))
@@ -229,8 +238,8 @@ process.taus = cms.EDFilter("PATTauRefSelector",
 
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
-#    src = cms.VInputTag(cms.InputTag("softMuons"), cms.InputTag("cleanSoftElectrons"))
-    src = cms.VInputTag(cms.InputTag("appendPhotons:muons"), cms.InputTag("appendPhotons:electrons"),cms.InputTag("taus"))
+    src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
+#    src = cms.VInputTag(cms.InputTag("appendPhotons:muons"), cms.InputTag("appendPhotons:electrons"),cms.InputTag("taus"))
 )
 
 #
@@ -243,7 +252,7 @@ process.jets = cms.EDFilter("PATJetRefSelector",
 ##
 ## Build ll candidates (here OS)
 ##
-process.barellCand = cms.EDProducer("CandViewShallowCombiner",
+process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     decay = cms.string("softLeptons@+ softLeptons@-"),
                                     cut = cms.string("mass > 0"),
                                     checkCharge = cms.bool(True)
@@ -267,7 +276,7 @@ process.Candidates = cms.Path(
        process.electrons         +  #process.cleanSoftElectrons +
        #process.fsrPhotonSequence + process.appendPhotons     +#RH
        process.taus              +
-       process.softLeptons       +
+       process.softLeptons       + process.barellCand +
        process.jets              #+
 # Build dilepton candidates
        #process.SVllCand

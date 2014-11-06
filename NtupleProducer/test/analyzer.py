@@ -45,8 +45,11 @@ process.maxEvents.input = 1000
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
 
 #Global configuration
-TreeSetup = cms.EDAnalyzer("HTauTauNtupleMaker",
-                           )
+TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
+                      CandCollection = cms.untracked.string("barellCand"),
+                      fileName = cms.untracked.string ("CosaACaso"),
+                      skipEmptyEvents = cms.bool(True)
+                      )
 
 process.HTauTauTree = TreeSetup.clone()
 
