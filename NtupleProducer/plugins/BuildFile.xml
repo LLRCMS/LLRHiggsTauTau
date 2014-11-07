@@ -5,6 +5,7 @@
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/CandAlgos"/>
 <use name="CommonTools/CandUtils"/>
+<use name="LLRHiggsTauTau/NtupleProducer"/>
 <use name="EgammaAnalysis/ElectronTools"/>
 <use name="PhysicsTools/KinFitter"/>
 <use name="JetMETCorrections/Modules"/>
