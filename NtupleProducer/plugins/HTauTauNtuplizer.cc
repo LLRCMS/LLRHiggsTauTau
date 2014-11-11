@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <TNtuple.h>
+#include <XYZTLorentzVector.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -83,6 +84,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   ~HTauTauNtuplizer();  
 
   TString makeVarString();
+
  private:
   //----edm control---
   virtual void beginJob() ;
@@ -92,6 +94,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   virtual void endRun(edm::Run const&, edm::EventSetup const&);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void InitializeBranches();
+  void InitializeVariables();
+  void Initialize(){InitializeVariables(); InitializeBranches();} 
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
@@ -103,23 +108,29 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::string theCandLabel;
   TString theFileName;
 
-  TNtuple *myTree;//->See from ntuplefactory in zz4l
+  //Output Objects
+  TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
 
+  //flags
   static const int nOutVars =14;
-
   Bool_t isMC;
-
   bool applyTrigger;    // Only events passing trigger
   bool applySkim;       //  "     "      "     skim
   bool skipEmptyEvents; // Skip events whith no candidate in the collection
-
   //PUReweight reweight;
 
-  //counters and branches
+  //counters
   Int_t Nevt_Gen;
   Int_t Npairs;
 
+  //Output variables
+  std::vector<XYZTLorentzVector> mothers;
+  std::vector<XYZTLorentzVector> daughter1;
+  std::vector<XYZTLorentzVector> daughter2;
+  std::vector<Int_t> indexmot;
+  Int_t indexevents;
+  Int_t runNumber;
 };
 
 // ----Constructor and Desctructor -----
@@ -132,19 +143,41 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
   Npairs=0;
+
+  Initialize();
 }
 
 HTauTauNtuplizer::~HTauTauNtuplizer(){}
 //
+
+HTauTauNtuplizer::Initialize(){
+  mothers.clear();
+  daughter1.clear();
+  daughter2.clear();
+  indexmot.clear();
+  indexevents=0;
+  runNumber=0;
+}
+
 void HTauTauNtuplizer::beginJob(){
   edm::Service<TFileService> fs;
-  TString varString = makeVarString();
-  myTree = fs->make<TNtuple>("HTauTauNtuple","HTauTauNtuple",varString.Data());
+  //TString varString = makeVarString();
+  myTree = fs->make<TTree>("HTauTauTree","HTauTauTree");
   hCounter = fs->make<TH1F>("Counters","Counters",2,0,2);
+
+  //Branches
+  myTree->Branch("EventNumber",&indexevents,"EventNumber/I");
+  myTree->Branch("RunNumber",&runNumber,"RunNumber/I");
+  myTree->Branch("mothers",&mothers);
+  myTree->Branch("daughters1",&daughter1);
+  myTree->Branch("daughters2",&daughter2);
+  myTree->Branch("indexMothers",&indexmot);
+
 }
 
 //For semplicity and flexibility, list output variables here. Possibly, amke flags for different
 //outputs, but take care of modifying the filling acocrdingly
+//This function is obsolete, TBR
 TString HTauTauNtuplizer::makeVarString(){
   TString varlist[nOutVars] = {
     "run",
@@ -171,6 +204,9 @@ TString HTauTauNtuplizer::makeVarString(){
 // ------------ method called for each event  ------------
 void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
+
+  Initialize();
+
   Handle<vector<reco::Vertex> >  vertexs;
   event.getByLabel("goodPrimaryVertices",vertexs);
   
@@ -205,13 +241,22 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const edm::View<reco::CompositeCandidate>* cands = candHandle.product();
 
   //myNtuple->InitializeVariables();
+  indexevents = event.id().event();
+  runNumber = event.id().run();
 
+  //Do all the stuff here
+  //Compute the variables needed for the output and store them in the ntuple
+  int iMot=0;
   for(edm::View<reco::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
     Npairs++;
     const reco::CompositeCandidate& cand = (*candi);
-    //Do all the stuff here
-    //Compute the variables needed for the output and store them in the ntuple
-    float fillArray[nOutVars]={
+    mothers.push_back(cand.p4());
+    daughter1.push_back(cand.daughter(0).p4());
+    daughter2.push_back(cand.daughter(1).p4());
+    //We need to find a way to avoid repetitions of daughter in order to save space
+    indexmot.push_back(iMot);
+  
+      /*   float fillArray[nOutVars]={
       (float)event.id().run(),
       (float)event.id().event(),
       (float)cand.p4().mass(),
@@ -227,9 +272,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       (float)cand.daughter(1)->eta(),
       (float)cand.daughter(1)->phi()
     };
-    myTree->Fill(fillArray);
+    myTree->Fill(fillArray);*/
   }
-
+  return;
 }
 
 void HTauTauNtuplizer::endJob(){
