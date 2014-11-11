@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 #include <TNtuple.h>
-#include <XYZTLorentzVector.h>
+//#include <XYZTLorentzVector.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -94,9 +94,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   virtual void endRun(edm::Run const&, edm::EventSetup const&);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  void InitializeBranches();
-  void InitializeVariables();
-  void Initialize(){InitializeVariables(); InitializeBranches();} 
+  //void InitializeBranches();
+  //void InitializeVariables();
+  void Initialize(); 
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
@@ -125,9 +125,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t Npairs;
 
   //Output variables
-  std::vector<XYZTLorentzVector> mothers;
-  std::vector<XYZTLorentzVector> daughter1;
-  std::vector<XYZTLorentzVector> daughter2;
+  std::vector<math::XYZTLorentzVector> mothers;
+  std::vector<math::XYZTLorentzVector> daughter1;
+  std::vector<math::XYZTLorentzVector> daughter2;
   std::vector<Int_t> indexmot;
   Int_t indexevents;
   Int_t runNumber;
@@ -150,7 +150,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
 HTauTauNtuplizer::~HTauTauNtuplizer(){}
 //
 
-HTauTauNtuplizer::Initialize(){
+void HTauTauNtuplizer::Initialize(){
   mothers.clear();
   daughter1.clear();
   daughter2.clear();
@@ -251,8 +251,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     Npairs++;
     const reco::CompositeCandidate& cand = (*candi);
     mothers.push_back(cand.p4());
-    daughter1.push_back(cand.daughter(0).p4());
-    daughter2.push_back(cand.daughter(1).p4());
+    daughter1.push_back(cand.daughter(0)->p4());
+    daughter2.push_back(cand.daughter(1)->p4());
     //We need to find a way to avoid repetitions of daughter in order to save space
     indexmot.push_back(iMot);
   
