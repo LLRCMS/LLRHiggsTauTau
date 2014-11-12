@@ -66,7 +66,9 @@
 //   bool writePhotons = false;  // Write photons in the tree. 
 //   bool writeJets = true;     // Write jets in the tree. 
 // }
-
+namespace{
+  bool DEBUG = false;
+}
 
 using namespace std;
 using namespace edm;
@@ -83,8 +85,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   /// Destructor
   ~HTauTauNtuplizer();  
 
-  TString makeVarString();
-
  private:
   //----edm control---
   virtual void beginJob() ;
@@ -97,6 +97,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //void InitializeBranches();
   //void InitializeVariables();
   void Initialize(); 
+  Int_t FindCandIndex(const reco::Candidate&, int);
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
@@ -126,9 +127,12 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   //Output variables
   std::vector<math::XYZTLorentzVector> _mothers;
-  std::vector<math::XYZTLorentzVector> _daughter1;
-  std::vector<math::XYZTLorentzVector> _daughter2;
-  std::vector<Int_t> _indexmot;
+  std::vector<math::XYZTLorentzVector> _daughters;
+  //std::vector<math::XYZTLorentzVector> _daughter2;
+  std::vector<Int_t> _indexDau1;
+  std::vector<Int_t> _indexDau2;
+  std::vector<Int_t> _pdgmot;
+  std::vector<Int_t> _pdgdau;
   Int_t _indexevents;
   Int_t _runNumber;
 };
@@ -152,16 +156,18 @@ HTauTauNtuplizer::~HTauTauNtuplizer(){}
 
 void HTauTauNtuplizer::Initialize(){
   _mothers.clear();
-  _daughter1.clear();
-  _daughter2.clear();
-  _indexmot.clear();
+  _daughters.clear();
+  //_daughter2.clear();
+  _indexDau1.clear();
+  _indexDau2.clear();
+  _pdgmot.clear();
+  _pdgdau.clear();
   _indexevents=0;
   _runNumber=0;
 }
 
 void HTauTauNtuplizer::beginJob(){
   edm::Service<TFileService> fs;
-  //TString varString = makeVarString();
   myTree = fs->make<TTree>("HTauTauTree","HTauTauTree");
   hCounter = fs->make<TH1F>("Counters","Counters",2,0,2);
 
@@ -169,43 +175,30 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("mothers",&_mothers);
-  myTree->Branch("daughters1",&_daughter1);
-  myTree->Branch("daughters2",&_daughter2);
-  myTree->Branch("indexMothers",&_indexmot);
+  myTree->Branch("daughters",&_daughters);
+  //myTree->Branch("daughters2",&_daughter2);
+  myTree->Branch("PDGIdMothers",&_pdgmot);
+  myTree->Branch("PDGIdDaughters",&_pdgdau);
+  myTree->Branch("indexDau1",&_indexDau1);
+  myTree->Branch("indexDau2",&_indexDau2);
 
 }
 
-//For semplicity and flexibility, list output variables here. Possibly, amke flags for different
-//outputs, but take care of modifying the filling acocrdingly
-//This function is obsolete, TBR
-TString HTauTauNtuplizer::makeVarString(){
-  TString varlist[nOutVars] = {
-    "run",
-    "iev",
-    "P0Pair",
-    "P1Pair",
-    "P2Pair",
-    "P3Pair",
-    "P01",
-    "P11",
-    "P21",
-    "P31",
-    "P02",
-    "P12",
-    "P22",
-    "P32"
-  };
-  TString out = varlist[0].Data();
-  for(int i=1;i<nOutVars;i++){out.Append(":");out.Append(varlist[i].Data());}
-  return out;
+Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand, int iCand=0){
+  const reco::Candidate *daughter = cand.daughter(iCand);
+  for(UInt_t iLeptons=0;iLeptons<_daughters.size();iLeptons++){
+    if(daughter==0){//_daughters.at(iLeptons)){
+      return iLeptons;
+    }
+  }
+  return -1;
 }
 // ----Analyzer (main) ----
-
 // ------------ method called for each event  ------------
 void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
   Nevt_Gen++; 
-  //Initialize();
+  Initialize();
 
   Handle<vector<reco::Vertex> >  vertexs;
   event.getByLabel("goodPrimaryVertices",vertexs);
@@ -243,18 +236,48 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //myNtuple->InitializeVariables();
   _indexevents = event.id().event();
   _runNumber = event.id().run();
+  Int_t nCands = cands->size()*2;
+  const reco::Candidate *daughterPoint[nCands];
 
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
-  int iMot=0;
+  int nDaughters=0;
+  if(DEBUG)printf("===New Event===\n");
   for(edm::View<reco::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
     Npairs++;
     const reco::CompositeCandidate& cand = (*candi);
     _mothers.push_back(cand.p4());
-    _daughter1.push_back(cand.daughter(0)->p4());
-    _daughter2.push_back(cand.daughter(1)->p4());
+    _pdgmot.push_back(cand.pdgId());
+
+    //if(DEBUG){
+      //motherPoint[iMot]=dynamic_cast<const reco::Candidate*>(&*candi);
+      //printf("%p %p %p\n",motherPoint[iMot],cand.daughter(0),cand.daughter(1));
+    //}
+
     //We need to find a way to avoid repetitions of daughter in order to save space
-    _indexmot.push_back(iMot);
+    //It would be nice to move this into a separate function (FindCandIndex)
+    for(int iCand=0;iCand<2;iCand++){
+      int index=-1;
+      //int index=FindCandIndex(cand,iCand);
+      const reco::Candidate *daughter = cand.daughter(iCand);
+      for(Int_t iLeptons=0;iLeptons<nDaughters;iLeptons++){
+	if(daughter==daughterPoint[iLeptons]){
+	  index = iLeptons;
+	  break;
+	}
+      }
+      if(index>=0){//Daughter already in the list!
+	if(iCand==0)_indexDau1.push_back(index);
+	else _indexDau2.push_back(index);	
+      }else {//new lepton
+	daughterPoint[nDaughters]=daughter;
+	nDaughters++;
+	_daughters.push_back(cand.daughter(iCand)->p4());
+	_pdgdau.push_back(cand.daughter(iCand)->pdgId());
+	if(iCand==0)_indexDau1.push_back(_daughters.size()-1);
+	else _indexDau2.push_back(_daughters.size()-1);
+      }
+    }
   
       /*   float fillArray[nOutVars]={
       (float)event.id().run(),
@@ -273,6 +296,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       (float)cand.daughter(1)->phi()
     };
     myTree->Fill(fillArray);*/
+    //iMot++;
   }
   myTree->Fill();
   //return;
