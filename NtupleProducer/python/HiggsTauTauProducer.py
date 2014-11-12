@@ -52,7 +52,7 @@ print "Trigger part"
 process.hltFilterDiMu = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 process.hltFilterDiMu.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 process.hltFilterDiMu.throw = cms.bool(False) #FIXME: beware of this!
-process.hltFilterDiMu.HLTPaths = ["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012
+process.hltFilterDiMu.HLTPaths = ["HLT_*"] #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012
 process.triggerDiMu = cms.Path(process.hltFilterDiMu)
 # !!!!!!!!!!!!
 

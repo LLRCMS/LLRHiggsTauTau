@@ -125,12 +125,12 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t Npairs;
 
   //Output variables
-  std::vector<math::XYZTLorentzVector> mothers;
-  std::vector<math::XYZTLorentzVector> daughter1;
-  std::vector<math::XYZTLorentzVector> daughter2;
-  std::vector<Int_t> indexmot;
-  Int_t indexevents;
-  Int_t runNumber;
+  std::vector<math::XYZTLorentzVector> _mothers;
+  std::vector<math::XYZTLorentzVector> _daughter1;
+  std::vector<math::XYZTLorentzVector> _daughter2;
+  std::vector<Int_t> _indexmot;
+  Int_t _indexevents;
+  Int_t _runNumber;
 };
 
 // ----Constructor and Desctructor -----
@@ -151,12 +151,12 @@ HTauTauNtuplizer::~HTauTauNtuplizer(){}
 //
 
 void HTauTauNtuplizer::Initialize(){
-  mothers.clear();
-  daughter1.clear();
-  daughter2.clear();
-  indexmot.clear();
-  indexevents=0;
-  runNumber=0;
+  _mothers.clear();
+  _daughter1.clear();
+  _daughter2.clear();
+  _indexmot.clear();
+  _indexevents=0;
+  _runNumber=0;
 }
 
 void HTauTauNtuplizer::beginJob(){
@@ -166,12 +166,12 @@ void HTauTauNtuplizer::beginJob(){
   hCounter = fs->make<TH1F>("Counters","Counters",2,0,2);
 
   //Branches
-  myTree->Branch("EventNumber",&indexevents,"EventNumber/I");
-  myTree->Branch("RunNumber",&runNumber,"RunNumber/I");
-  myTree->Branch("mothers",&mothers);
-  myTree->Branch("daughters1",&daughter1);
-  myTree->Branch("daughters2",&daughter2);
-  myTree->Branch("indexMothers",&indexmot);
+  myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
+  myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
+  myTree->Branch("mothers",&_mothers);
+  myTree->Branch("daughters1",&_daughter1);
+  myTree->Branch("daughters2",&_daughter2);
+  myTree->Branch("indexMothers",&_indexmot);
 
 }
 
@@ -204,8 +204,8 @@ TString HTauTauNtuplizer::makeVarString(){
 // ------------ method called for each event  ------------
 void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
-
-  Initialize();
+  Nevt_Gen++; 
+  //Initialize();
 
   Handle<vector<reco::Vertex> >  vertexs;
   event.getByLabel("goodPrimaryVertices",vertexs);
@@ -241,8 +241,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const edm::View<reco::CompositeCandidate>* cands = candHandle.product();
 
   //myNtuple->InitializeVariables();
-  indexevents = event.id().event();
-  runNumber = event.id().run();
+  _indexevents = event.id().event();
+  _runNumber = event.id().run();
 
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
@@ -250,11 +250,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   for(edm::View<reco::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
     Npairs++;
     const reco::CompositeCandidate& cand = (*candi);
-    mothers.push_back(cand.p4());
-    daughter1.push_back(cand.daughter(0)->p4());
-    daughter2.push_back(cand.daughter(1)->p4());
+    _mothers.push_back(cand.p4());
+    _daughter1.push_back(cand.daughter(0)->p4());
+    _daughter2.push_back(cand.daughter(1)->p4());
     //We need to find a way to avoid repetitions of daughter in order to save space
-    indexmot.push_back(iMot);
+    _indexmot.push_back(iMot);
   
       /*   float fillArray[nOutVars]={
       (float)event.id().run(),
@@ -274,7 +274,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     };
     myTree->Fill(fillArray);*/
   }
-  return;
+  myTree->Fill();
+  //return;
 }
 
 void HTauTauNtuplizer::endJob(){
@@ -297,7 +298,7 @@ void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm
   }  
   if (Nevt_preskim>=0.) {
     Nevt_Gen = Nevt_Gen + Nevt_preskim; 
-  } 
+  }
 }
 
 // // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
