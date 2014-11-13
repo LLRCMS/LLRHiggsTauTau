@@ -7,7 +7,7 @@ except NameError:
     IsMC=True
 try: LEPTON_SETUP
 except NameError:
-    LEPTON_SETUP="2012"
+    LEPTON_SETUP=2012
 try: ELEREGRESSION
 except NameError:
     ELEREGRESSION="Paper"
@@ -98,7 +98,7 @@ process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
                                    fractionOfSharedSegments = cms.double(0.499))
 
 
-process.softMuons = cms.EDFilter("PATMuonRefSelector",
+process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("cleanedMu"),
     cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
                      "pt>5 && abs(eta)<2.4")
@@ -121,7 +121,20 @@ process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pic
                                    resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
                                    )
 
-process.muons =  cms.Sequence(process.cleanedMu + process.softMuons)
+process.softMuons = cms.EDProducer("MuFiller",
+    src = cms.InputTag("bareSoftMuons"),
+    sampleType = cms.int32(LEPTON_SETUP),                     
+    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+#    cut = cms.string("userFloat('SIP')<100"),
+#    cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1."),
+    cut = cms.string(""),
+    flags = cms.PSet(
+        ID = cms.string("userFloat('isPFMuon')" ), # PF ID
+        isGood = cms.string(GOODLEPTON)
+    )
+)
+
+process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process.softMuons)
     
 
 ###
@@ -162,8 +175,22 @@ process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
                     )
    )
 
+
+process.softElectrons = cms.EDProducer("EleFiller",
+   src    = cms.InputTag("bareSoftElectrons"),
+   sampleType = cms.int32(LEPTON_SETUP),          
+   setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+#    cut = cms.string("userFloat('SIP')<100"),
+#   cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
+   cut = cms.string(""),
+   flags = cms.PSet(
+        ID = cms.string("userFloat('isBDT')"), # BDT MVA ID
+        isGood = cms.string(GOODLEPTON)
+        )
+   )
+
 #process.electrons = cms.Sequence(process.eleRegressionEnergy + process.calibratedPatElectrons + process.bareSoftElectrons) #+ process.softElectrons)
-process.electrons = cms.Sequence(process.bareSoftElectrons) #+ process.softElectrons)
+process.electrons = cms.Sequence(process.bareSoftElectrons + process.softElectrons)
 
 # Handle special cases
 if ELEREGRESSION == "None" and ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
@@ -236,10 +263,22 @@ process.taus = cms.EDFilter("PATTauRefSelector",
    cut = cms.string("pt>7 && abs(eta)<2.5")
    )
 
+### ----------------------------------------------------------------------
+### Search for FSR candidates
+### ----------------------------------------------------------------------
+process.load("UFHZZAnalysisRun2.FSRPhotons.fsrPhotons_cff")
+process.appendPhotons = cms.EDProducer("LeptonPhotonMatcher",
+    muonSrc = cms.InputTag("softMuons"),
+    electronSrc = cms.InputTag("cleanSoftElectrons"),
+    photonSrc = cms.InputTag("boostedFsrPhotons"),#cms.InputTag("cmgPhotonSel"),
+    matchFSR = cms.bool(True)
+    )
+
+
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
-    src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
-#    src = cms.VInputTag(cms.InputTag("appendPhotons:muons"), cms.InputTag("appendPhotons:electrons"),cms.InputTag("taus"))
+    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
+    src = cms.VInputTag(cms.InputTag("appendPhotons:muons"), cms.InputTag("appendPhotons:electrons"),cms.InputTag("taus"))
 )
 
 #
@@ -273,8 +312,8 @@ process.PVfilter = cms.Path(process.goodPrimaryVertices)
 # Prepare lepton collections
 process.Candidates = cms.Path(
        process.muons             +
-       process.electrons         +  #process.cleanSoftElectrons +
-       #process.fsrPhotonSequence + process.appendPhotons     +#RH
+       process.electrons         + process.cleanSoftElectrons +
+       process.fsrPhotonSequence + process.appendPhotons + 
        process.taus              +
        process.softLeptons       + process.barellCand +
        process.jets              #+

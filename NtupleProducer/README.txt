@@ -22,6 +22,9 @@ git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma
 #MuScleFit: probably tbf
 #git clone https://github.com/scasasso/usercode MuScleFit
 
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+(cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons)
+
 Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
 
