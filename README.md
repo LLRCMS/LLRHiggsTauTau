@@ -8,6 +8,7 @@ Modules and plugins are called by python/HiggsTauTauProducer.py
 The stored variables are set in plugins/HTauTauNtupleMaker.cc
 
 Instruction to get and run the package:
+
 git clone https://github.com/LLRCMS/LLRHiggsTauTau.py 
 (cd LLRHiggsTauTau; git checkout master)
 
@@ -16,6 +17,9 @@ git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Mu
 
 git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
 (cd EGamma/EGammaAnalysisTools; git checkout c0db796 -- interface/ElectronEffectiveArea.h) 
+
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+(cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons)
 
 Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
