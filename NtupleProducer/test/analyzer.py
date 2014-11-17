@@ -9,7 +9,16 @@ PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 #samples list (it could be moved to a cfg file for better reading
 #samples = [
 #]
+#apply corrections?
 APPLYMUCORR=False
+APPLYELECORR=True
+APPLYFSR=True #this is by far the slowest module (not counting SVFit so far)
+#Cuts on the Objects (add more cuts with &&)
+MUCUT="(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) && abs(eta)<2.4 && pt>8"
+ELECUT="abs(eta)<2.5 && gsfTrack.trackerExpectedHitsInner.numberOfHits<=1 && pt>10"
+TAUCUT="pt>15"
+JETCUT="pt>15"
+LLCUT="mass>2"
 ##
 ## Standard sequence
 ##

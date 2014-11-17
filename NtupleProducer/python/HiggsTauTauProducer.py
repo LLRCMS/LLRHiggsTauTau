@@ -14,12 +14,6 @@ except NameError:
 try: ELECORRTYPE
 except NameError:
     ELECORRTYPE="Paper"
-try:
-    GOODLEPTON
-except NameError:
-    GOODLEPTON = "mass>0"
-print GOODLEPTON
-
 
 ### ----------------------------------------------------------------------
 ### Set the GT
@@ -100,8 +94,7 @@ process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("cleanedMu"),
-    cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
-                     "pt>5 && abs(eta)<2.4")
+    cut = cms.string(MUCUT)
 #    Lowering pT cuts
 #    cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
 #                     "pt>3 && p>3.5 && abs(eta)<2.4")
@@ -130,7 +123,7 @@ process.softMuons = cms.EDProducer("MuFiller",
     cut = cms.string(""),
     flags = cms.PSet(
         ID = cms.string("userFloat('isPFMuon')" ), # PF ID
-        isGood = cms.string(GOODLEPTON)
+        isGood = cms.string(MUCUT)
     )
 )
 
@@ -170,9 +163,7 @@ process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process
 
 process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
    src = cms.InputTag("slimmedElectrons"),#"calibratedPatElectrons"),
-   cut = cms.string("pt>7 && abs(eta)<2.5 &&" +
-                    "gsfTrack.trackerExpectedHitsInner.numberOfHits<=1"
-                    )
+   cut = cms.string(ELECUT)
    )
 
 
@@ -185,7 +176,7 @@ process.softElectrons = cms.EDProducer("EleFiller",
    cut = cms.string(""),
    flags = cms.PSet(
         ID = cms.string("userFloat('isBDT')"), # BDT MVA ID
-        isGood = cms.string(GOODLEPTON)
+        isGood = cms.string("")
         )
    )
 
@@ -260,7 +251,7 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ##
 process.taus = cms.EDFilter("PATTauRefSelector",
    src = cms.InputTag("slimmedTaus"),
-   cut = cms.string("pt>7 && abs(eta)<2.5")
+   cut = cms.string(TAUCUT)
    )
 
 ### ----------------------------------------------------------------------
@@ -274,11 +265,17 @@ process.appendPhotons = cms.EDProducer("LeptonPhotonMatcher",
     matchFSR = cms.bool(True)
     )
 
-
+process.fsrSequence = cms.Sequence(process.fsrPhotonSequence + process.appendPhotons)
+muString = "appendPhotons:muons"
+eleString = "appendPhotons:electrons"
+if not APPLYFSR : 
+    process.fsrSequence = cms.Sequence()
+    muString = "softMuons"
+    eleString = "softElectrons"
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
     #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
-    src = cms.VInputTag(cms.InputTag("appendPhotons:muons"), cms.InputTag("appendPhotons:electrons"),cms.InputTag("taus"))
+    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag("taus"))
 )
 
 #
@@ -286,14 +283,14 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 #
 process.jets = cms.EDFilter("PATJetRefSelector",
                            src = cms.InputTag("slimmedJets"),
-                           cut = cms.string("pt>10")
+                           cut = cms.string(JETCUT)
 )
 ##
 ## Build ll candidates (here OS)
 ##
 process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     decay = cms.string("softLeptons@+ softLeptons@-"),
-                                    cut = cms.string("mass > 0"),
+                                    cut = cms.string(LLCUT),
                                     checkCharge = cms.bool(True)
 )
 
@@ -311,15 +308,15 @@ process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
 # Prepare lepton collections
 process.Candidates = cms.Path(
-       process.muons             +
-       process.electrons         + process.cleanSoftElectrons +
-       process.fsrPhotonSequence + process.appendPhotons + 
-       process.taus              +
-       process.softLeptons       + process.barellCand +
-       process.jets              #+
-# Build dilepton candidates
-       #process.SVllCand
-  )
+    process.muons             +
+    process.electrons         + process.cleanSoftElectrons +
+    process.taus              +
+    process.fsrSequence       +
+    process.softLeptons       + process.barellCand +
+    process.jets              #+
+    # Build dilepton candidates
+    #process.SVllCand
+    )
 
 SkimPaths = cms.vstring('PVfilter') #Do not apply skim 
 
