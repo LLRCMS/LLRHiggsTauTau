@@ -19,6 +19,9 @@ ELECUT="abs(eta)<2.5 && gsfTrack.trackerExpectedHitsInner.numberOfHits<=1 && pt>
 TAUCUT="pt>15"
 JETCUT="pt>15"
 LLCUT="mass>2"
+#Samples:
+IsMC=True
+
 ##
 ## Standard sequence
 ##
@@ -57,7 +60,8 @@ process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnal
 TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
                       CandCollection = cms.untracked.string("barellCand"),
                       fileName = cms.untracked.string ("CosaACaso"),
-                      skipEmptyEvents = cms.bool(True)
+                      skipEmptyEvents = cms.bool(True),
+                      applyFSR = cms.bool(APPLYFSR)
                       )
 
 process.HTauTauTree = TreeSetup.clone()

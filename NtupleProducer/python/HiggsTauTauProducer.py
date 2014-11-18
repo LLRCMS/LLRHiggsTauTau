@@ -14,12 +14,17 @@ except NameError:
 try: ELECORRTYPE
 except NameError:
     ELECORRTYPE="Paper"
-
+try: APPLYFSR
+except NameError:
+    APPLYFSR=False
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'PLS170_V6AN1::All'#'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
+if IsMC:
+    process.GlobalTag.globaltag = 'PLS170_V6AN1::All'#'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
+else :
+    process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
 print process.GlobalTag.globaltag
 
 ### ----------------------------------------------------------------------
@@ -277,6 +282,7 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
     #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
     src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag("taus"))
 )
+#print: "lepton collection built"
 
 #
 #Jets

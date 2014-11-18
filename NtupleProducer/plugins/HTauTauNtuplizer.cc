@@ -50,7 +50,7 @@
 
 #include <LLRHiggsTauTau/NtupleProducer/interface/CutSet.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
-//#include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
+#include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 //#include <LLRHiggsTauTau/NtupleProducer/interface/FinalStates.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/MCHistoryTools.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/PUReweight.h>
@@ -59,12 +59,14 @@
 //#include <LLRHiggsTauTau/NtupleProducer/interface/Fisher.h>
 //#include <LLRHiggsTauTau/NtupleProducer/interface/HTauTauConfigHelper.h>
 //#include "HZZ4lNtupleFactory.h"
+#include <LLRHiggsTauTau/NtupleProducer/interface/PhotonFwd.h>
 
 #include "TLorentzVector.h"
 
 // namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
 //   bool writeJets = true;     // Write jets in the tree. 
+//   bool writeVetoLep = true;
 // }
 namespace{
   bool DEBUG = false;
@@ -75,7 +77,6 @@ using namespace edm;
 using namespace reco;
 
 // class declaration
-
 
 class HTauTauNtuplizer : public edm::EDAnalyzer {
  public:
@@ -101,13 +102,14 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
-  //virtual void FillJet(const cmg::PFJet& jet);
+  //virtual void FillJet(const pat::PFJet& jet);
 
   // ----------member data ---------------------------
   //HTauTauConfigHelper myHelper;
   int theChannel;
   std::string theCandLabel;
   TString theFileName;
+  bool theFSR;
 
   //Output Objects
   TTree *myTree;//->See from ntuplefactory in zz4l
@@ -143,6 +145,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
   //theChannel = myHelper.channel();
   theFileName = pset.getUntrackedParameter<string>("fileName");
   skipEmptyEvents = pset.getParameter<bool>("skipEmptyEvents");
+  theFSR = pset.getParameter<bool>("applyFSR");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
@@ -245,8 +248,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   if(DEBUG)printf("===New Event===\n");
   for(edm::View<reco::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
     Npairs++;
-    const reco::CompositeCandidate& cand = (*candi);
-    _mothers.push_back(cand.p4());
+    const reco::CompositeCandidate& cand = (*candi); 
+    math::XYZTLorentzVector candp4 = cand.p4();
     _pdgmot.push_back(cand.pdgId());
 
     //if(DEBUG){
@@ -260,6 +263,61 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       int index=-1;
       //int index=FindCandIndex(cand,iCand);
       const reco::Candidate *daughter = cand.daughter(iCand);
+
+      math::XYZTLorentzVector pfour = daughter->p4();
+      if(theFSR){
+	const pat::PFParticle* fsr=0;
+	double maxPT=-1;
+	const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(daughter);
+	if (gammas!=0) {
+	  for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
+	    //const pat::Photon* gamma = g->get();
+	    const pat::PFParticle* gamma = g->get();
+	    double pt = gamma->pt();
+	    if (pt>maxPT) {
+	      maxPT  = pt;
+	      fsr = gamma;
+	    }
+	  }
+	}
+	
+	//cand.addUserFloat("dauWithFSR",lepWithFsr); // Index of the cand daughter with associated FSR photon
+
+	if (fsr!=0) {
+	  // Add daughter and set p4.
+	  candp4+=fsr->p4();
+	  pfour+=fsr->p4();
+	  //      myCand.addDaughter(reco::ShallowCloneCandidate(fsr->masterClone()),"FSR"); //FIXME: fsr does not have a masterClone
+	  //pat::PFParticle myFsr(fsr);
+	  //myFsr.setPdgId(22); // Fix: photons that are isFromMu have abs(pdgId)=13!!!
+	  //cand.addDaughter(myFsr,"FSR");
+	  /*
+	  // Recompute iso for leptons with FSR    
+	  const Candidate* d = cand.daughter(iCand);
+	  float fsrCorr = 0; // The correction to PFPhotonIso
+	  if (!fsr->isFromMuon()) { // Type 1 photons should be subtracted from muon iso cones
+	    double dR = ROOT::Math::VectorUtil::DeltaR(fsr->momentum(),d->momentum());
+	    if (dR<0.4 && ((d->isMuon() && dR > 0.01) ||
+			   (d->isElectron() && (fabs((static_cast<const pat::Electron*>(d->masterClone().get()))->superCluster()->eta()) < 1.479 || dR > 0.08)))) {
+	      fsrCorr = fsr->pt();
+	    }
+	  }
+
+	  float rho = ((d->isMuon())?rhoForMu:rhoForEle);
+	  float combRelIsoPFCorr =  LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, d, fsrCorr);
+	  
+	  string base;
+	  stringstream str;
+	  str << "d" << iCand << ".";
+	  str >> base;	  
+	  cand.addUserFloat(base+"combRelIsoPFFSRCorr",combRelIsoPFCorr);
+	  */
+	}
+
+	//daughter->setP4(daughter->p4()+fsr->p4());
+      }
+
+      _mothers.push_back(candp4);
       for(Int_t iLeptons=0;iLeptons<nDaughters;iLeptons++){
 	if(daughter==daughterPoint[iLeptons]){
 	  index = iLeptons;
@@ -272,8 +330,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       }else {//new lepton
 	daughterPoint[nDaughters]=daughter;
 	nDaughters++;
-	_daughters.push_back(cand.daughter(iCand)->p4());
-	_pdgdau.push_back(cand.daughter(iCand)->pdgId());
+	_daughters.push_back(pfour);
+	_pdgdau.push_back(daughter->pdgId());
 	if(iCand==0)_indexDau1.push_back(_daughters.size()-1);
 	else _indexDau2.push_back(_daughters.size()-1);
       }
