@@ -51,7 +51,7 @@ print "Trigger part"
 process.hltFilterDiMu = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 process.hltFilterDiMu.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 process.hltFilterDiMu.throw = cms.bool(False) #FIXME: beware of this!
-process.hltFilterDiMu.HLTPaths = ["HLT_*"] #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012
+process.hltFilterDiMu.HLTPaths = ["HLT_*"] #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012 # "HLT_*" is a empty path
 process.triggerDiMu = cms.Path(process.hltFilterDiMu)
 # !!!!!!!!!!!!
 
@@ -304,8 +304,8 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 ##
 ## SV fit
 ##
-#process.SVllCand = cms.EDProducer("SVfitter",
-#                                  src = cms.InputTag("barellCand"))
+process.SVllCand = cms.EDProducer("SVfitInterface",
+                                  src = cms.InputTag("barellCand"))
 
 ##
 ## Paths
@@ -319,9 +319,9 @@ process.Candidates = cms.Path(
     process.taus              +
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-    process.jets              #+
+    process.jets              +
     # Build dilepton candidates
-    #process.SVllCand
+    process.SVllCand
     )
 
 SkimPaths = cms.vstring('PVfilter') #Do not apply skim 
