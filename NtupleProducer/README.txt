@@ -25,6 +25,9 @@ git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 (cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons)
 
+# SVfit standalone algorithm
+git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+
 Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
 
