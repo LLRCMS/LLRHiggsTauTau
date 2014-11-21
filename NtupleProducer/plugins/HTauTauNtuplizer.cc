@@ -98,7 +98,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //void InitializeBranches();
   //void InitializeVariables();
   void Initialize(); 
-  Int_t FindCandIndex(const reco::Candidate&, int);
+  Int_t FindCandIndex(const reco::Candidate&, Int_t iCand);
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
@@ -130,6 +130,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Output variables
   std::vector<math::XYZTLorentzVector> _mothers;
   std::vector<math::XYZTLorentzVector> _daughters;
+  std::vector<const reco::Candidate*> _softLeptons;
   //std::vector<math::XYZTLorentzVector> _daughter2;
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
@@ -161,6 +162,7 @@ void HTauTauNtuplizer::Initialize(){
   _mothers.clear();
   _daughters.clear();
   //_daughter2.clear();
+  _softLeptons.clear();
   _indexDau1.clear();
   _indexDau2.clear();
   _pdgmot.clear();
@@ -184,13 +186,14 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("PDGIdDaughters",&_pdgdau);
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
-
+  //myTree->Branch("softLeptons",&_softLeptons);
 }
 
-Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand, int iCand=0){
+Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0){
   const reco::Candidate *daughter = cand.daughter(iCand);
-  for(UInt_t iLeptons=0;iLeptons<_daughters.size();iLeptons++){
-    if(daughter==0){//_daughters.at(iLeptons)){
+  for(UInt_t iLeptons=0;iLeptons<_softLeptons.size();iLeptons++){
+	//if(daughter==daughterPoint[iLeptons]){
+    if(daughter==_softLeptons.at(iLeptons)){
       return iLeptons;
     }
   }
@@ -233,19 +236,52 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //event.getByLabel("barellCand",candHandle);
   //const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
   edm::Handle<edm::View<reco::CompositeCandidate>>candHandle;
+  edm::Handle<edm::View<reco::Candidate>>dauHandle;
   event.getByLabel("barellCand",candHandle);
+  event.getByLabel("softLeptons",dauHandle);
   const edm::View<reco::CompositeCandidate>* cands = candHandle.product();
+  const edm::View<reco::Candidate>* daus = dauHandle.product();
 
   //myNtuple->InitializeVariables();
   _indexevents = event.id().event();
   _runNumber = event.id().run();
-  Int_t nCands = cands->size()*2;
-  const reco::Candidate *daughterPoint[nCands];
+  //Int_t nCands = daus->size()*2;
+  //const reco::Candidate *daughterPoint[nCands];
 
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
   int nDaughters=0;
   if(DEBUG)printf("===New Event===\n");
+  //Loop of softleptons and fill them
+  for(edm::View<reco::Candidate>::const_iterator daui = daus->begin(); daui!=daus->end();++daui){
+    const reco::Candidate* cand = &(*daui);
+    math::XYZTLorentzVector pfour = cand->p4();
+    if(theFSR){
+      const pat::PFParticle* fsr=0;
+      double maxPT=-1;
+      const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(cand);
+      if (gammas!=0) {
+	for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
+	  //const pat::Photon* gamma = g->get();
+	  const pat::PFParticle* gamma = g->get();
+	  double pt = gamma->pt();
+	  if (pt>maxPT) {
+	    maxPT  = pt;
+	    fsr = gamma;
+	  }
+	}
+      }
+      
+      if (fsr!=0) {
+	pfour+=fsr->p4();
+      }
+    } 
+    _daughters.push_back(pfour);
+    _softLeptons.push_back(cand);
+    _pdgdau.push_back(cand->pdgId());
+  }
+
+  //Loop on pairs
   for(edm::View<reco::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
     Npairs++;
     const reco::CompositeCandidate& cand = (*candi); 
@@ -260,11 +296,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     //We need to find a way to avoid repetitions of daughter in order to save space
     //It would be nice to move this into a separate function (FindCandIndex)
     for(int iCand=0;iCand<2;iCand++){
-      int index=-1;
-      //int index=FindCandIndex(cand,iCand);
+      //int index=-1;
+      int index=FindCandIndex(cand,iCand);
       const reco::Candidate *daughter = cand.daughter(iCand);
-
-      math::XYZTLorentzVector pfour = daughter->p4();
       if(theFSR){
 	const pat::PFParticle* fsr=0;
 	double maxPT=-1;
@@ -286,7 +320,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 	if (fsr!=0) {
 	  // Add daughter and set p4.
 	  candp4+=fsr->p4();
-	  pfour+=fsr->p4();
+	  //pfour+=fsr->p4();
 	  //      myCand.addDaughter(reco::ShallowCloneCandidate(fsr->masterClone()),"FSR"); //FIXME: fsr does not have a masterClone
 	  //pat::PFParticle myFsr(fsr);
 	  //myFsr.setPdgId(22); // Fix: photons that are isFromMu have abs(pdgId)=13!!!
@@ -317,25 +351,19 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 	//daughter->setP4(daughter->p4()+fsr->p4());
       }
 
-      _mothers.push_back(candp4);
-      for(Int_t iLeptons=0;iLeptons<nDaughters;iLeptons++){
-	if(daughter==daughterPoint[iLeptons]){
-	  index = iLeptons;
-	  break;
-	}
-      }
       if(index>=0){//Daughter already in the list!
 	if(iCand==0)_indexDau1.push_back(index);
 	else _indexDau2.push_back(index);	
       }else {//new lepton
-	daughterPoint[nDaughters]=daughter;
+	//daughterPoint[nDaughters]=daughter;
 	nDaughters++;
-	_daughters.push_back(pfour);
-	_pdgdau.push_back(daughter->pdgId());
+	//_daughters.push_back(pfour);
+	//_pdgdau.push_back(daughter->pdgId());
 	if(iCand==0)_indexDau1.push_back(_daughters.size()-1);
 	else _indexDau2.push_back(_daughters.size()-1);
       }
     }
+    _mothers.push_back(candp4);
   
       /*   float fillArray[nOutVars]={
       (float)event.id().run(),
