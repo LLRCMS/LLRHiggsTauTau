@@ -61,6 +61,7 @@
 //#include <LLRHiggsTauTau/NtupleProducer/interface/HTauTauConfigHelper.h>
 //#include "HZZ4lNtupleFactory.h"
 #include <LLRHiggsTauTau/NtupleProducer/interface/PhotonFwd.h>
+#include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
 
 #include "TLorentzVector.h"
 
@@ -132,6 +133,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Output variables
   Int_t _indexevents;
   Int_t _runNumber;
+  Int_t _triggerbit;
 
   std::vector<math::XYZTLorentzVector> _mothers;
   std::vector<math::XYZTLorentzVector> _daughters;
@@ -177,6 +179,7 @@ void HTauTauNtuplizer::Initialize(){
   _pdgdau.clear();
   _indexevents=0;
   _runNumber=0;
+  _triggerbit=0;
   _jets.clear();
   _numberOfJets=0;
   _bdiscr.clear();
@@ -191,6 +194,7 @@ void HTauTauNtuplizer::beginJob(){
   //Branches
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
+  myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
   myTree->Branch("mothers",&_mothers);
   myTree->Branch("daughters",&_daughters);
   //myTree->Branch("daughters2",&_daughter2);
@@ -260,6 +264,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //myNtuple->InitializeVariables();
   _indexevents = event.id().event();
   _runNumber = event.id().run();
+  triggerhelper myTriggerHelper;
+  _triggerbit = myTriggerHelper.FindTriggerBit(event);
   //Int_t nCands = daus->size()*2;
   //const reco::Candidate *daughterPoint[nCands];
 
