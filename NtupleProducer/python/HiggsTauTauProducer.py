@@ -319,9 +319,9 @@ process.Candidates = cms.Path(
     process.taus              +
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-    process.jets              +
+    process.jets              
     # Build dilepton candidates
-    process.SVllCand
+    + process.SVllCand
     )
 
 SkimPaths = cms.vstring('PVfilter') #Do not apply skim 

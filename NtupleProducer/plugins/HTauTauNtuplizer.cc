@@ -30,6 +30,7 @@
 
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/PatCandidates/interface/Muon.h>
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include <DataFormats/Common/interface/View.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
@@ -63,11 +64,11 @@
 
 #include "TLorentzVector.h"
 
-// namespace {
+ namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
-//   bool writeJets = true;     // Write jets in the tree. 
-//   bool writeVetoLep = true;
-// }
+   bool writeJets = true;     // Write jets in the tree. 
+   //   bool writeSoftLep = true;
+ }
 namespace{
   bool DEBUG = false;
 }
@@ -102,7 +103,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
-  //virtual void FillJet(const pat::PFJet& jet);
+  int FillJet(const edm::View<pat::Jet>* jet);
+  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, bool theFSR);
 
   // ----------member data ---------------------------
   //HTauTauConfigHelper myHelper;
@@ -128,6 +130,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t Npairs;
 
   //Output variables
+  Int_t _indexevents;
+  Int_t _runNumber;
+
   std::vector<math::XYZTLorentzVector> _mothers;
   std::vector<math::XYZTLorentzVector> _daughters;
   std::vector<const reco::Candidate*> _softLeptons;
@@ -136,8 +141,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _indexDau2;
   std::vector<Int_t> _pdgmot;
   std::vector<Int_t> _pdgdau;
-  Int_t _indexevents;
-  Int_t _runNumber;
+
+  Int_t _numberOfJets;
+  std::vector<math::XYZTLorentzVector> _jets;
+  std::vector<Float_t> _bdiscr;
 };
 
 // ----Constructor and Desctructor -----
@@ -169,6 +176,9 @@ void HTauTauNtuplizer::Initialize(){
   _pdgdau.clear();
   _indexevents=0;
   _runNumber=0;
+  _jets.clear();
+  _numberOfJets=0;
+  _bdiscr.clear();
 }
 
 void HTauTauNtuplizer::beginJob(){
@@ -187,6 +197,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
   //myTree->Branch("softLeptons",&_softLeptons);
+  myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
+  myTree->Branch("jets",&_jets);
+  myTree->Branch("bDiscriminator",&_bdiscr);
 }
 
 Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0){
@@ -230,17 +243,16 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //   }
   // }
 
-
   //Get candidate collection
-  //edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
-  //event.getByLabel("barellCand",candHandle);
-  //const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
   edm::Handle<edm::View<reco::CompositeCandidate>>candHandle;
   edm::Handle<edm::View<reco::Candidate>>dauHandle;
+  edm::Handle<edm::View<pat::Jet>>jetHandle;
   event.getByLabel("barellCand",candHandle);
+  event.getByLabel("jets",jetHandle);
   event.getByLabel("softLeptons",dauHandle);
   const edm::View<reco::CompositeCandidate>* cands = candHandle.product();
   const edm::View<reco::Candidate>* daus = dauHandle.product();
+  const edm::View<pat::Jet>* jets = jetHandle.product();
 
   //myNtuple->InitializeVariables();
   _indexevents = event.id().event();
@@ -253,33 +265,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   int nDaughters=0;
   if(DEBUG)printf("===New Event===\n");
   //Loop of softleptons and fill them
-  for(edm::View<reco::Candidate>::const_iterator daui = daus->begin(); daui!=daus->end();++daui){
-    const reco::Candidate* cand = &(*daui);
-    math::XYZTLorentzVector pfour = cand->p4();
-    if(theFSR){
-      const pat::PFParticle* fsr=0;
-      double maxPT=-1;
-      const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(cand);
-      if (gammas!=0) {
-	for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
-	  //const pat::Photon* gamma = g->get();
-	  const pat::PFParticle* gamma = g->get();
-	  double pt = gamma->pt();
-	  if (pt>maxPT) {
-	    maxPT  = pt;
-	    fsr = gamma;
-	  }
-	}
-      }
-      
-      if (fsr!=0) {
-	pfour+=fsr->p4();
-      }
-    } 
-    _daughters.push_back(pfour);
-    _softLeptons.push_back(cand);
-    _pdgdau.push_back(cand->pdgId());
-  }
+  FillSoftLeptons(daus,theFSR);
+
+  //Loop on Jets
+  _numberOfJets = 0;
+  if(writeJets)_numberOfJets = FillJet(jets);
 
   //Loop on pairs
   for(edm::View<reco::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
@@ -387,6 +377,49 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   myTree->Fill();
   //return;
 }
+
+//Fill jets quantities
+int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
+  int nJets=0;
+  for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
+    nJets++;
+    _jets.push_back(ijet->p4());
+    _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
+  }
+  return nJets;
+}
+
+//Fill all leptons (we keep them all for veto purposes
+void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, bool theFSR){
+  for(edm::View<reco::Candidate>::const_iterator daui = daus->begin(); daui!=daus->end();++daui){
+    const reco::Candidate* cand = &(*daui);
+    math::XYZTLorentzVector pfour = cand->p4();
+    if(theFSR){
+      const pat::PFParticle* fsr=0;
+      double maxPT=-1;
+      const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(cand);
+      if (gammas!=0) {
+	for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
+	  //const pat::Photon* gamma = g->get();
+	  const pat::PFParticle* gamma = g->get();
+	  double pt = gamma->pt();
+	  if (pt>maxPT) {
+	    maxPT  = pt;
+	    fsr = gamma;
+	  }
+	}
+      }
+      
+      if (fsr!=0) {
+	pfour+=fsr->p4();
+      }
+    } 
+    _daughters.push_back(pfour);
+    _softLeptons.push_back(cand);
+    _pdgdau.push_back(cand->pdgId());
+  }
+}
+
 
 void HTauTauNtuplizer::endJob(){
   hCounter->SetBinContent(1,Nevt_Gen);
