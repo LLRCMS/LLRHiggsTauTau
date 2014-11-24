@@ -8,6 +8,7 @@
  *  \author S. Bolognesi (JHU)
  *  \author C. Botta (CERN)
  *  \author S. Casasso (Torino)
+ *  \author G. Ortona (LLR)
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -139,7 +140,7 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			       (fSCeta >= 1.479               && BDT > 0.6)));
     
 	//-- Missing hit  
-	int missingHit = l.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+	int missingHit = l.gsfTrack()->numberOfLostHits();
     //--- Trigger matching
     int HLTMatch = 0; //FIXME
     
