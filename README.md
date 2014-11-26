@@ -9,7 +9,7 @@ The stored variables are set in plugins/HTauTauNtupleMaker.cc
 
 Instruction to get and run the package:
 
-git clone https://github.com/LLRCMS/LLRHiggsTauTau.py 
+git clone https://github.com/LLRCMS/LLRHiggsTauTau
 (cd LLRHiggsTauTau; git checkout master)
 
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
