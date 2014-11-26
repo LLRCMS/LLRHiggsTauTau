@@ -9,6 +9,10 @@ The stored variables are set in plugins/HTauTauNtupleMaker.cc
 
 Instruction to get and run the package:
 
+#to be done if using CMSSW 7_2_X version:
+git cms-addpkg PhysicsTools/PatAlgos
+git-cms-merge-topic -u cms-met:72X-MVANoPUMet-20140718
+
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 (cd LLRHiggsTauTau; git checkout master)
 
