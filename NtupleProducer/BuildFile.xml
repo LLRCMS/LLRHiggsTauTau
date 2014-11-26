@@ -9,7 +9,7 @@
 <use name="RecoVertex/KinematicFit"/>
 <use name="root"/>
 <use name="roofit"/>
-
+<use name="HLTrigger/HLTcore"/>
 
 <use name="CLHEP"/>
 

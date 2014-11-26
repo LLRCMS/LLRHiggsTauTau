@@ -28,7 +28,6 @@
 #include <FWCore/Common/interface/TriggerNames.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -43,6 +42,11 @@
 #include <DataFormats/Math/interface/LorentzVector.h>
 #include <DataFormats/VertexReco/interface/Vertex.h>
 #include <DataFormats/Common/interface/MergeableCounter.h>
+
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include <CommonTools/UtilAlgos/interface/TFileService.h>
@@ -69,10 +73,8 @@
 //   bool writePhotons = false;  // Write photons in the tree. 
    bool writeJets = true;     // Write jets in the tree. 
    //   bool writeSoftLep = true;
+   bool DEBUG = false;
  }
-namespace{
-  bool DEBUG = false;
-}
 
 using namespace std;
 using namespace edm;
@@ -108,12 +110,19 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, bool theFSR);
 
   // ----------member data ---------------------------
-  //HTauTauConfigHelper myHelper;
+  //Configs
   int theChannel;
   std::string theCandLabel;
   TString theFileName;
   bool theFSR;
 
+  //Trigger
+  //vector<int> indexOfPath;
+  vector<string> foundPaths;
+  //Int_t nFoundPaths;
+  //edm::InputTag triggerResultsLabel;
+  string processName;
+  HLTConfigProvider hltConfig_;
   //Output Objects
   TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
@@ -161,7 +170,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
   Npairs=0;
-
+  //triggerResultsLabel = InputTag("TriggerResults","","HLT");
+  processName="hltFilterDiMu";
   Initialize();
 }
 
@@ -265,7 +275,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _indexevents = event.id().event();
   _runNumber = event.id().run();
   triggerhelper myTriggerHelper;
-  _triggerbit = myTriggerHelper.FindTriggerBit(event);
+  _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths);
+
   //Int_t nCands = daus->size()*2;
   //const reco::Candidate *daughterPoint[nCands];
 
@@ -436,7 +447,31 @@ void HTauTauNtuplizer::endJob(){
   hCounter->SetBinContent(2,Npairs);
 }
 
-void HTauTauNtuplizer::beginRun(edm::Run const&, edm::EventSetup const&){
+void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
+
+  Bool_t changedConfig = false;
+ 
+  //if(!hltConfig_.init(iRun, iSetup, triggerResultsLabel.process(), changedConfig)){
+  if(!hltConfig_.init(iRun, iSetup, processName, changedConfig)){
+    edm::LogError("HLTMatchingFilter") << "Initialization of HLTConfigProvider failed!!"; 
+    return;
+  }  
+
+  if(changedConfig || foundPaths.size()==0){
+    //cout<<"The present menu is "<<hltConfig.tableName()<<endl;
+    //indexOfPath.clear();
+    foundPaths.clear();
+    //for(size_t i=0; i<triggerPaths.size(); i++){
+    // bool foundThisPath = false;
+    for(size_t j=0; j<hltConfig_.triggerNames().size(); j++){
+      string pathName = hltConfig_.triggerNames()[j];
+      //if(pathName==triggerPaths[i]){
+      //foundThisPath = true;
+      //indexOfPath.push_back(j);
+      foundPaths.push_back(pathName);
+	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
+    } 
+  }
 }
 void HTauTauNtuplizer::endRun(edm::Run const&, edm::EventSetup const&){
 }
