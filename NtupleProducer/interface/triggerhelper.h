@@ -23,7 +23,7 @@ using namespace std;
 class triggerhelper {
  public:
   triggerhelper();
-  int FindTriggerBit(const edm::Event&, const vector<string>);
+  int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
   bool IsTriggerFired(int triggerbit){return 0;}
   int printFiredPaths(){return 0;}
   bool checkIfPathIsFired(TString path){return 0;}

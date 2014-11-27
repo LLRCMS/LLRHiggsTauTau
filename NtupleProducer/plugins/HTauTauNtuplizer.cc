@@ -117,7 +117,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   bool theFSR;
 
   //Trigger
-  //vector<int> indexOfPath;
+  vector<int> indexOfPath;
   vector<string> foundPaths;
   //Int_t nFoundPaths;
   //edm::InputTag triggerResultsLabel;
@@ -275,7 +275,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _indexevents = event.id().event();
   _runNumber = event.id().run();
   triggerhelper myTriggerHelper;
-  _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths);
+  _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
 
   //Int_t nCands = daus->size()*2;
   //const reco::Candidate *daughterPoint[nCands];
@@ -459,7 +459,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 
   if(changedConfig || foundPaths.size()==0){
     //cout<<"The present menu is "<<hltConfig.tableName()<<endl;
-    //indexOfPath.clear();
+    indexOfPath.clear();
     foundPaths.clear();
     //for(size_t i=0; i<triggerPaths.size(); i++){
     // bool foundThisPath = false;
@@ -467,7 +467,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       string pathName = hltConfig_.triggerNames()[j];
       //if(pathName==triggerPaths[i]){
       //foundThisPath = true;
-      //indexOfPath.push_back(j);
+      indexOfPath.push_back(j);
       foundPaths.push_back(pathName);
 	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
     } 

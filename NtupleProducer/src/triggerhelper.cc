@@ -42,12 +42,12 @@ triggerhelper::triggerhelper(){
   for(int i=0;i<nTriggers;i++)triggerlist[i]=tmptrigger[i];
 }
 
-int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths){
+int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
   
   int bit =0;
   
-  //edm::Handle<edm::TriggerResults> triggerResults;
-  //event.getByLabel(InputTag("TriggerResults"), triggerResults);
+  edm::Handle<edm::TriggerResults> triggerResults;
+  event.getByLabel(InputTag("TriggerResults","","HLT"), triggerResults);
   
   // for(int it=0;it<nTriggers;it++){
   //   for(int j=0;j<(int)triggerNames->size();j++)cout<<triggerNames->triggerName(j)<<endl;
@@ -62,7 +62,9 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
     //for(int j=0;j<(int)foundPaths.size();j++){
     for(int j=0;j<(int)foundPaths.size();j++){
       if(triggerlist[it].Data()==foundPaths.at(j)){
-	bit |= 1 <<it;
+	if(triggerResults->accept(indexOfPaths[j])){
+	  bit |= 1 <<it;
+	}
 	break;
       }
     }
