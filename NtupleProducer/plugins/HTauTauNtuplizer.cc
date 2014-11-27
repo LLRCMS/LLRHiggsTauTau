@@ -121,7 +121,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   vector<string> foundPaths;
   //Int_t nFoundPaths;
   //edm::InputTag triggerResultsLabel;
-  string processName;
+  edm::InputTag processName;
   HLTConfigProvider hltConfig_;
   //Output Objects
   TTree *myTree;//->See from ntuplefactory in zz4l
@@ -171,7 +171,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
   Nevt_Gen=0;
   Npairs=0;
   //triggerResultsLabel = InputTag("TriggerResults","","HLT");
-  processName="hltFilterDiMu";
+  processName= pset.getParameter<edm::InputTag>("triggerResultsLabel");
   Initialize();
 }
 
@@ -448,11 +448,11 @@ void HTauTauNtuplizer::endJob(){
 }
 
 void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
-
+  /*
   Bool_t changedConfig = false;
  
   //if(!hltConfig_.init(iRun, iSetup, triggerResultsLabel.process(), changedConfig)){
-  if(!hltConfig_.init(iRun, iSetup, processName, changedConfig)){
+  if(!hltConfig_.init(iRun, iSetup, processName.process(), changedConfig)){
     edm::LogError("HLTMatchingFilter") << "Initialization of HLTConfigProvider failed!!"; 
     return;
   }  
@@ -472,6 +472,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
     } 
   }
+  */
 }
 void HTauTauNtuplizer::endRun(edm::Run const&, edm::EventSetup const&){
 }

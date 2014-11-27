@@ -39,7 +39,10 @@ triggerhelper::triggerhelper(){
     "Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20",
     "Ele27_eta2p1_WP85_Gsf"
   };
-  for(int i=0;i<nTriggers;i++)triggerlist[i]=tmptrigger[i];
+  for(int i=0;i<nTriggers;i++){
+    triggerlist[i]=tmptrigger[i];
+    triggerlist[i].Prepend("HLT_");
+  }
 }
 
 int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
@@ -69,5 +72,6 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
       }
     }
   }
+  //printf("bit: %d\n",bit);
   return bit;
 }
