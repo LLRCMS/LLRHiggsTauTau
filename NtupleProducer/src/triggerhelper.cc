@@ -12,6 +12,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Framework/interface/TriggerNamesService.h>
 
 using namespace std;
 using namespace edm;
@@ -38,29 +39,39 @@ triggerhelper::triggerhelper(){
     "Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20",
     "Ele27_eta2p1_WP85_Gsf"
   };
-  for(int i=0;i<19;i++)triggerlist[i]=tmptrigger[i];
+  for(int i=0;i<nTriggers;i++){
+    triggerlist[i]=tmptrigger[i];
+    triggerlist[i].Prepend("HLT_");
+  }
 }
 
-int triggerhelper::FindTriggerBit(const edm::Event& event){
+int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
+  
   int bit =0;
-
+  
   edm::Handle<edm::TriggerResults> triggerResults;
-  const edm::TriggerNames* triggerNames;
-
-  event.getByLabel(InputTag("TriggerResults"), triggerResults);
-  triggerNames = &(event.triggerNames(*triggerResults));
-  //from this I'm getting the paths, not the triggers :(
-
-
-  //  edm::Handle<edm::TriggerResults> myTriggerResults;
-  //  const edm::Triggernames* myTriggerNames=0;
-
+  event.getByLabel(InputTag("TriggerResults","","HLT"), triggerResults);
+  
+  // for(int it=0;it<nTriggers;it++){
+  //   for(int j=0;j<(int)triggerNames->size();j++)cout<<triggerNames->triggerName(j)<<endl;
+  //   unsigned i =  triggerNames->triggerIndex(triggerlist[it].Data());
+  //   if (i< triggerNames->size()){
+  //     bit |= 1 << it;   
+  //   }
+  // }
+  // return bit;
+  
   for(int it=0;it<nTriggers;it++){
-    for(int j=0;j<(int)triggerNames->size();j++)cout<<triggerNames->triggerName(j)<<endl;
-    unsigned i =  triggerNames->triggerIndex(triggerlist[it].Data());
-    if (i< triggerNames->size()){
-      bit |= 1 << it;   
+    //for(int j=0;j<(int)foundPaths.size();j++){
+    for(int j=0;j<(int)foundPaths.size();j++){
+      if(triggerlist[it].Data()==foundPaths.at(j)){
+	if(triggerResults->accept(indexOfPaths[j])){
+	  bit |= 1 <<it;
+	}
+	break;
+      }
     }
   }
+  //printf("bit: %d\n",bit);
   return bit;
 }

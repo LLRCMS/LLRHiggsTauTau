@@ -15,6 +15,7 @@
 <use name="TauAnalysis/SVfitStandalone"/>
 <use name="root"/>
 <use name="roofit"/>
+<use name="HLTrigger/HLTcore"/>
 
 <use name="CLHEP"/>
 

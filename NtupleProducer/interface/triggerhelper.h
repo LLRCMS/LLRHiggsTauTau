@@ -18,11 +18,17 @@
 #include <vector>
 #include <sstream>
 
+using namespace std;
+
 class triggerhelper {
  public:
   triggerhelper();
-  int FindTriggerBit(const edm::Event&);
+  int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
   bool IsTriggerFired(int triggerbit){return 0;}
+  int printFiredPaths(){return 0;}
+  bool checkIfPathIsFired(TString path){return 0;}
+  bool checkIfPathIsFired(int path){return 0;}
+
   ~triggerhelper(){}
 
  private:
