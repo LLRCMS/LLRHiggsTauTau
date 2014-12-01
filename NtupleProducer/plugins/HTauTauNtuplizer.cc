@@ -448,7 +448,7 @@ void HTauTauNtuplizer::endJob(){
 }
 
 void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
-  /*
+  
   Bool_t changedConfig = false;
  
   //if(!hltConfig_.init(iRun, iSetup, triggerResultsLabel.process(), changedConfig)){
@@ -465,6 +465,8 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     // bool foundThisPath = false;
     for(size_t j=0; j<hltConfig_.triggerNames().size(); j++){
       string pathName = hltConfig_.triggerNames()[j];
+      //TString tempo= hltConfig_.triggerNames()[j];
+      //printf("%s\n",tempo.Data());
       //if(pathName==triggerPaths[i]){
       //foundThisPath = true;
       indexOfPath.push_back(j);
@@ -472,7 +474,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
     } 
   }
-  */
+  
 }
 void HTauTauNtuplizer::endRun(edm::Run const&, edm::EventSetup const&){
 }

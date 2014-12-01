@@ -23,7 +23,7 @@ except NameError:
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if IsMC:
     #process.GlobalTag.globaltag = 'PLS170_V6AN1::All'#'GR_70_V2_AN1::All'   #MC in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
-    process.GlobalTag.globaltag = 'PHYS14_25_V1' #MC in PHYS14
+    process.GlobalTag.globaltag = 'PHYS14_25_V1::All' #MC in PHYS14
 else :
     process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
 print process.GlobalTag.globaltag
@@ -47,6 +47,13 @@ process.maxEvents = cms.untracked.PSet(
 ### ----------------------------------------------------------------------
 import HLTrigger.HLTfilters.hltHighLevel_cfi 
 # !!!!!!!!!!!!
+
+#process.L1GtStableParametersRcdSource = cms.ESSource("EmptyESSource",
+#    iovIsRunNotTime = cms.bool(True),
+#    recordName = cms.string('L1GtStableParametersRcd'),
+#    firstValid = cms.vuint32(1)
+#)
+
 process.hltFilterDiMu = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 process.hltFilterDiMu.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 process.hltFilterDiMu.throw = cms.bool(False) #FIXME: beware of this!

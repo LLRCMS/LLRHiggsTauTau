@@ -42,6 +42,7 @@ triggerhelper::triggerhelper(){
   for(int i=0;i<nTriggers;i++){
     triggerlist[i]=tmptrigger[i];
     triggerlist[i].Prepend("HLT_");
+    triggerlist[i].Append("_v1");
   }
 }
 
