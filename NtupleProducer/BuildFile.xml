@@ -1,5 +1,10 @@
 <use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/METReco"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="TrackingTools/TransientTrack"/>
@@ -7,9 +12,29 @@
 <use name="PhysicsTools/KinFitter"/>
 <use name="TrackingTools/Records"/>
 <use name="RecoVertex/KinematicFit"/>
+<use name="TauAnalysis/SVfitStandalone"/>
 <use name="root"/>
 <use name="roofit"/>
 <use name="HLTrigger/HLTcore"/>
+
+
+
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/GsfTrackReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/TauReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/Common"/>
+<use   name="RecoMET/METAlgorithms"/>
+<use   name="RecoMET/METPUSubtraction"/>
+<use   name="RecoJets/JetProducers"/>
+<use   name="JetMETCorrections/Algorithms"/>
+<use   name="JetMETCorrections/Objects"/>
 
 <use name="CLHEP"/>
 
