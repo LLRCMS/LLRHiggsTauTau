@@ -58,25 +58,25 @@ process.hltFilterDiMu = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone
 process.hltFilterDiMu.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 process.hltFilterDiMu.throw = cms.bool(False) #FIXME: beware of this!
 process.hltFilterDiMu.HLTPaths = [#"HLT_*", #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012 # "HLT_*" is a empty path
-    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20",
-    "HLT_IsoMu17_eta2p1",
-    "HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg",
-    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1",
-    "HLT_IsoMu24_eta2p1_IterTrk01",
-    "HLT_IsoMu24_eta2p1_IterTrk02",
-    "HLT_IsoMu24_eta2p1_IterTrk02_LooseIsoPFTau20",
-    "HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20",
-    "HLT_Ele32_eta2p1_WP85_Gsf",
-    "HLT_Ele32_eta2p1_WP85_Gsf_LooseIsoPFTau20",
-    "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120",
-    "HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1",
-    "HLT_IsoMu16_eta2p1_CaloMET30",
-    "HLT_Mu16_eta2p1_CaloMET30",
-    "HLT_LooseIsoPFTau50_Trk30_eta2p1",
-    "HLT_DoubleIsoMu17_eta2p1",
-    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
-    "HLT_Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20",
-    "HLT_Ele27_eta2p1_WP85_Gsf"]
+    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
+    "HLT_IsoMu17_eta2p1_v1",
+    "HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v1",
+    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v1",
+    "HLT_IsoMu24_eta2p1_IterTrk01_v1",
+    "HLT_IsoMu24_eta2p1_IterTrk02_v1",
+    "HLT_IsoMu24_eta2p1_IterTrk02_LooseIsoPFTau20_v1",
+    "HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+    "HLT_Ele32_eta2p1_WP85_Gsf_v1",
+    "HLT_Ele32_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+    "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v1",
+    "HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1_v1",
+    "HLT_IsoMu16_eta2p1_CaloMET30_v1",
+    "HLT_Mu16_eta2p1_CaloMET30_v1",
+    "HLT_LooseIsoPFTau50_Trk30_eta2p1_v1",
+    "HLT_DoubleIsoMu17_eta2p1_v1",
+    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v1",
+    "HLT_Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+    "HLT_Ele27_eta2p1_WP85_Gsf_v1"]
 #process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
 #process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
 process.triggerDiMu = cms.Path(process.hltFilterDiMu)
@@ -281,10 +281,21 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ##
 ## Taus
 ##
-process.taus = cms.EDFilter("PATTauRefSelector",
+process.bareTaus = cms.EDFilter("PATTauRefSelector",
    src = cms.InputTag("slimmedTaus"),
    cut = cms.string(TAUCUT)
    )
+
+process.softTaus = cms.EDProducer("TauFiller",
+   src = cms.InputTag("bareTaus"),
+   cut = cms.string(TAUCUT),
+   discriminator = cms.string(TAUDISCRIMINATOR),
+   flags = cms.PSet(
+        isGood = cms.string("")
+        )
+   )
+
+process.taus=cms.Sequence(process.bareTaus + process.softTaus)
 
 ### ----------------------------------------------------------------------
 ### Search for FSR candidates
@@ -304,10 +315,11 @@ if not APPLYFSR :
     process.fsrSequence = cms.Sequence()
     muString = "softMuons"
     eleString = "softElectrons"
+    tauString = "softTaus"
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
     #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
-    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag("taus"))
+    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
 )
 #print: "lepton collection built"
 

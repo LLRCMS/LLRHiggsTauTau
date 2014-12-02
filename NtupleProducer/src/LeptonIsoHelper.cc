@@ -75,6 +75,15 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
   return 0;
 }
 
+float LeptonIsoHelper::combRelIsoPF(const pat::Tau& l) {
+
+  float PFChargedHadIso   = l.chargedHadronIso();
+  float PFNeutralHadIso   = l.neutralHadronIso();
+  float PFPhotonIso       = l.photonIso();
+  float PFPUChargedHadIso = l.puChargedHadronIso();
+
+  return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - 0.5*PFPUChargedHadIso))/l.pt();
+}
 
 float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const pat::Electron& l, float fsr) {
   float PFChargedHadIso   = l.chargedHadronIso();

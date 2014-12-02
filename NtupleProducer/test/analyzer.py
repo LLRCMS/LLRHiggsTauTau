@@ -20,6 +20,7 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #JETCUT="pt>15"
 
 #relaxed sets for testing purposes
+TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 MUCUT="pt>8"
 ELECUT="pt>10"
 TAUCUT="pt>15"

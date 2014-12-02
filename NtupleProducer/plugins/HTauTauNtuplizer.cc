@@ -72,7 +72,7 @@
  namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
    bool writeJets = true;     // Write jets in the tree. 
-   //   bool writeSoftLep = true;
+   bool writeSoftLep = true;
    bool DEBUG = false;
  }
 
@@ -139,20 +139,30 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t Nevt_Gen;
   Int_t Npairs;
 
-  //Output variables
+  //Event Output variables
   Int_t _indexevents;
   Int_t _runNumber;
   Int_t _triggerbit;
 
-  std::vector<math::XYZTLorentzVector> _mothers;
-  std::vector<math::XYZTLorentzVector> _daughters;
-  std::vector<const reco::Candidate*> _softLeptons;
+  //Leptons
+  std::vector<math::XYZTLorentzVector> _mothers;//fsr corrected
+  std::vector<math::XYZTLorentzVector> _daughters;//fsr corrected
+  std::vector<const reco::Candidate*> _softLeptons;//should we keep?
   //std::vector<math::XYZTLorentzVector> _daughter2;
+
+  //Mothers output variables
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
   std::vector<Int_t> _pdgmot;
-  std::vector<Int_t> _pdgdau;
 
+  //Leptons variables
+  std::vector<Int_t> _pdgdau;
+  std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
+  std::vector<Float_t> _combreliso;
+  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau
+  std::vector<Int_t> _decayType;//for taus only
+
+  //Jets variables
   Int_t _numberOfJets;
   std::vector<math::XYZTLorentzVector> _jets;
   std::vector<Float_t> _bdiscr;
@@ -187,6 +197,10 @@ void HTauTauNtuplizer::Initialize(){
   _indexDau2.clear();
   _pdgmot.clear();
   _pdgdau.clear();
+  _particleType.clear();
+  _discriminator.clear();
+  _decayType.clear();
+  _combreliso.clear();
   _indexevents=0;
   _runNumber=0;
   _triggerbit=0;
@@ -213,6 +227,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
   //myTree->Branch("softLeptons",&_softLeptons);
+  myTree->Branch("particleType",&_particleType);
+  myTree->Branch("discriminator",&_discriminator);
+  myTree->Branch("decayMode",&_decayType);
+  myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets",&_jets);
   myTree->Branch("bDiscriminator",&_bdiscr);
@@ -284,6 +302,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //Compute the variables needed for the output and store them in the ntuple
   int nDaughters=0;
   if(DEBUG)printf("===New Event===\n");
+
   //Loop of softleptons and fill them
   FillSoftLeptons(daus,theFSR);
 
@@ -436,8 +455,22 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
       }
     } 
     _daughters.push_back(pfour);
-    _softLeptons.push_back(cand);
+    if(writeSoftLep)_softLeptons.push_back(cand);
     _pdgdau.push_back(cand->pdgId());
+    _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
+    int type =2;
+    if(cand->isMuon())type=0;
+    else if(cand->isElectron())type=1;
+    _particleType.push_back(type);
+    float discr=-1;
+    int decay=-1;
+    if(type==1)discr=userdatahelpers::getUserFloat(cand,"BDT");
+    else if(type==2){
+      discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
+      decay = userdatahelpers::getUserFloat(cand,"decayMode");
+    }
+    _discriminator.push_back(discr);
+    _decayType.push_back(decay);
   }
 }
 

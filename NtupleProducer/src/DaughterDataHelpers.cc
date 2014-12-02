@@ -3,7 +3,7 @@
 #include <DataFormats/PatCandidates/interface/CompositeCandidate.h>
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include <DataFormats/PatCandidates/interface/Electron.h>
-
+#include <DataFormats/PatCandidates/interface/Tau.h>
 
 using namespace std;
 using namespace reco;
@@ -30,12 +30,16 @@ void userdatahelpers::embedDaughterData(pat::CompositeCandidate& cand) {
 
 
 float userdatahelpers::getUserFloat(const reco::Candidate* c, const char* name){
-  const reco::Candidate* d = c->masterClone().get();
+  const reco::Candidate* d;
+  if(c->hasMasterClone()) d = c->masterClone().get();
+  else d = c->clone();
   if (const pat::Muon* mu = dynamic_cast<const pat::Muon*>(d)) {
     return mu->userFloat(name);
   } else if (const pat::Electron* ele = dynamic_cast<const pat::Electron*>(d)) {
     return ele->userFloat(name);
-  } else if (const pat::CompositeCandidate* cc = dynamic_cast<const pat::CompositeCandidate*>(d)) {
+  } else if (const pat::Tau* tau = dynamic_cast<const pat::Tau*>(d)) {
+    return tau->userFloat(name);
+  }else if (const pat::CompositeCandidate* cc = dynamic_cast<const pat::CompositeCandidate*>(d)) {
     return cc->userFloat(name);
   }
   return 0;
