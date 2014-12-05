@@ -40,7 +40,8 @@ execfile(PyFilePath+"python/HiggsTauTauProducer.py")
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/2405749F-8B6F-E411-88EE-848F69FD2910.root'
+        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/2405749F-8B6F-E411-88EE-848F69FD2910.root'
+        "file:"+PyFilePath+'/test/2405749F-8B6F-E411-88EE-848F69FD2910.root' #local copy
         #'/store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/AODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/1813E94A-D36E-E411-8EDC-3417EBE34D08.root'
         #"/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/1062D5FF-2D09-E411-943C-0025900EB52A.root",
         #"/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/2640D54D-2D09-E411-9FAA-003048D47670.root",
@@ -67,7 +68,7 @@ process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnal
 
 #Global configuration
 TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
-                      CandCollection = cms.untracked.string("barellCand"),
+                      CandCollection = cms.untracked.string("SVllCand"),
                       fileName = cms.untracked.string ("CosaACaso"),
                       skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),

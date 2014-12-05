@@ -29,6 +29,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <DataFormats/PatCandidates/interface/Muon.h>
+#include <DataFormats/PatCandidates/interface/MET.h>
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include <DataFormats/Common/interface/View.h>
@@ -143,6 +144,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _indexevents;
   Int_t _runNumber;
   Int_t _triggerbit;
+  Float_t _met;
 
   //Leptons
   std::vector<math::XYZTLorentzVector> _mothers;//fsr corrected
@@ -154,7 +156,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
   std::vector<Int_t> _pdgmot;
-
+  std::vector<Float_t> _SVmass;
+  std::vector<Float_t> _metx;
+  std::vector<Float_t> _mety;
+   
   //Leptons variables
   std::vector<Int_t> _pdgdau;
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
@@ -169,7 +174,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _bdiscr2;
 };
 
-// ----Constructor and Desctructor -----
+// ----Constructor and Destructor -----
 HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
   theCandLabel = pset.getUntrackedParameter<string>("CandCollection");
   //theChannel = myHelper.channel();
@@ -197,6 +202,9 @@ void HTauTauNtuplizer::Initialize(){
   _indexDau2.clear();
   _pdgmot.clear();
   _pdgdau.clear();
+  _SVmass.clear();
+  _metx.clear();
+  _mety.clear();
   _particleType.clear();
   _discriminator.clear();
   _decayType.clear();
@@ -204,6 +212,7 @@ void HTauTauNtuplizer::Initialize(){
   _indexevents=0;
   _runNumber=0;
   _triggerbit=0;
+  _met=0;
   _jets.clear();
   _numberOfJets=0;
   _bdiscr.clear();
@@ -219,10 +228,14 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
+  myTree->Branch("met",&_met,"MET/F");
   myTree->Branch("mothers",&_mothers);
   myTree->Branch("daughters",&_daughters);
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("PDGIdMothers",&_pdgmot);
+  myTree->Branch("SVfitMass",&_SVmass);
+  myTree->Branch("METx",&_metx);
+  myTree->Branch("METy",&_mety);
   myTree->Branch("PDGIdDaughters",&_pdgdau);
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
@@ -279,25 +292,25 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // }
 
   //Get candidate collection
-  edm::Handle<edm::View<reco::CompositeCandidate>>candHandle;
+  edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
   edm::Handle<edm::View<reco::Candidate>>dauHandle;
   edm::Handle<edm::View<pat::Jet>>jetHandle;
-  event.getByLabel("barellCand",candHandle);
+  edm::Handle<pat::METCollection> metHandle;
+  event.getByLabel(theCandLabel,candHandle);
   event.getByLabel("jets",jetHandle);
   event.getByLabel("softLeptons",dauHandle);
-  const edm::View<reco::CompositeCandidate>* cands = candHandle.product();
+  event.getByLabel("slimmedMETs",metHandle);
+  const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
   const edm::View<reco::Candidate>* daus = dauHandle.product();
   const edm::View<pat::Jet>* jets = jetHandle.product();
-
+  const pat::MET &met = metHandle->front();
   //myNtuple->InitializeVariables();
   _indexevents = event.id().event();
   _runNumber = event.id().run();
   triggerhelper myTriggerHelper;
   _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
-
-  //Int_t nCands = daus->size()*2;
-  //const reco::Candidate *daughterPoint[nCands];
-
+  _met = met.sumEt();
+  
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
   int nDaughters=0;
@@ -311,41 +324,42 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   if(writeJets)_numberOfJets = FillJet(jets);
 
   //Loop on pairs
-  for(edm::View<reco::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
+  for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
     Npairs++;
-    const reco::CompositeCandidate& cand = (*candi); 
+    const pat::CompositeCandidate& cand = (*candi); 
     math::XYZTLorentzVector candp4 = cand.p4();
     _pdgmot.push_back(cand.pdgId());
-
+    _SVmass.push_back(cand.userFloat("SVFitMass"));
+    _metx.push_back(cand.userFloat("MEt_px"));
+    _mety.push_back(cand.userFloat("MEt_py"));
+    
     //if(DEBUG){
       //motherPoint[iMot]=dynamic_cast<const reco::Candidate*>(&*candi);
       //printf("%p %p %p\n",motherPoint[iMot],cand.daughter(0),cand.daughter(1));
     //}
-
-    //We need to find a way to avoid repetitions of daughter in order to save space
-    //It would be nice to move this into a separate function (FindCandIndex)
+    
     for(int iCand=0;iCand<2;iCand++){
       //int index=-1;
       int index=FindCandIndex(cand,iCand);
       const reco::Candidate *daughter = cand.daughter(iCand);
       if(theFSR){
-	const pat::PFParticle* fsr=0;
-	double maxPT=-1;
-	const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(daughter);
-	if (gammas!=0) {
-	  for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
-	    //const pat::Photon* gamma = g->get();
-	    const pat::PFParticle* gamma = g->get();
-	    double pt = gamma->pt();
-	    if (pt>maxPT) {
-	      maxPT  = pt;
-	      fsr = gamma;
-	    }
-	  }
-	}
+		const pat::PFParticle* fsr=0;
+		double maxPT=-1;
+		const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(daughter);
+		if (gammas!=0) {
+	  	  for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
+	    	//const pat::Photon* gamma = g->get();
+	    	const pat::PFParticle* gamma = g->get();
+	    	double pt = gamma->pt();
+	    	if (pt>maxPT) {
+	      		maxPT  = pt;
+	      		fsr = gamma;
+	    	}	
+	  	  }
+		}
 	
 	//cand.addUserFloat("dauWithFSR",lepWithFsr); // Index of the cand daughter with associated FSR photon
-
+	
 	if (fsr!=0) {
 	  // Add daughter and set p4.
 	  candp4+=fsr->p4();
