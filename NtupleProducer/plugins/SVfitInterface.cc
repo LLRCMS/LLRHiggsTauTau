@@ -27,6 +27,7 @@
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
 #include <DataFormats/Candidate/interface/ShallowCloneCandidate.h>
 #include <DataFormats/PatCandidates/interface/CompositeCandidate.h>
+#include <DataFormats/PatCandidates/interface/MET.h>
 #include <DataFormats/METReco/interface/PFMET.h>
 #include <DataFormats/METReco/interface/PFMETCollection.h>
 #include <DataFormats/METReco/interface/CommonMETData.h>
@@ -60,8 +61,7 @@ class SVfitInterface : public edm::EDProducer {
   const edm::InputTag theCandidateTag;
   const edm::InputTag theMETTag;
   //int sampleType;
-  //int setup;
-  //const CutSet<pat::Electron> flags;
+  bool _usePairMET;
 };
 
 // ------------------------------------------------------------------
@@ -69,7 +69,8 @@ class SVfitInterface : public edm::EDProducer {
 
 SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig) :
   theCandidateTag(iConfig.getParameter<InputTag>("srcPairs")),
-  theMETTag(iConfig.getParameter<InputTag>("srcMET"))
+  theMETTag(iConfig.getParameter<InputTag>("srcMET")),
+  _usePairMET(iConfig.getUntrackedParameter<bool>("usePairMET"))
 {
   produces<pat::CompositeCandidateCollection>();
 }
@@ -82,15 +83,27 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<View<reco::CompositeCandidate> > pairHandle;
   iEvent.getByLabel(theCandidateTag, pairHandle);
 
-  // Get MET
-  Handle<View<reco::PFMET> > METHandle;
-  iEvent.getByLabel(theMETTag, METHandle);
-
+  // Get MET --  if usePairMet is true, need to handle a reco::PFMET
+  //             else need to handle a pat::MET object
+  
+  // create two handles for two types
+  Handle<View<reco::PFMET> > METHandlePairs;
+  Handle<View<pat::MET> >    METHandleSingleMET;
+  
+  if (_usePairMET)   iEvent.getByLabel(theMETTag, METHandlePairs);
+  else               iEvent.getByLabel(theMETTag, METHandleSingleMET);
+    
   // Output collection
   auto_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
 
+
+
+// TO DO:: guards against
+// single MET has not size 1! (two cases: 0 --> skip and > 1 --> use as 1)
+// single MET has not size 1 but we set usePairMET = false
   // guard against different length collections
   unsigned int elNumber = pairHandle->size();
+/*
   if (pairHandle->size() != METHandle->size() )
   {
      edm::LogWarning("InputCollectionsDifferentSize")
@@ -98,6 +111,37 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        << "    ---> Skipping this event (no output pairs produced)";
      elNumber = 0;
   }
+*/
+  
+  // intialize MET
+  svFitStandalone::Vector MET(0., 0., 0.); 
+  TMatrixD covMET(2, 2);
+  
+  if (!_usePairMET)
+  {
+    const pat::MET& singleMET = (*METHandleSingleMET)[0];
+    MET.SetXYZ (singleMET.px(), singleMET.py(), 0.);
+    
+    const reco::METCovMatrix covSingleMETbuf = singleMET.getSignificanceMatrix();
+    
+    covMET[0][0] = covSingleMETbuf(0,0);
+	covMET[1][0] = covSingleMETbuf(1,0);
+	covMET[0][1] = covSingleMETbuf(0,1);
+	covMET[1][1] = covSingleMETbuf(1,1);
+	
+	// protection against singular matrices --> TO FIX BETTER
+	if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
+	{
+		covMET[0][0] = 2.;
+		covMET[1][1] = 2.;
+
+		covMET[0][1] = 1.;
+		covMET[1][0] = 0.5;
+
+	}
+	else cout << "Urrah!!" << endl;
+  }
+  
   
   // loop on all the pairs
   for (unsigned int i = 0; i < elNumber; ++i)
@@ -112,34 +156,41 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     svFitStandalone::kDecayType l1Type = GetDecayTypeFlag (l1->pdgId());
     svFitStandalone::kDecayType l2Type = GetDecayTypeFlag (l2->pdgId());
    
-    // Get the MET and the covariance matrix
-    const PFMET& pfMET = (*METHandle)[i];
-    const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
-        
-	// convert in TLorentzVector for svFit interface, and into matrix object
+   	if (_usePairMET)
+    {
+      // Get the MET and the covariance matrix
+      const PFMET& pfMET = (*METHandlePairs)[i];
+      const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
+    
+      MET.SetXYZ(pfMET.px(), pfMET.py(), 0.); 
+    
+      covMET[0][0] = covMETbuf(0,0);
+      covMET[1][0] = covMETbuf(1,0);
+      covMET[0][1] = covMETbuf(0,1);
+      covMET[1][1] = covMETbuf(1,1);
+    } 
+     
+    // convert in TLorentzVector for svFit interface, and into matrix object
     svFitStandalone::LorentzVector vecl1( l1->px(), l1->py(), l1->pz(), l1->energy() ); 
     svFitStandalone::LorentzVector vecl2( l2->px(), l2->py(), l2->pz(), l2->energy() ); 
+    
+    //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
+    
+    // there is a problem with the double hadronic decays ==> I'm skipping them now --> TO FIX
+    if (abs(l1->pdgId()) == 15 && abs(l2->pdgId()) == 15) continue;
     
     std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptons;
     measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, vecl1));
     measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, vecl2));
-
-   svFitStandalone::Vector MET(pfMET.px(), pfMET.py(), 0.); 
-    
-    TMatrixD covMET(2, 2);
-	covMET[0][0] = covMETbuf(0,0);
-	covMET[1][0] = covMETbuf(1,0);
-	covMET[0][1] = covMETbuf(0,1);
-	covMET[1][1] = covMETbuf(1,1);
      
     // define algorithm (set the debug level to 3 for testing)
-    unsigned int verbosity = 2;
+    unsigned int verbosity = 0;
     float SVfitMass = -1.;
 
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, MET, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
-    algo.integrateVEGAS("");
+    algo.integrateVEGAS();
     
     if ( algo.isValidSolution() )
     {    
@@ -148,10 +199,14 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", SVfitMass);
-    pair.addUserFloat("MVAMEt_px", pfMET.px());
-    pair.addUserFloat("MVAMEt_py", pfMET.py());
-    pair.addUserFloat("MVAMEt_pt", pfMET.pt());
-    pair.addUserFloat("MVAMEt_phi", pfMET.phi());
+    pair.addUserFloat("MEt_px", MET.X());
+    pair.addUserFloat("MEt_py", MET.Y());
+    
+    //pair.addUserFloat("MVAMEt_px", pfMET.px());
+    //pair.addUserFloat("MVAMEt_py", pfMET.py());
+    //pair.addUserFloat("MVAMEt_pt", pfMET.pt());
+    //pair.addUserFloat("MVAMEt_phi", pfMET.phi());
+    
     result->push_back(pair);     
   }
   
