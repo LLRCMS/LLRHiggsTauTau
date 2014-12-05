@@ -344,7 +344,10 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 ## SV fit
 ##
 process.SVllCand = cms.EDProducer("SVfitInterface",
-                                  src = cms.InputTag("barellCand"))
+                                  srcPairs   = cms.InputTag("barellCand"),
+                                  #srcMET     = cms.InputTag("pairMET"),
+                                  srcMET     = cms.InputTag("slimmedMETs"),
+                                  usePairMET = cms.untracked.bool(False))
 
 ##
 ## Paths
