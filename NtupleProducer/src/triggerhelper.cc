@@ -6,6 +6,7 @@
  *  $Revision: 1.3 $
  *  \author G. Ortona - LLR
  */
+ 
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <FWCore/Common/interface/TriggerNames.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
@@ -75,4 +76,27 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
   }
   //printf("bit: %d\n",bit);
   return bit;
+}
+
+int triggerhelper::FindTriggerNumber(TString triggername){
+  for(int it=0;it<nTriggers;it++){ 	
+  	if(triggerlist[it].Data()==triggername.Data())return it;
+  }
+  return -1;
+}
+
+bool triggerhelper::IsTriggerFired(int triggerbit, int triggernumber){ 
+  if(triggernumber>=0 && triggernumber<nTriggers) return triggerbit & (1 << triggernumber);
+  return false;
+}
+
+int triggerhelper::printFiredPaths(int triggerbit){
+  int nFired = 0;
+  for(int it=0;it<nTriggers;it++){ 	
+  	if(IsTriggerFired(triggerbit,it)) {
+  	  printf("%s\n",triggerlist[it].Data());
+  	  nFired++;
+  	  }
+  }
+  return nFired;
 }

@@ -24,10 +24,10 @@ class triggerhelper {
  public:
   triggerhelper();
   int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
-  bool IsTriggerFired(int triggerbit){return 0;}
-  int printFiredPaths(){return 0;}
-  bool checkIfPathIsFired(TString path){return 0;}
-  bool checkIfPathIsFired(int path){return 0;}
+  int FindTriggerNumber(TString triggername);
+  bool IsTriggerFired(int triggerbit, int triggerNumber);
+  bool IsTriggerFired(int triggerbit, TString triggerName){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
+  int printFiredPaths(int triggerbit);
 
   ~triggerhelper(){}
 

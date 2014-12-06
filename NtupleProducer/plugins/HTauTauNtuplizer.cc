@@ -67,6 +67,7 @@
 //#include "HZZ4lNtupleFactory.h"
 #include <LLRHiggsTauTau/NtupleProducer/interface/PhotonFwd.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
+#include "LLRHiggsTauTau/NtupleProducer/interface/OfflineProducerHelper.h"
 
 #include "TLorentzVector.h"
 
@@ -472,9 +473,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     if(writeSoftLep)_softLeptons.push_back(cand);
     _pdgdau.push_back(cand->pdgId());
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
-    int type =2;
-    if(cand->isMuon())type=0;
-    else if(cand->isElectron())type=1;
+    int type =OfflineProducerHelper::TAU;
+    if(cand->isMuon()) type = OfflineProducerHelper::MUON;
+    else if(cand->isElectron()) type = OfflineProducerHelper::ELECTRON;
     _particleType.push_back(type);
     float discr=-1;
     int decay=-1;
