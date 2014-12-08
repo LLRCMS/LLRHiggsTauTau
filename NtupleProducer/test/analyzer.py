@@ -21,8 +21,8 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
-MUCUT="pt>8"
-ELECUT="pt>10"
+MUCUT="(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) && pt>8"
+ELECUT="userFloat('missingHit')<=1 && pt>10"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
 TAUCUT="pt>15"
 JETCUT="pt>15"
 LLCUT="mass>0"
@@ -59,7 +59,7 @@ process.source = cms.Source("PoolSource",
 
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 1000
+process.maxEvents.input = -1
 
 ##
 ## Output file
@@ -83,3 +83,11 @@ process.p = cms.EndPath(process.HTauTauTree)
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+#process.MessageLogger.categories.append('onlyError')
+#process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
+#process.MessageLogger.cerr.threshold='ERROR'
+#process.MessageLogger = cms.Service("MessageLogger",
+#	destinations = cms.untracked.vstring('log.txt')
+#)
+#process.MessageLogger.threshold = cms.untracked.string('ERROR')
+
