@@ -140,9 +140,9 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			       (fSCeta >= 1.479               && BDT > 0.6)));
     
 	//-- Missing hit  
-	int missingHit = l.gsfTrack()->numberOfLostHits();
+	int missingHit = l.gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
     //--- Trigger matching
-    int HLTMatch = 0; //FIXME
+    //int HLTMatch=0; 
     
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
@@ -155,7 +155,7 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("dz",dz);
     l.addUserFloat("BDT",BDT);    
     l.addUserFloat("isBDT",isBDT);
-    l.addUserFloat("HLTMatch", HLTMatch);
+    //l.addUserFloat("HLTMatch", HLTMatch);
     l.addUserFloat("missingHit", missingHit);
 
     //--- MC parent code 

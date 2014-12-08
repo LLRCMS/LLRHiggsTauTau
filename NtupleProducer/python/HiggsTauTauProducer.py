@@ -79,6 +79,7 @@ process.hltFilterDiMu.HLTPaths = [#"HLT_*", #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8
     "HLT_Ele27_eta2p1_WP85_Gsf_v1"]
 #process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
 #process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+process.hltFilterDiMu.throw = cms.bool(False)
 process.triggerDiMu = cms.Path(process.hltFilterDiMu)
 # !!!!!!!!!!!!
 

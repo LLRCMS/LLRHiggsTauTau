@@ -255,10 +255,13 @@ Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0)
   const reco::Candidate *daughter = cand.daughter(iCand);
   for(UInt_t iLeptons=0;iLeptons<_softLeptons.size();iLeptons++){
 	//if(daughter==daughterPoint[iLeptons]){
-    if(daughter==_softLeptons.at(iLeptons)){
+    //if(daughter==_softLeptons.at(iLeptons)){
+    if(daughter->p4()==_softLeptons.at(iLeptons)->p4()){//This MUST be fixed, can't stay like this, probably the best is to add a userfloat
+      printf("iLeptons %d\n",iLeptons);
       return iLeptons;
     }
   }
+  printf("-1\n");
   return -1;
 }
 // ----Analyzer (main) ----
@@ -314,7 +317,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
-  int nDaughters=0;
   if(DEBUG)printf("===New Event===\n");
 
   //Loop of softleptons and fill them
@@ -395,17 +397,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 	//daughter->setP4(daughter->p4()+fsr->p4());
       }
 
-      if(index>=0){//Daughter already in the list!
 	if(iCand==0)_indexDau1.push_back(index);
 	else _indexDau2.push_back(index);	
-      }else {//new lepton
-	//daughterPoint[nDaughters]=daughter;
-	nDaughters++;
-	//_daughters.push_back(pfour);
-	//_pdgdau.push_back(daughter->pdgId());
-	if(iCand==0)_indexDau1.push_back(_daughters.size()-1);
-	else _indexDau2.push_back(_daughters.size()-1);
-      }
+
     }
     _mothers.push_back(candp4);
   
