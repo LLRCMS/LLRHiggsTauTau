@@ -240,7 +240,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("PDGIdDaughters",&_pdgdau);
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
-  //myTree->Branch("softLeptons",&_softLeptons);
+  if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   myTree->Branch("particleType",&_particleType);
   myTree->Branch("discriminator",&_discriminator);
   myTree->Branch("decayMode",&_decayType);
@@ -470,7 +470,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
       }
     } 
     _daughters.push_back(pfour);
-    if(writeSoftLep)_softLeptons.push_back(cand);
+    _softLeptons.push_back(cand);//This is needed also for FindCandIndex
     _pdgdau.push_back(cand->pdgId());
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
     int type =OfflineProducerHelper::TAU;
