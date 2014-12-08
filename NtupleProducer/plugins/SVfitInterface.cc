@@ -132,11 +132,11 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// protection against singular matrices --> TO FIX BETTER
 	if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
 	{
-		covMET[0][0] = 2.;
-		covMET[1][1] = 2.;
+		covMET[0][0] = 400.;
+		covMET[1][1] = 400.;
 
-		covMET[0][1] = 1.;
-		covMET[1][0] = 0.5;
+		covMET[0][1] = 0.0;
+		covMET[1][0] = 0.0;
 
 	}
 	else cout << "Urrah!!" << endl;
