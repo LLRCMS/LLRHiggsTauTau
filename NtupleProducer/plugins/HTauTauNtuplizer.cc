@@ -256,7 +256,7 @@ Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0)
   for(UInt_t iLeptons=0;iLeptons<_softLeptons.size();iLeptons++){
 	//if(daughter==daughterPoint[iLeptons]){
     //if(daughter==_softLeptons.at(iLeptons)){
-    if(daughter->p4()==_softLeptons.at(iLeptons)->p4()){//This MUST be fixed, can't stay like this, probably the best is to add a userfloat
+    if(daughter->masterClone().get()==_softLeptons.at(iLeptons)){
       printf("iLeptons %d\n",iLeptons);
       return iLeptons;
     }
