@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 #set this cut in the cfg file
+try: APPLYELECORR
+except NameError:
+    APPLYELECORR="None"
+ELECORRTYPE=APPLYELECORR
 try: IsMC
 except NameError:
     IsMC=True
@@ -11,9 +15,6 @@ except NameError:
 try: ELEREGRESSION
 except NameError:
     ELEREGRESSION="Paper"
-try: ELECORRTYPE
-except NameError:
-    ELECORRTYPE="Paper"
 try: APPLYFSR
 except NameError:
     APPLYFSR=False
