@@ -12,9 +12,6 @@ except NameError:
 try: LEPTON_SETUP
 except NameError:
     LEPTON_SETUP=2012
-try: ELEREGRESSION
-except NameError:
-    ELEREGRESSION="Paper"
 try: APPLYFSR
 except NameError:
     APPLYFSR=False
@@ -218,11 +215,11 @@ process.softElectrons = cms.EDProducer("EleFiller",
 process.electrons = cms.Sequence(process.bareSoftElectrons + process.softElectrons)
 
 # Handle special cases
-if ELEREGRESSION == "None" and ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
+if ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
     process.bareSoftElectrons.src = cms.InputTag('slimmedElectrons')#patElectronsWithTrigger')#RH
     process.electrons = cms.Sequence(process.bareSoftElectrons + process.softElectrons)
 
-elif ELEREGRESSION == "Moriond" and ELECORRTYPE == "Moriond" : # Moriond corrections: OLD ECAL regression + OLD calibration + OLD combination 
+elif ELECORRTYPE == "Moriond" : # Moriond corrections: OLD ECAL regression + OLD calibration + OLD combination 
     if (LEPTON_SETUP == 2011):
         process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyReg2011Weights_V1.root")
     else :
@@ -231,14 +228,9 @@ elif ELEREGRESSION == "Moriond" and ELECORRTYPE == "Moriond" : # Moriond correct
     process.calibratedPatElectrons.correctionsType   = 1
     process.calibratedPatElectrons.combinationType   = 1
 
-elif ELEREGRESSION == "Paper" and ELECORRTYPE == "None" : # NEW ECAL regression + NO calibration + NO combination
+elif ELECORRTYPE == "Paper" : # NEW ECAL regression + NO calibration + NO combination
     process.eleRegressionEnergy.energyRegressionType = 2
     process.calibratedPatElectrons.correctionsType   = 0
-    process.calibratedPatElectrons.combinationType   = 0
-
-elif ELEREGRESSION == "Paper" and ELECORRTYPE == "PaperNoComb" : # NEW ECAL regression + NEW calibration + NO combination
-    process.eleRegressionEnergy.energyRegressionType = 2
-    process.calibratedPatElectrons.correctionsType   = 1
     process.calibratedPatElectrons.combinationType   = 0
     
 
