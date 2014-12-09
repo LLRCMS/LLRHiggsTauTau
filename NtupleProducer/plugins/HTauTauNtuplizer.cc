@@ -336,7 +336,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     Npairs++;
     const pat::CompositeCandidate& cand = (*candi); 
     math::XYZTLorentzVector candp4 = cand.p4();
-    _SVmass.push_back(cand.userFloat("SVFitMass"));
+    _SVmass.push_back(cand.userFloat("SVfitMass"));
     _metx.push_back(cand.userFloat("MEt_px"));
     _mety.push_back(cand.userFloat("MEt_py"));
     
