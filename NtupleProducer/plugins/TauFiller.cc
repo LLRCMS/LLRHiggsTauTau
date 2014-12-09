@@ -92,8 +92,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //hpsPFTauDiscrimination
   
-  //edm::Handle<vector<Vertex> >  vertexs;
-  //iEvent.getByLabel("goodPrimaryVertices",vertexs);
+  edm::Handle<vector<Vertex> >  vertexs;
+  iEvent.getByLabel("goodPrimaryVertices",vertexs);
 
   // Output collection
   auto_ptr<pat::TauCollection> result( new pat::TauCollection() );
@@ -129,18 +129,21 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float IP      = fabs(l.dB(pat::Electron::PV3D));
     float IPError = l.edB(pat::Electron::PV3D);
     float SIP     = IP/IPError;
-
+    */
+    
     float dxy = 999.;
     float dz  = 999.;
     const Vertex* vertex = 0;
     if (vertexs->size()>0) {
       vertex = &(vertexs->front());
-      dxy = fabs(l.gsfTrack()->dxy(vertex->position()));
-      dz  = fabs(l.gsfTrack()->dz(vertex->position()));
+      dxy = l.dxy();
+      if(l.hasSecondaryVertex())dz  = l.secondaryVertex().get()->z()-vertex->z();
     } 
-    */
+    
     
     //--- Embed user variables
+    l.addUserFloat("dxy",dxy);
+    l.addUserFloat("dz",dz);
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
     l.addUserFloat("PFPhotonIso",PFPhotonIso);

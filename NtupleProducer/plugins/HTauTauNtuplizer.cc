@@ -146,7 +146,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _runNumber;
   Int_t _triggerbit;
   Float_t _met;
-
+  Float_t _metphi;
+  
   //Leptons
   std::vector<math::XYZTLorentzVector> _mothers;//fsr corrected
   std::vector<math::XYZTLorentzVector> _daughters;//fsr corrected
@@ -156,7 +157,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Mothers output variables
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
-  std::vector<Int_t> _pdgmot;
   std::vector<Float_t> _SVmass;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
@@ -166,6 +166,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
   std::vector<Float_t> _combreliso;
   std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau
+  std::vector<Float_t> _dxy;
+  std::vector<Float_t> _dz;
   std::vector<Int_t> _decayType;//for taus only
 
   //Jets variables
@@ -201,19 +203,21 @@ void HTauTauNtuplizer::Initialize(){
   _softLeptons.clear();
   _indexDau1.clear();
   _indexDau2.clear();
-  _pdgmot.clear();
   _pdgdau.clear();
   _SVmass.clear();
   _metx.clear();
   _mety.clear();
   _particleType.clear();
   _discriminator.clear();
+  _dxy.clear();
+  _dz.clear();
   _decayType.clear();
   _combreliso.clear();
   _indexevents=0;
   _runNumber=0;
   _triggerbit=0;
   _met=0;
+  _metphi=0.;
   _jets.clear();
   _numberOfJets=0;
   _bdiscr.clear();
@@ -229,20 +233,22 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
-  myTree->Branch("met",&_met,"MET/F");
+  myTree->Branch("met",&_met,"met/F");
+  myTree->Branch("metphi",&_metphi,"metphi/F");  
   myTree->Branch("mothers",&_mothers);
   myTree->Branch("daughters",&_daughters);
+  if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   //myTree->Branch("daughters2",&_daughter2);
-  myTree->Branch("PDGIdMothers",&_pdgmot);
   myTree->Branch("SVfitMass",&_SVmass);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
   myTree->Branch("PDGIdDaughters",&_pdgdau);
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
-  if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   myTree->Branch("particleType",&_particleType);
   myTree->Branch("discriminator",&_discriminator);
+  myTree->Branch("dxy",&_dxy);
+  myTree->Branch("dz",&_dz);
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
@@ -257,11 +263,9 @@ Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0)
 	//if(daughter==daughterPoint[iLeptons]){
     //if(daughter==_softLeptons.at(iLeptons)){
     if(daughter->masterClone().get()==_softLeptons.at(iLeptons)){
-      printf("iLeptons %d\n",iLeptons);
       return iLeptons;
     }
   }
-  printf("-1\n");
   return -1;
 }
 // ----Analyzer (main) ----
@@ -314,7 +318,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   triggerhelper myTriggerHelper;
   _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
   _met = met.sumEt();
-  
+  _metphi = met.phi();
+    
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
   if(DEBUG)printf("===New Event===\n");
@@ -331,7 +336,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     Npairs++;
     const pat::CompositeCandidate& cand = (*candi); 
     math::XYZTLorentzVector candp4 = cand.p4();
-    _pdgmot.push_back(cand.pdgId());
     _SVmass.push_back(cand.userFloat("SVFitMass"));
     _metx.push_back(cand.userFloat("MEt_px"));
     _mety.push_back(cand.userFloat("MEt_py"));
@@ -467,6 +471,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _softLeptons.push_back(cand);//This is needed also for FindCandIndex
     _pdgdau.push_back(cand->pdgId());
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
+    _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
+    _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
     int type =OfflineProducerHelper::TAU;
     if(cand->isMuon()) type = OfflineProducerHelper::MUON;
     else if(cand->isElectron()) type = OfflineProducerHelper::ELECTRON;

@@ -111,10 +111,10 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const Vertex* vertex = 0;
     if (vertexs->size()>0) {
       vertex = &(vertexs->front());
-      dxy = fabs(l.innerTrack()->dxy(vertex->position()));
-      dz  = fabs(l.innerTrack()->dz(vertex->position()));
+      dxy = (l.innerTrack()->dxy(vertex->position()));
+      dz  = (l.innerTrack()->dz(vertex->position()));
     }
-
+/*
     //--- Trigger matching
     bool HLTMatch = ((!l.triggerObjectMatchesByFilter("hltSingleMu13L3Filtered17").empty())||
 		     ((!l.triggerObjectMatchesByFilter("hltSingleMu13L3Filtered13").empty()) && 
@@ -123,7 +123,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      (l.triggerObjectMatchesByFilter("hltDiMuonL3PreFiltered5").at(0).pt()>17)) || 
 		     ((!l.triggerObjectMatchesByFilter("hltDiMuonL3PreFiltered7").empty()) && 
 		      (l.triggerObjectMatchesByFilter("hltDiMuonL3PreFiltered7").at(0).pt()>17)));
-    //FIXME
+    //FIXME*/
     
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
@@ -139,7 +139,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     l.addUserFloat("dxy",dxy);
     l.addUserFloat("dz",dz);
-    l.addUserFloat("HLTMatch", HLTMatch);
+    //l.addUserFloat("HLTMatch", HLTMatch);
     // l.addUserCand("MCMatch",genMatch); // FIXME
 
     //--- isPFMuon flag - in old samples, l.isPFMuon() is not functional, so this has to be filled

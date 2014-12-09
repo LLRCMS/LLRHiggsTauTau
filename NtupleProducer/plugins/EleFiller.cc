@@ -114,8 +114,8 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const Vertex* vertex = 0;
     if (vertexs->size()>0) {
       vertex = &(vertexs->front());
-      dxy = fabs(l.gsfTrack()->dxy(vertex->position()));
-      dz  = fabs(l.gsfTrack()->dz(vertex->position()));
+      dxy = (l.gsfTrack()->dxy(vertex->position()));
+      dz  = (l.gsfTrack()->dz(vertex->position()));
     } 
 
     
