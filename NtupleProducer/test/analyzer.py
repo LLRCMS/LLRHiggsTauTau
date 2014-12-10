@@ -66,19 +66,9 @@ process.maxEvents.input = -1
 ##
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
 
-#Global configuration
-TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
-                      CandCollection = cms.untracked.string("SVllCand"),
-                      fileName = cms.untracked.string ("CosaACaso"),
-                      skipEmptyEvents = cms.bool(True),
-                      applyFSR = cms.bool(APPLYFSR),
-                      triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT")
-                      )
-
-process.HTauTauTree = TreeSetup.clone()
-
-process.p = cms.EndPath(process.HTauTauTree)
-
+#process.options = cms.PSet(skipEvent =  cms.untracked.vstring('ProductNotFound')),
+#process.p = cms.EndPath(process.HTauTauTree)
+process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")

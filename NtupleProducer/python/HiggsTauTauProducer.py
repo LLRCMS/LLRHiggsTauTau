@@ -78,7 +78,6 @@ process.hltFilterDiMu.HLTPaths = [#"HLT_*", #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8
 #process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
 #process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
 process.hltFilterDiMu.throw = cms.bool(False)
-process.triggerDiMu = cms.Path(process.hltFilterDiMu)
 # !!!!!!!!!!!!
 
 #MC stuff
@@ -114,6 +113,7 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
   filter = cms.bool(True),
 )
+
 
 ### Mu Ghost cleaning
 process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
@@ -341,15 +341,32 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcPairs   = cms.InputTag("barellCand"),
                                   #srcMET     = cms.InputTag("pairMET"),
                                   srcMET     = cms.InputTag("slimmedMETs"),
-                                  usePairMET = cms.untracked.bool(False))
+                                  usePairMET = cms.untracked.bool(False)
+)
+
+
+
+#Global configuration
+TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
+                      CandCollection = cms.untracked.string("SVllCand"),
+                      fileName = cms.untracked.string ("CosaACaso"),
+                      skipEmptyEvents = cms.bool(True),
+                      applyFSR = cms.bool(APPLYFSR),
+                      triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
+                      )
+
+process.HTauTauTree = TreeSetup.clone()
 
 ##
 ## Paths
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
+#process.triggerDiMu = cms.Path(process.hltFilterDiMu)
+#SkimPaths = cms.vstring('triggerDiMu') #Do not apply skim 
 
 # Prepare lepton collections
-process.Candidates = cms.Path(
+process.Candidates = cms.Sequence(
+    process.hltFilterDiMu     + 
     process.muons             +
     process.electrons         + process.cleanSoftElectrons +
     process.taus              +
@@ -357,8 +374,5 @@ process.Candidates = cms.Path(
     process.softLeptons       + process.barellCand +
     process.jets              
     # Build dilepton candidates
-    + process.SVllCand
+    + process.SVllCand        + process.HTauTauTree
     )
-
-SkimPaths = cms.vstring('PVfilter') #Do not apply skim 
-
