@@ -21,11 +21,34 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
+PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
 MUCUT="(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) && pt>8"
 ELECUT="userFloat('missingHit')<=1 && pt>10"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
 TAUCUT="pt>15"
 JETCUT="pt>15"
 LLCUT="mass>0"
+
+TRIGGERLIST = [#"HLT_*", #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012 # "HLT_*" is a empty path
+    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
+    "HLT_IsoMu17_eta2p1_v1",
+    "HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v1",
+    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v1",
+    "HLT_IsoMu24_eta2p1_IterTrk01_v1",
+    "HLT_IsoMu24_eta2p1_IterTrk02_v1",
+    "HLT_IsoMu24_eta2p1_IterTrk02_LooseIsoPFTau20_v1",
+    "HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+    "HLT_Ele32_eta2p1_WP85_Gsf_v1",
+    "HLT_Ele32_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+    "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v1",
+    "HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1_v1",
+    "HLT_IsoMu16_eta2p1_CaloMET30_v1",
+    "HLT_Mu16_eta2p1_CaloMET30_v1",
+    "HLT_LooseIsoPFTau50_Trk30_eta2p1_v1",
+    "HLT_DoubleIsoMu17_eta2p1_v1",
+    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v1",
+    "HLT_Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+    "HLT_Ele27_eta2p1_WP85_Gsf_v1"]
+
 
 #Samples:
 IsMC=True
@@ -55,8 +78,6 @@ process.source = cms.Source("PoolSource",
         #"/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/E42DB840-2E09-E411-9B3A-003048D410ED.root"
     )
 )
-
-
 
 #Limited nEv for testing purposes. -1 to run all events
 process.maxEvents.input = -1
