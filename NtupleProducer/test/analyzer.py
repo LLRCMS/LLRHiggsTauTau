@@ -63,8 +63,19 @@ execfile(PyFilePath+"python/HiggsTauTauProducer.py")
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/2405749F-8B6F-E411-88EE-848F69FD2910.root'
-        "file:"+PyFilePath+'/test/2405749F-8B6F-E411-88EE-848F69FD2910.root' #local copy
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/2405749F-8B6F-E411-88EE-848F69FD2910.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/3C05111C-8C6F-E411-A93E-7845C4F91450.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/4851965D-EF6F-E411-9C94-3417EBE338FA.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/4CC32E9F-8B6F-E411-9E56-00266CF9B4C0.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/7E046B54-EF6F-E411-81DC-7845C4FC35D2.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/10000/186C2230-BA6F-E411-9FBD-7845C4FC365C.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/10000/3E56199D-1D70-E411-B425-7845C4FC36CB.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/10000/4A64F4C5-B96F-E411-B470-00266CF25490.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/10000/646AB792-1D70-E411-A935-00266CF9C0F0.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/10000/86CFA7C5-B96F-E411-B077-00266CF25490.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/10000/B6ACCFEC-C66F-E411-A6DA-7845C4FC378E.root'
+        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/10000/D293773F-BA6F-E411-950E-00A0D1EE25D0.root'
+        #"file:"+PyFilePath+'/test/2405749F-8B6F-E411-88EE-848F69FD2910.root' #local copy
         #'/store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/AODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/1813E94A-D36E-E411-8EDC-3417EBE34D08.root'
         #"/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/1062D5FF-2D09-E411-943C-0025900EB52A.root",
         #"/store/mc/Spring14miniaod//GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_POSTLS170_V5-v1/00000/2640D54D-2D09-E411-9FAA-003048D47670.root",
