@@ -67,14 +67,14 @@
 //#include "HZZ4lNtupleFactory.h"
 #include <LLRHiggsTauTau/NtupleProducer/interface/PhotonFwd.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
-#include "LLRHiggsTauTau/NtupleProducer/interface/OfflineProducerHelper.h"
+#include "LLRHiggsTauTau/NtupleProducer/Utils/OfflineProducerHelper.h"
 
 #include "TLorentzVector.h"
 
  namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
    bool writeJets = true;     // Write jets in the tree. 
-   bool writeSoftLep = true;
+   bool writeSoftLep = false;
    bool DEBUG = false;
  }
 
