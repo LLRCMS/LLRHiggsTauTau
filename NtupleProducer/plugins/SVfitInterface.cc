@@ -62,6 +62,7 @@ class SVfitInterface : public edm::EDProducer {
   const edm::InputTag theMETTag;
   //int sampleType;
   bool _usePairMET;
+  bool _useMVAMET;
 };
 
 // ------------------------------------------------------------------
@@ -70,7 +71,8 @@ class SVfitInterface : public edm::EDProducer {
 SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig) :
   theCandidateTag(iConfig.getParameter<InputTag>("srcPairs")),
   theMETTag(iConfig.getParameter<InputTag>("srcMET")),
-  _usePairMET(iConfig.getUntrackedParameter<bool>("usePairMET"))
+  _usePairMET(iConfig.getUntrackedParameter<bool>("usePairMET")),
+  _useMVAMET(iConfig.getUntrackedParameter<bool>("useMVAMET"))
 {
   produces<pat::CompositeCandidateCollection>();
 }
@@ -87,15 +89,14 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //             else need to handle a pat::MET object
   
   // create two handles for two types
-  Handle<View<reco::PFMET> > METHandlePairs;
-  Handle<View<pat::MET> >    METHandleSingleMET;
+  Handle<View<reco::PFMET> > METHandle_PfMET;
+  Handle<View<pat::MET> >    METHandle_PatMET;
   
-  if (_usePairMET)   iEvent.getByLabel(theMETTag, METHandlePairs);
-  else               iEvent.getByLabel(theMETTag, METHandleSingleMET);
+  if (_useMVAMET)   iEvent.getByLabel(theMETTag, METHandle_PfMET);
+  else               iEvent.getByLabel(theMETTag, METHandle_PatMET);
     
   // Output collection
   auto_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
-
 
 
 // TO DO:: guards against
@@ -117,29 +118,36 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   svFitStandalone::Vector MET(0., 0., 0.); 
   TMatrixD covMET(2, 2);
   
+  // initialize once the MET if not using PairMET
   if (!_usePairMET)
   {
-    const pat::MET& singleMET = (*METHandleSingleMET)[0];
-    MET.SetXYZ (singleMET.px(), singleMET.py(), 0.);
+    reco::METCovMatrix covSingleMETbuf;
+  
+    if (_useMVAMET)
+    {   
+         const reco::PFMET& pfMET = (*METHandle_PfMET)[0];
+         MET.SetXYZ (pfMET.px(), pfMET.py(), 0.);
+         covSingleMETbuf = pfMET.getSignificanceMatrix();
+    }
     
-    const reco::METCovMatrix covSingleMETbuf = singleMET.getSignificanceMatrix();
+    else
+    {
+        const pat::MET& patMET = (*METHandle_PatMET)[0];
+        MET.SetXYZ (patMET.px(), patMET.py(), 0.);
+        covSingleMETbuf = patMET.getSignificanceMatrix();
+    }
     
     covMET[0][0] = covSingleMETbuf(0,0);
 	covMET[1][0] = covSingleMETbuf(1,0);
 	covMET[0][1] = covSingleMETbuf(0,1);
 	covMET[1][1] = covSingleMETbuf(1,1);
 	
-	// protection against singular matrices --> TO FIX BETTER
+	// protection against singular matrices
 	if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
 	{
-		covMET[0][0] = 400.;
-		covMET[1][1] = 400.;
-
-		covMET[0][1] = 0.0;
-		covMET[1][0] = 0.0;
-
+		edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
+                                                                << "   --> SVfit algorithm will probably crash...";
 	}
-	else cout << "Urrah!!" << endl;
   }
   
   
@@ -159,7 +167,10 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    	if (_usePairMET)
     {
       // Get the MET and the covariance matrix
-      const PFMET& pfMET = (*METHandlePairs)[i];
+      if (!_useMVAMET) edm::LogWarning("NoMVAMETAsPairRelated") << "(SVfitInterface): Warning! Pair-related MET is available for MVA MET only" 
+                                                                << "   --> using MVA MET";
+      
+      const PFMET& pfMET = (*METHandle_PfMET)[i];
       const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
     
       MET.SetXYZ(pfMET.px(), pfMET.py(), 0.); 
@@ -168,6 +179,13 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       covMET[1][0] = covMETbuf(1,0);
       covMET[0][1] = covMETbuf(0,1);
       covMET[1][1] = covMETbuf(1,1);
+      
+      // protection against singular matrices
+	  if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
+	  {
+	  	edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
+                                                                << "   --> SVfit algorithm will probably crash...";
+	  }
     } 
      
     // convert in TLorentzVector for svFit interface, and into matrix object

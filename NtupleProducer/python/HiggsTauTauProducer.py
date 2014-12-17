@@ -314,15 +314,38 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(True)
 )
 
+##
+## MVA MET
+## 
+process.load("RecoJets.JetProducers.ak4PFJets_cfi")
+process.ak4PFJets.src = cms.InputTag("packedPFCandidates")
+
+
+from JetMETCorrections.Configuration.DefaultJEC_cff import ak4PFJetsL1FastL2L3
+
+# output collection is defined here, its name is pfMVAMEt
+# access this through pfMVAMEtSequence
+# NOTE: one single MEt, not a pair relatede vector -- TO BE FIXED 
+process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
+process.pfMVAMEt.srcLeptons = cms.VInputTag("slimmedElectrons")
+process.pfMVAMEt.srcPFCandidates = cms.InputTag("packedPFCandidates")
+process.pfMVAMEt.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+
+process.puJetIdForPFMVAMEt.jec = cms.string('AK4PF')
+#process.puJetIdForPFMVAMEt.jets = cms.InputTag("ak4PFJets")
+process.puJetIdForPFMVAMEt.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
+
 
 ##
 ## SV fit
 ##
 process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcPairs   = cms.InputTag("barellCand"),
-                                  #srcMET     = cms.InputTag("pairMET"),
-                                  srcMET     = cms.InputTag("slimmedMETs"),
-                                  usePairMET = cms.untracked.bool(False)
+                                  srcMET     = cms.InputTag("pfMVAMEt"),
+                                  #srcMET     = cms.InputTag("slimmedMETs"),
+                                  usePairMET = cms.untracked.bool(False),
+								  useMVAMET  = cms.untracked.bool(True)								
 )
 
 
@@ -355,5 +378,7 @@ process.Candidates = cms.Sequence(
     process.softLeptons       + process.barellCand +
     process.jets              
     # Build dilepton candidates
-    + process.SVllCand        + process.HTauTauTree
+    + process.ak4PFJets
+	+ process.pfMVAMEtSequence
+	+ process.SVllCand        + process.HTauTauTree
     )

@@ -11,7 +11,9 @@ Instruction to get and run the package (under CMSSW_7_2_0):
 
 git cms-addpkg PhysicsTools/PatAlgos
 
-git-cms-merge-topic -u cms-met:72X-MVANoPUMet-20140718
+git cms-addpkg FWCore/Version
+
+git-cms-merge-topic -u cms-met:72X-mvaMETForMiniAOD
 
 git clone https://github.com/LLRCMS/LLRHiggsTauTau.git
 (cd LLRHiggsTauTau; git checkout master)
