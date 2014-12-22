@@ -19,6 +19,8 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #TAUCUT="pt>15"
 #JETCUT="pt>15"
 
+USEPAIRMET=True
+
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
@@ -91,7 +93,7 @@ process.source = cms.Source("PoolSource",
 )
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = -1
+process.maxEvents.input = 1000
 
 ##
 ## Output file
@@ -103,8 +105,8 @@ process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnal
 process.p = cms.Path(process.Candidates)
 
 # Silence output
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+#process.load("FWCore.MessageService.MessageLogger_cfi")
+#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'

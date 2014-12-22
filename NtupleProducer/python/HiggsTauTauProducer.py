@@ -314,22 +314,28 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(True)
 )
 
-##
+
+
+
+## ----------------------------------------------------------------------
 ## MVA MET
-## 
+## ----------------------------------------------------------------------
+
+# plugin initialization
+
 process.load("RecoJets.JetProducers.ak4PFJets_cfi")
 process.ak4PFJets.src = cms.InputTag("packedPFCandidates")
-
 
 from JetMETCorrections.Configuration.DefaultJEC_cff import ak4PFJetsL1FastL2L3
 
 # output collection is defined here, its name is pfMVAMEt
 # access this through pfMVAMEtSequence
-# NOTE: one single MEt, not a pair relatede vector -- TO BE FIXED 
+
 process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
-process.pfMVAMEt.srcLeptons = cms.VInputTag("slimmedElectrons")
+#process.pfMVAMEt.srcLeptons = cms.VInputTag("slimmedElectrons") # srcLeptons contains all the hard scatter products, is set later
 process.pfMVAMEt.srcPFCandidates = cms.InputTag("packedPFCandidates")
 process.pfMVAMEt.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+process.pfMVAMEt.minNumLeptons = cms.int32(2) # this is important to skip void collections in the loop on pairs
 
 process.puJetIdForPFMVAMEt.jec = cms.string('AK4PF')
 #process.puJetIdForPFMVAMEt.jets = cms.InputTag("ak4PFJets")
@@ -337,16 +343,57 @@ process.puJetIdForPFMVAMEt.vertexes = cms.InputTag("offlineSlimmedPrimaryVertice
 process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
 
 
-##
+
+# python trick: loop on all pairs for pair MET computation
+
+if USEPAIRMET:
+   print "Using pair MET"
+
+   # template of unpacker
+   UnpackerTemplate = cms.EDProducer ("PairUnpacker",
+                                   src = cms.InputTag("barellCand"))
+
+   process.METSequence = cms.Sequence(process.ak4PFJets + process.calibratedAK4PFJetsForPFMVAMEt + process.puJetIdForPFMVAMEt)
+
+   MVAPairMET = ()
+   for index in range(100):
+      UnpackerName = "PairUnpacker%i" % index
+      UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
+      setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
+      process.METSequence += UnpackerModule
+
+      MVAMETName = "pfMETMVA%i" % index
+      MVAModule = process.pfMVAMEt.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
+      setattr(process, MVAMETName, MVAModule)
+      process.METSequence += MVAModule
+    
+      MVAPairMET += (cms.InputTag(MVAMETName),)
+    
+else:
+   print "Using event MET (same MET for all pairs)"
+   process.pfMVAMEt.minNumLeptons = cms.int32(0) # ONLY FOR DEBUG PURPOSE, OTHERWISE DOES NOT COMPUTE MET AND SVFIT CRASHES DUE TO A SINGULAR MATRIX
+   process.METSequence = cms.Sequence(
+       process.ak4PFJets         +
+       process.pfMVAMEtSequence
+   )
+
+
+
+## ----------------------------------------------------------------------
 ## SV fit
-##
+## ----------------------------------------------------------------------
 process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcPairs   = cms.InputTag("barellCand"),
-                                  srcMET     = cms.InputTag("pfMVAMEt"),
+                                  #srcMET     = cms.InputTag("pfMVAMEt"),
                                   #srcMET     = cms.InputTag("slimmedMETs"),
-                                  usePairMET = cms.untracked.bool(False),
+                                  usePairMET = cms.untracked.bool(USEPAIRMET),
 								  useMVAMET  = cms.untracked.bool(True)								
 )
+
+if USEPAIRMET:
+   process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
+else:
+   process.SVllCand.srcMET    = cms.VInputTag("pfMVAMEt")
 
 
 
@@ -376,9 +423,7 @@ process.Candidates = cms.Sequence(
     process.taus              +
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-    process.jets              
-    # Build dilepton candidates
-    + process.ak4PFJets
-	+ process.pfMVAMEtSequence
-	+ process.SVllCand        + process.HTauTauTree
+    process.jets              +
+    process.METSequence       +
+	process.SVllCand          + process.HTauTauTree
     )
