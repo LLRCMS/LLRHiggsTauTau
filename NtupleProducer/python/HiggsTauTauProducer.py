@@ -270,6 +270,19 @@ process.softTaus = cms.EDProducer("TauFiller",
         )
    )
 
+process.tauMatch = cms.EDProducer("MCMatcher",
+    src = cms.InputTag("softTaus"),
+    maxDPtRel = cms.double(999.9),
+    mcPdgId = cms.vint32(15),
+    mcStatus = cms.vint32(2),
+    resolveByMatchQuality = cms.bool(False),
+    maxDeltaR = cms.double(999.9),
+    checkCharge = cms.bool(True),
+    resolveAmbiguities = cms.bool(True),
+    matched = cms.InputTag("genParticlesPruned")
+    )
+
+
 process.taus=cms.Sequence(process.bareTaus + process.softTaus)
 
 ### ----------------------------------------------------------------------
