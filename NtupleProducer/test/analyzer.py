@@ -105,13 +105,13 @@ process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnal
 process.p = cms.Path(process.Candidates)
 
 # Silence output
-#process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 500
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
-#process.MessageLogger.cerr.threshold='ERROR'
+process.MessageLogger.cerr.threshold='ERROR'
 #process.MessageLogger = cms.Service("MessageLogger",
 #	destinations = cms.untracked.vstring('log.txt')
 #)
-#process.MessageLogger.threshold = cms.untracked.string('ERROR')
+process.MessageLogger.threshold = cms.untracked.string('ERROR')
 

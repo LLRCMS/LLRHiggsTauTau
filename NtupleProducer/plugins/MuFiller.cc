@@ -149,6 +149,20 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     //--- MC parent code 
+    const reco::GenParticle* genL= l.genParticleRef().get();
+    float px=0,py=0,pz=0,E=0;
+    //printf("%p\n",genL);
+    if(genL){
+      px =genL->p4().Px();
+      py =genL->p4().Py();
+      pz =genL->p4().Pz();
+      E =genL->p4().E();
+    }
+    l.addUserFloat("genPx",px);
+    l.addUserFloat("genPy",py);
+    l.addUserFloat("genPz",pz);
+    l.addUserFloat("genE",E);
+
 //     MCHistoryTools mch(iEvent);
 //     if (mch.isMC()) {
 //       int MCParentCode = 0;//FIXME: does not work on cmg mch.getParentCode((l.genParticleRef()).get());
