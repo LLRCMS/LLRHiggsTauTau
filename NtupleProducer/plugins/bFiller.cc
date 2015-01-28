@@ -111,7 +111,7 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //for(GenParticleCollection::const_iterator genp = genHandle->begin();genp != genHandle->end(); ++ genp ) {  // loop over GEN particles
   for (unsigned int i = 0; i< genHandle->size(); ++i){
     //Candidate cand(*((*genHandle)[i]));
-    const Candidate *packb =&(*genHandle)[i]; //(*((*genHandle)[i])));
+    const GenParticle *packb =&(*genHandle)[i]; //(*((*genHandle)[i])));
     //pat::GenericParticle b((*genHandle)[i]);
  
     isb_=false;
@@ -130,7 +130,16 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if (!cut(b)) continue;
 
       b.addUserFloat("status",2*isStatus2_+3*isStatus3_);
-
+      float motmass = -1;
+      int nmot = packb->numberOfMothers();
+      //      GenParticleRefVector *mothers = packb->mothers();
+      for (int im = 0; im<nmot; ++im){
+	if(fabs(packb->mother(im)->pdgId()==25)){
+	    motmass=packb->mother(im)->mass();
+	    break;
+	  }
+	}
+      b.addUserFloat("motHmass",motmass);
       //--- Embed flags (ie flags specified in the "flags" pset) 
       for(CutSet<pat::GenericParticle>::const_iterator flag = flags.begin(); flag != flags.end(); ++flag) {
       	b.addUserFloat(flag->first,int((*(flag->second))(b)));

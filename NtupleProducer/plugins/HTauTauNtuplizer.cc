@@ -164,6 +164,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _SVmass;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
+  std::vector<Float_t> _bmotmass;
    
   //Leptons variables
   std::vector<Int_t> _pdgdau;
@@ -208,6 +209,7 @@ void HTauTauNtuplizer::Initialize(){
   _softLeptons.clear();
   _genDaughters.clear();
   _bquarks.clear();
+  _bmotmass.clear();
   _indexDau1.clear();
   _indexDau2.clear();
   _pdgdau.clear();
@@ -246,7 +248,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters",&_daughters);
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(fillGen)myTree->Branch("genDaughters",&_genDaughters);
-  if(theisMC)myTree->Branch("bquarks",&_bquarks);
+  if(theisMC){
+    myTree->Branch("bquarks",&_bquarks);
+    myTree->Branch("bmotmass",&_bmotmass);
+  }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
   myTree->Branch("METx",&_metx);
@@ -512,6 +517,7 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
   for(edm::View<pat::GenericParticle>::const_iterator ib = bs->begin(); ib!=bs->end();++ib){
     const pat::GenericParticle* cand = &(*ib);
     _bquarks.push_back(cand->p4());
+    _bmotmass.push_back(userdatahelpers::getUserFloat(cand,"motHmass"));
   }
 }
 
