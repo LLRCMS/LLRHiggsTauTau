@@ -76,7 +76,6 @@
 //   bool writePhotons = false;  // Write photons in the tree. 
    bool writeJets = true;     // Write jets in the tree. 
    bool writeSoftLep = false;
-   bool fillGen = true;
    bool DEBUG = false;
  }
 
@@ -154,13 +153,13 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<math::XYZTLorentzVector> _mothers;
   std::vector<math::XYZTLorentzVector> _daughters;
   std::vector<const reco::Candidate*> _softLeptons;
-  std::vector<math::XYZTLorentzVector> _genDaughters;//should we keep, for all, or just for daughters?
   std::vector<math::XYZTLorentzVector> _bquarks;
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
   //Mothers output variables
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
+  std::vector<Int_t> _genDaughters;
   std::vector<Float_t> _SVmass;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
@@ -247,8 +246,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("mothers",&_mothers);
   myTree->Branch("daughters",&_daughters);
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
-  if(fillGen)myTree->Branch("genDaughters",&_genDaughters);
   if(theisMC){
+    myTree->Branch("genDaughters/I",&_genDaughters);
     myTree->Branch("bquarks",&_bquarks);
     myTree->Branch("bmotmass",&_bmotmass);
   }
@@ -485,10 +484,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
       }
     } 
     _daughters.push_back(pfour);
-    if(fillGen){
-      math::XYZTLorentzVector pfour(userdatahelpers::getUserFloat(cand,"genPx"),userdatahelpers::getUserFloat(cand,"genPy"),userdatahelpers::getUserFloat(cand,"genPz"),userdatahelpers::getUserFloat(cand,"genE"));
-      _genDaughters.push_back(pfour);
-    }
+    //math::XYZTLorentzVector pfour(userdatahelpers::getUserFloat(cand,"genPx"),userdatahelpers::getUserFloat(cand,"genPy"),userdatahelpers::getUserFloat(cand,"genPz"),userdatahelpers::getUserFloat(cand,"genE"));
+    if(theisMC)_genDaughters.push_back(userdatahelpers::getUserFloat(cand,"fromH"));
+
     _softLeptons.push_back(cand);//This is needed also for FindCandIndex
     _pdgdau.push_back(cand->pdgId());
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));

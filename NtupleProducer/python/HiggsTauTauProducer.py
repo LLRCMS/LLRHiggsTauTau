@@ -65,7 +65,7 @@ process.hltFilterDiMu.throw = cms.bool(False)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.drawTree = cms.EDAnalyzer("ParticleTreeDrawer",
-                                   src = cms.InputTag("genParticlesPruned"),
+                                   src = cms.InputTag("prunedGenParticles"),
                                    printP4 = cms.untracked.bool(False),
                                    printPtEtaPhi = cms.untracked.bool(False),
                                    printVertex = cms.untracked.bool(False),
@@ -76,7 +76,7 @@ process.drawTree = cms.EDAnalyzer("ParticleTreeDrawer",
 process.printTree = cms.EDAnalyzer("ParticleListDrawer",
                                    maxEventsToPrint = cms.untracked.int32(-1),
                                    printVertex = cms.untracked.bool(False),
-                                   src = cms.InputTag("genParticlesPruned")
+                                   src = cms.InputTag("prunedGenParticles")
                                    )
 
 
@@ -113,10 +113,10 @@ process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
 )
 
 
-# MC matching. As the genParticles are no more available in cmg, we re-match with genParticlesPruned.
+# MC matching. As the genParticles are no more available in cmg, we re-match with prunedGenParticles.
 process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
                                    src     = cms.InputTag("softMuons"), # RECO objects to match  
-                                   matched = cms.InputTag("genParticlesPruned"),   # mc-truth particle collection
+                                   matched = cms.InputTag("prunedGenParticles"),   # mc-truth particle collection
                                    mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
                                    checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge
                                    mcStatus = cms.vint32(1),     # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
@@ -128,6 +128,7 @@ process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pic
 
 process.softMuons = cms.EDProducer("MuFiller",
     src = cms.InputTag("bareSoftMuons"),
+    genCollection = cms.InputTag("prunedGenParticles"),
     sampleType = cms.int32(LEPTON_SETUP),                     
     setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
 #    cut = cms.string("userFloat('SIP')<100"),
@@ -181,6 +182,7 @@ process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
 
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("bareSoftElectrons"),
+   genCollection = cms.InputTag("prunedGenParticles"),
    sampleType = cms.int32(LEPTON_SETUP),          
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
 #    cut = cms.string("userFloat('SIP')<100"),
@@ -217,7 +219,7 @@ elif ELECORRTYPE == "Paper" : # NEW ECAL regression + NO calibration + NO combin
 
 process.electronMatch = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
                                        src         = cms.InputTag("bareSoftElectrons"), # RECO objects to match
-                                       matched     = cms.InputTag("genParticlesPruned"), # mc-truth particle collection
+                                       matched     = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
                                        mcPdgId     = cms.vint32(11),               # one or more PDG ID (11 = electron); absolute values (see below)
                                        checkCharge = cms.bool(True),               # True = require RECO and MC objects to have the same charge
                                        mcStatus    = cms.vint32(1),                # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
@@ -263,6 +265,7 @@ process.bareTaus = cms.EDFilter("PATTauRefSelector",
 
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
+   genCollection = cms.InputTag("prunedGenParticles"),
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
    flags = cms.PSet(
@@ -279,7 +282,7 @@ process.tauMatch = cms.EDProducer("MCMatcher",
     maxDeltaR = cms.double(999.9),
     checkCharge = cms.bool(True),
     resolveAmbiguities = cms.bool(True),
-    matched = cms.InputTag("genParticlesPruned")
+    matched = cms.InputTag("prunedGenParticles")
     )
 
 

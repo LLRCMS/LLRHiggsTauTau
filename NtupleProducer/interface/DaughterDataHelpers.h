@@ -50,6 +50,8 @@ namespace userdatahelpers {
   void getSortedLeptons(const pat::CompositeCandidate& cand, 
 			std::vector<const reco::Candidate*>& leptons, std::vector<std::string>& labels, bool is4l=true);
 
+  bool isAncestor(const reco::Candidate* ancestor, const reco::Candidate * particle);
+
 
 }
 #endif

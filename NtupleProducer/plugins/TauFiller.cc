@@ -16,7 +16,7 @@
 //#include <DataFormats/TauReco/interface/PFTauDiscriminator.h>
 
 //#include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/CutSet.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
 //#include "BDTId.h"
@@ -46,6 +46,7 @@ class TauFiller : public edm::EDProducer {
   virtual void endJob(){};
 
   const edm::InputTag theCandidateTag;
+  edm::EDGetTokenT<edm::View<reco::GenParticle> > theGenTag ;
   //const edm::InputTag theDiscriminatorTag;
   const std::string theDiscriminatorTag;
   const StringCutObjectSelector<pat::Tau, true> cut;
@@ -56,6 +57,7 @@ class TauFiller : public edm::EDProducer {
 
 TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   theCandidateTag(iConfig.getParameter<InputTag>("src")),
+  theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
   theDiscriminatorTag(iConfig.getParameter<std::string>("discriminator")),
   cut(iConfig.getParameter<std::string>("cut")),
   flags(iConfig.getParameter<ParameterSet>("flags"))//, 
@@ -155,17 +157,33 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();
-    float px=0,py=0,pz=0,E=0;
+    float px=0,py=0,pz=0,E=0,fromH=0;
     if(genL){
       px =genL->p4().Px();
       py =genL->p4().Py();
       pz =genL->p4().Pz();
       E =genL->p4().E();
+
+      //search if it comes from H
+      Handle<edm::View<reco::GenParticle> > genHandle;
+      iEvent.getByToken(theGenTag, genHandle);
+      int nmot = genL->numberOfMothers();
+      for (int im = 0; im<nmot&&fromH==0; ++im){
+	for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
+	  if(ipruned==i)continue;
+	  if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],genL)){
+	    fromH=1;
+	    break;
+	  }
+	}
+      }
     }
     l.addUserFloat("genPx",px);
     l.addUserFloat("genPy",py);
     l.addUserFloat("genPz",pz);
     l.addUserFloat("genE",E);
+    l.addUserFloat("fromH",fromH);
+
     //     MCHistoryTools mch(iEvent);
     //     if (mch.isMC()) {
     //       int MCParentCode = 0;

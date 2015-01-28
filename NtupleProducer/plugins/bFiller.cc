@@ -22,7 +22,7 @@
 //#include <DataFormats/TauReco/interface/PFTauDiscriminator.h>
 
 //#include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/CutSet.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
 //#include "BDTId.h"
@@ -130,16 +130,29 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if (!cut(b)) continue;
 
       b.addUserFloat("status",2*isStatus2_+3*isStatus3_);
-      float motmass = -1;
+
+      //Search if b comes from a H decay
+      int motmass = 0;
       int nmot = packb->numberOfMothers();
       //      GenParticleRefVector *mothers = packb->mothers();
-      for (int im = 0; im<nmot; ++im){
-	if(fabs(packb->mother(im)->pdgId()==25)){
-	    motmass=packb->mother(im)->mass();
+      //for (int im = 0; im<nmot; ++im){
+      //	if(fabs(packb->mother(im)->pdgId()==25)){
+      //	  motmass=1;
+      //	  break;
+      //	}
+      //}
+      //if(motmass==0){
+      for (int im = 0; im<nmot&&motmass==0; ++im){
+	for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
+	  if(ipruned==i)continue;
+	  if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],packb)){
+	    motmass=1;
 	    break;
 	  }
 	}
-      b.addUserFloat("motHmass",motmass);
+      }
+
+      b.addUserFloat("fromH",motmass);
       //--- Embed flags (ie flags specified in the "flags" pset) 
       for(CutSet<pat::GenericParticle>::const_iterator flag = flags.begin(); flag != flags.end(); ++flag) {
       	b.addUserFloat(flag->first,int((*(flag->second))(b)));

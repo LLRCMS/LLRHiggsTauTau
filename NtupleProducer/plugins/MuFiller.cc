@@ -20,6 +20,7 @@
 #include <Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/CutSet.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
 //#include <ZZAnalysis/AnalysisStep/interface/SIPCalculator.h>
@@ -46,6 +47,7 @@ class MuFiller : public edm::EDProducer {
   virtual void endJob(){};
 
   const edm::InputTag theCandidateTag;
+  edm::EDGetTokenT<edm::View<reco::GenParticle> > theGenTag ;
   int sampleType;
   int setup;
   const StringCutObjectSelector<pat::Muon, true> cut;
@@ -57,6 +59,7 @@ class MuFiller : public edm::EDProducer {
 
 MuFiller::MuFiller(const edm::ParameterSet& iConfig) :
   theCandidateTag(iConfig.getParameter<InputTag>("src")),
+  theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
   sampleType(iConfig.getParameter<int>("sampleType")),
   setup(iConfig.getParameter<int>("setup")),
   cut(iConfig.getParameter<std::string>("cut")),
@@ -150,18 +153,33 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();
-    float px=0,py=0,pz=0,E=0;
+    float px=0,py=0,pz=0,E=0,fromH=0;
     //printf("%p\n",genL);
     if(genL){
       px =genL->p4().Px();
       py =genL->p4().Py();
       pz =genL->p4().Pz();
       E =genL->p4().E();
+
+      //search if it comes from H
+      Handle<edm::View<reco::GenParticle> > genHandle;
+      iEvent.getByToken(theGenTag, genHandle);
+      int nmot = genL->numberOfMothers();
+      for (int im = 0; im<nmot&&fromH==0; ++im){
+	for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
+	  if(ipruned==i)continue;
+	  if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],genL)){
+	    fromH=1;
+	    break;
+	  }
+	}
+      }
     }
     l.addUserFloat("genPx",px);
     l.addUserFloat("genPy",py);
     l.addUserFloat("genPz",pz);
     l.addUserFloat("genE",E);
+    l.addUserFloat("fromH",fromH);
 
 //     MCHistoryTools mch(iEvent);
 //     if (mch.isMC()) {
