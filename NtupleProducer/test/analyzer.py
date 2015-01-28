@@ -29,6 +29,7 @@ ELECUT="userFloat('missingHit')<=1 && pt>10"#"gsfTrack.hitPattern().numberOfHits
 TAUCUT="pt>15"
 JETCUT="pt>15"
 LLCUT="mass>0"
+BCUT="pt>5"
 
 TRIGGERLIST = [#"HLT_*", #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012 # "HLT_*" is a empty path
     "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
@@ -106,12 +107,12 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 500
+process.MessageLogger.cerr.FwkReport.reportEvery = 50
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
-process.MessageLogger.cerr.threshold='ERROR'
+#process.MessageLogger.cerr.threshold='ERROR'
 #process.MessageLogger = cms.Service("MessageLogger",
 #	destinations = cms.untracked.vstring('log.txt')
 #)
-process.MessageLogger.threshold = cms.untracked.string('ERROR')
+#process.MessageLogger.threshold = cms.untracked.string('ERROR')
 

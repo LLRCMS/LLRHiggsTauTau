@@ -31,6 +31,7 @@
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include <DataFormats/PatCandidates/interface/MET.h>
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include <DataFormats/PatCandidates/interface/GenericParticle.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include <DataFormats/Common/interface/View.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
@@ -111,6 +112,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //virtual void FillPhoton(const pat::Photon& photon);
   int FillJet(const edm::View<pat::Jet>* jet);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, bool theFSR);
+  void FillbQuarks(const edm::Event&);
 
   // ----------member data ---------------------------
   //Configs
@@ -118,7 +120,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::string theCandLabel;
   TString theFileName;
   bool theFSR;
-
+  Bool_t theisMC;
   //Trigger
   vector<int> indexOfPath;
   vector<string> foundPaths;
@@ -132,7 +134,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   //flags
   static const int nOutVars =14;
-  Bool_t isMC;
   bool applyTrigger;    // Only events passing trigger
   bool applySkim;       //  "     "      "     skim
   bool skipEmptyEvents; // Skip events whith no candidate in the collection
@@ -154,6 +155,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<math::XYZTLorentzVector> _daughters;
   std::vector<const reco::Candidate*> _softLeptons;
   std::vector<math::XYZTLorentzVector> _genDaughters;//should we keep, for all, or just for daughters?
+  std::vector<math::XYZTLorentzVector> _bquarks;
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
   //Mothers output variables
@@ -186,6 +188,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
   theFileName = pset.getUntrackedParameter<string>("fileName");
   skipEmptyEvents = pset.getParameter<bool>("skipEmptyEvents");
   theFSR = pset.getParameter<bool>("applyFSR");
+  theisMC = pset.getParameter<bool>("IsMC");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
@@ -204,6 +207,7 @@ void HTauTauNtuplizer::Initialize(){
   //_daughter2.clear();
   _softLeptons.clear();
   _genDaughters.clear();
+  _bquarks.clear();
   _indexDau1.clear();
   _indexDau2.clear();
   _pdgdau.clear();
@@ -240,10 +244,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("metphi",&_metphi,"metphi/F");  
   myTree->Branch("mothers",&_mothers);
   myTree->Branch("daughters",&_daughters);
-  if(writeSoftLep){
-    myTree->Branch("softLeptons",&_softLeptons);
-  }
+  if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(fillGen)myTree->Branch("genDaughters",&_genDaughters);
+  if(theisMC)myTree->Branch("bquarks",&_bquarks);
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
   myTree->Branch("METx",&_metx);
@@ -329,6 +332,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
   if(DEBUG)printf("===New Event===\n");
+
+  //Loop over generated b quarks
+  if(theisMC)FillbQuarks(event);
 
   //Loop of softleptons and fill them
   FillSoftLeptons(daus,theFSR);
@@ -499,6 +505,15 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
   }
 }
 
+void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
+  edm::Handle<edm::View<pat::GenericParticle>>candHandle;
+  event.getByLabel("bQuarks",candHandle);
+  const edm::View<pat::GenericParticle>* bs = candHandle.product();
+  for(edm::View<pat::GenericParticle>::const_iterator ib = bs->begin(); ib!=bs->end();++ib){
+    const pat::GenericParticle* cand = &(*ib);
+    _bquarks.push_back(cand->p4());
+  }
+}
 
 void HTauTauNtuplizer::endJob(){
   hCounter->SetBinContent(1,Nevt_Gen);
@@ -534,6 +549,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   }
   
 }
+
 void HTauTauNtuplizer::endRun(edm::Run const&, edm::EventSetup const&){
 }
 void HTauTauNtuplizer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){

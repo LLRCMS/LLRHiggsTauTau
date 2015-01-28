@@ -286,6 +286,18 @@ process.tauMatch = cms.EDProducer("MCMatcher",
 process.taus=cms.Sequence(process.bareTaus + process.softTaus)
 
 ### ----------------------------------------------------------------------
+### b quarks, only from MC
+### ----------------------------------------------------------------------
+process.bQuarks = cms.EDProducer("bFiller",
+         src = cms.InputTag("prunedGenParticles"),
+         cut = cms.string(BCUT),
+         flags = cms.PSet(
+            isGood = cms.string("")
+        )
+ )                
+if IsMC : process.bquarks = cms.Sequence(process.bQuarks)
+else : process.bquarks = cms.Sequence()
+### ----------------------------------------------------------------------
 ### Search for FSR candidates
 ### ----------------------------------------------------------------------
 process.load("UFHZZAnalysisRun2.FSRPhotons.fsrPhotons_cff")
@@ -416,6 +428,7 @@ TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
                       skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),
+                      IsMC = cms.bool(IsMC),
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
                       )
 
@@ -438,5 +451,6 @@ process.Candidates = cms.Sequence(
     process.softLeptons       + process.barellCand +
     process.jets              +
     process.METSequence       +
-	process.SVllCand          + process.HTauTauTree
+    process.bquarks           +
+    process.SVllCand          + process.HTauTauTree
     )
