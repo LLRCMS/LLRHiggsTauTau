@@ -238,12 +238,9 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
     //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
     
-    // there is a problem with the double hadronic decays ==> I'm skipping them now --> TO FIX
-    if (abs(l1->pdgId()) == 15 && abs(l2->pdgId()) == 15) continue;
-    
     std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptons;
     measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), l1->mass() ));
-    measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), l2->mass() ));  // TO FIX: if muon or electron, insert instead the mass? (511 keV, pion mass, etc...)
+    measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), l2->mass() ));  
      
     // define algorithm (set the debug level to 3 for testing)
     unsigned int verbosity = 0;
