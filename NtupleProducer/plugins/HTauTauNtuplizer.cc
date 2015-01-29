@@ -247,7 +247,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters",&_daughters);
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
-    myTree->Branch("genDaughters/I",&_genDaughters);
+    myTree->Branch("genDaughters",&_genDaughters);
     myTree->Branch("bquarks",&_bquarks);
     myTree->Branch("bmotmass",&_bmotmass);
   }
