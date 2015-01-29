@@ -111,7 +111,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<View<pat::MET> >    METHandle_PatMET;
   
   // intialize MET
-  svFitStandalone::Vector MET(0., 0., 0.); 
+  double METx = 0.;
+  double METy = 0.; 
   TMatrixD covMET(2, 2);
   
   
@@ -147,14 +148,16 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (_useMVAMET)
      {   
          const reco::PFMET& pfMET = (*METHandle_PfMET)[0];
-         MET.SetXYZ (pfMET.px(), pfMET.py(), 0.);
+         METx = pfMET.px();
+         METy = pfMET.py();
          covSingleMETbuf = pfMET.getSignificanceMatrix();
      }
     
      else
      {
         const pat::MET& patMET = (*METHandle_PatMET)[0];
-        MET.SetXYZ (patMET.px(), patMET.py(), 0.);
+        METx = patMET.px();
+        METy = patMET.py();
         covSingleMETbuf = patMET.getSignificanceMatrix();
      }
     
@@ -217,8 +220,9 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const PFMET& pfMET = (*METHandle_PfMET)[0];
       const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
     
-      MET.SetXYZ(pfMET.px(), pfMET.py(), 0.); 
-    
+      METx = pfMET.px();
+      METy = pfMET.py();
+      
       covMET[0][0] = covMETbuf(0,0);
       covMET[1][0] = covMETbuf(1,0);
       covMET[0][1] = covMETbuf(0,1);
@@ -232,24 +236,20 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
     } 
      
-    // convert in TLorentzVector for svFit interface, and into matrix object
-    svFitStandalone::LorentzVector vecl1( l1->px(), l1->py(), l1->pz(), l1->energy() ); 
-    svFitStandalone::LorentzVector vecl2( l2->px(), l2->py(), l2->pz(), l2->energy() ); 
-    
     //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
     
     // there is a problem with the double hadronic decays ==> I'm skipping them now --> TO FIX
     if (abs(l1->pdgId()) == 15 && abs(l2->pdgId()) == 15) continue;
     
     std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptons;
-    measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, vecl1));
-    measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, vecl2));
+    measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), l1->mass() ));
+    measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), l2->mass() ));  // TO FIX: if muon or electron, insert instead the mass? (511 keV, pion mass, etc...)
      
     // define algorithm (set the debug level to 3 for testing)
     unsigned int verbosity = 0;
     float SVfitMass = -1.;
 
-    SVfitStandaloneAlgorithm algo(measuredTauLeptons, MET, covMET, verbosity);
+    SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
     algo.integrateVEGAS();
@@ -261,8 +261,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", SVfitMass);
-    pair.addUserFloat("MEt_px", MET.X());
-    pair.addUserFloat("MEt_py", MET.Y());
+    pair.addUserFloat("MEt_px", METx);
+    pair.addUserFloat("MEt_py", METy);
     
     //pair.addUserFloat("MVAMEt_px", pfMET.px());
     //pair.addUserFloat("MVAMEt_py", pfMET.py());
