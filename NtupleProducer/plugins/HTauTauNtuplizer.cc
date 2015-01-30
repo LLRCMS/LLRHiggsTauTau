@@ -177,6 +177,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Jets variables
   Int_t _numberOfJets;
   std::vector<math::XYZTLorentzVector> _jets;
+  std::vector<Int_t> _jetFlavour;
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
 };
@@ -227,6 +228,7 @@ void HTauTauNtuplizer::Initialize(){
   _met=0;
   _metphi=0.;
   _jets.clear();
+  _jetFlavour.clear();
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -266,6 +268,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets",&_jets);
+  myTree->Branch("jetFlavour",&_jetFlavour);
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
 }
@@ -452,6 +455,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
   for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
     nJets++;
     _jets.push_back(ijet->p4());
+    _jetFlavour.push_back(ijet->partonFlavour());
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
   }
