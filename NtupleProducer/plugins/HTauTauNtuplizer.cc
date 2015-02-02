@@ -315,6 +315,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //   }
   // }
 
+  triggerhelper myTriggerHelper;
+  _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
+  if(_triggerbit == 0)return;
+
   //Get candidate collection
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
   edm::Handle<edm::View<reco::Candidate>>dauHandle;
@@ -331,8 +335,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //myNtuple->InitializeVariables();
   _indexevents = event.id().event();
   _runNumber = event.id().run();
-  triggerhelper myTriggerHelper;
-  _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
   _met = met.sumEt();
   _metphi = met.phi();
     
@@ -526,6 +528,9 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
 void HTauTauNtuplizer::endJob(){
   hCounter->SetBinContent(1,Nevt_Gen);
   hCounter->SetBinContent(2,Npairs);
+
+  hCounter->GetXaxis()->SetBinLabel(1,"Nevt_Gen");
+  hCounter->GetXaxis()->SetBinLabel(2,"Npairs");
 }
 
 void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){

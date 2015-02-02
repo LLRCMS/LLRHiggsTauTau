@@ -446,7 +446,7 @@ process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
-    process.hltFilterDiMu     + 
+    #process.hltFilterDiMu     + 
     process.muons             +
     process.electrons         + process.cleanSoftElectrons +
     process.taus              +
