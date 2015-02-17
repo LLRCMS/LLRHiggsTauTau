@@ -172,8 +172,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
 	  if(ipruned==i)continue;
 	  if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],genL)){
-	    fromH=1;
-	    break;
+	    int pdgmot = (&(*genHandle)[ipruned])->pdgId();
+	    if(abs(pdgmot)==25){
+	      fromH=1;
+	      break;
+	    }
 	  }
 	}
       }
