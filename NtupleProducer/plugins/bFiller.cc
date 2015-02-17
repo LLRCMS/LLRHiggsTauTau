@@ -146,8 +146,13 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
 	  if(ipruned==i)continue;
 	  if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],packb)){
-	    motmass=1;
-	    break;
+	    //reco::Candidate* mot = &(*genHandle)[ipruned];
+	    //int pdgmot = mot->pdgId();
+	    int pdgmot = (&(*genHandle)[ipruned])->pdgId();
+	    if(abs(pdgmot)==25){
+	      motmass=1;
+	      break;
+	    }
 	  }
 	}
       }
