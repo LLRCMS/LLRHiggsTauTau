@@ -416,7 +416,8 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
                                   #srcMET     = cms.InputTag("pfMVAMEt"),
                                   #srcMET     = cms.InputTag("slimmedMETs"),
                                   usePairMET = cms.untracked.bool(USEPAIRMET),
-								  useMVAMET  = cms.untracked.bool(True)								
+								  useMVAMET  = cms.untracked.bool(True),
+								  triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT")								
 )
 
 if USEPAIRMET:
