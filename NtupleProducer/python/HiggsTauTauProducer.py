@@ -60,22 +60,6 @@ process.hltFilter = hlt.hltHighLevel.clone(
     throw = cms.bool(False) #if True: throws exception if a trigger path is invalid  
 )
 
-
-##process.L1GtStableParametersRcdSource = cms.ESSource("EmptyESSource",
-##    iovIsRunNotTime = cms.bool(True),
-##    recordName = cms.string('L1GtStableParametersRcd'),
-##    firstValid = cms.vuint32(1)
-##)
-#
-#process.hltFilterDiMu = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-#process.hltFilterDiMu.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-#process.hltFilterDiMu.throw = cms.bool(False) #FIXME: beware of this!
-#process.hltFilterDiMu.HLTPaths = TRIGGERLIST
-##process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
-##process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
-#process.hltFilterDiMu.throw = cms.bool(False)
-# !!!!!!!!!!!!
-
 #MC stuff
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -430,8 +414,7 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
                                   #srcMET     = cms.InputTag("pfMVAMEt"),
                                   #srcMET     = cms.InputTag("slimmedMETs"),
                                   usePairMET = cms.untracked.bool(USEPAIRMET),
-								  useMVAMET  = cms.untracked.bool(True),
-								  triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT")								
+								  useMVAMET  = cms.untracked.bool(True)
 )
 
 if USEPAIRMET:
@@ -457,8 +440,6 @@ process.HTauTauTree = TreeSetup.clone()
 ## Paths
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
-#process.triggerDiMu = cms.Path(process.hltFilterDiMu)
-#SkimPaths = cms.vstring('triggerDiMu') #Do not apply skim 
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(

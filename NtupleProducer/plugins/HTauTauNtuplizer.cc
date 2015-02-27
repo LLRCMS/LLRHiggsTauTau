@@ -140,6 +140,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   //counters
   Int_t Nevt_Gen;
+  Int_t Nevt_PassTrigger;
   Int_t Npairs;
 
   //Event Output variables
@@ -193,6 +194,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
+  Nevt_PassTrigger = 0;
   Npairs=0;
   //triggerResultsLabel = InputTag("TriggerResults","","HLT");
   processName= pset.getParameter<edm::InputTag>("triggerResultsLabel");
@@ -237,7 +239,7 @@ void HTauTauNtuplizer::Initialize(){
 void HTauTauNtuplizer::beginJob(){
   edm::Service<TFileService> fs;
   myTree = fs->make<TTree>("HTauTauTree","HTauTauTree");
-  hCounter = fs->make<TH1F>("Counters","Counters",2,0,2);
+  hCounter = fs->make<TH1F>("Counters","Counters",3,0,3);
 
   //Branches
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
@@ -288,7 +290,6 @@ Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0)
 // ------------ method called for each event  ------------
 void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
-  //Nevt_Gen++; 
   Initialize();
 
   Handle<vector<reco::Vertex> >  vertexs;
@@ -529,10 +530,12 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
 
 void HTauTauNtuplizer::endJob(){
   hCounter->SetBinContent(1,Nevt_Gen);
-  hCounter->SetBinContent(2,Npairs);
+  hCounter->SetBinContent(2,Nevt_PassTrigger);
+  hCounter->SetBinContent(3,Npairs);
 
   hCounter->GetXaxis()->SetBinLabel(1,"Nevt_Gen");
-  hCounter->GetXaxis()->SetBinLabel(2,"Npairs");
+  hCounter->GetXaxis()->SetBinLabel(2,"Nevt_PassTrigger");
+  hCounter->GetXaxis()->SetBinLabel(3,"Npairs");
 }
 
 
@@ -573,25 +576,14 @@ void HTauTauNtuplizer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 }
 void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup)
 {
-  /*
-  Float_t Nevt_preskim = -1.;
-  edm::Handle<edm::MergeableCounter> preSkimCounter;
-  if (iLumi.getByLabel("preSkimCounter", preSkimCounter)) { // Counter before skim. Does not exist for non-skimmed samples.
-    Nevt_preskim = preSkimCounter->value;
-  }  
-  if (Nevt_preskim>=0.) {
-    Nevt_Gen = Nevt_Gen + Nevt_preskim; 
-  }
-  */
   // Total number of events is the sum of the events in each of these luminosity blocks
   edm::Handle<edm::MergeableCounter> nEventsTotalCounter;
   iLumi.getByLabel("nEventsTotal", nEventsTotalCounter);
   Nevt_Gen += nEventsTotalCounter->value;
 
-  /*Handle nEventsPassFilterCounter;
-  lumi.getByLabel("nEventsTotal", nEventsTotalCounter);
-  nEventsTotal += nEventsTotalCounter->value;
-  */
+  edm::Handle<edm::MergeableCounter> nEventsPassTrigCounter;
+  iLumi.getByLabel("nEventsPassTrigger", nEventsPassTrigCounter);
+  Nevt_PassTrigger += nEventsPassTrigCounter->value;
 }
 
 // // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

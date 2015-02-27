@@ -33,13 +33,6 @@
 #include <DataFormats/METReco/interface/CommonMETData.h>
 #include <TauAnalysis/SVfitStandalone/interface/SVfitStandaloneAlgorithm.h>
 
-/*#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
-//#include "LLRHiggsTauTau/NtupleProducer/Utils/OfflineProducerHelper.h"
-*/
 
 #include <vector>
 #include <string>
@@ -63,7 +56,6 @@ class SVfitInterface : public edm::EDProducer {
   virtual void beginJob(){};  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
   svFitStandalone::kDecayType GetDecayTypeFlag (int pdgId);
 
@@ -73,11 +65,6 @@ class SVfitInterface : public edm::EDProducer {
   bool _usePairMET;
   bool _useMVAMET;
   
-  /*vector<int> indexOfPath;
-  vector<string> foundPaths;
-  edm::InputTag processName;
-  HLTConfigProvider hltConfig_;
-  */
 };
 
 // ------------------------------------------------------------------
@@ -92,7 +79,6 @@ SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig)
   vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
 
   produces<pat::CompositeCandidateCollection>();
-  //processName= iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
 
 }  
 
@@ -131,10 +117,6 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double METx = 0.;
   double METy = 0.; 
   TMatrixD covMET(2, 2);
-  
-  //triggerhelper myTriggerHelper;
-  //int triggerbit = myTriggerHelper.FindTriggerBit(iEvent,foundPaths,indexOfPath);
-
   
   // initialize MET once if not using PairMET
   if (!_usePairMET)
@@ -264,10 +246,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
     // define algorithm (set the debug level to 3 for testing)
     unsigned int verbosity = 0;
-    float SVfitMass = -1.;
+    float SVfitMass = -999.;
      
-  //if(triggerbit != 0){
-
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
@@ -278,56 +258,18 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       SVfitMass = algo.getMass(); // return value is in units of GeV
     } // otherwise mass will be -1
     
-    //}else {SVfitMass=-888;}
-    
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", SVfitMass);
     pair.addUserFloat("MEt_px", METx);
     pair.addUserFloat("MEt_py", METy);
-    
-    //pair.addUserFloat("MVAMEt_px", pfMET.px());
-    //pair.addUserFloat("MVAMEt_py", pfMET.py());
-    //pair.addUserFloat("MVAMEt_pt", pfMET.pt());
-    //pair.addUserFloat("MVAMEt_phi", pfMET.phi());
+
     
     result->push_back(pair);     
   }
   
-  //cout << "EXITING PLUGIN..." << endl << endl;
   iEvent.put(result);
 }
 
-/*
-void SVfitInterface::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
-  
-  Bool_t changedConfig = false;
- 
-  //if(!hltConfig_.init(iRun, iSetup, triggerResultsLabel.process(), changedConfig)){
-  if(!hltConfig_.init(iRun, iSetup, processName.process(), changedConfig)){
-    edm::LogError("HLTMatchingFilter") << "Initialization of HLTConfigProvider failed!!"; 
-    //return;
-  }  
-
-  if(changedConfig || foundPaths.size()==0){
-    //cout<<"The present menu is "<<hltConfig.tableName()<<endl;
-    indexOfPath.clear();
-    foundPaths.clear();
-    //for(size_t i=0; i<triggerPaths.size(); i++){
-    // bool foundThisPath = false;
-    for(size_t j=0; j<hltConfig_.triggerNames().size(); j++){
-      string pathName = hltConfig_.triggerNames()[j];
-      //TString tempo= hltConfig_.triggerNames()[j];
-      //printf("%s\n",tempo.Data());
-      //if(pathName==triggerPaths[i]){
-      //foundThisPath = true;
-      indexOfPath.push_back(j);
-      foundPaths.push_back(pathName);
-	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
-    } 
-  }
-  
-}
-*/
 
 svFitStandalone::kDecayType SVfitInterface::GetDecayTypeFlag (int pdgId)
 {
@@ -340,7 +282,6 @@ svFitStandalone::kDecayType SVfitInterface::GetDecayTypeFlag (int pdgId)
 	   << "     ---> Decay will be treated as an hadronic decay";
 	return svFitStandalone::kTauToHadDecay;
 }
-
 
 
 
