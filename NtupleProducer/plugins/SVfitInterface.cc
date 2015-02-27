@@ -33,13 +33,13 @@
 #include <DataFormats/METReco/interface/CommonMETData.h>
 #include <TauAnalysis/SVfitStandalone/interface/SVfitStandaloneAlgorithm.h>
 
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
+/*#include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
 //#include "LLRHiggsTauTau/NtupleProducer/Utils/OfflineProducerHelper.h"
-
+*/
 
 #include <vector>
 #include <string>
@@ -63,7 +63,7 @@ class SVfitInterface : public edm::EDProducer {
   virtual void beginJob(){};  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  //virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
   svFitStandalone::kDecayType GetDecayTypeFlag (int pdgId);
 
@@ -73,10 +73,11 @@ class SVfitInterface : public edm::EDProducer {
   bool _usePairMET;
   bool _useMVAMET;
   
-  vector<int> indexOfPath;
+  /*vector<int> indexOfPath;
   vector<string> foundPaths;
   edm::InputTag processName;
   HLTConfigProvider hltConfig_;
+  */
 };
 
 // ------------------------------------------------------------------
@@ -91,7 +92,7 @@ SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig)
   vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
 
   produces<pat::CompositeCandidateCollection>();
-  processName= iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  //processName= iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
 
 }  
 
@@ -131,8 +132,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double METy = 0.; 
   TMatrixD covMET(2, 2);
   
-  triggerhelper myTriggerHelper;
-  int triggerbit = myTriggerHelper.FindTriggerBit(iEvent,foundPaths,indexOfPath);
+  //triggerhelper myTriggerHelper;
+  //int triggerbit = myTriggerHelper.FindTriggerBit(iEvent,foundPaths,indexOfPath);
 
   
   // initialize MET once if not using PairMET
@@ -264,9 +265,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // define algorithm (set the debug level to 3 for testing)
     unsigned int verbosity = 0;
     float SVfitMass = -1.;
-
-    
-  if(triggerbit != 0){
+     
+  //if(triggerbit != 0){
 
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
@@ -277,7 +277,9 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     {    
       SVfitMass = algo.getMass(); // return value is in units of GeV
     } // otherwise mass will be -1
-    }else {SVfitMass=-888;}
+    
+    //}else {SVfitMass=-888;}
+    
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", SVfitMass);
     pair.addUserFloat("MEt_px", METx);
@@ -295,6 +297,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(result);
 }
 
+/*
 void SVfitInterface::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
   
   Bool_t changedConfig = false;
@@ -324,7 +327,7 @@ void SVfitInterface::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
   }
   
 }
-
+*/
 
 svFitStandalone::kDecayType SVfitInterface::GetDecayTypeFlag (int pdgId)
 {

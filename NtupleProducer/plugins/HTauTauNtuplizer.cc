@@ -288,7 +288,7 @@ Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0)
 // ------------ method called for each event  ------------
 void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
-  Nevt_Gen++; 
+  //Nevt_Gen++; 
   Initialize();
 
   Handle<vector<reco::Vertex> >  vertexs;
@@ -315,9 +315,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //   }
   // }
 
+  
   triggerhelper myTriggerHelper;
   _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
-  if(_triggerbit == 0)return;
+  //if(_triggerbit == 0)return;
+  
 
   //Get candidate collection
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
@@ -533,6 +535,7 @@ void HTauTauNtuplizer::endJob(){
   hCounter->GetXaxis()->SetBinLabel(2,"Npairs");
 }
 
+
 void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
   
   Bool_t changedConfig = false;
@@ -563,12 +566,14 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   
 }
 
+
 void HTauTauNtuplizer::endRun(edm::Run const&, edm::EventSetup const&){
 }
 void HTauTauNtuplizer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){
 }
 void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup)
 {
+  /*
   Float_t Nevt_preskim = -1.;
   edm::Handle<edm::MergeableCounter> preSkimCounter;
   if (iLumi.getByLabel("preSkimCounter", preSkimCounter)) { // Counter before skim. Does not exist for non-skimmed samples.
@@ -577,6 +582,16 @@ void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm
   if (Nevt_preskim>=0.) {
     Nevt_Gen = Nevt_Gen + Nevt_preskim; 
   }
+  */
+  // Total number of events is the sum of the events in each of these luminosity blocks
+  edm::Handle<edm::MergeableCounter> nEventsTotalCounter;
+  iLumi.getByLabel("nEventsTotal", nEventsTotalCounter);
+  Nevt_Gen += nEventsTotalCounter->value;
+
+  /*Handle nEventsPassFilterCounter;
+  lumi.getByLabel("nEventsTotal", nEventsTotalCounter);
+  nEventsTotal += nEventsTotalCounter->value;
+  */
 }
 
 // // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

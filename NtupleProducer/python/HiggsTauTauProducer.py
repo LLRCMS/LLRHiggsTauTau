@@ -41,25 +41,39 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-### ----------------------------------------------------------------------
-### Trigger bit Requests 
-### ----------------------------------------------------------------------
-import HLTrigger.HLTfilters.hltHighLevel_cfi 
-# !!!!!!!!!!!!
 
-#process.L1GtStableParametersRcdSource = cms.ESSource("EmptyESSource",
-#    iovIsRunNotTime = cms.bool(True),
-#    recordName = cms.string('L1GtStableParametersRcd'),
-#    firstValid = cms.vuint32(1)
-#)
+### ----------------------------------------------------------------------
+### Counters 
+### ----------------------------------------------------------------------
+process.nEventsTotal = cms.EDProducer("EventCountProducer")       # don't change producer name
+process.nEventsPassTrigger = cms.EDProducer("EventCountProducer") # these names are then "hard-coded" inside the ntuplizer plugin
 
-process.hltFilterDiMu = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltFilterDiMu.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-process.hltFilterDiMu.throw = cms.bool(False) #FIXME: beware of this!
-process.hltFilterDiMu.HLTPaths = TRIGGERLIST
-#process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
-#process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
-process.hltFilterDiMu.throw = cms.bool(False)
+### ----------------------------------------------------------------------
+### Trigger bit Requests - filter 
+### ----------------------------------------------------------------------
+import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
+
+process.hltFilter = hlt.hltHighLevel.clone(
+    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+    HLTPaths = TRIGGERLIST,
+    andOr = cms.bool(True), # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
+    throw = cms.bool(False) #if True: throws exception if a trigger path is invalid  
+)
+
+
+##process.L1GtStableParametersRcdSource = cms.ESSource("EmptyESSource",
+##    iovIsRunNotTime = cms.bool(True),
+##    recordName = cms.string('L1GtStableParametersRcd'),
+##    firstValid = cms.vuint32(1)
+##)
+#
+#process.hltFilterDiMu = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+#process.hltFilterDiMu.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+#process.hltFilterDiMu.throw = cms.bool(False) #FIXME: beware of this!
+#process.hltFilterDiMu.HLTPaths = TRIGGERLIST
+##process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+##process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+#process.hltFilterDiMu.throw = cms.bool(False)
 # !!!!!!!!!!!!
 
 #MC stuff
@@ -448,7 +462,8 @@ process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
-    #process.hltFilterDiMu     + 
+    process.nEventsTotal      +
+    process.hltFilter         + process.nEventsPassTrigger +
     process.muons             +
     process.electrons         + process.cleanSoftElectrons +
     process.taus              +
