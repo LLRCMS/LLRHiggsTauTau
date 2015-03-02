@@ -18,6 +18,7 @@ parser.add_option('-o', '--out'        ,    dest='output'             , help='ou
 parser.add_option('-c', '--cfg'        ,    dest='cfg'                , help='cfg file'                                           , default='analyzer_forTier3.py')
 parser.add_option('-r', '--rep'        ,    dest='customReplacements' , help='sed replacements for cfg  key1:val1,key2:val2,...'  , default=None)
 parser.add_option('-t', '--tag'        ,    dest='nameTag'            , help='tag defining the sample and production'             , default='')
+parser.add_option('-z', '--offset'     ,    dest='offset'             , help='overall offset (events to be skipped)'              , default=0, type=int)
 (opt, args) = parser.parse_args()
 
 
@@ -31,10 +32,13 @@ wasted = opt.maxevents - (EvPerJob * opt.njobs)
 if wasted != 0:
     print "NOTE: %d events will NOT be analyzed (job number is not an integer divisor)" % wasted
 
+if opt.offset != 0:
+    print "Skipping the first %d events" % opt.offset
+
 #prepare output
 timeTag = time.time()
 cmsswBase=os.environ['CMSSW_BASE']
-jobsDir=cmsswBase+'/src/LLRHiggsTauTau/NtupleProducer/test/JobLauncher_%s_%dEvents_%s'%(opt.nameTag, opt.maxevents,timeTag)
+jobsDir=cmsswBase+'/src/LLRHiggsTauTau/NtupleProducer/test/JobLauncher_%s_%dEvents_%dSkipped_%s'%(opt.nameTag, opt.maxevents, opt.offset, timeTag)
 os.system('mkdir -p %s'%jobsDir)
 print '** INFO ** Jobs folder is: %s'%(jobsDir)
 
@@ -42,7 +46,7 @@ print '** INFO ** Jobs folder is: %s'%(jobsDir)
 outFullPath = opt.output
 if not outFullPath.endswith('/'):
     outFullPath += '/'
-outFullPath += 'HiggsTauTauOutput_%s_%dEvents_%s/'%(opt.nameTag, opt.maxevents,timeTag)
+outFullPath += 'HiggsTauTauOutput_%s_%dEvents_%dSkipped_%s/'%(opt.nameTag, opt.maxevents, opt.offset, timeTag)
 os.system('mkdir -p %s' % outFullPath)
 print "** INFO ** Saving output files in: %s" % outFullPath
 
@@ -63,7 +67,7 @@ for n in xrange(0,opt.njobs):
     
     replacements = {
                     'XXX_MAXEVENTS_XXX':str(EvPerJob),
-                    'XXX_SKIPEVENTS_XXX':str(n*EvPerJob),
+                    'XXX_SKIPEVENTS_XXX':str(n*EvPerJob + opt.offset),
                     'XXX_SAMPLEFILENAME_XXX':opt.samplefile,
                     'XXX_OUTPUTFILE_XXX':outFullLFN
                    }
