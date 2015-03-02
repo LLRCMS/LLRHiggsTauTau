@@ -103,5 +103,5 @@ for n in xrange(0,opt.njobs):
     if opt.queue=='':
         os.system('%s/runJob_%d.sh'%(jobsDir.jobSeed))
     else:
-        os.system("/opt/exp_soft/cms/t3/t3submit -k eo -q cms \'%s/runJob_%d.sh\'"%(jobsDir,n))
+        os.system("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_%d.sh\'"%(jobsDir,n))
     
