@@ -70,7 +70,7 @@
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
 #include "LLRHiggsTauTau/NtupleProducer/Utils/OfflineProducerHelper.h"
 
-#include "TLorentzVector.h"
+//#include "TLorentzVector.h"
 
  namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
@@ -151,10 +151,26 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _metphi;
   
   //Leptons
-  std::vector<math::XYZTLorentzVector> _mothers;
-  std::vector<math::XYZTLorentzVector> _daughters;
+  //std::vector<TLorentzVector> _mothers;
+  std::vector<Float_t> _mothers_px;
+  std::vector<Float_t> _mothers_py;
+  std::vector<Float_t> _mothers_pz;
+  std::vector<Float_t> _mothers_e;
+  
+  //std::vector<TLorentzVector> _daughters;
+  std::vector<Float_t> _daughters_px;
+  std::vector<Float_t> _daughters_py;
+  std::vector<Float_t> _daughters_pz;
+  std::vector<Float_t> _daughters_e;
+  
   std::vector<const reco::Candidate*> _softLeptons;
-  std::vector<math::XYZTLorentzVector> _bquarks;
+  
+  //std::vector<TLorentzVector> _bquarks;
+  std::vector<Float_t> _bquarks_px;
+  std::vector<Float_t> _bquarks_py;
+  std::vector<Float_t> _bquarks_pz;
+  std::vector<Float_t> _bquarks_e;
+  
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
   //Mothers output variables
@@ -177,7 +193,13 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   //Jets variables
   Int_t _numberOfJets;
-  std::vector<math::XYZTLorentzVector> _jets;
+  //std::vector<TLorentzVector> _jets;
+  std::vector<Float_t> _jets_px;
+  std::vector<Float_t> _jets_py;
+  std::vector<Float_t> _jets_pz;
+  std::vector<Float_t> _jets_e;
+  
+  
   std::vector<Int_t> _jetFlavour;
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
@@ -205,12 +227,28 @@ HTauTauNtuplizer::~HTauTauNtuplizer(){}
 //
 
 void HTauTauNtuplizer::Initialize(){
-  _mothers.clear();
-  _daughters.clear();
+  //_mothers.clear();
+  _mothers_px.clear();
+  _mothers_px.clear();
+  _mothers_pz.clear();
+  _mothers_e.clear();
+  
+  //_daughters.clear();
+  _daughters_px.clear();
+  _daughters_py.clear();
+  _daughters_pz.clear();
+  _daughters_e.clear();
+  
   //_daughter2.clear();
   _softLeptons.clear();
   _genDaughters.clear();
-  _bquarks.clear();
+  
+  //_bquarks.clear();
+  _bquarks_px.clear();
+  _bquarks_py.clear();
+  _bquarks_pz.clear();
+  _bquarks_e.clear();
+  
   _bmotmass.clear();
   _indexDau1.clear();
   _indexDau2.clear();
@@ -229,7 +267,13 @@ void HTauTauNtuplizer::Initialize(){
   _triggerbit=0;
   _met=0;
   _metphi=0.;
-  _jets.clear();
+
+//  _jets.clear();
+  _jets_px.clear();
+  _jets_py.clear();
+  _jets_pz.clear();
+  _jets_e.clear();
+
   _jetFlavour.clear();
   _numberOfJets=0;
   _bdiscr.clear();
@@ -247,12 +291,25 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
-  myTree->Branch("mothers",&_mothers);
-  myTree->Branch("daughters",&_daughters);
+
+  myTree->Branch("mothers_px",&_mothers_px);
+  myTree->Branch("mothers_py",&_mothers_py);
+  myTree->Branch("mothers_pz",&_mothers_pz);
+  myTree->Branch("mothers_e",&_mothers_e);
+
+  myTree->Branch("daughters_px",&_daughters_px);
+  myTree->Branch("daughters_py",&_daughters_py);
+  myTree->Branch("daughters_pz",&_daughters_pz);
+  myTree->Branch("daughters_e",&_daughters_e);
+
+
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
     myTree->Branch("genDaughters",&_genDaughters);
-    myTree->Branch("bquarks",&_bquarks);
+    myTree->Branch("bquarks_px",&_bquarks_px);
+    myTree->Branch("bquarks_py",&_bquarks_py);
+    myTree->Branch("bquarks_pz",&_bquarks_pz);
+    myTree->Branch("bquarks_e",&_bquarks_e);
     myTree->Branch("bmotmass",&_bmotmass);
   }
   //myTree->Branch("daughters2",&_daughter2);
@@ -269,7 +326,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
-  myTree->Branch("jets",&_jets);
+  myTree->Branch("jets_px",&_jets_px);
+  myTree->Branch("jets_py",&_jets_py);
+  myTree->Branch("jets_pz",&_jets_pz);
+  myTree->Branch("jets_e",&_jets_e);
   myTree->Branch("jetFlavour",&_jetFlavour);
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -278,7 +338,7 @@ void HTauTauNtuplizer::beginJob(){
 Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0){
   const reco::Candidate *daughter = cand.daughter(iCand);
   for(UInt_t iLeptons=0;iLeptons<_softLeptons.size();iLeptons++){
-	//if(daughter==daughterPoint[iLeptons]){
+    //if(daughter==daughterPoint[iLeptons]){
     //if(daughter==_softLeptons.at(iLeptons)){
     if(daughter->masterClone().get()==_softLeptons.at(iLeptons)){
       return iLeptons;
@@ -319,8 +379,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   triggerhelper myTriggerHelper;
   _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
-  //if(_triggerbit == 0)return;
-  
 
   //Get candidate collection
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
@@ -370,71 +428,75 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     //}
     
     for(int iCand=0;iCand<2;iCand++){
-      //int index=-1;
-      int index=FindCandIndex(cand,iCand);
-      const reco::Candidate *daughter = cand.daughter(iCand);
-      if(theFSR){
-		const pat::PFParticle* fsr=0;
-		double maxPT=-1;
-		const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(daughter);
-		if (gammas!=0) {
-	  	  for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
-	    	//const pat::Photon* gamma = g->get();
-	    	const pat::PFParticle* gamma = g->get();
-	    	double pt = gamma->pt();
-	    	if (pt>maxPT) {
-	      		maxPT  = pt;
-	      		fsr = gamma;
-	    	}	
-	  	  }
-		}
-	
-	//cand.addUserFloat("dauWithFSR",lepWithFsr); // Index of the cand daughter with associated FSR photon
-	
-	if (fsr!=0) {
-	  // Add daughter and set p4.
-	  candp4+=fsr->p4();
-	  //pfour+=fsr->p4();
-	  //      myCand.addDaughter(reco::ShallowCloneCandidate(fsr->masterClone()),"FSR"); //FIXME: fsr does not have a masterClone
-	  //pat::PFParticle myFsr(fsr);
-	  //myFsr.setPdgId(22); // Fix: photons that are isFromMu have abs(pdgId)=13!!!
-	  //cand.addDaughter(myFsr,"FSR");
-	  /*
-	  // Recompute iso for leptons with FSR    
-	  const Candidate* d = cand.daughter(iCand);
-	  float fsrCorr = 0; // The correction to PFPhotonIso
-	  if (!fsr->isFromMuon()) { // Type 1 photons should be subtracted from muon iso cones
-	    double dR = ROOT::Math::VectorUtil::DeltaR(fsr->momentum(),d->momentum());
-	    if (dR<0.4 && ((d->isMuon() && dR > 0.01) ||
-			   (d->isElectron() && (fabs((static_cast<const pat::Electron*>(d->masterClone().get()))->superCluster()->eta()) < 1.479 || dR > 0.08)))) {
-	      fsrCorr = fsr->pt();
-	    }
-	  }
+        //int index=-1;
+        int index=FindCandIndex(cand,iCand);
+        const reco::Candidate *daughter = cand.daughter(iCand);
+        if(theFSR){
+            const pat::PFParticle* fsr=0;
+            double maxPT=-1;
+            const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(daughter);
+            if (gammas!=0) {
+                for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
+                    //const pat::Photon* gamma = g->get();
+                    const pat::PFParticle* gamma = g->get();
+                    double pt = gamma->pt();
+                    if (pt>maxPT) {
+                        maxPT = pt;
+                        fsr = gamma;
+                    }    
+                }
+            }
+    
+            //cand.addUserFloat("dauWithFSR",lepWithFsr); // Index of the cand daughter with associated FSR photon
+    
+            if (fsr!=0) {
+              // Add daughter and set p4.
+              candp4+=fsr->p4();
+              //pfour+=fsr->p4();
+              //      myCand.addDaughter(reco::ShallowCloneCandidate(fsr->masterClone()),"FSR"); //FIXME: fsr does not have a masterClone
+              //pat::PFParticle myFsr(fsr);
+              //myFsr.setPdgId(22); // Fix: photons that are isFromMu have abs(pdgId)=13!!!
+              //cand.addDaughter(myFsr,"FSR");
+              /*
+              // Recompute iso for leptons with FSR    
+              const Candidate* d = cand.daughter(iCand);
+              float fsrCorr = 0; // The correction to PFPhotonIso
+              if (!fsr->isFromMuon()) { // Type 1 photons should be subtracted from muon iso cones
+                double dR = ROOT::Math::VectorUtil::DeltaR(fsr->momentum(),d->momentum());
+                if (dR<0.4 && ((d->isMuon() && dR > 0.01) ||
+                       (d->isElectron() && (fabs((static_cast<const pat::Electron*>(d->masterClone().get()))->superCluster()->eta()) < 1.479 || dR > 0.08)))) {
+                  fsrCorr = fsr->pt();
+                }
+              }
 
-	  float rho = ((d->isMuon())?rhoForMu:rhoForEle);
-	  float combRelIsoPFCorr =  LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, d, fsrCorr);
-	  
-	  string base;
-	  stringstream str;
-	  str << "d" << iCand << ".";
-	  str >> base;	  
-	  cand.addUserFloat(base+"combRelIsoPFFSRCorr",combRelIsoPFCorr);
-	  */
-	}
+              float rho = ((d->isMuon())?rhoForMu:rhoForEle);
+              float combRelIsoPFCorr =  LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, d, fsrCorr);
+      
+              string base;
+              stringstream str;
+              str << "d" << iCand << ".";
+              str >> base;      
+              cand.addUserFloat(base+"combRelIsoPFFSRCorr",combRelIsoPFCorr);
+              */
+            }
 
-	//daughter->setP4(daughter->p4()+fsr->p4());
-      }
+            //daughter->setP4(daughter->p4()+fsr->p4());
+        }
 
-	if(iCand==0)_indexDau1.push_back(index);
-	else _indexDau2.push_back(index);	
+        if(iCand==0)_indexDau1.push_back(index);
+        else _indexDau2.push_back(index);	
 
     }
-    _mothers.push_back(candp4);
+    
+    _mothers_px.push_back(candp4.X());
+    _mothers_py.push_back(candp4.Y());
+    _mothers_pz.push_back(candp4.Z());
+    _mothers_e.push_back(candp4.T());
   
-      /*   float fillArray[nOutVars]={
-      (float)event.id().run(),
-      (float)event.id().event(),
-      (float)cand.p4().mass(),
+    /*   float fillArray[nOutVars]={
+    (float)event.id().run(),
+    (float)event.id().event(),
+    (float)cand.p4().mass(),
       (float)cand.p4().pt(),
       (float)cand.p4().eta(),
       (float)cand.p4().phi(),
@@ -459,10 +521,13 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
   int nJets=0;
   for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
     nJets++;
-    _jets.push_back(ijet->p4());
+    _jets_px.push_back(ijet->px());
+    _jets_py.push_back(ijet->py());
+    _jets_pz.push_back(ijet->pz());
+    _jets_e.push_back(ijet->energy());
     _jetFlavour.push_back(ijet->partonFlavour());
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
-    _bdiscr2.push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+    _bdiscr2.push_back(ijet->bDiscriminator("combinedInclusiveSecondaryVertexV2BJetTags"));
   }
   return nJets;
 }
@@ -477,31 +542,34 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
       double maxPT=-1;
       const PhotonPtrVector* gammas = userdatahelpers::getUserPhotons(cand);
       if (gammas!=0) {
-	for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
-	  //const pat::Photon* gamma = g->get();
-	  const pat::PFParticle* gamma = g->get();
-	  double pt = gamma->pt();
-	  if (pt>maxPT) {
-	    maxPT  = pt;
-	    fsr = gamma;
-	  }
-	}
+        for (PhotonPtrVector::const_iterator g = gammas->begin();g!= gammas->end(); ++g) {
+          //const pat::Photon* gamma = g->get();
+          const pat::PFParticle* gamma = g->get();
+          double pt = gamma->pt();
+          if (pt>maxPT) {
+            maxPT  = pt;
+            fsr = gamma;
+          }
+        }
       }
-      
       if (fsr!=0) {
-	pfour+=fsr->p4();
+        pfour+=fsr->p4();
       }
     } 
-    _daughters.push_back(pfour);
+    
+    _daughters_px.push_back(pfour.X());
+    _daughters_py.push_back(pfour.Y());
+    _daughters_pz.push_back(pfour.Z());
+    _daughters_e.push_back(pfour.T());
+
     //math::XYZTLorentzVector pfour(userdatahelpers::getUserFloat(cand,"genPx"),userdatahelpers::getUserFloat(cand,"genPy"),userdatahelpers::getUserFloat(cand,"genPz"),userdatahelpers::getUserFloat(cand,"genE"));
     if(theisMC)_genDaughters.push_back(userdatahelpers::getUserFloat(cand,"fromH"));
-
     _softLeptons.push_back(cand);//This is needed also for FindCandIndex
     _pdgdau.push_back(cand->pdgId());
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
-    int type =OfflineProducerHelper::TAU;
+    int type = OfflineProducerHelper::TAU;
     if(cand->isMuon()) type = OfflineProducerHelper::MUON;
     else if(cand->isElectron()) type = OfflineProducerHelper::ELECTRON;
     _particleType.push_back(type);
@@ -523,7 +591,11 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
   const edm::View<pat::GenericParticle>* bs = candHandle.product();
   for(edm::View<pat::GenericParticle>::const_iterator ib = bs->begin(); ib!=bs->end();++ib){
     const pat::GenericParticle* cand = &(*ib);
-    _bquarks.push_back(cand->p4());
+    _bquarks_px.push_back(cand->px());
+    _bquarks_py.push_back(cand->py());
+    _bquarks_pz.push_back(cand->px());
+    _bquarks_e.push_back(cand->energy());
+
     _bmotmass.push_back(userdatahelpers::getUserFloat(cand,"motHmass"));
   }
 }
