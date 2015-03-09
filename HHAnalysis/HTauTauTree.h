@@ -169,12 +169,6 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("daughters_py", &daughters_py, &b_daughters_py);
    _tree->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
    _tree->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
-   _tree->SetBranchAddress("genDaughters", &genDaughters, &b_genDaughters);
-   _tree->SetBranchAddress("bquarks_px", &bquarks_px, &b_bquarks_px);
-   _tree->SetBranchAddress("bquarks_py", &bquarks_py, &b_bquarks_py);
-   _tree->SetBranchAddress("bquarks_pz", &bquarks_pz, &b_bquarks_pz);
-   _tree->SetBranchAddress("bquarks_e", &bquarks_e, &b_bquarks_e);
-   _tree->SetBranchAddress("bmotmass", &bmotmass, &b_bmotmass);
    _tree->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
    _tree->SetBranchAddress("METx", &METx, &b_METx);
    _tree->SetBranchAddress("METy", &METy, &b_METy);
@@ -195,6 +189,17 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("jetFlavour", &jetFlavour, &b_jetFlavour);
    _tree->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
    _tree->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
+
+   // MC only
+   if(_tree->GetListOfBranches()->FindObject("genDaughters"))
+   {
+        _tree->SetBranchAddress("genDaughters", &genDaughters, &b_genDaughters);
+        _tree->SetBranchAddress("bquarks_px", &bquarks_px, &b_bquarks_px);
+        _tree->SetBranchAddress("bquarks_py", &bquarks_py, &b_bquarks_py);
+        _tree->SetBranchAddress("bquarks_pz", &bquarks_pz, &b_bquarks_pz);
+        _tree->SetBranchAddress("bquarks_e", &bquarks_e, &b_bquarks_e);
+        _tree->SetBranchAddress("bmotmass", &bmotmass, &b_bmotmass);
+   }
 }
 
 Int_t HTauTauTree::GetEntry(int entry)
