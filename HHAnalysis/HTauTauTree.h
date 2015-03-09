@@ -1,3 +1,13 @@
+// Author: L. Cadamuro (LLR)
+// Date:   09 March 2015
+//
+// Wrapper for Higgs Tau Tau tree output tree
+// Can be either included in a interpreted macro or compiled in c++
+// (use `root-config --glibs --cflags`)
+//
+// Create the HTauTauTree object from the pointer to the tree, then access the stored objects from it
+// Common TTree functions GetEntry (entry), GetEntries() are implemented
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TTree.h>

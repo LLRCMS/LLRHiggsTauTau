@@ -488,10 +488,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     }
     
-    _mothers_px.push_back(candp4.X());
-    _mothers_py.push_back(candp4.Y());
-    _mothers_pz.push_back(candp4.Z());
-    _mothers_e.push_back(candp4.T());
+    _mothers_px.push_back( (float) candp4.X());
+    _mothers_py.push_back( (float) candp4.Y());
+    _mothers_pz.push_back( (float) candp4.Z());
+    _mothers_e.push_back( (float) candp4.T());
   
     /*   float fillArray[nOutVars]={
     (float)event.id().run(),
@@ -521,10 +521,10 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
   int nJets=0;
   for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
     nJets++;
-    _jets_px.push_back(ijet->px());
-    _jets_py.push_back(ijet->py());
-    _jets_pz.push_back(ijet->pz());
-    _jets_e.push_back(ijet->energy());
+    _jets_px.push_back( (float) ijet->px());
+    _jets_py.push_back( (float) ijet->py());
+    _jets_pz.push_back( (float) ijet->pz());
+    _jets_e.push_back( (float) ijet->energy());
     _jetFlavour.push_back(ijet->partonFlavour());
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("combinedInclusiveSecondaryVertexV2BJetTags"));
@@ -557,10 +557,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
       }
     } 
     
-    _daughters_px.push_back(pfour.X());
-    _daughters_py.push_back(pfour.Y());
-    _daughters_pz.push_back(pfour.Z());
-    _daughters_e.push_back(pfour.T());
+    _daughters_px.push_back( (float) pfour.X());
+    _daughters_py.push_back( (float) pfour.Y());
+    _daughters_pz.push_back( (float) pfour.Z());
+    _daughters_e.push_back( (float) pfour.T());
 
     //math::XYZTLorentzVector pfour(userdatahelpers::getUserFloat(cand,"genPx"),userdatahelpers::getUserFloat(cand,"genPy"),userdatahelpers::getUserFloat(cand,"genPz"),userdatahelpers::getUserFloat(cand,"genE"));
     if(theisMC)_genDaughters.push_back(userdatahelpers::getUserFloat(cand,"fromH"));
@@ -591,10 +591,10 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
   const edm::View<pat::GenericParticle>* bs = candHandle.product();
   for(edm::View<pat::GenericParticle>::const_iterator ib = bs->begin(); ib!=bs->end();++ib){
     const pat::GenericParticle* cand = &(*ib);
-    _bquarks_px.push_back(cand->px());
-    _bquarks_py.push_back(cand->py());
-    _bquarks_pz.push_back(cand->px());
-    _bquarks_e.push_back(cand->energy());
+    _bquarks_px.push_back( (float) cand->px());
+    _bquarks_py.push_back( (float) cand->py());
+    _bquarks_pz.push_back( (float) cand->px());
+    _bquarks_e.push_back( (float) cand->energy());
 
     _bmotmass.push_back(userdatahelpers::getUserFloat(cand,"motHmass"));
   }
