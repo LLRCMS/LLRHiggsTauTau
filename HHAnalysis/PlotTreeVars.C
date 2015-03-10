@@ -13,7 +13,7 @@ using namespace std;
 
 void PlotTreeVars()
 {
-    TFile* fIn = new TFile ("/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_2_0/src/LLRHiggsTauTau/NtupleProducer/test/HTauTauAnalysis.root"); 
+    TFile* fIn = new TFile ("output_HH.root"); 
     
     TTree* treePtr = (TTree*) fIn->Get("HTauTauTree/HTauTauTree");
     TH1F *evCounter = (TH1F*) fIn->Get("HTauTauTree/Counters");
@@ -55,17 +55,17 @@ void PlotTreeVars()
             h_mothers_SVmass->Fill(svmass);
             //Distribution of daughters pt as a function of the pair invariant mass
             //indexes of the daughters (in the daughters vector)
-            dau1index = tree->indexDau1->at(iMoth);
-            dau2index = tree->indexDau2->at(iMoth);
+            int dau1index = tree->indexDau1->at(iMoth);
+            int dau2index = tree->indexDau2->at(iMoth);
             //daughters four momenta
-            dau1px = tree->daughters_px->at(dau1index);
-            dau1py = tree->daughters_py->at(dau1index);
-            dau1pz = tree->daughters_pz->at(dau1index);
-            dau1e = tree->daughters_e->at(dau1index);
-            dau2px = tree->daughters_px->at(dau2index);
-            dau2py = tree->daughters_py->at(dau2index);
-            dau2pz = tree->daughters_pz->at(dau2index);
-            dau2e = tree->daughters_e->at(dau2index);
+            float dau1px = tree->daughters_px->at(dau1index);
+            float dau1py = tree->daughters_py->at(dau1index);
+            float dau1pz = tree->daughters_pz->at(dau1index);
+            float dau1e = tree->daughters_e->at(dau1index);
+            float dau2px = tree->daughters_px->at(dau2index);
+            float dau2py = tree->daughters_py->at(dau2index);
+            float dau2pz = tree->daughters_pz->at(dau2index);
+            float dau2e = tree->daughters_e->at(dau2index);
             TLorentzVector dau1(dau1px, dau1py, dau1pz, dau1e);
             TLorentzVector dau2(dau2px, dau2py, dau2pz, dau2e);
             h_dauPtvsSVFit->Fill(svmass, dau1.Pt());
