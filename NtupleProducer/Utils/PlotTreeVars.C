@@ -5,6 +5,7 @@
 #include "TH1F.h"
 #include "TCanvas.h"
 #include "TLorentzVector.h"
+#include "OfflineProducerHelper.h"
 
 //For trigger selction tools, please refer to 
 //https://github.com/LLRCMS/LLRHiggsTauTau/blob/master/NtupleProducer/Utils/OfflineProducerHelper.h
@@ -24,6 +25,8 @@ void PlotTreeVars()
     //HTauTauTree class defines the branches from the Ntuplizer output
     HTauTauTree* tree = new HTauTauTree (treePtr);
     
+    //trigger helper 
+    OfflineProducerHelper helper;
     /*
     // Can activate only some branches like this
     tree->GetTree()->SetBranchStatus("*", 0);
@@ -40,6 +43,14 @@ void PlotTreeVars()
     for (int iEntry = 0; iEntry < tree->GetEntries() ; iEntry++)
     {
         tree->GetEntry(iEntry);
+
+        //Check if a specific trigger is fired
+        if(helper.IsTriggerFired(tree->triggerbit,"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v1")){
+            cout<<"trigger HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v1 fired in event "<<iEntry<<endl;
+        }
+        //print all fired triggers
+        //cout<<"NEW EVENT"<<endl<<endl;
+        //helper.printFiredPaths(tree->triggerbit);
         
         //Distribution of the bDiscriminant
         for (int iJet = 0; iJet < tree->bDiscriminator->size(); iJet++)

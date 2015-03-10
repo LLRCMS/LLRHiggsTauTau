@@ -67,7 +67,13 @@ OfflineProducerHelper::OfflineProducerHelper(){
 
 int OfflineProducerHelper::FindTriggerNumber(TString triggername){
   for(int it=0;it<nTriggers;it++){ 	
-  	if(triggerlist[it].Data()==triggername.Data())return it;
+  	if(triggerlist[it].CompareTo(triggername.Data())==0)return it;
+  	else {
+  	    TString newName=triggername.Data();
+  	    newName.Prepend("HLT_");
+  	    newName.Append("_v1");
+  	    if(triggerlist[it].CompareTo(newName.Data())==0)return it;
+  	}
   }
   return -1;
 }
