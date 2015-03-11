@@ -24,16 +24,19 @@ class triggerhelper {
  public:
   triggerhelper();
   int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
-  int FindTriggerNumber(TString triggername);
-  bool IsTriggerFired(int triggerbit, int triggerNumber);
-  bool IsTriggerFired(int triggerbit, TString triggerName){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
-  int printFiredPaths(int triggerbit);
+  int FindMETBit(const edm::Event&);
+  int FindTriggerNumber(TString triggername,bool istrigger=true);
+  bool IsTriggerFired(int triggerbit, int triggerNumber,bool istrigger=true);
+  bool IsTriggerFired(int triggerbit, TString triggerName,bool istrigger=true){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
+  int printFiredPaths(int triggerbit,bool istrigger=true);
 
   ~triggerhelper(){}
 
  private:
   static const int nTriggers =19;
   TString triggerlist[nTriggers];
+  static const int nMETs =13;
+  TString metlist[nMETs];
 
 };
 #endif

@@ -45,6 +45,22 @@ triggerhelper::triggerhelper(){
     triggerlist[i].Prepend("HLT_");
     triggerlist[i].Append("_v1");
   }
+  TString tmpMETfilters[nMETs]={
+                   "Flag_CSCTightHaloFilter", 
+ "Flag_EcalDeadCellTriggerPrimitiveFilter",
+                    "Flag_HBHENoiseFilter",  
+                         "Flag_METFilters",  
+                "Flag_ecalLaserCorrFilter",  
+                      "Flag_eeBadScFilter",  
+                       "Flag_goodVertices",  
+               "Flag_hcalLaserEventFilter",  
+              "Flag_trackingFailureFilter",  
+                      "Flag_trkPOGFilters",  
+     "Flag_trkPOG_logErrorTooManyClusters",  
+            "Flag_trkPOG_manystripclus53X",  
+         "Flag_trkPOG_toomanystripclus53X",  
+  };
+  for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 }
 
 int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
@@ -53,7 +69,7 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
   
   edm::Handle<edm::TriggerResults> triggerResults;
   event.getByLabel(InputTag("TriggerResults","","HLT"), triggerResults);
-  
+      
   // for(int it=0;it<nTriggers;it++){
   //   for(int j=0;j<(int)triggerNames->size();j++)cout<<triggerNames->triggerName(j)<<endl;
   //   unsigned i =  triggerNames->triggerIndex(triggerlist[it].Data());
@@ -66,11 +82,9 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
   for(int it=0;it<nTriggers;it++){
     //for(int j=0;j<(int)foundPaths.size();j++){
     for(int j=0;j<(int)foundPaths.size();j++){
-      if(triggerlist[it].Data()==foundPaths.at(j)){
-	if(triggerResults->accept(indexOfPaths[j])){
-	  bit |= 1 <<it;
-	}
-	break;
+      if(triggerlist[it].CompareTo(foundPaths.at(j))==0){
+	      if(triggerResults->accept(indexOfPaths[j]))bit |= 1 <<it;
+	      break;
       }
     }
   }
@@ -78,23 +92,56 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
   return bit;
 }
 
-int triggerhelper::FindTriggerNumber(TString triggername){
-  for(int it=0;it<nTriggers;it++){ 	
-  	if(triggerlist[it].Data()==triggername.Data())return it;
+int triggerhelper::FindMETBit(const edm::Event& event){
+
+  int bit =0;
+  edm::Handle<edm::TriggerResults> metFilterBits;
+  event.getByLabel(InputTag("TriggerResults","","PAT"), metFilterBits);
+  //edm::EDGetTokenT<edm::TriggerResults> metFilterBitsToken_;//(consumes<edm::TriggerResults>(<edm::InputTag>("metFilterBits")));
+  //event.getByToken(metFilterBitsToken_, metFilterBits);
+  const edm::TriggerNames &metNames = event.triggerNames(*metFilterBits);
+  for(int im=0;im<nMETs;im++){
+    for(unsigned int i = 0; i < metFilterBits->size(); ++i){
+      if(metlist[im].CompareTo(metNames.triggerName(i))==0){
+	      if(metFilterBits->accept(i))bit |= 1 <<im;
+	      break;
+      }
+    }
+  }
+  return bit;
+}
+
+int triggerhelper::FindTriggerNumber(TString triggername, bool isTrigger){ 
+  int nLoop = nTriggers;
+  TString *list = triggerlist;
+  if(!isTrigger){
+    list = metlist;
+    nLoop = nMETs;
+  }
+  for(int it=0;it<nLoop;it++){ 	
+  	if(list[it].CompareTo(triggername.Data())==0)return it;
   }
   return -1;
 }
 
-bool triggerhelper::IsTriggerFired(int triggerbit, int triggernumber){ 
-  if(triggernumber>=0 && triggernumber<nTriggers) return triggerbit & (1 << triggernumber);
+bool triggerhelper::IsTriggerFired(int triggerbit, int triggernumber, bool isTrigger){ 
+  int nLoop = nTriggers;
+  if(!isTrigger)nLoop = nMETs;
+  if(triggernumber>=0 && triggernumber<nLoop) return triggerbit & (1 << triggernumber);
   return false;
 }
 
-int triggerhelper::printFiredPaths(int triggerbit){
+int triggerhelper::printFiredPaths(int triggerbit, bool isTrigger){
   int nFired = 0;
-  for(int it=0;it<nTriggers;it++){ 	
-  	if(IsTriggerFired(triggerbit,it)) {
-  	  printf("%s\n",triggerlist[it].Data());
+  int nLoop = nTriggers;
+  TString *list = triggerlist;
+  if(!isTrigger){
+    list = metlist;
+    nLoop = nMETs;
+  }  
+  for(int it=0;it<nLoop;it++){ 	
+  	if(IsTriggerFired(triggerbit,it,isTrigger)) {
+  	  printf("%s\n",list[it].Data());
   	  nFired++;
   	  }
   }

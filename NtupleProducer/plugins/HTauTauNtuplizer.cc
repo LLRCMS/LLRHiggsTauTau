@@ -149,6 +149,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _runNumber;
   Int_t _lumi;
   Int_t _triggerbit;
+  Int_t _metfilterbit;
   Float_t _met;
   Float_t _metphi;
   Float_t _MC_weight;
@@ -268,6 +269,7 @@ void HTauTauNtuplizer::Initialize(){
   _runNumber=0;
   _lumi=0;
   _triggerbit=0;
+  _metfilterbit=0;
   _met=0;
   _metphi=0.;
   _MC_weight=0.;
@@ -294,6 +296,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
+  myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
   
@@ -386,6 +389,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   triggerhelper myTriggerHelper;
   _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
+  _metfilterbit = myTriggerHelper.FindMETBit(event);
 
   //Get candidate collection
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
@@ -393,6 +397,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<pat::Jet>>jetHandle;
   edm::Handle<pat::METCollection> metHandle;
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
+  edm::Handle<edm::TriggerResults> triggerResults;
   
   event.getByLabel(theCandLabel,candHandle);
   event.getByLabel("jets",jetHandle);
@@ -408,6 +413,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const edm::View<pat::Jet>* jets = jetHandle.product();
   const pat::MET &met = metHandle->front();
   //myNtuple->InitializeVariables();
+    
   _indexevents = event.id().event();
   _runNumber = event.id().run();
   _lumi=event.luminosityBlock();

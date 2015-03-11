@@ -31,6 +31,7 @@ public :
    Int_t           lumi;
    Float_t         MC_weight;
    Int_t           triggerbit;
+   Int_t           metfilterbit;
    Float_t         met;
    Float_t         metphi;
    vector<float>   *mothers_px;
@@ -74,6 +75,7 @@ public :
    TBranch        *b_lumi           //!
    TBranch        *b_MC_weight           //!
    TBranch        *b_triggerbit;   //!
+   TBranch        *b_metfilterbit;   //!
    TBranch        *b_met;   //!
    TBranch        *b_metphi;   //!
    TBranch        *b_mothers_px;   //!
@@ -174,6 +176,7 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
    _tree->SetBranchAddress("lumi", &lumi, &b_lumi);
    _tree->SetBranchAddress("triggerbit", &triggerbit, &b_triggerbit);
+   _tree->SetBranchAddress("metfilterbit", &metfilterbit, &b_metfilterbit);
    _tree->SetBranchAddress("met", &met, &b_met);
    _tree->SetBranchAddress("metphi", &metphi, &b_metphi);
    _tree->SetBranchAddress("mothers_px", &mothers_px, &b_mothers_px);
