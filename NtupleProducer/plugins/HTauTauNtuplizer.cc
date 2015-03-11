@@ -51,6 +51,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include <CommonTools/UtilAlgos/interface/TFileService.h>
 
 #include <Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h>
@@ -200,7 +201,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
-  std::vector<Float_t> _jets_PUJetID
+  std::vector<Float_t> _jets_PUJetID;
   std::vector<Int_t> _jets_Flavour;
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
@@ -315,7 +316,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("bquarks_pz",&_bquarks_pz);
     myTree->Branch("bquarks_e",&_bquarks_e);
     myTree->Branch("bmotmass",&_bmotmass);
-    myTree->Branch("MC_weight".&_MC_weight,"MC_weight/F");
+    myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
   }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
@@ -399,9 +400,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByLabel("slimmedMETs",metHandle);
   if(theisMC){
     event.getByLabel(edm::InputTag("generator","minVisPtFilter",""),embeddingWeightHandle);
-    float w = (embeddingWeightHandle.isValid() ? embeddingWeightHandle->filterEfficiency():1.0);
-    _MC_weight.push_back(w);
+    _MC_weight = (embeddingWeightHandle.isValid() ? embeddingWeightHandle->filterEfficiency():1.0);
   }
+
   const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
   const edm::View<reco::Candidate>* daus = dauHandle.product();
   const edm::View<pat::Jet>* jets = jetHandle.product();
