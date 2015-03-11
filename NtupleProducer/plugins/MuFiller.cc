@@ -134,7 +134,9 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("PFPhotonIso",PFPhotonIso);
     l.addUserFloat("combRelIsoPF",combRelIsoPF);
     l.addUserFloat("rho",rho);
-
+    l.addUserFloat("DepositR03TrackerOfficial",l.isolationR03().sumPt);
+    l.addUserFloat("DepositR03ECal",l.isolationR03().emEt);
+    l.addUserFloat("DepositR03Hcal",l.isolationR03().hadEt);
     //    if(vertexs->size()>0) {
     //      SIP=sipCalculator_->calculate(l,vertexs->front());
     //    }

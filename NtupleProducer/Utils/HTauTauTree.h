@@ -62,6 +62,9 @@ public :
    vector<float>   *dz;
    vector<int>     *decayMode;
    vector<float>   *combreliso;
+   vector<float>   *daughters_depositR03_tracker;
+   vector<float>   *daughters_depositR03_ecal;
+   vector<float>   *daughters_depositR03_hcal;
    Int_t           JetsNumber;
    vector<float>   *jets_px;
    vector<float>   *jets_py;
@@ -108,6 +111,9 @@ public :
    TBranch        *b_dz;   //!
    TBranch        *b_decayMode;   //!
    TBranch        *b_combreliso;   //!
+   TBranch        *b_daughters_depositR03_tracker;
+   TBranch        *b_daughters_depositR03_ecal;
+   TBranch        *b_daughters_depositR03_hcal;
    TBranch        *b_JetsNumber;   //!
    TBranch        *b_jets_px;   //!
    TBranch        *b_jets_py;   //!
@@ -164,6 +170,9 @@ void HTauTauTree::Init(TTree* tree)
    dz = 0;
    decayMode = 0;
    combreliso = 0;
+   daughters_depositR03_tracker=0;
+   daughters_depositR03_ecal=0;
+   daughters_depositR03_hcal=0;
    jets_px = 0;
    jets_py = 0;
    jets_pz = 0;
@@ -207,6 +216,9 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("dz", &dz, &b_dz);
    _tree->SetBranchAddress("decayMode", &decayMode, &b_decayMode);
    _tree->SetBranchAddress("combreliso", &combreliso, &b_combreliso);
+   _tree->SetBranchAddress("daughters_depositR03_tracker",&daughters_depositR03_tracker,&b_daughters_depositR03_tracker);
+   _tree->SetBranchAddress("daughters_depositR03_ecal",&daughters_depositR03_ecal,&b_daughters_depositR03_ecal);
+   _tree->SetBranchAddress("daughters_depositR03_hcal",&daughters_depositR03_hcal,&b_daughters_depositR03_hcal);
    _tree->SetBranchAddress("JetsNumber", &JetsNumber, &b_JetsNumber);
    _tree->SetBranchAddress("jets_px", &jets_px, &b_jets_px);
    _tree->SetBranchAddress("jets_py", &jets_py, &b_jets_py);

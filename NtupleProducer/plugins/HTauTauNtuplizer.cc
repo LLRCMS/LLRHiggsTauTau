@@ -166,8 +166,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_py;
   std::vector<Float_t> _daughters_pz;
   std::vector<Float_t> _daughters_e;
-  std::vector<Float_t> _daughters_IetaIeta;
-  std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
 
   std::vector<const reco::Candidate*> _softLeptons;
   
@@ -196,6 +194,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _dxy;
   std::vector<Float_t> _dz;
   std::vector<Int_t> _decayType;//for taus only
+  std::vector<Float_t> _daughters_IetaIeta;
+  std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
+  std::vector<Float_t> _daughters_depositR03_tracker;
+  std::vector<Float_t> _daughters_depositR03_ecal;
+  std::vector<Float_t> _daughters_depositR03_hcal;
 
   //Jets variables
   Int_t _numberOfJets;
@@ -245,7 +248,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_e.clear();
   _daughters_IetaIeta.clear();
   _daughters_deltaPhiSuperClusterTrackAtVtx.clear();
-  
+  _daughters_depositR03_tracker.clear();  
+  _daughters_depositR03_ecal.clear();  
+  _daughters_depositR03_hcal.clear();  
+
   //_daughter2.clear();
   _softLeptons.clear();
   _genDaughters.clear();
@@ -313,9 +319,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_py",&_daughters_py);
   myTree->Branch("daughters_pz",&_daughters_pz);
   myTree->Branch("daughters_e",&_daughters_e);
-  myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
-  myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
-
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
@@ -340,6 +343,11 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("dz",&_dz);
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("combreliso",& _combreliso);
+  myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
+  myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
+  myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
+  myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
+  myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
@@ -603,9 +611,13 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _particleType.push_back(type);
     float discr=-1;
     int decay=-1;
-    float ieta=0,superatvtx=0;
-    if(type==0)discr=userdatahelpers::getUserFloat(cand,"muonID");
-    else if(type==1){
+    float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1;
+    if(type==0){
+      discr=userdatahelpers::getUserFloat(cand,"muonID");
+      depositTracker=userdatahelpers::getUserFloat(cand,"DepositR03TrackerOfficial");
+      depositEcal=userdatahelpers::getUserFloat(cand,"DepositR03Ecal");
+      depositHcal=userdatahelpers::getUserFloat(cand,"DepositR03Hcal");
+    }else if(type==1){
       discr=userdatahelpers::getUserFloat(cand,"BDT");
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
       superatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
@@ -617,7 +629,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _decayType.push_back(decay);
     _daughters_IetaIeta.push_back(ieta);
     _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(superatvtx);
-
+    _daughters_depositR03_tracker.push_back(depositTracker);
+    _daughters_depositR03_ecal.push_back(depositEcal);
+    _daughters_depositR03_hcal.push_back(depositHcal);
   }
 }
 
