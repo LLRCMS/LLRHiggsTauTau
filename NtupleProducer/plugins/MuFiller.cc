@@ -144,7 +144,13 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("dz",dz);
     //l.addUserFloat("HLTMatch", HLTMatch);
     // l.addUserCand("MCMatch",genMatch); // FIXME
-
+    int idbit=0;
+    if(l.isLooseMuon())idbit |= 1 << 0;
+    if(vertex){
+        if(l.isSoftMuon(vertex)) idbit |= 1 << 1;
+        if(l.isTightMuon(vertex)) idbit |= 1 << 2;
+    }
+    l.addUserFloat("muonID",idbit);
     //--- isPFMuon flag - in old samples, l.isPFMuon() is not functional, so this has to be filled
     //    beforehand with the module PATPFMuonEmbedder.
     if(!l.hasUserFloat("isPFMuon")) {

@@ -146,9 +146,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Event Output variables
   Int_t _indexevents;
   Int_t _runNumber;
+  Int_t _lumi;
   Int_t _triggerbit;
   Float_t _met;
   Float_t _metphi;
+  Float_t _MC_weight;
   
   //Leptons
   //std::vector<TLorentzVector> _mothers;
@@ -186,7 +188,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _pdgdau;
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
   std::vector<Float_t> _combreliso;
-  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau
+  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, muonID for muons (bit 0 loose, 1 soft 2 tight)
   std::vector<Float_t> _dxy;
   std::vector<Float_t> _dz;
   std::vector<Int_t> _decayType;//for taus only
@@ -198,9 +200,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
-  
-  
-  std::vector<Int_t> _jetFlavour;
+  std::vector<Float_t> _jets_PUJetID
+  std::vector<Int_t> _jets_Flavour;
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
 };
@@ -264,17 +265,19 @@ void HTauTauNtuplizer::Initialize(){
   _combreliso.clear();
   _indexevents=0;
   _runNumber=0;
+  _lumi=0;
   _triggerbit=0;
   _met=0;
   _metphi=0.;
+  _MC_weight=0.;
 
 //  _jets.clear();
   _jets_px.clear();
   _jets_py.clear();
   _jets_pz.clear();
   _jets_e.clear();
-
-  _jetFlavour.clear();
+  _jets_PUJetID.clear();
+  _jets_Flavour.clear();
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -288,10 +291,11 @@ void HTauTauNtuplizer::beginJob(){
   //Branches
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
+  myTree->Branch("lumi",&_lumi,"lumi/I");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
-
+  
   myTree->Branch("mothers_px",&_mothers_px);
   myTree->Branch("mothers_py",&_mothers_py);
   myTree->Branch("mothers_pz",&_mothers_pz);
@@ -311,6 +315,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("bquarks_pz",&_bquarks_pz);
     myTree->Branch("bquarks_e",&_bquarks_e);
     myTree->Branch("bmotmass",&_bmotmass);
+    myTree->Branch("MC_weight".&_MC_weight,"MC_weight/F");
   }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
@@ -330,7 +335,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
   myTree->Branch("jets_e",&_jets_e);
-  myTree->Branch("jetFlavour",&_jetFlavour);
+  myTree->Branch("jets_Flavour",&_jets_Flavour);
+  myTree->Branch("jets_PUJetID",&_jets_PUJetID);
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
 }
@@ -385,10 +391,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<reco::Candidate>>dauHandle;
   edm::Handle<edm::View<pat::Jet>>jetHandle;
   edm::Handle<pat::METCollection> metHandle;
+  edm::Handle<GenFilterInfo> embeddingWeightHandle;
+  
   event.getByLabel(theCandLabel,candHandle);
   event.getByLabel("jets",jetHandle);
   event.getByLabel("softLeptons",dauHandle);
   event.getByLabel("slimmedMETs",metHandle);
+  if(theisMC){
+    event.getByLabel(edm::InputTag("generator","minVisPtFilter",""),embeddingWeightHandle);
+    float w = (embeddingWeightHandle.isValid() ? embeddingWeightHandle->filterEfficiency():1.0);
+    _MC_weight.push_back(w);
+  }
   const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
   const edm::View<reco::Candidate>* daus = dauHandle.product();
   const edm::View<pat::Jet>* jets = jetHandle.product();
@@ -396,6 +409,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //myNtuple->InitializeVariables();
   _indexevents = event.id().event();
   _runNumber = event.id().run();
+  _lumi=event.luminosityBlock();
   _met = met.sumEt();
   _metphi = met.phi();
     
@@ -525,7 +539,8 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
     _jets_py.push_back( (float) ijet->py());
     _jets_pz.push_back( (float) ijet->pz());
     _jets_e.push_back( (float) ijet->energy());
-    _jetFlavour.push_back(ijet->partonFlavour());
+    _jets_Flavour.push_back(ijet->partonFlavour());
+    _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("combinedInclusiveSecondaryVertexV2BJetTags"));
   }
@@ -575,7 +590,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _particleType.push_back(type);
     float discr=-1;
     int decay=-1;
-    if(type==1)discr=userdatahelpers::getUserFloat(cand,"BDT");
+    if(type==0)discr=userdatahelpers::getUserFloat(cand,"muonID");
+    else if(type==1)discr=userdatahelpers::getUserFloat(cand,"BDT");
     else if(type==2){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");

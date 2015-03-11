@@ -28,6 +28,8 @@ public :
    // Declaration of leaf types
    Int_t           EventNumber;
    Int_t           RunNumber;
+   Int_t           lumi;
+   Float_t         MC_weight;
    Int_t           triggerbit;
    Float_t         met;
    Float_t         metphi;
@@ -62,13 +64,15 @@ public :
    vector<float>   *jets_py;
    vector<float>   *jets_pz;
    vector<float>   *jets_e;
-   vector<int>     *jetFlavour;
+   vector<int>     *jets_Flavour;
    vector<float>   *bDiscriminator;
    vector<float>   *bCSVscore;
 
    // List of branches
    TBranch        *b_EventNumber;   //!
    TBranch        *b_RunNumber;   //!
+   TBranch        *b_lumi           //!
+   TBranch        *b_MC_weight           //!
    TBranch        *b_triggerbit;   //!
    TBranch        *b_met;   //!
    TBranch        *b_metphi;   //!
@@ -103,7 +107,7 @@ public :
    TBranch        *b_jets_py;   //!
    TBranch        *b_jets_pz;   //!
    TBranch        *b_jets_e;   //!
-   TBranch        *b_jetFlavour;   //!
+   TBranch        *b_jets_Flavour;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
    
@@ -156,7 +160,7 @@ void HTauTauTree::Init(TTree* tree)
    jets_py = 0;
    jets_pz = 0;
    jets_e = 0;
-   jetFlavour = 0;
+   jets_Flavour = 0;
    bDiscriminator = 0;
    bCSVscore = 0;
    
@@ -168,6 +172,7 @@ void HTauTauTree::Init(TTree* tree)
 
    _tree->SetBranchAddress("EventNumber", &EventNumber, &b_EventNumber);
    _tree->SetBranchAddress("RunNumber", &RunNumber, &b_RunNumber);
+   _tree->SetBranchAddress("lumi", &lumi, &b_lumi);
    _tree->SetBranchAddress("triggerbit", &triggerbit, &b_triggerbit);
    _tree->SetBranchAddress("met", &met, &b_met);
    _tree->SetBranchAddress("metphi", &metphi, &b_metphi);
@@ -196,7 +201,7 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("jets_py", &jets_py, &b_jets_py);
    _tree->SetBranchAddress("jets_pz", &jets_pz, &b_jets_pz);
    _tree->SetBranchAddress("jets_e", &jets_e, &b_jets_e);
-   _tree->SetBranchAddress("jetFlavour", &jetFlavour, &b_jetFlavour);
+   _tree->SetBranchAddress("jets_Flavour", &jets_Flavour, &b_jets_Flavour);
    _tree->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
    _tree->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
 
@@ -209,6 +214,7 @@ void HTauTauTree::Init(TTree* tree)
         _tree->SetBranchAddress("bquarks_pz", &bquarks_pz, &b_bquarks_pz);
         _tree->SetBranchAddress("bquarks_e", &bquarks_e, &b_bquarks_e);
         _tree->SetBranchAddress("bmotmass", &bmotmass, &b_bmotmass);
+        _tree->SetBranchAddress("MC_weight".&MC_weight,&b_MC_weight);
    }
 }
 
