@@ -166,7 +166,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_py;
   std::vector<Float_t> _daughters_pz;
   std::vector<Float_t> _daughters_e;
-  
+  std::vector<Float_t> _daughters_IetaIeta;
+  std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
+
   std::vector<const reco::Candidate*> _softLeptons;
   
   //std::vector<TLorentzVector> _bquarks;
@@ -241,6 +243,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_py.clear();
   _daughters_pz.clear();
   _daughters_e.clear();
+  _daughters_IetaIeta.clear();
+  _daughters_deltaPhiSuperClusterTrackAtVtx.clear();
   
   //_daughter2.clear();
   _softLeptons.clear();
@@ -309,6 +313,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_py",&_daughters_py);
   myTree->Branch("daughters_pz",&_daughters_pz);
   myTree->Branch("daughters_e",&_daughters_e);
+  myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
+  myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
 
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
@@ -597,14 +603,21 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _particleType.push_back(type);
     float discr=-1;
     int decay=-1;
+    float ieta=0,superatvtx=0;
     if(type==0)discr=userdatahelpers::getUserFloat(cand,"muonID");
-    else if(type==1)discr=userdatahelpers::getUserFloat(cand,"BDT");
-    else if(type==2){
+    else if(type==1){
+      discr=userdatahelpers::getUserFloat(cand,"BDT");
+      ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
+      superatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
+    }else if(type==2){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
     }
     _discriminator.push_back(discr);
     _decayType.push_back(decay);
+    _daughters_IetaIeta.push_back(ieta);
+    _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(superatvtx);
+
   }
 }
 

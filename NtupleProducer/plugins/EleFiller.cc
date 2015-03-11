@@ -159,7 +159,9 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("isBDT",isBDT);
     //l.addUserFloat("HLTMatch", HLTMatch);
     l.addUserFloat("missingHit", missingHit);
-
+    l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
+    l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
+    
     //--- MC info
     const reco::GenParticle* genL= l.genParticleRef().get();
     float px=0,py=0,pz=0,E=0,fromH=0;

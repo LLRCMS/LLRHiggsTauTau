@@ -42,6 +42,8 @@ public :
    vector<float>   *daughters_py;
    vector<float>   *daughters_pz;
    vector<float>   *daughters_e;
+   vector<float>   *daughters_IetaIeta;
+   vector<float>   *daughters_deltaPhiSuperClusterTrackAtVtx;
    vector<int>     *genDaughters;
    vector<float>   *bquarks_px;
    vector<float>   *bquarks_py;
@@ -86,6 +88,8 @@ public :
    TBranch        *b_daughters_py;   //!
    TBranch        *b_daughters_pz;   //!
    TBranch        *b_daughters_e;   //!
+   TBranch        *b_daughters_IetaIeta;
+   TBranch        *b_daughters_deltaPhiSuperClusterTrackAtVtx;
    TBranch        *b_genDaughters;   //!
    TBranch        *b_bquarks_px;   //!
    TBranch        *b_bquarks_py;   //!
@@ -140,6 +144,8 @@ void HTauTauTree::Init(TTree* tree)
    daughters_py = 0;
    daughters_pz = 0;
    daughters_e = 0;
+   daughters_IetaIeta= 0;
+   daughters_deltaPhiSuperClusterTrackAtVtx= 0;
    genDaughters = 0;
    bquarks_px = 0;
    bquarks_py = 0;
@@ -187,6 +193,8 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("daughters_py", &daughters_py, &b_daughters_py);
    _tree->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
    _tree->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
+   _tree->SetBranchAddress("daughters_IetaIeta",&daughters_IetaIeta,&b_daughters_IetaIeta);
+   _tree->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx",&daughters_deltaPhiSuperClusterTrackAtVtx,&b_daughters_deltaPhiSuperClusterTrackAtVtx);
    _tree->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
    _tree->SetBranchAddress("METx", &METx, &b_METx);
    _tree->SetBranchAddress("METy", &METy, &b_METy);
