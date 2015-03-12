@@ -174,6 +174,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _bquarks_py;
   std::vector<Float_t> _bquarks_pz;
   std::vector<Float_t> _bquarks_e;
+  std::vector<Int_t> _bquarks_pdg;
   
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
@@ -261,8 +262,9 @@ void HTauTauNtuplizer::Initialize(){
   _bquarks_py.clear();
   _bquarks_pz.clear();
   _bquarks_e.clear();
-  
+  _bquarks_pdg.clear();
   _bmotmass.clear();
+  
   _indexDau1.clear();
   _indexDau2.clear();
   _pdgdau.clear();
@@ -323,11 +325,12 @@ void HTauTauNtuplizer::beginJob(){
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
     myTree->Branch("genDaughters",&_genDaughters);
-    myTree->Branch("bquarks_px",&_bquarks_px);
-    myTree->Branch("bquarks_py",&_bquarks_py);
-    myTree->Branch("bquarks_pz",&_bquarks_pz);
-    myTree->Branch("bquarks_e",&_bquarks_e);
-    myTree->Branch("bmotmass",&_bmotmass);
+    myTree->Branch("quarks_px",&_bquarks_px);
+    myTree->Branch("quarks_py",&_bquarks_py);
+    myTree->Branch("quarks_pz",&_bquarks_pz);
+    myTree->Branch("quarks_e",&_bquarks_e);
+    myTree->Branch("quarks_pdg",&_bquarks_e);
+    myTree->Branch("motmass",&_bmotmass);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
   }
   //myTree->Branch("daughters2",&_daughter2);
@@ -645,7 +648,7 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
     _bquarks_py.push_back( (float) cand->py());
     _bquarks_pz.push_back( (float) cand->px());
     _bquarks_e.push_back( (float) cand->energy());
-
+    _bquarks_pdg.push_back( (int) cand->pdgId());
     _bmotmass.push_back(userdatahelpers::getUserFloat(cand,"motHmass"));
   }
 }

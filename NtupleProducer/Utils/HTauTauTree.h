@@ -49,6 +49,7 @@ public :
    vector<float>   *bquarks_py;
    vector<float>   *bquarks_pz;
    vector<float>   *bquarks_e;
+   vector<int>     *bquarks_pdg;
    vector<float>   *bmotmass;
    vector<float>   *SVfitMass;
    vector<float>   *METx;
@@ -98,6 +99,7 @@ public :
    TBranch        *b_bquarks_py;   //!
    TBranch        *b_bquarks_pz;   //!
    TBranch        *b_bquarks_e;   //!
+   TBranch        *b_bquarks_pdg;   //!
    TBranch        *b_bmotmass;   //!
    TBranch        *b_SVfitMass;   //!
    TBranch        *b_METx;   //!
@@ -157,6 +159,7 @@ void HTauTauTree::Init(TTree* tree)
    bquarks_py = 0;
    bquarks_pz = 0;
    bquarks_e = 0;
+   bquarks_pdg = 0;
    bmotmass = 0;
    SVfitMass = 0;
    METx = 0;
@@ -232,11 +235,12 @@ void HTauTauTree::Init(TTree* tree)
    if(_tree->GetListOfBranches()->FindObject("genDaughters"))
    {
         _tree->SetBranchAddress("genDaughters", &genDaughters, &b_genDaughters);
-        _tree->SetBranchAddress("bquarks_px", &bquarks_px, &b_bquarks_px);
-        _tree->SetBranchAddress("bquarks_py", &bquarks_py, &b_bquarks_py);
-        _tree->SetBranchAddress("bquarks_pz", &bquarks_pz, &b_bquarks_pz);
-        _tree->SetBranchAddress("bquarks_e", &bquarks_e, &b_bquarks_e);
-        _tree->SetBranchAddress("bmotmass", &bmotmass, &b_bmotmass);
+        _tree->SetBranchAddress("quarks_px", &bquarks_px, &b_bquarks_px);
+        _tree->SetBranchAddress("quarks_py", &bquarks_py, &b_bquarks_py);
+        _tree->SetBranchAddress("quarks_pz", &bquarks_pz, &b_bquarks_pz);
+        _tree->SetBranchAddress("quarks_e", &bquarks_e, &b_bquarks_e);
+        _tree->SetBranchAddress("quarks_pdg", &bquarks_pdg, &b_bquarks_pdg);
+        _tree->SetBranchAddress("motmass", &bmotmass, &b_bmotmass);
         _tree->SetBranchAddress("MC_weight".&MC_weight,&b_MC_weight);
    }
 }
