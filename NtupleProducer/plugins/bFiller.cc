@@ -120,7 +120,7 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     
     //hasHdaughter_=false;
     
-    if (fabs(packb->pdgId())==5)isb_=true;
+    if (fabs(packb->pdgId())==5||(fabs(packb->pdgId()==6))isb_=true;
 
     if (packb->status()==2)isStatus2_=true;
     if (packb->status()==3)isStatus3_=true;
@@ -143,18 +143,18 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //}
       //if(motmass==0){
       for (int im = 0; im<nmot&&motmass==0; ++im){
-	for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
-	  if(ipruned==i)continue;
-	  if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],packb)){
-	    //reco::Candidate* mot = &(*genHandle)[ipruned];
-	    //int pdgmot = mot->pdgId();
-	    int pdgmot = (&(*genHandle)[ipruned])->pdgId();
-	    if(abs(pdgmot)==25){
-	      motmass=1;
-	      break;
-	    }
-	  }
-	}
+	      for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
+	        if(ipruned==i)continue;
+	        if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],packb)){
+	        //reco::Candidate* mot = &(*genHandle)[ipruned];
+	        //int pdgmot = mot->pdgId();
+	          int pdgmot = (&(*genHandle)[ipruned])->pdgId();
+	          if(abs(pdgmot)==25){
+	            motmass=(&(*genHandle)[ipruned])->M();
+	            break;
+	          }
+	        }
+	      }
       }
 
       b.addUserFloat("fromH",motmass);

@@ -248,12 +248,13 @@ void HTauTauTree::Init(TTree* tree)
    if(_tree->GetListOfBranches()->FindObject("genDaughters"))
    {
         _tree->SetBranchAddress("genDaughters", &genDaughters, &b_genDaughters);
-        _tree->SetBranchAddress("bquarks_px", &bquarks_px, &b_bquarks_px);
-        _tree->SetBranchAddress("bquarks_py", &bquarks_py, &b_bquarks_py);
-        _tree->SetBranchAddress("bquarks_pz", &bquarks_pz, &b_bquarks_pz);
-        _tree->SetBranchAddress("bquarks_e", &bquarks_e, &b_bquarks_e);
-        _tree->SetBranchAddress("bmotmass", &bmotmass, &b_bmotmass);
-        _tree->SetBranchAddress("MC_weight",&MC_weight,&b_MC_weight);
+        _tree->SetBranchAddress("quarks_px", &bquarks_px, &b_bquarks_px);
+        _tree->SetBranchAddress("quarks_py", &bquarks_py, &b_bquarks_py);
+        _tree->SetBranchAddress("quarks_pz", &bquarks_pz, &b_bquarks_pz);
+        _tree->SetBranchAddress("quarks_e", &bquarks_e, &b_bquarks_e);
+        _tree->SetBranchAddress("quarks_pdg", &bquarks_pdg, &b_bquarks_pdg);
+        _tree->SetBranchAddress("motmass", &bmotmass, &b_bmotmass);
+        _tree->SetBranchAddress("MC_weight".&MC_weight,&b_MC_weight);
    }
 }
 
