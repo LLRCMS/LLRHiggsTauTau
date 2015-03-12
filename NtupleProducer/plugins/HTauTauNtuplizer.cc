@@ -216,6 +216,12 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _jets_Flavour;
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
+  
+  //genH
+  std::vector<Float_t> _genH_px;
+  std::vector<Float_t> _genH_py;
+  std::vector<Float_t> _genH_pz;
+  std::vector<Float_t> _genH_e;
 };
 
 // ----Constructor and Destructor -----
@@ -304,6 +310,11 @@ void HTauTauNtuplizer::Initialize(){
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
+  
+  _genH_px.clear();
+  _genH_py.clear();
+  _genH_pz.clear();
+  _genH_e.clear();
 }
 
 void HTauTauNtuplizer::beginJob(){
@@ -340,6 +351,10 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("quarks_pdg",&_bquarks_e);
     myTree->Branch("motmass",&_bmotmass);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
+    myTree->Branch("genH_px",&_genH_px);
+    myTree->Branch("genH_py",&_genH_py);
+    myTree->Branch("genH_pz",&_genH_pz);
+    myTree->Branch("genH_e",&_genH_e);
   }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
@@ -667,6 +682,21 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
     _bquarks_pdg.push_back( (int) cand->pdgId());
     _bmotmass.push_back(userdatahelpers::getUserFloat(cand,"motHmass"));
   }
+
+  //Retrieve Generated H (there can be more than 1!  
+  Handle<edm::View<reco::GenParticle> > prunedHandle;
+  event.getByLabel("prunedGenParticles", prunedHandle);
+  for(unsigned int ipruned = 0; ipruned< prunedHandle->size(); ++ipruned){
+    const GenParticle *packed =&(*prunedHandle)[ipruned];
+    int pdgh = packed->pdgId();
+	  if(abs(pdgh)==25){
+	    _genH_px.push_back(packed->px());          
+	    _genH_py.push_back(packed->py());          
+	    _genH_pz.push_back(packed->pz());          
+	    _genH_e.push_back(packed->energy());          
+	  }        
+	} 
+
 }
 
 void HTauTauNtuplizer::endJob(){

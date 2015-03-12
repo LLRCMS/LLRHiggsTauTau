@@ -133,7 +133,6 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       //Search if b comes from a H decay
       int motmass = 0;
-      int nmot = packb->numberOfMothers();
       //      GenParticleRefVector *mothers = packb->mothers();
       //for (int im = 0; im<nmot; ++im){
       //	if(fabs(packb->mother(im)->pdgId()==25)){
@@ -142,7 +141,8 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //	}
       //}
       //if(motmass==0){
-      for (int im = 0; im<nmot&&motmass==0; ++im){
+      //int nmot = packb->numberOfMothers();
+      //for (int im = 0; im<nmot&&motmass==0; ++im){
 	      for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
 	        if(ipruned==i)continue;
 	        if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],packb)){
@@ -155,7 +155,7 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	          }
 	        }
 	      }
-      }
+      //}
 
       b.addUserFloat("fromH",motmass);
       //--- Embed flags (ie flags specified in the "flags" pset) 

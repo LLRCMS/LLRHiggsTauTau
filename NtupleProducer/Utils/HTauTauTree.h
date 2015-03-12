@@ -78,6 +78,10 @@ public :
    vector<int>     *jets_Flavour;
    vector<float>   *bDiscriminator;
    vector<float>   *bCSVscore;
+   vector<float>   *genH_px;
+   vector<float>   *genH_py;
+   vector<float>   *genH_pz;
+   vector<float>   *genH_e;
 
    // List of branches
    TBranch        *b_EventNumber;   //!
@@ -132,7 +136,11 @@ public :
    TBranch        *b_jets_Flavour;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
-   
+   TBranch        *b_genH_px;    //!
+   TBranch        *b_genH_py;    //!
+   TBranch        *b_genH_pz;    //!
+   TBranch        *b_genH_e;    //!
+
    // methods
    HTauTauTree (TTree* tree); //ctor
    ~HTauTauTree();
@@ -195,7 +203,11 @@ void HTauTauTree::Init(TTree* tree)
    jets_Flavour = 0;
    bDiscriminator = 0;
    bCSVscore = 0;
-   
+   genH_px=0.;
+   genH_py=0.;
+   genH_pz=0.;
+   genH_e=0.;
+
    // Set branch addresses and branch pointers
    if (!tree) return;
    _tree = tree;
@@ -258,6 +270,10 @@ void HTauTauTree::Init(TTree* tree)
         _tree->SetBranchAddress("quarks_pdg", &bquarks_pdg, &b_bquarks_pdg);
         _tree->SetBranchAddress("motmass", &bmotmass, &b_bmotmass);
         _tree->SetBranchAddress("MC_weight",&MC_weight,&b_MC_weight);
+        _tree->SetBranchAddress("genH_px",&genH_px,&b_genH_px);
+        _tree->SetBranchAddress("genH_py",&genH_py,&b_genH_py);
+        _tree->SetBranchAddress("genH_pz",&genH_pz,&b_genH_pz);
+        _tree->SetBranchAddress("genH_e",&genH_e,&b_genH_e);
    }
 }
 
