@@ -53,6 +53,10 @@ public :
    vector<float>   *SVfitMass;
    vector<float>   *METx;
    vector<float>   *METy;
+   vector<float>   *MET_cov00;
+   vector<float>   *MET_cov01;
+   vector<float>   *MET_cov10;
+   vector<float>   *MET_cov11;   
    vector<int>     *PDGIdDaughters;
    vector<int>     *indexDau1;
    vector<int>     *indexDau2;
@@ -77,8 +81,8 @@ public :
    // List of branches
    TBranch        *b_EventNumber;   //!
    TBranch        *b_RunNumber;   //!
-   TBranch        *b_lumi           //!
-   TBranch        *b_MC_weight           //!
+   TBranch        *b_lumi;          //!
+   TBranch        *b_MC_weight;           //!
    TBranch        *b_triggerbit;   //!
    TBranch        *b_metfilterbit;   //!
    TBranch        *b_met;   //!
@@ -102,6 +106,10 @@ public :
    TBranch        *b_SVfitMass;   //!
    TBranch        *b_METx;   //!
    TBranch        *b_METy;   //!
+   TBranch        *b_MET_cov00;   //!
+   TBranch        *b_MET_cov01;   //!
+   TBranch        *b_MET_cov10;   //!
+   TBranch        *b_MET_cov11;   //!
    TBranch        *b_PDGIdDaughters;   //!
    TBranch        *b_indexDau1;   //!
    TBranch        *b_indexDau2;   //!
@@ -161,6 +169,10 @@ void HTauTauTree::Init(TTree* tree)
    SVfitMass = 0;
    METx = 0;
    METy = 0;
+   MET_cov00 = 0;
+   MET_cov01 = 0;
+   MET_cov10 = 0;
+   MET_cov11 = 0;
    PDGIdDaughters = 0;
    indexDau1 = 0;
    indexDau2 = 0;
@@ -207,6 +219,10 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
    _tree->SetBranchAddress("METx", &METx, &b_METx);
    _tree->SetBranchAddress("METy", &METy, &b_METy);
+   _tree->SetBranchAddress("MET_cov00", &MET_cov00, &b_MET_cov00);
+   _tree->SetBranchAddress("MET_cov01", &MET_cov01, &b_MET_cov01);
+   _tree->SetBranchAddress("MET_cov10", &MET_cov10, &b_MET_cov10);
+   _tree->SetBranchAddress("MET_cov11", &MET_cov11, &b_MET_cov11);
    _tree->SetBranchAddress("PDGIdDaughters", &PDGIdDaughters, &b_PDGIdDaughters);
    _tree->SetBranchAddress("indexDau1", &indexDau1, &b_indexDau1);
    _tree->SetBranchAddress("indexDau2", &indexDau2, &b_indexDau2);
@@ -237,7 +253,7 @@ void HTauTauTree::Init(TTree* tree)
         _tree->SetBranchAddress("bquarks_pz", &bquarks_pz, &b_bquarks_pz);
         _tree->SetBranchAddress("bquarks_e", &bquarks_e, &b_bquarks_e);
         _tree->SetBranchAddress("bmotmass", &bmotmass, &b_bmotmass);
-        _tree->SetBranchAddress("MC_weight".&MC_weight,&b_MC_weight);
+        _tree->SetBranchAddress("MC_weight",&MC_weight,&b_MC_weight);
    }
 }
 

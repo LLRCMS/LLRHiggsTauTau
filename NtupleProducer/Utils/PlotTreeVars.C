@@ -3,6 +3,7 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TCanvas.h"
 #include "TLorentzVector.h"
 #include "OfflineProducerHelper.h"
@@ -14,7 +15,7 @@ using namespace std;
 
 void PlotTreeVars()
 {
-    TFile* fIn = new TFile ("output_HH.root"); 
+    TFile* fIn = new TFile ("../test/HTauTauAnalysis.root"); 
     
     TTree* treePtr = (TTree*) fIn->Get("HTauTauTree/HTauTauTree");
     TH1F *evCounter = (TH1F*) fIn->Get("HTauTauTree/Counters");
@@ -101,5 +102,6 @@ void PlotTreeVars()
     
 }
 
+// if compiling: c++ -lm -o PlotTreeVars PlotTreeVars.C `root-config --glibs --cflags`
 int main()
 {PlotTreeVars();}

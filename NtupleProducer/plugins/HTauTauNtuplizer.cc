@@ -184,6 +184,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _SVmass;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
+  std::vector<Float_t> _metCov00;
+  std::vector<Float_t> _metCov01;
+  std::vector<Float_t> _metCov10;
+  std::vector<Float_t> _metCov11;
   std::vector<Float_t> _bmotmass;
    
   //Leptons variables
@@ -269,6 +273,10 @@ void HTauTauNtuplizer::Initialize(){
   _SVmass.clear();
   _metx.clear();
   _mety.clear();
+  _metCov00.clear();
+  _metCov01.clear();
+  _metCov10.clear();
+  _metCov11.clear();
   _particleType.clear();
   _discriminator.clear();
   _dxy.clear();
@@ -334,6 +342,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("SVfitMass",&_SVmass);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
+  myTree->Branch("MET_cov00",&_metCov00);
+  myTree->Branch("MET_cov01",&_metCov01);
+  myTree->Branch("MET_cov10",&_metCov10);
+  myTree->Branch("MET_cov11",&_metCov11);  
   myTree->Branch("PDGIdDaughters",&_pdgdau);
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
@@ -456,6 +468,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _SVmass.push_back(cand.userFloat("SVfitMass"));
     _metx.push_back(cand.userFloat("MEt_px"));
     _mety.push_back(cand.userFloat("MEt_py"));
+    _metCov00.push_back(cand.userFloat("MEt_cov00"));
+    _metCov01.push_back(cand.userFloat("MEt_cov01"));
+    _metCov10.push_back(cand.userFloat("MEt_cov10"));
+    _metCov11.push_back(cand.userFloat("MEt_cov11"));
     
     //if(DEBUG){
       //motherPoint[iMot]=dynamic_cast<const reco::Candidate*>(&*candi);

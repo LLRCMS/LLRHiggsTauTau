@@ -87,6 +87,11 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("SVfitMass", SVfitMass);
     pair.addUserFloat("MEt_px", -999);
     pair.addUserFloat("MEt_py", -999);
+    pair.addUserFloat("MEt_cov00", -999);
+    pair.addUserFloat("MEt_cov01", -999);
+    pair.addUserFloat("MEt_cov10", -999);
+    pair.addUserFloat("MEt_cov11", -999);
+
     result->push_back(pair);
   }
   iEvent.put(result);

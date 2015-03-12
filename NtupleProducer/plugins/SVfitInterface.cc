@@ -246,7 +246,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
     // define algorithm (set the debug level to 3 for testing)
     unsigned int verbosity = 0;
-    float SVfitMass = -999.;
+    double SVfitMass = -999.;
      
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
@@ -259,9 +259,13 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } // otherwise mass will be -1
     
     // add user floats: SVfit mass, met properties, etc..  
-    pair.addUserFloat("SVfitMass", SVfitMass);
-    pair.addUserFloat("MEt_px", METx);
-    pair.addUserFloat("MEt_py", METy);
+    pair.addUserFloat("SVfitMass", (float) SVfitMass);
+    pair.addUserFloat("MEt_px", (float) METx);
+    pair.addUserFloat("MEt_py", (float) METy);
+    pair.addUserFloat("MEt_cov00", (float) covMET[0][0]);
+    pair.addUserFloat("MEt_cov01", (float) covMET[0][1]);
+    pair.addUserFloat("MEt_cov10", (float) covMET[1][0]);
+    pair.addUserFloat("MEt_cov11", (float) covMET[1][1]);
 
     
     result->push_back(pair);     
