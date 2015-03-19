@@ -93,11 +93,10 @@ bFiller::~bFiller()
 
 // ------------ method called on each new Event  ------------
 void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //  using namespace edm;
-  //using namespace std;
-  //using namespace reco;
+
   Bool_t isb_;
-  Bool_t isStatus2_,isStatus3_;
+  Bool_t isLast_;
+  //Bool_t isStatus2_,isStatus3_;
   //Bool_t hasHdaughter_;
     
   //edm::Handle<pat::PackedGenParticle> genHandle;
@@ -115,21 +114,37 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //pat::GenericParticle b((*genHandle)[i]);
  
     isb_=false;
-    isStatus2_=false;
-    isStatus3_=false;
+    isLast_ = true; 
+    //isStatus2_=false;
+    //isStatus3_=false;
     
     //hasHdaughter_=false;
-    
-    if (fabs(packb->pdgId())==5||(fabs(packb->pdgId()==6)))isb_=true;
+    int bPdgId = packb->pdgId();
+    if ( fabs(bPdgId)==5 || fabs(bPdgId)==6 ) isb_=true;
+    //cout << "Index: " << i << " isB: " << isb_ << "(id, pt: " << bPdgId << " , " << packb->pt() << " )" << endl;
+    if (isb_)
+    {
+        for (unsigned int iDau = 0; iDau < packb->numberOfDaughters(); iDau++)
+        {
+            const Candidate * Dau = packb->daughter( iDau );
+            //cout << "  Dau: " << iDau << " pdgId: " << Dau->pdgId() << endl;
+            if (Dau->pdgId() == bPdgId) // reject "copies" of the same particle
+            {
+                isLast_ = false;
+                break;
+            }
+        }
+    }
+   
 
-    if (packb->status()==2)isStatus2_=true;
-    if (packb->status()==3)isStatus3_=true;
+    //if (packb->status()==2)isStatus2_=true;
+    //if (packb->status()==3)isStatus3_=true;
     //if(isStatus2_ || isStatus3_)printf("%d\n",packb->pdgId());
-    if(isb_ && (isStatus2_ || isStatus3_)){
+    if(isb_ &&  isLast_ ){
+      //cout << "Number of particle passed: " << i << " pt: " << packb->pt() << " eta: " << packb->eta() << endl;
       pat::GenericParticle b(*packb);   
       if (!cut(b)) continue;
-
-      b.addUserFloat("status",2*isStatus2_+3*isStatus3_);
+      b.addUserFloat("status",packb->status());
 
       //Search if b comes from a H decay
       int motmass = 0;
@@ -143,20 +158,21 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //if(motmass==0){
       //int nmot = packb->numberOfMothers();
       //for (int im = 0; im<nmot&&motmass==0; ++im){
-	      for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
-	        if(ipruned==i)continue;
-	        if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],packb)){
-	        //reco::Candidate* mot = &(*genHandle)[ipruned];
-	        //int pdgmot = mot->pdgId();
-	          int pdgmot = (&(*genHandle)[ipruned])->pdgId();
-	          if(abs(pdgmot)==25){
-	            motmass=(&(*genHandle)[ipruned])->mass();
-	            break;
-	          }
-	        }
-	      }
+      for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
+          if(ipruned==i)continue;
+          int pdgmot = (&(*genHandle)[ipruned])->pdgId();
+          if(abs(pdgmot)==25){
+    	      if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],packb)){
+	              //reco::Candidate* mot = &(*genHandle)[ipruned];
+                  //int pdgmot = mot->pdgId();
+                  //motmass=(&(*genHandle)[ipruned])->mass();
+                  motmass = 1;
+                  break;
+              }
+          }
+      }
       //}
-
+      
       b.addUserFloat("fromH",motmass);
       //--- Embed flags (ie flags specified in the "flags" pset) 
       for(CutSet<pat::GenericParticle>::const_iterator flag = flags.begin(); flag != flags.end(); ++flag) {
