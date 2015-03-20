@@ -350,7 +350,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("quarks_py",&_bquarks_py);
     myTree->Branch("quarks_pz",&_bquarks_pz);
     myTree->Branch("quarks_e",&_bquarks_e);
-    myTree->Branch("quarks_pdg",&_bquarks_e);
+    myTree->Branch("quarks_pdg",&_bquarks_pdg);
     myTree->Branch("motmass",&_bmotmass);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
     myTree->Branch("genH_px",&_genH_px);
