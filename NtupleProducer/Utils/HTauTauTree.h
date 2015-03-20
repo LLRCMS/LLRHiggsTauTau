@@ -203,10 +203,10 @@ void HTauTauTree::Init(TTree* tree)
    jets_Flavour = 0;
    bDiscriminator = 0;
    bCSVscore = 0;
-   genH_px=0.;
-   genH_py=0.;
-   genH_pz=0.;
-   genH_e=0.;
+   genH_px=0;
+   genH_py=0;
+   genH_pz=0;
+   genH_e=0;
 
    // Set branch addresses and branch pointers
    if (!tree) return;

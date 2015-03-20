@@ -69,7 +69,9 @@
 //#include "HZZ4lNtupleFactory.h"
 #include <LLRHiggsTauTau/NtupleProducer/interface/PhotonFwd.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
-#include "LLRHiggsTauTau/NtupleProducer/Utils/OfflineProducerHelper.h"
+//#include "LLRHiggsTauTau/NtupleProducer/Utils/OfflineProducerHelper.h"
+#include "LLRHiggsTauTau/NtupleProducer/interface/ParticleType.h"
+
 
 //#include "TLorentzVector.h"
 
@@ -639,9 +641,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
-    int type = OfflineProducerHelper::TAU;
-    if(cand->isMuon()) type = OfflineProducerHelper::MUON;
-    else if(cand->isElectron()) type = OfflineProducerHelper::ELECTRON;
+    int type = ParticleType::TAU;
+    if(cand->isMuon()) type = ParticleType::MUON;
+    else if(cand->isElectron()) type = ParticleType::ELECTRON;
     _particleType.push_back(type);
     float discr=-1;
     int decay=-1;
@@ -687,16 +689,30 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
   Handle<edm::View<reco::GenParticle> > prunedHandle;
   event.getByLabel("prunedGenParticles", prunedHandle);
   for(unsigned int ipruned = 0; ipruned< prunedHandle->size(); ++ipruned){
-    const GenParticle *packed =&(*prunedHandle)[ipruned];
-    int pdgh = packed->pdgId();
-	  if(abs(pdgh)==25){
-	    _genH_px.push_back(packed->px());          
-	    _genH_py.push_back(packed->py());          
-	    _genH_pz.push_back(packed->pz());          
-	    _genH_e.push_back(packed->energy());          
-	  }        
-	} 
-
+     const GenParticle *packed =&(*prunedHandle)[ipruned];
+     int pdgh = packed->pdgId();
+     if(abs(pdgh)==25){
+        // avoid Higgs clones, save only the one not going into another H (end of showering process)
+        bool isLast = true;
+        for (unsigned int iDau = 0; iDau < packed->numberOfDaughters(); iDau++)
+        {
+            const Candidate* Dau = packed->daughter( iDau );
+            if (Dau->pdgId() == pdgh)
+            {
+                isLast = false;
+                break;
+            }
+        }
+   
+        if (isLast)
+        {     
+            _genH_px.push_back(packed->px());          
+            _genH_py.push_back(packed->py());          
+            _genH_pz.push_back(packed->pz());          
+            _genH_e.push_back(packed->energy());          
+        }
+     }        
+  } 
 }
 
 void HTauTauNtuplizer::endJob(){
