@@ -7,7 +7,7 @@ Modules and plugins are called by python/HiggsTauTauProducer.py
 	This module creates AF/OS and AF/SS pairs, runs the SVfit on the pairs and store the useful variables in a TNtuple
 The stored variables are set in plugins/HTauTauNtupleMaker.cc
 
-Instruction to get and run the package (under CMSSW_7_2_0):
+Instruction to get and run the package (under CMSSW_7_2_3_patch1):
 
 git cms-addpkg PhysicsTools/PatAlgos
 
