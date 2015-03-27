@@ -20,6 +20,8 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #JETCUT="pt>15"
 
 USEPAIRMET=False
+SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+RUN_NTUPLIZER=False
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
@@ -80,8 +82,15 @@ process.source.skipEvents = cms.untracked.uint32 (XXX_SKIPEVENTS_XXX)
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',fileName=cms.string("XXX_OUTPUTFILE_XXX"))
-
+if RUN_NTUPLIZER:
+    process.TFileService=cms.Service('TFileService',fileName=cms.string("XXX_OUTPUTFILE_XXX"))
+else:
+    process.out = cms.OutputModule("PoolOutputModule",
+        fileName = cms.untracked.string("XXX_OUTPUTFILE_XXX"),
+        #outputCommands = cms.untracked.vstring(['keep *']),
+        fastCloning     = cms.untracked.bool(False)
+    )
+    process.end = cms.EndPath(process.out)
 
 #process.options = cms.PSet(skipEvent =  cms.untracked.vstring('ProductNotFound')),
 #process.p = cms.EndPath(process.HTauTauTree)
