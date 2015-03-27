@@ -19,7 +19,9 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #TAUCUT="pt>15"
 #JETCUT="pt>15"
 
-USEPAIRMET=True
+USEPAIRMET=False
+SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+RUN_NTUPLIZER=False
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
@@ -99,7 +101,16 @@ process.maxEvents.input = 1000
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+
+if RUN_NTUPLIZER:
+    process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+else:
+    process.out = cms.OutputModule("PoolOutputModule",
+        fileName = cms.untracked.string('Enriched_miniAOD.root'),
+        #outputCommands = cms.untracked.vstring(['keep *']),
+        fastCloning     = cms.untracked.bool(False)
+    )
+    process.end = cms.EndPath(process.out)
 
 #process.options = cms.PSet(skipEvent =  cms.untracked.vstring('ProductNotFound')),
 #process.p = cms.EndPath(process.HTauTauTree)

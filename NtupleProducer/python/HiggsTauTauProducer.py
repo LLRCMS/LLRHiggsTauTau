@@ -423,18 +423,36 @@ else:
    process.SVllCand.srcMET    = cms.VInputTag("pfMVAMEt")
 
 
+## ----------------------------------------------------------------------
+## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass and don't get MET userfloats
+## ----------------------------------------------------------------------
+process.SVbypass = cms.EDProducer ("SVfitBypass",
+                                    srcPairs   = cms.InputTag("barellCand")
+)
+
+
+
 
 #Global configuration
 TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
-                      CandCollection = cms.untracked.string("SVllCand"),
                       fileName = cms.untracked.string ("CosaACaso"),
                       skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
                       )
+if SVFITBYPASS:
+    TreeSetup.CandCollection = cms.untracked.string("SVbypass")
+    process.SVFit = cms.Sequence (process.SVbypass)
+else:
+    TreeSetup.CandCollection = cms.untracked.string("SVllCand")
+    process.SVFit = cms.Sequence (process.SVllCand)
 
-process.HTauTauTree = TreeSetup.clone()
+
+if RUN_NTUPLIZER:
+    process.HTauTauTree = TreeSetup.clone()
+else:
+    process.HTauTauTree = cms.Sequence()
 
 ##
 ## Paths
@@ -453,5 +471,6 @@ process.Candidates = cms.Sequence(
     process.jets              +
     process.METSequence       +
     process.bquarks           +
-    process.SVllCand          + process.HTauTauTree
+    process.SVFit             +
+    process.HTauTauTree
     )
