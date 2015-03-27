@@ -13,7 +13,10 @@ git cms-addpkg PhysicsTools/PatAlgos
 
 git cms-addpkg FWCore/Version
 
+git-cms-merge-topic -u cms-met:72X-MetSig-150311
 git-cms-merge-topic -u cms-met:72X-mvaMETForMiniAOD
+#revert to older MVAMET commit, to be fixed later
+(cd RecoMET/METPUSubtraction/ ; git reset --hard 177aa533286cb567678e0c7fde41757055377e72)
 
 git clone https://github.com/LLRCMS/LLRHiggsTauTau.git
 (cd LLRHiggsTauTau; git checkout master)
