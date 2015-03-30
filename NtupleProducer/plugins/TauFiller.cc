@@ -162,8 +162,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         //dz  = l.secondaryVertex().get()->z()-vertex->z();      
       //}
     } 
-    
-    
+
+   
     //--- Embed user variables
     l.addUserFloat("HPSDiscriminator",tauid);
     l.addUserFloat("decayMode",l.decayMode());
@@ -193,27 +193,39 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();
     float px=0,py=0,pz=0,E=0,fromH=0;
+    float pxHad=0, pyHad=0, pzHad=0, EHad=0; // hadronic gen tau
+
     if(genL){
       px =genL->p4().Px();
       py =genL->p4().Py();
       pz =genL->p4().Pz();
       E =genL->p4().E();
 
+      // build hadronic gen tau (all visible sons)
+      for (unsigned int iDau = 0; iDau < genL->numberOfDaughters(); iDau++)
+      {
+          const Candidate * Dau = genL->daughter( iDau );
+          int dauId = Dau->pdgId();
+          if (abs(dauId) != 12 && abs(dauId) != 14 && abs(dauId) != 16)
+          {
+              pxHad += Dau->p4().Px();
+              pyHad += Dau->p4().Py();
+              pzHad += Dau->p4().Pz();
+              EHad += Dau->p4().E();
+          }
+      }
+      
       //search if it comes from H
       Handle<edm::View<reco::GenParticle> > genHandle;
       iEvent.getByToken(theGenTag, genHandle);
-      int nmot = genL->numberOfMothers();
-      for (int im = 0; im<nmot&&fromH==0; ++im){
-	for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
-	  if(ipruned==i)continue;
-	  if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],genL)){
-	    int pdgmot = (&(*genHandle)[ipruned])->pdgId();
-	    if(abs(pdgmot)==25){
-	      fromH=1;
-	      break;
-	    }
-	  }
-	}
+      for(unsigned int ipruned = 0; ipruned< genHandle->size(); ++ipruned){
+        int pdgmot = (&(*genHandle)[ipruned])->pdgId();
+        if(abs(pdgmot)==25){
+          if(userdatahelpers::isAncestor(&(*genHandle)[ipruned],genL)){
+            fromH=1;
+            break;
+          }
+        }
       }
     }
     l.addUserFloat("genPx",px);
@@ -221,6 +233,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("genPz",pz);
     l.addUserFloat("genE",E);
     l.addUserFloat("fromH",fromH);
+
+    l.addUserFloat("genHadPx",px);
+    l.addUserFloat("genHadPy",py);
+    l.addUserFloat("genHadPz",pz);
+    l.addUserFloat("genHadE",E);
 
     //     MCHistoryTools mch(iEvent);
     //     if (mch.isMC()) {
