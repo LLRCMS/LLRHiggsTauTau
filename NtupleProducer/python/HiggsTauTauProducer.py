@@ -374,8 +374,8 @@ process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
 # python trick: loop on all pairs for pair MET computation
 
 if USEPAIRMET:
-   print "Using pair MET"
-
+   print "Using pair MET (MVA MET)"
+   
    # template of unpacker
    UnpackerTemplate = cms.EDProducer ("PairUnpacker",
                                    src = cms.InputTag("barellCand"))
@@ -397,12 +397,15 @@ if USEPAIRMET:
       MVAPairMET += (cms.InputTag(MVAMETName),)
     
 else:
-   print "Using event MET (same MET for all pairs)"
-   process.pfMVAMEt.minNumLeptons = cms.int32(0) # ONLY FOR DEBUG PURPOSE, OTHERWISE DOES NOT COMPUTE MET AND SVFIT CRASHES DUE TO A SINGULAR MATRIX
-   process.METSequence = cms.Sequence(
-       process.ak4PFJets         +
-       process.pfMVAMEtSequence
-   )
+   print "Using event pfMET (same MET for all pairs)"
+   process.load("RecoMET.METProducers.METSignificance_cfi")
+   process.load("RecoMET.METProducers.METSignificanceParams_cfi")
+   process.METSequence = cms.Sequence (process.METSignificance)
+#    process.pfMVAMEt.minNumLeptons = cms.int32(0) # ONLY FOR DEBUG PURPOSE, OTHERWISE DOES NOT COMPUTE MET AND SVFIT CRASHES DUE TO A SINGULAR MATRIX
+#    process.METSequence = cms.Sequence(
+#        process.ak4PFJets         +
+#        process.pfMVAMEtSequence
+#    )
 
 
 
@@ -413,8 +416,8 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcPairs   = cms.InputTag("barellCand"),
                                   #srcMET     = cms.InputTag("pfMVAMEt"),
                                   #srcMET     = cms.InputTag("slimmedMETs"),
-                                  usePairMET = cms.untracked.bool(USEPAIRMET),
-								  useMVAMET  = cms.untracked.bool(True)
+                                  usePairMET = cms.bool(USEPAIRMET),
+								  #useMVAMET  = cms.untracked.bool(True)
 )
 
 if USEPAIRMET:
@@ -454,6 +457,14 @@ if RUN_NTUPLIZER:
 else:
     process.HTauTauTree = cms.Sequence()
 
+#print particles gen level - DEBUG purposes
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.printTree = cms.EDAnalyzer("ParticleListDrawer",
+  maxEventsToPrint = cms.untracked.int32(10),
+  printVertex = cms.untracked.bool(False),
+  src = cms.InputTag("prunedGenParticles")
+)
+
 ##
 ## Paths
 ##
@@ -461,6 +472,7 @@ process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
+    #process.printTree         + # just for debug, print MC particles
     process.nEventsTotal      +
     process.hltFilter         + process.nEventsPassTrigger +
     process.muons             +

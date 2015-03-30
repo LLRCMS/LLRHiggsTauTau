@@ -73,8 +73,10 @@ class SVfitInterface : public edm::EDProducer {
 SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig)
 {
   theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
-  _usePairMET = iConfig.getUntrackedParameter<bool>("usePairMET");
-  _useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
+  _usePairMET = iConfig.getParameter<bool>("usePairMET");
+  if (_usePairMET) _useMVAMET = true;
+  else _useMVAMET = false; // TO FIX! NO need for it
+  //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
 
   vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
 
@@ -117,10 +119,12 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double METx = 0.;
   double METy = 0.; 
   TMatrixD covMET(2, 2);
-  
+
+      
   // initialize MET once if not using PairMET
   if (!_usePairMET)
   {
+  /*
       // create handles      
      if (_useMVAMET)
      {
@@ -160,17 +164,52 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         const pat::MET& patMET = (*METHandle_PatMET)[0];
         METx = patMET.px();
         METy = patMET.py();
-        covSingleMETbuf = patMET.getSignificanceMatrix();
+        //covSingleMETbuf = patMET.getSignificanceMatrix();
+        
      }
     
      covMET[0][0] = covSingleMETbuf(0,0);
-	 covMET[1][0] = covSingleMETbuf(1,0);
-	 covMET[0][1] = covSingleMETbuf(0,1);
-	 covMET[1][1] = covSingleMETbuf(1,1);
-	
-	 // protection against singular matrices
-	 if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
-	    edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
+     covMET[1][0] = covSingleMETbuf(1,0);
+     covMET[0][1] = covSingleMETbuf(0,1);
+     covMET[1][1] = covSingleMETbuf(1,1);
+     */
+    
+     iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
+     metNumber = METHandle_PatMET->size();
+
+     Handle<double> significanceHandle;
+     Handle<double> sig00Handle;
+     Handle<double> sig01Handle;
+     Handle<double> sig10Handle;
+     Handle<double> sig11Handle;
+    
+     iEvent.getByLabel ("METSignificance", "METSignificance", significanceHandle);
+     iEvent.getByLabel ("METSignificance", "CovarianceMatrix00", sig00Handle);
+     iEvent.getByLabel ("METSignificance", "CovarianceMatrix01", sig01Handle);
+     iEvent.getByLabel ("METSignificance", "CovarianceMatrix10", sig10Handle);
+     iEvent.getByLabel ("METSignificance", "CovarianceMatrix11", sig11Handle);
+     
+     cout << *significanceHandle << " " << *sig00Handle << " " << *sig01Handle << " " << *sig10Handle << " " << *sig11Handle << endl;
+     
+     covMET[0][0] = *sig00Handle;
+     covMET[1][0] = *sig10Handle;
+     covMET[0][1] = *sig01Handle;
+     covMET[1][1] = *sig11Handle;
+     
+     // guards against wrong number of met values provided
+     if (metNumber > 1)     
+        edm::LogWarning("SingleMETEntryZeroHasNotSizeOne") << "(SVfitInterface) Warning! Using single MEt, but input MEt collection provided has more than one entry"
+                                                           << "   --> will use the first one";
+     if (metNumber == 0)
+     {
+        edm::LogWarning("SingleMETEntryZeroHasNoEntries")  << "(SVfitInterface) Warning! Using single MEt, but input MEt collection provided has no entries"
+                                                           << "   --> skipping this event (no output produced)";
+        return;
+     }
+     
+     // protection against singular matrices
+     if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
+        edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
                                                     << "   --> SVfit algorithm will probably crash...";
   }
   
@@ -190,7 +229,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     svFitStandalone::kDecayType l1Type = GetDecayTypeFlag (l1->pdgId());
     svFitStandalone::kDecayType l2Type = GetDecayTypeFlag (l2->pdgId());
    
-   	if (_usePairMET)
+       if (_usePairMET)
     {
       if (_useMVAMET)
       {
@@ -231,11 +270,11 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       covMET[1][1] = covMETbuf(1,1);
       
       // protection against singular matrices
-	  if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
-	  {
-	  	edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
+      if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
+      {
+          edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
                                                     << "   --> SVfit algorithm will probably crash...";
-	  }
+      }
     } 
      
     //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
@@ -277,14 +316,14 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 svFitStandalone::kDecayType SVfitInterface::GetDecayTypeFlag (int pdgId)
 {
-	if (abs(pdgId) == 11) return svFitStandalone::kTauToElecDecay;
-	if (abs(pdgId) == 13) return svFitStandalone::kTauToMuDecay;
-	if (abs(pdgId) == 15) return svFitStandalone::kTauToHadDecay;
-	
-	edm::LogWarning("WrongDecayModePdgID")
-	   << "(SVfitInterface): unable to identify decay type from pdgId"
-	   << "     ---> Decay will be treated as an hadronic decay";
-	return svFitStandalone::kTauToHadDecay;
+    if (abs(pdgId) == 11) return svFitStandalone::kTauToElecDecay;
+    if (abs(pdgId) == 13) return svFitStandalone::kTauToMuDecay;
+    if (abs(pdgId) == 15) return svFitStandalone::kTauToHadDecay;
+    
+    edm::LogWarning("WrongDecayModePdgID")
+       << "(SVfitInterface): unable to identify decay type from pdgId"
+       << "     ---> Decay will be treated as an hadronic decay";
+    return svFitStandalone::kTauToHadDecay;
 }
 
 
