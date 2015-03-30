@@ -112,6 +112,25 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     float combRelIsoPF = LeptonIsoHelper::combRelIsoPF(l);
 
+    //float decayModeFindingOldDMs = l.tauID ("decayModeFindingOldDMs");
+    int decayModeFindingOldDMs = l.tauID ("decayModeFinding");
+    int decayModeFindingNewDMs = l.tauID ("decayModeFindingNewDMs");
+    
+    int byLooseCombinedIsolationDeltaBetaCorr3Hits = l.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits");
+    int byMediumCombinedIsolationDeltaBetaCorr3Hits = l.tauID ("byMediumCombinedIsolationDeltaBetaCorr3Hits");
+    int byTightCombinedIsolationDeltaBetaCorr3Hits = l.tauID ("byTightCombinedIsolationDeltaBetaCorr3Hits");
+    
+    float byCombinedIsolationDeltaBetaCorrRaw3Hits = l.tauID ("byCombinedIsolationDeltaBetaCorrRaw3Hits");
+    float chargedIsoPtSum = l.tauID ("chargedIsoPtSum");
+    float neutralIsoPtSum = l.tauID ("neutralIsoPtSum");
+    float puCorrPtSum = l.tauID ("puCorrPtSum");
+    
+    int againstMuonLoose3 = l.tauID ("againstMuonLoose3");
+    int againstMuonTight3 = l.tauID ("againstMuonTight3");
+    int againstElectronVLooseMVA5 = l.tauID ("againstElectronVLooseMVA5");
+    int againstElectronLooseMVA5 = l.tauID ("againstElectronLooseMVA5");
+    int againstElectronMediumMVA5 = l.tauID ("againstElectronMediumMVA5");
+    
     //Decay mode
     //int decayMode = -1;
     //int A = l.signalPFChargedHadrCands().size();
@@ -122,8 +141,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float tauid=l.tauID(theDiscriminatorTag);
     //printf("A, B, tau %d %d %f \n",A,B,tauid);
 
-    l.addUserFloat("HPSDiscriminator",tauid);
-    l.addUserFloat("decayMode",l.decayMode());
     //if(decayMode<0&&tauid==0)edm::LogWarning("TauFiller: Unrecognized decay mode");
     /*
 
@@ -148,12 +165,30 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     
     //--- Embed user variables
+    l.addUserFloat("HPSDiscriminator",tauid);
+    l.addUserFloat("decayMode",l.decayMode());
     l.addUserFloat("dxy",dxy);
     l.addUserFloat("dz",dz);
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
     l.addUserFloat("PFPhotonIso",PFPhotonIso);
     l.addUserFloat("combRelIsoPF",combRelIsoPF);
+    l.addUserInt("decayModeFindingOldDMs", decayModeFindingOldDMs);
+    l.addUserInt("decayModeFindingNewDMs", decayModeFindingNewDMs);
+    l.addUserInt("byLooseCombinedIsolationDeltaBetaCorr3Hits", byLooseCombinedIsolationDeltaBetaCorr3Hits);
+    l.addUserInt("byMediumCombinedIsolationDeltaBetaCorr3Hits", byMediumCombinedIsolationDeltaBetaCorr3Hits);
+    l.addUserInt("byTightCombinedIsolationDeltaBetaCorr3Hits", byTightCombinedIsolationDeltaBetaCorr3Hits);
+    l.addUserFloat("byCombinedIsolationDeltaBetaCorrRaw3Hits", byCombinedIsolationDeltaBetaCorrRaw3Hits);
+    l.addUserFloat("chargedIsoPtSum", chargedIsoPtSum);
+    l.addUserFloat("neutralIsoPtSum", neutralIsoPtSum);
+    l.addUserFloat("puCorrPtSum", puCorrPtSum);
+    l.addUserInt("againstMuonLoose3", againstMuonLoose3);
+    l.addUserInt("againstMuonTight3", againstMuonTight3);
+    l.addUserInt("againstElectronVLooseMVA5", againstElectronVLooseMVA5);
+    l.addUserInt("againstElectronLooseMVA5", againstElectronLooseMVA5);
+    l.addUserInt("againstElectronMediumMVA5", againstElectronMediumMVA5);
+    
+    
 
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();

@@ -206,6 +206,20 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_depositR03_tracker;
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
+  std::vector<Int_t> _daughters_decayModeFindingOldDMs;
+  std::vector<Int_t> _daughters_decayModeFindingNewDMs;
+  std::vector<Int_t> _daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;
+  std::vector<Int_t> _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;
+  std::vector<Int_t> _daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;
+  std::vector<Float_t> _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
+  std::vector<Float_t> _daughters_chargedIsoPtSum;
+  std::vector<Float_t> _daughters_neutralIsoPtSum;
+  std::vector<Float_t> _daughters_puCorrPtSum;
+  std::vector<Int_t> _daughters_againstMuonLoose3;
+  std::vector<Int_t> _daughters_againstMuonTight3;
+  std::vector<Int_t> _daughters_againstElectronVLooseMVA5;
+  std::vector<Int_t> _daughters_againstElectronLooseMVA5;
+  std::vector<Int_t> _daughters_againstElectronMediumMVA5;
 
   //Jets variables
   Int_t _numberOfJets;
@@ -264,6 +278,21 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_depositR03_tracker.clear();  
   _daughters_depositR03_ecal.clear();  
   _daughters_depositR03_hcal.clear();  
+  _daughters_decayModeFindingOldDMs.clear();
+  _daughters_decayModeFindingNewDMs.clear();
+  _daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits.clear();
+  _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits.clear();
+  _daughters_byTightCombinedIsolationDeltaBetaCorr3Hits.clear();
+  _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits.clear();
+  _daughters_chargedIsoPtSum.clear();
+  _daughters_neutralIsoPtSum.clear();
+  _daughters_puCorrPtSum.clear();
+  _daughters_againstMuonLoose3.clear();
+  _daughters_againstMuonTight3.clear();
+  _daughters_againstElectronVLooseMVA5.clear();
+  _daughters_againstElectronLooseMVA5.clear();
+  _daughters_againstElectronMediumMVA5.clear();
+
 
   //_daughter2.clear();
   _softLeptons.clear();
@@ -380,6 +409,21 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
+  myTree->Branch("daughters_decayModeFindingOldDMs", &_daughters_decayModeFindingOldDMs);
+  myTree->Branch("daughters_decayModeFindingNewDMs", &_daughters_decayModeFindingNewDMs);
+  myTree->Branch("daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits", &_daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits);
+  myTree->Branch("daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits", &_daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits);
+  myTree->Branch("daughters_byTightCombinedIsolationDeltaBetaCorr3Hits", &_daughters_byTightCombinedIsolationDeltaBetaCorr3Hits);
+  myTree->Branch("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
+  myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
+  myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
+  myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
+  myTree->Branch("daughters_againstMuonLoose3", &_daughters_againstMuonLoose3);
+  myTree->Branch("daughters_againstMuonTight3", &_daughters_againstMuonTight3);
+  myTree->Branch("daughters_againstElectronVLooseMVA5", &_daughters_againstElectronVLooseMVA5);
+  myTree->Branch("daughters_againstElectronLooseMVA5", &_daughters_againstElectronLooseMVA5);
+  myTree->Branch("daughters_againstElectronMediumMVA5", &_daughters_againstElectronMediumMVA5);
+  
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
@@ -641,25 +685,49 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
+    
     int type = ParticleType::TAU;
     if(cand->isMuon()) type = ParticleType::MUON;
     else if(cand->isElectron()) type = ParticleType::ELECTRON;
     _particleType.push_back(type);
+    
+    // variables
     float discr=-1;
     int decay=-1;
     float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1;
-    if(type==0){
+    int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
+    int byLooseCombinedIsolationDeltaBetaCorr3Hits=-1, byMediumCombinedIsolationDeltaBetaCorr3Hits=-1, byTightCombinedIsolationDeltaBetaCorr3Hits=-1; // tau 13 TeV Iso
+    float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
+    int againstMuonLoose3=-1, againstMuonTight3=-1; // tau 13 TeV muon rejection
+    int againstElectronVLooseMVA5 =-1, againstElectronLooseMVA5 = -1, againstElectronMediumMVA5 = -1; // tau 13 TeV ele rejection
+    
+    
+    if(type==ParticleType::MUON){
       discr=userdatahelpers::getUserFloat(cand,"muonID");
       depositTracker=userdatahelpers::getUserFloat(cand,"DepositR03TrackerOfficial");
       depositEcal=userdatahelpers::getUserFloat(cand,"DepositR03Ecal");
       depositHcal=userdatahelpers::getUserFloat(cand,"DepositR03Hcal");
-    }else if(type==1){
+    }else if(type==ParticleType::ELECTRON){
       discr=userdatahelpers::getUserFloat(cand,"BDT");
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
       superatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
-    }else if(type==2){
+    }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
+      decayModeFindingOldDMs = userdatahelpers::getUserInt (cand, "decayModeFindingOldDMs");
+      decayModeFindingNewDMs = userdatahelpers::getUserInt (cand, "decayModeFindingNewDMs");
+      byLooseCombinedIsolationDeltaBetaCorr3Hits = userdatahelpers::getUserInt (cand, "byLooseCombinedIsolationDeltaBetaCorr3Hits");
+      byMediumCombinedIsolationDeltaBetaCorr3Hits = userdatahelpers::getUserInt (cand, "byMediumCombinedIsolationDeltaBetaCorr3Hits");
+      byTightCombinedIsolationDeltaBetaCorr3Hits = userdatahelpers::getUserInt (cand, "byTightCombinedIsolationDeltaBetaCorr3Hits");
+      byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
+      chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
+      neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
+      puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
+      againstMuonLoose3 = userdatahelpers::getUserInt (cand, "againstMuonLoose3");
+      againstMuonTight3 = userdatahelpers::getUserInt (cand, "againstMuonTight3");
+      againstElectronVLooseMVA5 = userdatahelpers::getUserInt (cand, "againstElectronVLooseMVA5");
+      againstElectronLooseMVA5 = userdatahelpers::getUserInt (cand, "againstElectronLooseMVA5");
+      againstElectronMediumMVA5 = userdatahelpers::getUserInt (cand, "againstElectronMediumMVA5");
     }
     _discriminator.push_back(discr);
     _decayType.push_back(decay);
@@ -668,6 +736,20 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _daughters_depositR03_tracker.push_back(depositTracker);
     _daughters_depositR03_ecal.push_back(depositEcal);
     _daughters_depositR03_hcal.push_back(depositHcal);
+    _daughters_decayModeFindingOldDMs.push_back(decayModeFindingOldDMs);
+    _daughters_decayModeFindingNewDMs.push_back(decayModeFindingNewDMs);
+    _daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits.push_back(byLooseCombinedIsolationDeltaBetaCorr3Hits);
+    _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits.push_back(byMediumCombinedIsolationDeltaBetaCorr3Hits);
+    _daughters_byTightCombinedIsolationDeltaBetaCorr3Hits.push_back(byTightCombinedIsolationDeltaBetaCorr3Hits);
+    _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits.push_back(byCombinedIsolationDeltaBetaCorrRaw3Hits);
+    _daughters_chargedIsoPtSum.push_back(chargedIsoPtSum);
+    _daughters_neutralIsoPtSum.push_back(neutralIsoPtSum);
+    _daughters_puCorrPtSum.push_back(puCorrPtSum);
+    _daughters_againstMuonLoose3.push_back(againstMuonLoose3);
+    _daughters_againstMuonTight3.push_back(againstMuonTight3);
+    _daughters_againstElectronVLooseMVA5.push_back(againstElectronVLooseMVA5);
+    _daughters_againstElectronLooseMVA5.push_back(againstElectronLooseMVA5);
+    _daughters_againstElectronMediumMVA5.push_back(againstElectronMediumMVA5);
   }
 }
 

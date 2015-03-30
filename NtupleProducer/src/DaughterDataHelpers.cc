@@ -45,6 +45,22 @@ float userdatahelpers::getUserFloat(const reco::Candidate* c, const char* name){
   return 0;
 }
 
+int userdatahelpers::getUserInt(const reco::Candidate* c, const char* name){
+  const reco::Candidate* d;
+  if(c->hasMasterClone()) d = c->masterClone().get();
+  else d = c->clone();
+  if (const pat::Muon* mu = dynamic_cast<const pat::Muon*>(d)) {
+    return mu->userInt(name);
+  } else if (const pat::Electron* ele = dynamic_cast<const pat::Electron*>(d)) {
+    return ele->userInt(name);
+  } else if (const pat::Tau* tau = dynamic_cast<const pat::Tau*>(d)) {
+    return tau->userInt(name);
+  }else if (const pat::CompositeCandidate* cc = dynamic_cast<const pat::CompositeCandidate*>(d)) {
+    return cc->userInt(name);
+  }
+  return 0;
+}
+
 const PhotonPtrVector* userdatahelpers::getUserPhotons(const reco::Candidate* c){
   const reco::Candidate* d = c->masterClone().get();
   if (abs(c->pdgId())==13) {
