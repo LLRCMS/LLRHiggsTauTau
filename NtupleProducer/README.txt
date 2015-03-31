@@ -17,8 +17,8 @@ git-cms-merge-topic -u cms-met:72X-MetSig-150311
 
 git-cms-merge-topic -u cms-met:72X-mvaMETForMiniAOD
 
-#revert to older MVAMET commit, to be fixed later
-(cd RecoMET/METPUSubtraction/ ; git reset --hard 177aa533286cb567678e0c7fde41757055377e72)
+#download 25ns, PU20 weights 
+( cd RecoMET/METPUSubtraction/ ; git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 72X-13TeV-Phys14_25_V4-26Mar15 )
 
 git clone https://github.com/LLRCMS/LLRHiggsTauTau.git
 (cd LLRHiggsTauTau; git checkout master)
@@ -39,6 +39,15 @@ git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 
 # SVfit standalone algorithm
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+
+# THEN EDIT THE RecoMET/METPUSubtraction/python/mvaPFMET_cff.py @ LINE 75
+#inputFileNames = cms.PSet(
+#        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+#        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+#        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root'),
+#        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_2_X_MINIAOD_BX25PU20_Mar2015.root')
+#    ),
+echo "Please edit mvaPFMET_cff.py file with correct weights!"
 
 Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
