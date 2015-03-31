@@ -348,26 +348,6 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 ## MVA MET
 ## ----------------------------------------------------------------------
 
-# plugin initialization
-
-process.load("RecoJets.JetProducers.ak4PFJets_cfi")
-process.ak4PFJets.src = cms.InputTag("packedPFCandidates")
-
-from JetMETCorrections.Configuration.DefaultJEC_cff import ak4PFJetsL1FastL2L3
-
-# output collection is defined here, its name is pfMVAMEt
-# access this through pfMVAMEtSequence
-
-process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
-#process.pfMVAMEt.srcLeptons = cms.VInputTag("slimmedElectrons") # srcLeptons contains all the hard scatter products, is set later
-process.pfMVAMEt.srcPFCandidates = cms.InputTag("packedPFCandidates")
-process.pfMVAMEt.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-process.pfMVAMEt.minNumLeptons = cms.int32(2) # this is important to skip void collections in the loop on pairs
-
-process.puJetIdForPFMVAMEt.jec = cms.string('AK4PF')
-#process.puJetIdForPFMVAMEt.jets = cms.InputTag("ak4PFJets")
-process.puJetIdForPFMVAMEt.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
 
 
 
@@ -375,6 +355,28 @@ process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
 
 if USEPAIRMET:
    print "Using pair MET (MVA MET)"
+
+   # plugin initialization
+
+   process.load("RecoJets.JetProducers.ak4PFJets_cfi")
+   process.ak4PFJets.src = cms.InputTag("packedPFCandidates")
+
+   from JetMETCorrections.Configuration.DefaultJEC_cff import ak4PFJetsL1FastL2L3
+
+   # output collection is defined here, its name is pfMVAMEt
+   # access this through pfMVAMEtSequence
+
+   process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
+   #process.pfMVAMEt.srcLeptons = cms.VInputTag("slimmedElectrons") # srcLeptons contains all the hard scatter products, is set later
+   process.pfMVAMEt.srcPFCandidates = cms.InputTag("packedPFCandidates")
+   process.pfMVAMEt.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+   process.pfMVAMEt.minNumLeptons = cms.int32(2) # this is important to skip void collections in the loop on pairs
+
+   process.puJetIdForPFMVAMEt.jec = cms.string('AK4PF')
+   #process.puJetIdForPFMVAMEt.jets = cms.InputTag("ak4PFJets")
+   process.puJetIdForPFMVAMEt.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+   process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
+
    
    # template of unpacker
    UnpackerTemplate = cms.EDProducer ("PairUnpacker",
@@ -423,7 +425,7 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
 if USEPAIRMET:
    process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
 else:
-   process.SVllCand.srcMET    = cms.VInputTag("pfMVAMEt")
+   process.SVllCand.srcMET    = cms.VInputTag("slimmedMETs")
 
 
 ## ----------------------------------------------------------------------
