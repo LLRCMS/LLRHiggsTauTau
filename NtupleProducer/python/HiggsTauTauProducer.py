@@ -30,11 +30,13 @@ print process.GlobalTag.globaltag
 ### ----------------------------------------------------------------------
 ### Standard stuff
 ### ----------------------------------------------------------------------
-process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+if RUN_NTUPLIZER:
+    process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True), SkipEvent = cms.untracked.vstring('ProductNotFound') )
+else:
+    process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -485,6 +487,7 @@ process.Candidates = cms.Sequence(
     process.jets              +
     process.METSequence       +
     process.bquarks           +
-    process.SVFit             +
-    process.HTauTauTree
+    process.SVFit             #+ process.HTauTauTree
     )
+if RUN_NTUPLIZER:
+    process.trees = cms.EndPath(process.HTauTauTree)
