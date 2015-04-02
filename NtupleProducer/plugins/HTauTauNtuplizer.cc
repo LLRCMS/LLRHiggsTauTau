@@ -488,7 +488,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<pat::METCollection> metHandle;
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
-  
+ 
+  // protect in case of events where trigger hasn't fired --> no collection created 
+  event.getByLabel(theCandLabel,candHandle);
+  if (!candHandle.isValid()) return;
   event.getByLabel(theCandLabel,candHandle);
   event.getByLabel("jets",jetHandle);
   event.getByLabel("softLeptons",dauHandle);

@@ -33,10 +33,7 @@ print process.GlobalTag.globaltag
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-if RUN_NTUPLIZER:
-    process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True), SkipEvent = cms.untracked.vstring('ProductNotFound') )
-else:
-    process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -418,10 +415,7 @@ else:
 ## ----------------------------------------------------------------------
 process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcPairs   = cms.InputTag("barellCand"),
-                                  #srcMET     = cms.InputTag("pfMVAMEt"),
-                                  #srcMET     = cms.InputTag("slimmedMETs"),
                                   usePairMET = cms.bool(USEPAIRMET),
-								  #useMVAMET  = cms.untracked.bool(True)
 )
 
 if USEPAIRMET:
@@ -439,9 +433,10 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
 
 
 
-
-#Global configuration
-TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
+## ----------------------------------------------------------------------
+## Ntuplizer
+## ----------------------------------------------------------------------
+process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
                       skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),
@@ -449,17 +444,11 @@ TreeSetup = cms.EDAnalyzer("HTauTauNtuplizer",
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
                       )
 if SVFITBYPASS:
-    TreeSetup.CandCollection = cms.untracked.string("SVbypass")
+    process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")
     process.SVFit = cms.Sequence (process.SVbypass)
 else:
-    TreeSetup.CandCollection = cms.untracked.string("SVllCand")
+    process.HTauTauTree.CandCollection = cms.untracked.string("SVllCand")
     process.SVFit = cms.Sequence (process.SVllCand)
-
-
-if RUN_NTUPLIZER:
-    process.HTauTauTree = TreeSetup.clone()
-else:
-    process.HTauTauTree = cms.Sequence()
 
 #print particles gen level - DEBUG purposes
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
