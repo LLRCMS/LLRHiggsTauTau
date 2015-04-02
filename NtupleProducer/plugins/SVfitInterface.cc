@@ -119,7 +119,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double METx = 0.;
   double METy = 0.; 
   TMatrixD covMET(2, 2);
-
+  float significance = -999.;
       
   // initialize MET once if not using PairMET
   if (!_usePairMET)
@@ -189,12 +189,19 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByLabel ("METSignificance", "CovarianceMatrix10", sig10Handle);
      iEvent.getByLabel ("METSignificance", "CovarianceMatrix11", sig11Handle);
      
-     cout << *significanceHandle << " " << *sig00Handle << " " << *sig01Handle << " " << *sig10Handle << " " << *sig11Handle << endl;
+     //cout << *significanceHandle << " " << *sig00Handle << " " << *sig01Handle << " " << *sig10Handle << " " << *sig11Handle << endl;
      
      covMET[0][0] = *sig00Handle;
      covMET[1][0] = *sig10Handle;
      covMET[0][1] = *sig01Handle;
      covMET[1][1] = *sig11Handle;
+     significance = (float) (*significanceHandle);
+     
+     /*
+     cout << "== NEW EVENT==" << endl;
+     cout << covMET[0][0] << " " << covMET[0][1] << endl;
+     cout << covMET[1][0] << " " << covMET[1][1] << endl;
+    */
      
      // guards against wrong number of met values provided
      if (metNumber > 1)     
@@ -229,7 +236,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     svFitStandalone::kDecayType l1Type = GetDecayTypeFlag (l1->pdgId());
     svFitStandalone::kDecayType l2Type = GetDecayTypeFlag (l2->pdgId());
    
-       if (_usePairMET)
+    if (_usePairMET)
     {
       if (_useMVAMET)
       {
@@ -260,6 +267,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
       const PFMET& pfMET = (*METHandle_PfMET)[0];
       const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
+      significance = (float) pfMET.significance();
     
       METx = pfMET.px();
       METy = pfMET.py();
@@ -305,7 +313,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("MEt_cov01", (float) covMET[0][1]);
     pair.addUserFloat("MEt_cov10", (float) covMET[1][0]);
     pair.addUserFloat("MEt_cov11", (float) covMET[1][1]);
-
+    pair.addUserFloat("MEt_significance", significance);
     
     result->push_back(pair);     
   }

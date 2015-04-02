@@ -91,6 +91,7 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("MEt_cov01", -999);
     pair.addUserFloat("MEt_cov10", -999);
     pair.addUserFloat("MEt_cov11", -999);
+    pair.addUserFloat("MEt_significance", -999);
 
     result->push_back(pair);
   }

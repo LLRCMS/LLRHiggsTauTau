@@ -191,6 +191,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _metCov01;
   std::vector<Float_t> _metCov10;
   std::vector<Float_t> _metCov11;
+  std::vector<Float_t> _metSignif;
   std::vector<Float_t> _bmotmass;
    
   //Leptons variables
@@ -316,6 +317,7 @@ void HTauTauNtuplizer::Initialize(){
   _metCov01.clear();
   _metCov10.clear();
   _metCov11.clear();
+  _metSignif.clear();
   _particleType.clear();
   _discriminator.clear();
   _dxy.clear();
@@ -395,6 +397,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("MET_cov01",&_metCov01);
   myTree->Branch("MET_cov10",&_metCov10);
   myTree->Branch("MET_cov11",&_metCov11);  
+  myTree->Branch("MET_significance",&_metSignif); 
   myTree->Branch("PDGIdDaughters",&_pdgdau);
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
@@ -539,6 +542,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _metCov01.push_back(cand.userFloat("MEt_cov01"));
     _metCov10.push_back(cand.userFloat("MEt_cov10"));
     _metCov11.push_back(cand.userFloat("MEt_cov11"));
+    _metSignif.push_back(cand.userFloat("MEt_significance"));
     
     //if(DEBUG){
       //motherPoint[iMot]=dynamic_cast<const reco::Candidate*>(&*candi);
