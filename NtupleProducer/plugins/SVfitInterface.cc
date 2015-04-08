@@ -58,6 +58,8 @@ class SVfitInterface : public edm::EDProducer {
   virtual void endJob(){};
 
   svFitStandalone::kDecayType GetDecayTypeFlag (int pdgId);
+  bool Switch (svFitStandalone::kDecayType type1, double pt1, svFitStandalone::kDecayType type2, double pt2);
+  double GetMass (svFitStandalone::kDecayType type, double candMass);
 
   edm::InputTag theCandidateTag;
   std::vector<edm::InputTag> vtheMETTag;
@@ -235,7 +237,11 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     svFitStandalone::kDecayType l1Type = GetDecayTypeFlag (l1->pdgId());
     svFitStandalone::kDecayType l2Type = GetDecayTypeFlag (l2->pdgId());
+    double mass1 = GetMass (l1Type, l1->mass());
+    double mass2 = GetMass (l2Type, l2->mass());
    
+    bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
+  
     if (_usePairMET)
     {
       if (_useMVAMET)
@@ -288,9 +294,18 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
     
     std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptons;
-    measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), l1->mass() ));
-    measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), l2->mass() ));  
-     
+    
+    if (swi) // 2 first, 1 second (switch)
+    {
+        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2 ));  
+        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1 ));
+    }
+    else // 1 first, 2 second
+    {
+        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1 ));
+        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2 ));  
+    }
+         
     // define algorithm (set the debug level to 3 for testing)
     unsigned int verbosity = 0;
     double SVfitMass = -999.;
@@ -332,6 +347,35 @@ svFitStandalone::kDecayType SVfitInterface::GetDecayTypeFlag (int pdgId)
        << "(SVfitInterface): unable to identify decay type from pdgId"
        << "     ---> Decay will be treated as an hadronic decay";
     return svFitStandalone::kTauToHadDecay;
+}
+
+// decide if leptons 1 and 2 must be switched to respect SVfit conventions
+bool SVfitInterface::Switch (svFitStandalone::kDecayType type1, double pt1, svFitStandalone::kDecayType type2, double pt2)
+{
+    // e e, mu mu, tau tau
+    if (type1 == type2) {return (pt1 < pt2);}
+    
+    // e tau, mu tau
+    if ( (type1 == svFitStandalone::kTauToElecDecay || type1 == svFitStandalone::kTauToMuDecay) &&
+         type2 == svFitStandalone::kTauToHadDecay ) {return false;}
+    if ( (type2 == svFitStandalone::kTauToElecDecay || type2 == svFitStandalone::kTauToMuDecay) &&
+         type1 == svFitStandalone::kTauToHadDecay ) {return true;}
+
+    // e mu
+    if (type1 == svFitStandalone::kTauToElecDecay && type2 == svFitStandalone::kTauToMuDecay) {return false;}
+    if (type2 == svFitStandalone::kTauToElecDecay && type1 == svFitStandalone::kTauToMuDecay) {return true;}
+    
+    cout << "SVfit Standalone: ordering not done (should never happen)" << endl;
+    return false;
+}
+
+// set mass (pdg ele/mu or leave cand mass for tauh
+double SVfitInterface::GetMass (svFitStandalone::kDecayType type, double candMass)
+{
+    if (type == svFitStandalone::kTauToElecDecay) return 0.51100e-3;
+    if (type == svFitStandalone::kTauToMuDecay) return 0.10566;
+
+    return candMass; // for tauh and all exceptions return cand mass
 }
 
 
