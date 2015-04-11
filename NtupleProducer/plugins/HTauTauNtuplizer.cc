@@ -265,7 +265,7 @@ HTauTauNtuplizer::~HTauTauNtuplizer(){}
 void HTauTauNtuplizer::Initialize(){
   //_mothers.clear();
   _mothers_px.clear();
-  _mothers_px.clear();
+  _mothers_py.clear();
   _mothers_pz.clear();
   _mothers_e.clear();
   
