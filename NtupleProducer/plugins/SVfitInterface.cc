@@ -32,7 +32,7 @@
 #include <DataFormats/METReco/interface/PFMETCollection.h>
 #include <DataFormats/METReco/interface/CommonMETData.h>
 #include <TauAnalysis/SVfitStandalone/interface/SVfitStandaloneAlgorithm.h>
-
+ #include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 
 #include <vector>
 #include <string>
@@ -49,8 +49,7 @@ class SVfitInterface : public edm::EDProducer {
   explicit SVfitInterface(const edm::ParameterSet&);
     
   /// Destructor
-  ~SVfitInterface(){
-  };  
+  ~SVfitInterface();  
 
  private:
   virtual void beginJob(){};  
@@ -66,6 +65,7 @@ class SVfitInterface : public edm::EDProducer {
   //int sampleType;
   bool _usePairMET;
   bool _useMVAMET;
+  TFile* inputFile_visPtResolution_;
   
 };
 
@@ -82,11 +82,18 @@ SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig)
 
   vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
 
-  produces<pat::CompositeCandidateCollection>();
+  edm::FileInPath inputFileName_visPtResolution("TauAnalysis/SVfitStandalone/data/svFitVisMassAndPtResolutionPDF.root");
+  TH1::AddDirectory(false);  
+  inputFile_visPtResolution_ = new TFile(inputFileName_visPtResolution.fullPath().data());
 
+  produces<pat::CompositeCandidateCollection>();
+  
 }  
 
-
+SVfitInterface::~SVfitInterface()
+{
+    delete inputFile_visPtResolution_;
+}
 
 void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
@@ -240,6 +247,14 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double mass1 = GetMass (l1Type, l1->mass());
     double mass2 = GetMass (l2Type, l2->mass());
    
+    int decay1 = -1;
+    int decay2 = -1;
+    if (l1Type == svFitStandalone::kTauToHadDecay) decay1 = (int)(userdatahelpers::getUserFloat(l1,"decayMode"));
+    if (l1Type == svFitStandalone::kTauToHadDecay) decay2 = (int)(userdatahelpers::getUserFloat(l2,"decayMode"));
+   
+    //cout << l1Type << " " << decay1 << endl;
+    //cout << l2Type << " " << decay2 << endl;
+   
     bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
   
     if (_usePairMET)
@@ -297,13 +312,13 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if (swi) // 2 first, 1 second (switch)
     {
-        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2 ));  
-        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1 ));
+        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2, decay2 ));  
+        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1, decay1 ));
     }
     else // 1 first, 2 second
     {
-        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1 ));
-        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2 ));  
+        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1, decay1 ));
+        measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2, decay2 ));  
     }
          
     // define algorithm (set the debug level to 3 for testing)
@@ -313,7 +328,9 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
-    algo.integrateVEGAS();
+    //algo.integrateVEGAS();
+    algo.shiftVisPt(true, inputFile_visPtResolution_);
+    algo.integrateMarkovChain();
     
     if ( algo.isValidSolution() )
     {    
