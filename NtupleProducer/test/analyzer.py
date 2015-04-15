@@ -21,7 +21,7 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 
 USEPAIRMET=False
 SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
-RUN_NTUPLIZER=True
+RUN_NTUPLIZER=False
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
