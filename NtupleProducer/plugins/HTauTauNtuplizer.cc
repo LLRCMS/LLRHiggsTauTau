@@ -11,6 +11,7 @@
 #include <memory>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <TNtuple.h>
 //#include <XYZTLorentzVector.h>
@@ -86,6 +87,29 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
+static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
+  
+  bool result=true;
+  //First criteria: OS<SS
+  if ( j.charge()==0 && i.charge()!=0) return false;
+
+  //Second criteria: legs pt
+  if(i.daughter(0)->pt()+i.daughter(1)->pt()>j.daughter(0)->pt()+j.daughter(1)->pt()) return false;
+  
+  //I need a criteria for where to put pairs wo taus and how to deal with tautau candidates
+  
+  //third criteria: Iso x Legpt
+  //if(userdatahelpers::getUserFloat(i.daughter(0),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*i.daughter(0)->pt()>userdatahelpers::getUserFloat(j.daughter(0),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*j.daughter(0)->pt()) return false;
+  
+  //fourth criteria: Iso (should be tauCutBasedIso*iso, ma non ho tauCutBasedIso!!!!!
+  //if(userdatahelpers::getUserFloat(i.daughter(0),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(0),"combRelIsoPF")) return false;
+  
+  //Fifth criteria: ISO (MVA)
+  //if(userdatahelpers::getUserFloat(i.daughter(0),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(i.daughter(0),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(0),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(j.daughter(0),"combRelIsoPF")) return false;
+
+  return result;
+}
+
 // class declaration
 
 class HTauTauNtuplizer : public edm::EDAnalyzer {
@@ -115,6 +139,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   int FillJet(const edm::View<pat::Jet>* jet);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, bool theFSR);
   void FillbQuarks(const edm::Event&);
+  //static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j);
 
   // ----------member data ---------------------------
   //Configs
@@ -184,6 +209,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
   std::vector<Int_t> _genDaughters;
+  std::vector<Bool_t> _isOSCand;
   std::vector<Float_t> _SVmass;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
@@ -311,6 +337,7 @@ void HTauTauNtuplizer::Initialize(){
   _indexDau2.clear();
   _pdgdau.clear();
   _SVmass.clear();
+  _isOSCand.clear();
   _metx.clear();
   _mety.clear();
   _metCov00.clear();
@@ -391,6 +418,7 @@ void HTauTauNtuplizer::beginJob(){
   }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
+  myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
   myTree->Branch("MET_cov00",&_metCov00);
@@ -531,9 +559,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   if(writeJets)_numberOfJets = FillJet(jets);
 
   //Loop on pairs
+  std::vector<pat::CompositeCandidate> candVector;
   for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
     Npairs++;
     const pat::CompositeCandidate& cand = (*candi); 
+    candVector.push_back(cand);
+  }
+  std::sort(candVector.begin(),candVector.end(),ComparePairs);
+  for(int iPair=0;iPair<int(candVector.size());iPair++){
+    const pat::CompositeCandidate& cand = candVector.at(iPair);
     math::XYZTLorentzVector candp4 = cand.p4();
     _SVmass.push_back(cand.userFloat("SVfitMass"));
     _metx.push_back(cand.userFloat("MEt_px"));
@@ -548,7 +582,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       //motherPoint[iMot]=dynamic_cast<const reco::Candidate*>(&*candi);
       //printf("%p %p %p\n",motherPoint[iMot],cand.daughter(0),cand.daughter(1));
     //}
-    
     for(int iCand=0;iCand<2;iCand++){
         //int index=-1;
         int index=FindCandIndex(cand,iCand);
@@ -607,14 +640,16 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
         if(iCand==0)_indexDau1.push_back(index);
         else _indexDau2.push_back(index);	
-
     }
-    
+    if(fabs(cand.charge())>0.5)_isOSCand.push_back(false);
+    else _isOSCand.push_back(true);
+//    if(cand.charge()!=cand.daughter(0)->charge()+cand.daughter(1)->charge())cout<<"charge DIVERSA!!!!!!!!! "<<cand.charge()<<" "<<cand.daughter(0)->charge()<<" "<<cand.daughter(1)->charge()<<endl;
+//    else cout<<"charge uguale "<<endl;
     _mothers_px.push_back( (float) candp4.X());
     _mothers_py.push_back( (float) candp4.Y());
     _mothers_pz.push_back( (float) candp4.Z());
     _mothers_e.push_back( (float) candp4.T());
-  
+    
     /*   float fillArray[nOutVars]={
     (float)event.id().run(),
     (float)event.id().event(),
@@ -861,6 +896,7 @@ void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm
   iLumi.getByLabel("nEventsPassTrigger", nEventsPassTrigCounter);
   Nevt_PassTrigger += nEventsPassTrigCounter->value;
 }
+
 
 // // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 // void HTauTauNtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

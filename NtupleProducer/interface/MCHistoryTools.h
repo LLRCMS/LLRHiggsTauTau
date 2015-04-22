@@ -29,7 +29,7 @@ class MCHistoryTools {
   
   bool isMC() {return ismc;}
   
-  int genFinalState();
+  int genFinalState() {return 0;} ;
 
   // flavour of the associated V decay (0 if n/a)
   int genAssociatedFS();

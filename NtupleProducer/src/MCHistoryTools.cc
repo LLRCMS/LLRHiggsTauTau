@@ -17,8 +17,6 @@
 #include <DataFormats/HepMCCandidate/interface/GenParticle.h>
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
 
-#include <LLRHiggsTauTau/NtupleProducer/interface/FinalStates.h>
-
 #include <boost/algorithm/string/predicate.hpp>
 
 using namespace std;
@@ -388,7 +386,7 @@ MCHistoryTools::genAcceptance(bool& gen_ZZInAcceptance, bool& gen_ZZ4lInEtaAccep
     }
   }
 }
-
+/*
 int
 MCHistoryTools::genFinalState(){
   if (!ismc) return -1;  
@@ -445,7 +443,7 @@ MCHistoryTools::genFinalState(){
   } 
   return gen_finalState;
 }
-
+*/
 int
 MCHistoryTools::genAssociatedFS(){
   if (!ismc) return -1;  

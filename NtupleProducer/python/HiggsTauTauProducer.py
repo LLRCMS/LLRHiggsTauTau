@@ -15,6 +15,9 @@ except NameError:
 try: APPLYFSR
 except NameError:
     APPLYFSR=False
+try: BUILDONLYOS
+except NameError:
+    BUILDONLYOS=False
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
@@ -334,10 +337,15 @@ process.jets = cms.EDFilter("PATJetRefSelector",
 ##
 ## Build ll candidates (here OS)
 ##
+decayString="softLeptons softLeptons"
+checkcharge=False
+if BUILDONLYOS:
+    decayString="softLeptons@+ softLeptons@-"
+    checkcharge=True
 process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
-                                    decay = cms.string("softLeptons@+ softLeptons@-"),
+                                    decay = cms.string(decayString),
                                     cut = cms.string(LLCUT),
-                                    checkCharge = cms.bool(True)
+                                    checkCharge = cms.bool(checkcharge)
 )
 
 
