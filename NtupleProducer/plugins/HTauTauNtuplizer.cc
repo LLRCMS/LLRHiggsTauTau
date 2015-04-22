@@ -89,12 +89,14 @@ using namespace reco;
 
 static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
   //sto sbagliando! la cosa dovrebbe essere disponibile per i vari criteri, non per la sequenza 
-  bool result=true;
+  //bool result=true;
   //First criteria: OS<SS
   if ( j.charge()==0 && i.charge()!=0) return false;
+  else if ( i.charge()==0 && j.charge()!=0) return true;
 
   //Second criteria: legs pt
-  if(i.daughter(0)->pt()+i.daughter(1)->pt()>j.daughter(0)->pt()+j.daughter(1)->pt()) return false;
+  if(i.daughter(0)->pt()+i.daughter(1)->pt()<j.daughter(0)->pt()+j.daughter(1)->pt()) return false;
+  else return true; // salta sempre quello che segue (troppi criteri)
   
   //I need a criteria for where to put pairs wo taus and how to deal with tautau candidates
   
@@ -121,7 +123,7 @@ static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
   //sixth criteria: ISO (MVA)
   if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(i.daughter(fabs(ilegtau-1)),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(j.daughter(fabs(jlegtau-1)),"combRelIsoPF")) return false;
 
-  return result;
+  return true;
 }
 
 // class declaration
