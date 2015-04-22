@@ -88,7 +88,7 @@ using namespace edm;
 using namespace reco;
 
 static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
-  
+  //sto sbagliando! la cosa dovrebbe essere disponibile per i vari criteri, non per la sequenza 
   bool result=true;
   //First criteria: OS<SS
   if ( j.charge()==0 && i.charge()!=0) return false;
@@ -98,14 +98,28 @@ static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
   
   //I need a criteria for where to put pairs wo taus and how to deal with tautau candidates
   
-  //third criteria: Iso x Legpt
-  //if(userdatahelpers::getUserFloat(i.daughter(0),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*i.daughter(0)->pt()>userdatahelpers::getUserFloat(j.daughter(0),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*j.daughter(0)->pt()) return false;
+  //third criteria: are there taus?
+  int ilegtau=-1,jlegtau=-1;
+  if(!i.daughter(0)->isMuon() && !i.daughter(0)->isElectron())ilegtau=0;
+  if(!j.daughter(0)->isMuon() && !j.daughter(0)->isElectron())jlegtau=0;
+ 
+  if(!i.daughter(1)->isMuon() && !i.daughter(1)->isElectron()){
+    if(ilegtau==-1 || i.daughter(1)->pt()>i.daughter(0)->pt())ilegtau=1;}
+  if(!j.daughter(1)->isMuon() && !j.daughter(1)->isElectron()){
+    if(ilegtau==-1 || i.daughter(1)->pt()>i.daughter(0)->pt())jlegtau=1;}
+
   
-  //fourth criteria: Iso (should be tauCutBasedIso*iso, ma non ho tauCutBasedIso!!!!!
-  //if(userdatahelpers::getUserFloat(i.daughter(0),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(0),"combRelIsoPF")) return false;
+  if(ilegtau==-1 && jlegtau>-1) return false; //i has no tau leptons, j has
+  else if(ilegtau==-1 && jlegtau == -1) return true; //no tau leptons in neither pair, leave as it is
   
-  //Fifth criteria: ISO (MVA)
-  //if(userdatahelpers::getUserFloat(i.daughter(0),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(i.daughter(0),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(0),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(j.daughter(0),"combRelIsoPF")) return false;
+  //fourth criteria: Iso x Legpt
+  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*i.daughter(fabs(ilegtau-1))->pt()>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*j.daughter(fabs(jlegtau-1))->pt()) return false;
+  
+  //fifth criteria: Iso (should be tauCutBasedIso*iso, ma non ho tauCutBasedIso!!!!!
+  //if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"combRelIsoPF")) return false;
+  
+  //sixth criteria: ISO (MVA)
+  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(i.daughter(fabs(ilegtau-1)),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(j.daughter(fabs(jlegtau-1)),"combRelIsoPF")) return false;
 
   return result;
 }
