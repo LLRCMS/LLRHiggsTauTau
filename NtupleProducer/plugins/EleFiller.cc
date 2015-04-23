@@ -126,7 +126,7 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //if (recomputeBDT) {
     //  BDT = bdt->compute(l);
     //} else {
-    //BDT = l.electronID("mvaNonTrigV0");//RH
+    BDT = l.electronID("mvaNonTrigV0");//RH
     //}
     
 

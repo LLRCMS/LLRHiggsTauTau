@@ -154,11 +154,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float dz  = 999.;
     if (vertexs->size()>0) {
       dxy = l.dxy();
+      const Vertex* vertex = &(vertexs->front());          
+      dz = l.vertex().z() - vertex[0].z();
       //For some reasons, the reference secondaryVertex() is empty EVEN if hasSecondaryVertex is true
       //To be asked to miniAOD people
       //if(l.hasSecondaryVertex()) {
-        //const Vertex* vertex = 0; 
-        //vertex = &(vertexs->front());          
         //dz  = l.secondaryVertex().get()->z()-vertex->z();      
       //}
     } 

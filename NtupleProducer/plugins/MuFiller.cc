@@ -150,7 +150,13 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(l.isLooseMuon())idbit |= 1 << 0;
     if(vertex){
         if(l.isSoftMuon(vertexs->front())) idbit |= 1 << 1;
-        if(l.isTightMuon(vertexs->front())) idbit |= 1 << 2;
+        //bool isMedium=l.muonID("POG_ID_Medium");
+        bool goodGlb = l.isGlobalMuon() && l.globalTrack()->normalizedChi2()<3 && l.combinedQuality().chi2LocalPosition < 12 && l.combinedQuality().trkKink   <   20;
+        bool isMedium = l.innerTrack()->validFraction() >= 0.8 && l.segmentCompatibility()   >=   (goodGlb   ? 0.303 : 0.451);
+        //if(isMedium!=good) cout<<"MERDA NON FUNZIONA"<<endl;
+        //else cout<<"ok"<<endl;
+        if(isMedium) idbit |= 1 << 2;
+        if(l.isTightMuon(vertexs->front())) idbit |= 1 << 3;
     }
     l.addUserFloat("muonID",idbit);
     //--- isPFMuon flag - in old samples, l.isPFMuon() is not functional, so this has to be filled

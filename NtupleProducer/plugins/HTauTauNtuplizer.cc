@@ -89,7 +89,6 @@ using namespace reco;
 
 static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
   //sto sbagliando! la cosa dovrebbe essere disponibile per i vari criteri, non per la sequenza 
-  //bool result=true;
   //First criteria: OS<SS
   if ( j.charge()==0 && i.charge()!=0) return false;
   else if ( i.charge()==0 && j.charge()!=0) return true;
@@ -97,7 +96,6 @@ static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
   //Second criteria: legs pt
   if(i.daughter(0)->pt()+i.daughter(1)->pt()<j.daughter(0)->pt()+j.daughter(1)->pt()) return false;
   else return true; // salta sempre quello che segue (troppi criteri)
-  
   //I need a criteria for where to put pairs wo taus and how to deal with tautau candidates
   
   //third criteria: are there taus?
@@ -117,8 +115,8 @@ static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
   //fourth criteria: Iso x Legpt
   if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*i.daughter(fabs(ilegtau-1))->pt()>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*j.daughter(fabs(jlegtau-1))->pt()) return false;
   
-  //fifth criteria: Iso (should be tauCutBasedIso*iso, ma non ho tauCutBasedIso!!!!!
-  //if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"combRelIsoPF")) return false;
+  //fifth criteria: Iso (cut based)
+  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"combRelIsoPF")) return false;
   
   //sixth criteria: ISO (MVA)
   if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(i.daughter(fabs(ilegtau-1)),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(j.daughter(fabs(jlegtau-1)),"combRelIsoPF")) return false;
@@ -155,7 +153,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   int FillJet(const edm::View<pat::Jet>* jet);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, bool theFSR);
   void FillbQuarks(const edm::Event&);
-  //static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j);
+  bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
+  //bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j);
 
   // ----------member data ---------------------------
   //Configs
@@ -240,7 +239,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _pdgdau;
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
   std::vector<Float_t> _combreliso;
-  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, muonID for muons (bit 0 loose, 1 soft 2 tight)
+  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, muonID for muons (bit 0 loose, 1 soft , 2 medium, 3 tight)
   std::vector<Float_t> _dxy;
   std::vector<Float_t> _dz;
   std::vector<Int_t> _decayType;//for taus only
@@ -598,9 +597,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       //motherPoint[iMot]=dynamic_cast<const reco::Candidate*>(&*candi);
       //printf("%p %p %p\n",motherPoint[iMot],cand.daughter(0),cand.daughter(1));
     //}
+    int index1=-1,index2=-1;
     for(int iCand=0;iCand<2;iCand++){
         //int index=-1;
-        int index=FindCandIndex(cand,iCand);
+        if(iCand==0) index1=FindCandIndex(cand,iCand);
+        else index2=FindCandIndex(cand,iCand);
         const reco::Candidate *daughter = cand.daughter(iCand);
         if(theFSR){
             const pat::PFParticle* fsr=0;
@@ -654,8 +655,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
             //daughter->setP4(daughter->p4()+fsr->p4());
         }
 
-        if(iCand==0)_indexDau1.push_back(index);
-        else _indexDau2.push_back(index);	
+        //if(iCand==0)_indexDau1.push_back(index);
+        //else _indexDau2.push_back(index);	
+    }
+    if(CompareLegs(cand.daughter(0),cand.daughter(1))){
+      _indexDau1.push_back(index1);
+      _indexDau2.push_back(index2);	
+    }else {
+      _indexDau1.push_back(index2);
+      _indexDau2.push_back(index1);	    
     }
     if(fabs(cand.charge())>0.5)_isOSCand.push_back(false);
     else _isOSCand.push_back(true);
@@ -912,6 +920,21 @@ void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm
   iLumi.getByLabel("nEventsPassTrigger", nEventsPassTrigCounter);
   Nevt_PassTrigger += nEventsPassTrigCounter->value;
 }
+
+bool HTauTauNtuplizer::CompareLegs(const reco::Candidate *i, const reco::Candidate *j){
+  if(!i->isMuon() && !i->isElectron()){ //i=tau
+    if(j->isMuon() || j->isElectron()) return false; //I want l+tau
+    else if (i->pt()<j->pt()) return false; //tau/tau case: higher pt first
+  }
+  else {
+    if(i->isMuon()){
+      if(j->isElectron()) return false;//e+mu
+      else if(j->isMuon() && i->pt()<j->pt()) return false; //mu/mu case: higher pt first
+    }else if(j->isElectron() && i->pt()<j->pt()) return false; //ele/ele case: higher pt first
+  }
+  return true;
+}
+
 
 
 // // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
