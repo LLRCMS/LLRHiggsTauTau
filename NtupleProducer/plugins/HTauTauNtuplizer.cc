@@ -195,6 +195,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _met;
   Float_t _metphi;
   Float_t _MC_weight;
+  Int_t _npv;
+  Int_t npu;
+  Float_t rho;
   
   //Leptons
   //std::vector<TLorentzVector> _mothers;
@@ -374,6 +377,9 @@ void HTauTauNtuplizer::Initialize(){
   _met=0;
   _metphi=0.;
   _MC_weight=0.;
+  npv=0;
+  npu=0;
+  rho=0;
 
 //  _jets.clear();
   _jets_px.clear();
@@ -405,6 +411,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
+  myTree->Branch("npv",&_npv,"npv/I");  
+  myTree->Branch("npu",&_npu,"npu/I");  
+  myTree->Branch("rho",&_rho,"rho/F");  
   
   myTree->Branch("mothers_px",&_mothers_px);
   myTree->Branch("mothers_py",&_mothers_py);
@@ -509,19 +518,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // std::vector<const reco::Candidate *> genZLeps;
   // if (isMC) {
     
-  //   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-  //   event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
-    
-  //   std::vector<PileupSummaryInfo>::const_iterator PVI;
-  //   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-  //     if(PVI->getBunchCrossing() == 0) { 
-  // 	nObsInt  = PVI->getPU_NumInteractions();
-  // 	nTrueInt = PVI->getTrueNumInteractions();
-  // 	break;
-  //     } 
-  //   }
+  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+  event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);    
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+    if(PVI->getBunchCrossing() == 0) { 
+      _npv  = PVI->getPU_NumInteractions();
+      _npu = PVI->getTrueNumInteractions();
+   	  break;
+    } 
+  }
   // }
-
   
   triggerhelper myTriggerHelper;
   _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
