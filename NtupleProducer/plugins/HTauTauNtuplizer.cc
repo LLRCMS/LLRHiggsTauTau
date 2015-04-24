@@ -70,6 +70,7 @@
 //#include "HZZ4lNtupleFactory.h"
 #include <LLRHiggsTauTau/NtupleProducer/interface/PhotonFwd.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerhelper.h"
+#include "LLRHiggsTauTau/NtupleProducer/interface/PUReweight.h"
 //#include "LLRHiggsTauTau/NtupleProducer/Utils/OfflineProducerHelper.h"
 #include "LLRHiggsTauTau/NtupleProducer/interface/ParticleType.h"
 
@@ -174,6 +175,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
 
+  PUReweight reweight;
+
   //flags
   static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
@@ -196,8 +199,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _metphi;
   Float_t _MC_weight;
   Int_t _npv;
-  Int_t npu;
-  Float_t rho;
+  Int_t _npu;
+  Float_t _PUReweight;
+  Float_t _rho;
   
   //Leptons
   //std::vector<TLorentzVector> _mothers;
@@ -286,7 +290,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 };
 
 // ----Constructor and Destructor -----
-HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) {
+HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight()
+ {
   theCandLabel = pset.getUntrackedParameter<string>("CandCollection");
   //theChannel = myHelper.channel();
   theFileName = pset.getUntrackedParameter<string>("fileName");
@@ -377,9 +382,10 @@ void HTauTauNtuplizer::Initialize(){
   _met=0;
   _metphi=0.;
   _MC_weight=0.;
-  npv=0;
-  npu=0;
-  rho=0;
+  _npv=0;
+  _npu=0;
+  _PUReweight=0.;
+  _rho=0;
 
 //  _jets.clear();
   _jets_px.clear();
@@ -412,7 +418,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
-  myTree->Branch("npu",&_npu,"npu/I");  
+  myTree->Branch("npu",&_npu,"npu/I"); 
+  myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
   myTree->Branch("rho",&_rho,"rho/F");  
   
   myTree->Branch("mothers_px",&_mothers_px);
@@ -523,8 +530,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   std::vector<PileupSummaryInfo>::const_iterator PVI;
   for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
     if(PVI->getBunchCrossing() == 0) { 
-      _npv  = PVI->getPU_NumInteractions();
-      _npu = PVI->getTrueNumInteractions();
+      _npv = vertexs->size();
+      _rho  = PVI->getPU_NumInteractions();
+      int nTrueInt = PVI->getTrueNumInteractions();
+      _npu = nTrueInt;
+      _PUReweight = reweight.weight(2012,2012,nTrueInt);
    	  break;
     } 
   }
