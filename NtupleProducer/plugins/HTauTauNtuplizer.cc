@@ -27,7 +27,6 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Common/interface/TriggerNames.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include <DataFormats/PatCandidates/interface/MET.h>
@@ -45,10 +44,12 @@
 #include <DataFormats/Math/interface/LorentzVector.h>
 #include <DataFormats/VertexReco/interface/Vertex.h>
 #include <DataFormats/Common/interface/MergeableCounter.h>
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -152,7 +153,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
   int FillJet(const edm::View<pat::Jet>* jet);
-  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, bool theFSR);
+  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR);
   void FillbQuarks(const edm::Event&);
   bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
   //bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j);
@@ -170,12 +171,16 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Int_t nFoundPaths;
   //edm::InputTag triggerResultsLabel;
   edm::InputTag processName;
+  //edm::InputTag triggerSet;
+
   HLTConfigProvider hltConfig_;
   //Output Objects
   TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
 
   PUReweight reweight;
+  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
 
   //flags
   static const int nOutVars =14;
@@ -269,6 +274,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_againstElectronVLooseMVA5;
   std::vector<Int_t> _daughters_againstElectronLooseMVA5;
   std::vector<Int_t> _daughters_againstElectronMediumMVA5;
+  std::vector<Int_t> _daughters_LFtrigger;
+  std::vector<Int_t> _daughters_L3trigger;
 
   //Jets variables
   Int_t _numberOfJets;
@@ -290,7 +297,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 };
 
 // ----Constructor and Destructor -----
-HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight()
+HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
+  triggerObjects_(consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("triggerSet"))),
+  triggerBits_(consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerResultsLabel")))
+
  {
   theCandLabel = pset.getUntrackedParameter<string>("CandCollection");
   //theChannel = myHelper.channel();
@@ -305,6 +315,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight()
   Npairs=0;
   //triggerResultsLabel = InputTag("TriggerResults","","HLT");
   processName= pset.getParameter<edm::InputTag>("triggerResultsLabel");
+  //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
+
   Initialize();
 }
 
@@ -342,7 +354,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_againstElectronVLooseMVA5.clear();
   _daughters_againstElectronLooseMVA5.clear();
   _daughters_againstElectronMediumMVA5.clear();
-
+  _daughters_LFtrigger.clear();
+  _daughters_L3trigger.clear();
 
   //_daughter2.clear();
   _softLeptons.clear();
@@ -485,7 +498,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_againstElectronVLooseMVA5", &_daughters_againstElectronVLooseMVA5);
   myTree->Branch("daughters_againstElectronLooseMVA5", &_daughters_againstElectronLooseMVA5);
   myTree->Branch("daughters_againstElectronMediumMVA5", &_daughters_againstElectronMediumMVA5);
-  
+  myTree->Branch("daughters_isLastTriggerObjectforPath", &_daughters_LFtrigger);
+  myTree->Branch("daughters_isTriggerObjectforPath", &_daughters_L3trigger);
+
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
@@ -584,7 +599,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   if(theisMC)FillbQuarks(event);
 
   //Loop of softleptons and fill them
-  FillSoftLeptons(daus,theFSR);
+  FillSoftLeptons(daus,event,theFSR);
 
   //Loop on Jets
   _numberOfJets = 0;
@@ -732,7 +747,14 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
 }
 
 //Fill all leptons (we keep them all for veto purposes
-void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, bool theFSR){
+void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, const edm::Event& event,bool theFSR){
+  edm::Handle<edm::TriggerResults> triggerBits;
+  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+
+  event.getByToken(triggerObjects_, triggerObjects);
+  event.getByToken(triggerBits_, triggerBits);
+  const edm::TriggerNames &names = event.triggerNames(*triggerBits);
+  
   for(edm::View<reco::Candidate>::const_iterator daui = daus->begin(); daui!=daus->end();++daui){
     const reco::Candidate* cand = &(*daui);
     math::XYZTLorentzVector pfour = cand->p4();
@@ -833,6 +855,32 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, b
     _daughters_againstElectronVLooseMVA5.push_back(againstElectronVLooseMVA5);
     _daughters_againstElectronLooseMVA5.push_back(againstElectronLooseMVA5);
     _daughters_againstElectronMediumMVA5.push_back(againstElectronMediumMVA5);
+    
+    //TRIGGER MATCHING
+    int LFtriggerbit=0,L3triggerbit=0;
+    for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
+      //check if the trigger object matches cand
+      //bool matchCand = false;
+      //if(type == ParticleType::TAU && 
+      if(deltaR2(obj,*cand)<0.025){
+        triggerhelper myTriggerHelper;
+        //check fired paths
+        obj.unpackPathNames(names);
+        std::vector<std::string> pathNamesAll  = obj.pathNames(false);
+        std::vector<std::string> pathNamesLast = obj.pathNames(true);
+        for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
+          bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
+          bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
+          int triggerbit = myTriggerHelper.FindTriggerNumber(pathNamesAll[h],true);
+          if(triggerbit>=0){
+            if(isLF)LFtriggerbit |= 1 <<triggerbit;
+            if(isL3)L3triggerbit |= 1 <<triggerbit;
+          }
+        }
+      }
+    }
+    _daughters_LFtrigger.push_back(LFtriggerbit);
+    _daughters_L3trigger.push_back(L3triggerbit);
   }
 }
 
@@ -938,21 +986,21 @@ void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm
   Nevt_PassTrigger += nEventsPassTrigCounter->value;
 }
 
+
 bool HTauTauNtuplizer::CompareLegs(const reco::Candidate *i, const reco::Candidate *j){
-  if(!i->isMuon() && !i->isElectron()){ //i=tau
-    if(j->isMuon() || j->isElectron()) return false; //I want l+tau
-    else if (i->pt()<j->pt()) return false; //tau/tau case: higher pt first
-  }
-  else {
-    if(i->isMuon()){
-      if(j->isElectron()) return false;//e+mu
-      else if(j->isMuon() && i->pt()<j->pt()) return false; //mu/mu case: higher pt first
-    }else if(j->isElectron() && i->pt()<j->pt()) return false; //ele/ele case: higher pt first
-  }
+  int iType=2,jType=2;
+  
+  if(i->isElectron())iType=0;
+  else if(i->isMuon())iType=1;
+  
+  if(j->isElectron())jType=0;
+  else if(j->isMuon())jType=1;
+  
+  if(iType>jType) return false;
+  else if(iType==jType && i->pt()<j->pt()) return false;
+  
   return true;
 }
-
-
 
 // // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 // void HTauTauNtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
