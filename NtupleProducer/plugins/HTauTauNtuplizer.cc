@@ -97,7 +97,21 @@ static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
 
   //Second criteria: legs pt
   if(i.daughter(0)->pt()+i.daughter(1)->pt()<j.daughter(0)->pt()+j.daughter(1)->pt()) return false;
-  else return true; // salta sempre quello che segue (troppi criteri)
+  if(i.daughter(0)->pt()+i.daughter(1)->pt()>j.daughter(0)->pt()+j.daughter(1)->pt()) return true; 
+  
+  //Protection for duplicated taus, damn it!
+  int iType=0,jType=0;
+  for(int idau=0;idau<2;idau++){
+    if(i.daughter(idau)->isElectron())iType+=0;
+    else if(i.daughter(idau)->isMuon())iType+=1;
+    else iType+=2;
+    if(j.daughter(idau)->isElectron())jType+=0;
+    else if(j.daughter(idau)->isMuon())jType+=1;
+    else jType+=2;
+  }
+  
+  return (iType<jType);
+  
   //I need a criteria for where to put pairs wo taus and how to deal with tautau candidates
   
   //third criteria: are there taus?
