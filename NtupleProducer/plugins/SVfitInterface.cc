@@ -64,7 +64,7 @@ class SVfitInterface : public edm::EDProducer {
   std::vector<edm::InputTag> vtheMETTag;
   //int sampleType;
   bool _usePairMET;
-  bool _useMVAMET;
+  //bool _useMVAMET;
   TFile* inputFile_visPtResolution_;
   
 };
@@ -76,8 +76,8 @@ SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig)
 {
   theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   _usePairMET = iConfig.getParameter<bool>("usePairMET");
-  if (_usePairMET) _useMVAMET = true;
-  else _useMVAMET = false; // TO FIX! NO need for it
+  //if (_usePairMET) _useMVAMET = true;
+  //else _useMVAMET = false; // TO FIX! NO need for it
   //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
 
   vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
@@ -132,60 +132,16 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
   // initialize MET once if not using PairMET
   if (!_usePairMET)
-  {
-  /*
-      // create handles      
-     if (_useMVAMET)
-     {
-        iEvent.getByLabel(vtheMETTag.at(0), METHandle_PfMET);
-        metNumber = METHandle_PfMET->size();
-     }
-     else
-     {
-        iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
-        metNumber = METHandle_PatMET->size();
-     }     
- 
-     // guards against wrong number of met values provided
-     if (metNumber > 1)     
-        edm::LogWarning("SingleMETEntryZeroHasNotSizeOne") << "(SVfitInterface) Warning! Using single MEt, but input MEt collection provided has more than one entry"
-                                                           << "   --> will use the first one";
-     if (metNumber == 0)
-     {
-        edm::LogWarning("SingleMETEntryZeroHasNoEntries")  << "(SVfitInterface) Warning! Using single MEt, but input MEt collection provided has no entries"
-                                                           << "   --> skipping this event (no output produced)";
-        return;
-     }
-
-     // set MEt variables
-     reco::METCovMatrix covSingleMETbuf;
-  
-     if (_useMVAMET)
-     {   
-         const reco::PFMET& pfMET = (*METHandle_PfMET)[0];
-         METx = pfMET.px();
-         METy = pfMET.py();
-         covSingleMETbuf = pfMET.getSignificanceMatrix();
-     }
-    
-     else
-     {
-        const pat::MET& patMET = (*METHandle_PatMET)[0];
-        METx = patMET.px();
-        METy = patMET.py();
-        //covSingleMETbuf = patMET.getSignificanceMatrix();
-        
-     }
-    
-     covMET[0][0] = covSingleMETbuf(0,0);
-     covMET[1][0] = covSingleMETbuf(1,0);
-     covMET[0][1] = covSingleMETbuf(0,1);
-     covMET[1][1] = covSingleMETbuf(1,1);
-     */
-    
+  {   
      iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
      metNumber = METHandle_PatMET->size();
-
+     if (metNumber != 1)     
+        edm::LogWarning("pfMetHasNotSizeOne") << "(SVfitInterface) Warning! Using single pf MEt, but input MEt collection size is different from 1"
+                                                           << "   --> using MET entry num. 0";
+     const pat::MET& patMET = (*METHandle_PatMET)[0];
+     METx = patMET.px();
+     METy = patMET.py();
+     
      Handle<double> significanceHandle;
      Handle<double> sig00Handle;
      Handle<double> sig01Handle;
@@ -206,23 +162,6 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      covMET[1][1] = *sig11Handle;
      significance = (float) (*significanceHandle);
      
-     /*
-     cout << "== NEW EVENT==" << endl;
-     cout << covMET[0][0] << " " << covMET[0][1] << endl;
-     cout << covMET[1][0] << " " << covMET[1][1] << endl;
-    */
-     
-     // guards against wrong number of met values provided
-     if (metNumber > 1)     
-        edm::LogWarning("SingleMETEntryZeroHasNotSizeOne") << "(SVfitInterface) Warning! Using single MEt, but input MEt collection provided has more than one entry"
-                                                           << "   --> will use the first one";
-     if (metNumber == 0)
-     {
-        edm::LogWarning("SingleMETEntryZeroHasNoEntries")  << "(SVfitInterface) Warning! Using single MEt, but input MEt collection provided has no entries"
-                                                           << "   --> skipping this event (no output produced)";
-        return;
-     }
-     
      // protection against singular matrices
      if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
         edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
@@ -235,6 +174,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // loop on all the pairs
   for (unsigned int i = 0; i < elNumber; ++i)
   {
+    //cout << "Cand: " << i << endl; 
+    
     // Get the pair and the two leptons composing it
     const CompositeCandidate& pairBuf = (*pairHandle)[i];
     pat::CompositeCandidate pair(pairBuf);
@@ -259,45 +200,21 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
     if (_usePairMET)
     {
-      if (_useMVAMET)
-      {
-         iEvent.getByLabel(vtheMETTag.at(i), METHandle_PfMET);
-         metNumber = METHandle_PfMET->size();
-      }
-      else
-      {
-         iEvent.getByLabel(vtheMETTag.at(i), METHandle_PatMET);   
-         metNumber = METHandle_PatMET->size();          
-      }
-      
-      // guards against wrong met elements number
-      if (metNumber > 1)     
-        edm::LogWarning("SingleMETEntryZeroHasNotSizeOne") << "(SVfitInterface) Warning! Using single MEt, but input MEt collection provided has more than one entry"
-                                                           << "   --> will use the first one";
-      if (metNumber == 0)
-      {
-         edm::LogWarning("SingleMETEntryZeroHasNoEntries")  << "(SVfitInterface) Warning! Using single MEt, but input MEt collection provided has no entries"
-                                                            << "   --> skipping this event (no output produced)";
-         return;
-      }
-      
-      // Get the MET and the covariance matrix
-      if (!_useMVAMET) edm::LogWarning("NoMVAMETAsPairRelated") << "(SVfitInterface): Warning! Pair-related MET is available for MVA MET only" 
-                                                                << "   --> using MVA MET";
-      
-    
+      iEvent.getByLabel(vtheMETTag.at(i), METHandle_PfMET);
+      metNumber = METHandle_PfMET->size();
+             
       const PFMET& pfMET = (*METHandle_PfMET)[0];
       const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
       significance = (float) pfMET.significance();
-    
+
       METx = pfMET.px();
       METy = pfMET.py();
-      
+
       covMET[0][0] = covMETbuf(0,0);
       covMET[1][0] = covMETbuf(1,0);
       covMET[0][1] = covMETbuf(0,1);
       covMET[1][1] = covMETbuf(1,1);
-      
+
       // protection against singular matrices
       if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
       {
