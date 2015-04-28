@@ -250,7 +250,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int decay1 = -1;
     int decay2 = -1;
     if (l1Type == svFitStandalone::kTauToHadDecay) decay1 = (int)(userdatahelpers::getUserFloat(l1,"decayMode"));
-    if (l1Type == svFitStandalone::kTauToHadDecay) decay2 = (int)(userdatahelpers::getUserFloat(l2,"decayMode"));
+    if (l2Type == svFitStandalone::kTauToHadDecay) decay2 = (int)(userdatahelpers::getUserFloat(l2,"decayMode"));
    
     //cout << l1Type << " " << decay1 << endl;
     //cout << l2Type << " " << decay2 << endl;
