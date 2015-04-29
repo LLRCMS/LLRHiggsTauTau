@@ -173,22 +173,48 @@ process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process
 ##   else :
 ##process.calibratedPatElectrons.inputDataset = "22Jan2013ReReco"
 
+
+# START ELECTRON CUT BASED ID SECTION
+#
+# Set up everything that is needed to compute electron IDs and
+# add the ValueMaps with ID decisions into the event data stream
+#
+
+# Load tools and function definitions
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+
+process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
+# overwrite a default parameter: for miniAOD, the collection name is a slimmed one
+process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
+
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
+
+# Define which IDs we want to produce
+# Each of these two example IDs contains all four standard 
+# cut-based ID working points (only two WP of the PU20bx25 are actually used here).
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_miniAOD_cff']
+#Add them to the VID producer
+for idmod in my_id_modules:
+    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
     
 
-process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
-   src = cms.InputTag("slimmedElectrons"),#"calibratedPatElectrons"),
-   cut = cms.string(ELECUT)
-   )
+#process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
+#   src = cms.InputTag("slimmedElectrons"),#"calibratedPatElectrons"),
+#   cut = cms.string(ELECUT)
+#   )
 
 
 process.softElectrons = cms.EDProducer("EleFiller",
-   src    = cms.InputTag("bareSoftElectrons"),
+   src    = cms.InputTag("slimmedElectrons"),
    genCollection = cms.InputTag("prunedGenParticles"),
    sampleType = cms.int32(LEPTON_SETUP),          
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+   electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-veto"),
+   electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-tight"),
 #    cut = cms.string("userFloat('SIP')<100"),
 #   cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
-   cut = cms.string(""),
+   cut = cms.string(ELECUT),
    flags = cms.PSet(
         ID = cms.string("userFloat('isBDT')"), # BDT MVA ID
         isGood = cms.string("")
@@ -196,7 +222,7 @@ process.softElectrons = cms.EDProducer("EleFiller",
    )
 
 #process.electrons = cms.Sequence(process.eleRegressionEnergy + process.calibratedPatElectrons + process.bareSoftElectrons) #+ process.softElectrons)
-process.electrons = cms.Sequence(process.bareSoftElectrons + process.softElectrons)
+process.electrons = cms.Sequence(process.egmGsfElectronIDSequence  + process.softElectrons)#process.bareSoftElectrons
 
 # Handle special cases
 if ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
@@ -263,6 +289,43 @@ process.bareTaus = cms.EDFilter("PATTauRefSelector",
    src = cms.InputTag("slimmedTaus"),
    cut = cms.string(TAUCUT)
    )
+
+##NOT USED FOR NOW, TBD Later
+process.cleanTaus = cms.EDProducer("PATTauCleaner",
+    src = cms.InputTag("bareTaus"),
+    # preselection (any string-based cut on pat::Tau)
+    preselection = cms.string(
+            'tauID("decayModeFinding") > 0.5 &'
+            ' tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5 &'
+            ' tauID("againstMuonTight") > 0.5 &'
+            ' tauID("againstElectronMedium") > 0.5'
+        ),
+    
+   # overlap checking configurables
+   checkOverlaps = cms.PSet(
+      muons = cms.PSet(
+          src       = cms.InputTag("cleanPatMuons"),
+          algorithm = cms.string("byDeltaR"),
+          preselection        = cms.string(""),
+          deltaR              = cms.double(0.3),
+          checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref
+          pairCut             = cms.string(""),
+          requireNoOverlaps   = cms.bool(False), # overlaps don't cause the electron to be discared
+          ),
+      electrons = cms.PSet(
+          src       = cms.InputTag("cleanPatElectrons"),
+          algorithm = cms.string("byDeltaR"),
+          preselection        = cms.string(""),
+          deltaR              = cms.double(0.3),
+          checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref
+          pairCut             = cms.string(""),
+          requireNoOverlaps   = cms.bool(False), # overlaps don't cause the electron to be discared
+          ),
+      ),
+        # finalCut (any string-based cut on pat::Tau)
+        finalCut = cms.string(' '),
+)
+
 
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),

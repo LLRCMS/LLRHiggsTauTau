@@ -20,7 +20,7 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #JETCUT="pt>15"
 
 USEPAIRMET=False
-SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 RUN_NTUPLIZER=True
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 

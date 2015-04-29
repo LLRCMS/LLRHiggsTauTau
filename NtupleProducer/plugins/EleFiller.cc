@@ -23,6 +23,7 @@
 #include <LLRHiggsTauTau/NtupleProducer/interface/CutSet.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
 //#include "BDTId.h"
+#include "EgammaAnalysis/ElectronTools/interface/EGammaMvaEleEstimatorCSA14.h"
 
 #include <vector>
 #include <string>
@@ -49,26 +50,58 @@ class EleFiller : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
 
-  const edm::InputTag theCandidateTag;
+  //const edm::InputTag theCandidateTag;
   edm::EDGetTokenT<edm::View<reco::GenParticle> > theGenTag ;
   int sampleType;
   int setup;
   const StringCutObjectSelector<pat::Electron, true> cut;
   const CutSet<pat::Electron> flags;
+  EGammaMvaEleEstimatorCSA14* myMVATrig;
+  edm::EDGetTokenT<edm::View<pat::Electron> > electronCollectionToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken_;
+
+
   //BDTId* bdt;
 };
 
 
 EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
-  theCandidateTag(iConfig.getParameter<InputTag>("src")),
+  //theCandidateTag(iConfig.getParameter<InputTag>("src")),
   theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
   sampleType(iConfig.getParameter<int>("sampleType")),
   setup(iConfig.getParameter<int>("setup")),
   cut(iConfig.getParameter<std::string>("cut")),
-  flags(iConfig.getParameter<ParameterSet>("flags"))//, 
+  flags(iConfig.getParameter<ParameterSet>("flags")),//,
+  myMVATrig(0),
+  electronCollectionToken_(consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src"))),
+  electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
+  electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap")))
+ 
   //bdt(0)
 {
   //if (recomputeBDT) bdt = new BDTId;
+  //Recompute BDT
+  std::vector<std::string> myManualCatWeigths;
+  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14/EIDmva_EB1_5_oldscenario2phys14_BDT.weights.xml");
+  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14/EIDmva_EB2_5_oldscenario2phys14_BDT.weights.xml");
+  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14/EIDmva_EE_5_oldscenario2phys14_BDT.weights.xml");
+  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14/EIDmva_EB1_10_oldscenario2phys14_BDT.weights.xml");
+  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14/EIDmva_EB2_10_oldscenario2phys14_BDT.weights.xml");
+  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14/EIDmva_EE_10_oldscenario2phys14_BDT.weights.xml");
+
+  vector<string> myManualCatWeigthsTrig;
+  string the_path;
+  for (unsigned i = 0 ; i < myManualCatWeigths.size() ; i++){
+    the_path = edm::FileInPath ( myManualCatWeigths[i] ).fullPath();
+    myManualCatWeigthsTrig.push_back(the_path);
+  }
+  myMVATrig = new EGammaMvaEleEstimatorCSA14();
+  myMVATrig->initialize("BDT",
+	  EGammaMvaEleEstimatorCSA14::kNonTrigPhys14,
+	  true,
+	  myManualCatWeigthsTrig);
+
   produces<pat::ElectronCollection>();
 }
 
@@ -78,8 +111,10 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
 
   // Get leptons and rho
-  edm::Handle<pat::ElectronRefVector> electronHandle;
-  iEvent.getByLabel(theCandidateTag, electronHandle);
+  //edm::Handle<pat::ElectronRefVector> electronHandle;
+  //iEvent.getByLabel(theCandidateTag, electronHandle);
+  edm::Handle<edm::View<pat::Electron> > electrons;
+  iEvent.getByToken(electronCollectionToken_, electrons);
 
   InputTag theRhoTag = LeptonIsoHelper::getEleRhoTag(sampleType,setup);
   edm::Handle<double> rhoHandle;
@@ -88,13 +123,23 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   edm::Handle<vector<Vertex> >  vertexs;
   iEvent.getByLabel("goodPrimaryVertices",vertexs);
+    
+  edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
+  edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
+  iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
+  iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
+
 
   // Output collection
   auto_ptr<pat::ElectronCollection> result( new pat::ElectronCollection() );
 
-  for (unsigned int i = 0; i< electronHandle->size(); ++i){
+  unsigned int i=0;
+  //for (unsigned int i = 0; i< electronHandle->size(); ++i){
+  for( View<pat::Electron>::const_iterator el = electrons->begin(); el != electrons->end(); el++){
+
     //---Clone the pat::Electron
-    pat::Electron l(*((*electronHandle)[i].get()));
+    //pat::Electron l(*((*electrons)[i].get()));
+    pat::Electron l(*el);
     
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();
@@ -122,15 +167,16 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     
     // BDT value from PAT prodiuction
-    float BDT = 0;
+    float BDT = myMVATrig->mvaValue(l,false);
     //if (recomputeBDT) {
     //  BDT = bdt->compute(l);
     //} else {
-    BDT = l.electronID("eidLoose");//RH
+    //BDT = l.electronID("eidLoose");//RH
     //}
     
 
     float pt = l.pt();
+    /*//old recipe
     bool isBDT = (pt <= 10 && (( fSCeta < 0.8 && BDT > 0.47)  ||
 			       (fSCeta >= 0.8 && fSCeta < 1.479 && BDT > 0.004) ||
 			       (fSCeta >= 1.479               && BDT > 0.295))) || 
@@ -140,12 +186,17 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                  (pt >  10 && ((fSCeta < 0.8 && BDT > -0.34)  ||
 			       (fSCeta >= 0.8 && fSCeta < 1.479 && BDT > -0.65) || 
 			       (fSCeta >= 1.479               && BDT > 0.6)));
-    
+    */
+        bool isBDT = (pt <= 10 && ((fSCeta < 0.8                    && BDT > -0.202) ||
+			       (fSCeta >= 0.8 && fSCeta < 1.479 && BDT > -0.444) ||
+			       (fSCeta >= 1.479                 && BDT >  0.264)   )) ||
+                 (pt >  10 && ((fSCeta < 0.8                    && BDT > -0.110) ||
+		               (fSCeta >= 0.8 && fSCeta < 1.479 && BDT > -0.284) ||
+		               (fSCeta >= 1.479                 && BDT > -0.212)   ));
+
 	//-- Missing hit  
 	int missingHit = l.gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
-    //--- Trigger matching
-    //int HLTMatch=0; 
-    
+
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
@@ -156,12 +207,14 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("dxy",dxy);
     l.addUserFloat("dz",dz);
     l.addUserFloat("BDT",BDT);    
-    l.addUserFloat("isBDT",isBDT);
+    l.addUserInt("isBDT",isBDT);
     //l.addUserFloat("HLTMatch", HLTMatch);
     l.addUserFloat("missingHit", missingHit);
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
     l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
-    
+    const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
+    l.addUserInt("isCUT",(*tight_id_decisions)[ elPtr ]);
+
     //--- MC info
     const reco::GenParticle* genL= l.genParticleRef().get();
     float px=0,py=0,pz=0,E=0,fromH=0;
@@ -211,6 +264,7 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     result->push_back(l);
+    i++;
   }
   iEvent.put(result);
 }
