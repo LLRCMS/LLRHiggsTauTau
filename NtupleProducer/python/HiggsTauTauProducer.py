@@ -476,7 +476,8 @@ process.PVfilter = cms.Path(process.goodPrimaryVertices)
 process.Candidates = cms.Sequence(
     #process.printTree         + # just for debug, print MC particles
     process.nEventsTotal      +
-    process.hltFilter         + process.nEventsPassTrigger +
+    #process.hltFilter         + 
+    process.nEventsPassTrigger+
     process.muons             +
     process.electrons         + process.cleanSoftElectrons +
     process.taus              +

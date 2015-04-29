@@ -12,6 +12,7 @@
 
 
 #include "FWCore/Framework/interface/Event.h"
+#include "LLRHiggsTauTau/NtupleProducer/interface/triggerMapper.h"
 
 #include <TString.h>
 #include <string>
@@ -29,12 +30,14 @@ class triggerhelper {
   bool IsTriggerFired(int triggerbit, int triggerNumber,bool istrigger=true);
   bool IsTriggerFired(int triggerbit, TString triggerName,bool istrigger=true){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
   int printFiredPaths(int triggerbit,bool istrigger=true);
-
+  triggerMapper GetTriggerMap(TString trigger);
+  
   ~triggerhelper(){}
 
  private:
-  static const int nTriggers =19;
+  static const int nTriggers =7;
   TString triggerlist[nTriggers];
+  triggerMapper triggerMap[nTriggers];
   static const int nMETs =13;
   TString metlist[nMETs];
 

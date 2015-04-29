@@ -19,6 +19,48 @@ using namespace std;
 using namespace edm;
 
 triggerhelper::triggerhelper(){
+//  "HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1",
+ // "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
+  //"HLT_IsoMu24_eta2p1_IterTrk02_v1",
+  //"HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+  //"HLT_Ele27_eta2p1_WP85_Gsf_v1",
+  //"HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1"
+
+  triggerMap[0]=triggerMapper("HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1"
+                      ,"hltMu23Ele12GsfTrackIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter",
+                      "hltL1Mu12EG7L3IsoMuFiltered23",triggerMapper::kemu);
+                      
+  triggerMap[1]=triggerMapper("HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1"
+                      ,"hltMu8Ele23GsfTrackIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter",
+                      "hltL1sL1Mu5EG20ORL1Mu5IsoEG18L3IsoFiltered8",triggerMapper::kemu);
+  
+  TString listfilt2[2]={"hltL1sMu16erTauJet20er","hltOverlapFilterIsoMu17LooseIsoPFTau20"};
+  TString listfilt1[1]={"hltOverlapFilterIsoMu17LooseIsoPFTau20"};
+  triggerMap[2]=triggerMapper("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1"
+                      ,listfilt1
+                      ,listfilt2,1,2,triggerMapper::kmutau);
+  
+  triggerMap[3]=triggerMapper("HLT_IsoMu24_eta2p1_IterTrk02_v1"
+                      ,"hltL3crIsoL1sMu20Eta2p1L1f0L2f20QL3f24QL3crIsoRhoFiltered0p15IterTrk02",
+                      "",triggerMapper::kmutau);
+  
+  listfilt2[0]="hltL1sL1IsoEG20erTauJet20er ";
+  listfilt2[1]="hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20";
+  listfilt1[0]="hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20";
+  triggerMap[4]=triggerMapper("HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1"
+                      ,listfilt1,
+                      listfilt2,1,2,triggerMapper::ketau);
+  
+  triggerMap[5]=triggerMapper("HLT_Ele27_eta2p1_WP85_Gsf_v1"
+                      ,"hltEle27WP85GsfTrackIsoFilter",
+                      "",triggerMapper::ketau);
+  
+  TString taulist[3]={"hltL1sDoubleTauJet36erORDoubleTauJet68er", "hltDoubleL2IsoTau35eta2p1", "hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"};
+  triggerMap[6]=triggerMapper("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1"
+                      ,taulist,
+                      taulist,3,3,triggerMapper::ktautau);
+                      
+  /*
   TString tmptrigger[nTriggers]={
     "IsoMu17_eta2p1_LooseIsoPFTau20",
     "IsoMu17_eta2p1",
@@ -39,12 +81,14 @@ triggerhelper::triggerhelper(){
     "Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
     "Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20",
     "Ele27_eta2p1_WP85_Gsf"
-  };
+  };*/
   for(int i=0;i<nTriggers;i++){
-    triggerlist[i]=tmptrigger[i];
-    triggerlist[i].Prepend("HLT_");
-    triggerlist[i].Append("_v1");
+    triggerlist[i]=triggerMap[i].GetHLTPath();
+    //pathKind[i]=-1;
+    //triggerlist[i].Prepend("HLT_");
+    //triggerlist[i].Append("_v1");
   }
+  
   TString tmpMETfilters[nMETs]={
                    "Flag_CSCTightHaloFilter", 
  "Flag_EcalDeadCellTriggerPrimitiveFilter",
@@ -61,6 +105,37 @@ triggerhelper::triggerhelper(){
          "Flag_trkPOG_toomanystripclus53X",  
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
+/*    
+  pathKind[0]=kemuPath;
+  pathKind[1]=kemuPath;
+  pathKind[2]=kmutauPath;
+  pathKind[3]=kmutauPath;
+  pathKind[4]=ketauPath;
+  pathKind[5]=ketauPath;
+  pathKind[6]=ktautauPath;
+
+  //Careful: e<mu<tau
+  nFiltersforPath_leg1={1,1,1,1,1,1,3};
+  nFiltersforPath_leg2={1,1,2,0,2,0,0};
+  filterPaths_leg1={
+    "hltMu23Ele12GsfTrackIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter",
+    "hltMu8Ele23GsfTrackIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter",
+    "hltOverlapFilterIsoMu17LooseIsoPFTau20",
+    "hltL3crIsoL1sMu20Eta2p1L1f0L2f20QL3f24QL3crIsoRhoFiltered0p15IterTrk02",
+    "hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20",
+    "hltEle27WP85GsfTrackIsoFilter",
+    "hltL1sDoubleTauJet36erORDoubleTauJet68er ",
+    "hltDoubleL2IsoTau35eta2p1",
+    "hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"
+  };
+  filterPaths_leg2={
+    "hltL1Mu12EG7L3IsoMuFiltered23",
+    "hltL1sL1Mu5EG20ORL1Mu5IsoEG18L3IsoFiltered8",
+    "hltL1sMu16erTauJet20er ",
+    "hltOverlapFilterIsoMu17LooseIsoPFTau20",
+    "hltL1sL1IsoEG20erTauJet20er ",
+    "hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20",
+  };*/
 }
 
 int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
@@ -111,6 +186,12 @@ int triggerhelper::FindMETBit(const edm::Event& event){
   return bit;
 }
 
+triggerMapper triggerhelper::GetTriggerMap(TString path){
+  for(int i=0;i<nTriggers;i++){
+    if(triggerMap[i].GetHLTPath().CompareTo(path.Data())==0)return triggerMap[i];
+  }
+  return triggerMapper();
+}
 int triggerhelper::FindTriggerNumber(TString triggername, bool isTrigger){ 
   int nLoop = nTriggers;
   TString *list = triggerlist;

@@ -290,6 +290,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_againstElectronMediumMVA5;
   std::vector<Int_t> _daughters_LFtrigger;
   std::vector<Int_t> _daughters_L3trigger;
+  std::vector<Int_t> _daughters_FilterFired;
+  std::vector<bool> _daughters_isGoodTriggerType;
+  std::vector<Int_t> _daughters_L3FilterFired;
+  std::vector<Int_t> _daughters_L3FilterFiredLast;
 
   //Jets variables
   Int_t _numberOfJets;
@@ -370,6 +374,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_againstElectronMediumMVA5.clear();
   _daughters_LFtrigger.clear();
   _daughters_L3trigger.clear();
+  _daughters_FilterFired.clear();
+  _daughters_isGoodTriggerType.clear();
+  _daughters_L3FilterFired.clear();
+  _daughters_L3FilterFiredLast.clear();
 
   //_daughter2.clear();
   _softLeptons.clear();
@@ -514,7 +522,11 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_againstElectronMediumMVA5", &_daughters_againstElectronMediumMVA5);
   myTree->Branch("daughters_isLastTriggerObjectforPath", &_daughters_LFtrigger);
   myTree->Branch("daughters_isTriggerObjectforPath", &_daughters_L3trigger);
-
+  myTree->Branch("daughters_FilterFired",&_daughters_FilterFired);
+  myTree->Branch("daughters_isGoodTriggerType",&_daughters_isGoodTriggerType);
+  myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired);
+  myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
+  
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
@@ -871,12 +883,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_againstElectronMediumMVA5.push_back(againstElectronMediumMVA5);
     
     //TRIGGER MATCHING
-    int LFtriggerbit=0,L3triggerbit=0;
+    int LFtriggerbit=0,L3triggerbit=0,filterFired=0;
+    bool triggerType=false;
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
       //check if the trigger object matches cand
       //bool matchCand = false;
       //if(type == ParticleType::TAU && 
       if(deltaR2(obj,*cand)<0.025){
+        if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
+        if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
+        if (type==ParticleType::MUON && (obj.hasTriggerObjectType(trigger::TriggerMuon)))triggerType=true;
         triggerhelper myTriggerHelper;
         //check fired paths
         obj.unpackPathNames(names);
@@ -887,14 +903,39 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
           int triggerbit = myTriggerHelper.FindTriggerNumber(pathNamesAll[h],true);
           if(triggerbit>=0){
+            triggerMapper map = myTriggerHelper.GetTriggerMap(pathNamesAll[h]);
+            bool isfilterGood = true;
+            if(type==ParticleType::TAU){
+              for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
+                if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).Data()))isfilterGood=false;
+              }
+            }else if(type==ParticleType::ELECTRON){
+              for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
+                if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).Data()))isfilterGood=false;
+              }
+            }else{//muons
+              if(map.GetTriggerChannel()==triggerMapper::kemu){
+                for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
+                  if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).Data()))isfilterGood=false;
+                }
+              }else{
+                for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
+                  if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).Data()))isfilterGood=false;
+                }
+              }
+            }
+          //_isFilterFiredLast;
+            if(isfilterGood)filterFired |= 1 <<triggerbit;
             if(isLF)LFtriggerbit |= 1 <<triggerbit;
             if(isL3)L3triggerbit |= 1 <<triggerbit;
           }
         }
       }
     }
-    _daughters_LFtrigger.push_back(LFtriggerbit);
-    _daughters_L3trigger.push_back(L3triggerbit);
+    _daughters_isGoodTriggerType.push_back(triggerType);
+    _daughters_FilterFired.push_back(filterFired);
+    _daughters_L3FilterFired.push_back(LFtriggerbit);
+    _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
   }
 }
 
