@@ -13,14 +13,14 @@ git cms-addpkg PhysicsTools/PatAlgos
 
 git cms-addpkg FWCore/Version
 
+git cms-merge-topic HuguesBrun:trigElecIdInCommonIsoSelection720 
+git cms-merge-topic ikrav:egm_id_phys14
+
 git-cms-merge-topic -u cms-met:72X-MetSig-150311
 
 git-cms-merge-topic -u cms-met:72X-mvaMETForMiniAOD
 #download 25ns, PU20 weights 
 ( cd RecoMET/METPUSubtraction/ ; git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 72X-13TeV-Phys14_25_V4-26Mar15 )
-
-git cms-merge-topic HuguesBrun:trigElecIdInCommonIsoSelection720 
-git cms-merge-topic ikrav:egm_id_phys14
 
 git clone https://github.com/LLRCMS/LLRHiggsTauTau.git
 (cd LLRHiggsTauTau; git checkout master)
