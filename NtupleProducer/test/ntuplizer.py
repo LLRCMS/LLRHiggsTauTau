@@ -1,4 +1,4 @@
-SVFITBYPASS = True
+SVFITBYPASS = False
 IsMC = True
 APPLYFSR = False
 
@@ -19,12 +19,20 @@ print process.GlobalTag.globaltag
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-         '/store/user/lcadamur/HTauTauTrees/test_prod_mem_1apr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/HHTauTauTrees_noNtupl_SVbypass/150402_090719/0000/Enriched_miniAOD_1.root',
-         )
-    )
+# use local file
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring(
+#         '/store/user/lcadamur/HTauTauTrees/test_prod_mem_1apr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/HHTauTauTrees_noNtupl_SVbypass/150402_090719/0000/Enriched_miniAOD_1.root',
+#         )
+#    )
 
+#source external file with LFN of enriched miniAOD (VBF)
+import os
+PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
+execfile(PyFilePath+"test/VBF_EnrichMiniAOD_11Mag2015.py")
+process.source = cms.Source("PoolSource",
+    fileNames = FILELIST
+    )
 #process.load("FWCore.MessageService.MessageLogger_cfi")
 
 #Global configuration
@@ -34,6 +42,7 @@ process.Ntuplizer = cms.EDAnalyzer("HTauTauNtuplizer",
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
+                      triggerSet = cms.InputTag("selectedPatTrigger")
                       )
 
 if SVFITBYPASS:
