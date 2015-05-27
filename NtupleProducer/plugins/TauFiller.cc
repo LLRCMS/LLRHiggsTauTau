@@ -194,12 +194,17 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const reco::GenParticle* genL= l.genParticleRef().get();
     float px=0,py=0,pz=0,E=0,fromH=0;
     float pxHad=0, pyHad=0, pzHad=0, EHad=0; // hadronic gen tau
+    int status=99999, id=99999;
 
     if(genL){
       px =genL->p4().Px();
       py =genL->p4().Py();
       pz =genL->p4().Pz();
       E =genL->p4().E();
+      status =genL->status();
+      id =genL->pdgId();
+
+      //cout << "Tau filler: " << i << " [px, id] = " << l.px() << " , " << l.pdgId() << " | (px, py, pz, e) " << px << " " << py << " " << pz << " " << E << " | ID: " << genL->pdgId() << " | status: " << genL->status() << endl;
 
       // build hadronic gen tau (all visible sons)
       for (unsigned int iDau = 0; iDau < genL->numberOfDaughters(); iDau++)
@@ -232,6 +237,9 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("genPy",py);
     l.addUserFloat("genPz",pz);
     l.addUserFloat("genE",E);
+    l.addUserInt("status", status);
+    l.addUserInt("id", id);
+
     l.addUserFloat("fromH",fromH);
 
     l.addUserFloat("genHadPx",px);

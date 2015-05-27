@@ -29,11 +29,14 @@ public :
    Int_t           EventNumber;
    Int_t           RunNumber;
    Int_t           lumi;
-   Float_t         MC_weight;
    Int_t           triggerbit;
    Int_t           metfilterbit;
    Float_t         met;
    Float_t         metphi;
+   Int_t           npv;
+   Int_t           npu;
+   Float_t         PUReweight;
+   Float_t         rho;
    vector<float>   *mothers_px;
    vector<float>   *mothers_py;
    vector<float>   *mothers_pz;
@@ -42,22 +45,28 @@ public :
    vector<float>   *daughters_py;
    vector<float>   *daughters_pz;
    vector<float>   *daughters_e;
-   vector<float>   *daughters_IetaIeta;
-   vector<float>   *daughters_deltaPhiSuperClusterTrackAtVtx;
-   vector<int>     *genDaughters;
-   vector<float>   *bquarks_px;
-   vector<float>   *bquarks_py;
-   vector<float>   *bquarks_pz;
-   vector<float>   *bquarks_e;
-   vector<int>     *bquarks_pdg;
-   vector<float>   *bmotmass;
+   vector<int>     *daughters_genindex;
+   Float_t         MC_weight;
+   vector<float>   *genpart_px;
+   vector<float>   *genpart_py;
+   vector<float>   *genpart_pz;
+   vector<float>   *genpart_e;
+   vector<int>     *genpart_pdg;
+   vector<int>     *genpart_status;
+   vector<int>     *genpart_HMothInd;
+   vector<int>     *genpart_TopMothInd;
+   vector<int>     *genpart_TauMothInd;
+   vector<int>     *genpart_HZDecayMode;
+   vector<int>     *genpart_flags;
    vector<float>   *SVfitMass;
+   vector<bool>    *isOSCand;
    vector<float>   *METx;
    vector<float>   *METy;
    vector<float>   *MET_cov00;
    vector<float>   *MET_cov01;
    vector<float>   *MET_cov10;
-   vector<float>   *MET_cov11;   
+   vector<float>   *MET_cov11;
+   vector<float>   *MET_significance;
    vector<int>     *PDGIdDaughters;
    vector<int>     *indexDau1;
    vector<int>     *indexDau2;
@@ -65,33 +74,57 @@ public :
    vector<float>   *discriminator;
    vector<float>   *dxy;
    vector<float>   *dz;
+   vector<bool>    *daughters_iseleBDT;
+   vector<bool>    *daughters_iseleCUT;
    vector<int>     *decayMode;
    vector<float>   *combreliso;
+   vector<float>   *daughters_IetaIeta;
+   vector<float>   *daughters_deltaPhiSuperClusterTrackAtVtx;
    vector<float>   *daughters_depositR03_tracker;
    vector<float>   *daughters_depositR03_ecal;
    vector<float>   *daughters_depositR03_hcal;
+   vector<int>     *daughters_decayModeFindingOldDMs;
+   vector<int>     *daughters_decayModeFindingNewDMs;
+   vector<int>     *daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;
+   vector<int>     *daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;
+   vector<int>     *daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;
+   vector<float>   *daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
+   vector<float>   *daughters_chargedIsoPtSum;
+   vector<float>   *daughters_neutralIsoPtSum;
+   vector<float>   *daughters_puCorrPtSum;
+   vector<int>     *daughters_againstMuonLoose3;
+   vector<int>     *daughters_againstMuonTight3;
+   vector<int>     *daughters_againstElectronVLooseMVA5;
+   vector<int>     *daughters_againstElectronLooseMVA5;
+   vector<int>     *daughters_againstElectronMediumMVA5;
+   vector<int>     *daughters_isLastTriggerObjectforPath;
+   vector<int>     *daughters_isTriggerObjectforPath;
+   vector<int>     *daughters_FilterFired;
+   vector<bool>    *daughters_isGoodTriggerType;
+   vector<int>     *daughters_L3FilterFired;
+   vector<int>     *daughters_L3FilterFiredLast;
    Int_t           JetsNumber;
    vector<float>   *jets_px;
    vector<float>   *jets_py;
    vector<float>   *jets_pz;
    vector<float>   *jets_e;
    vector<int>     *jets_Flavour;
+   vector<float>   *jets_PUJetID;
    vector<float>   *bDiscriminator;
    vector<float>   *bCSVscore;
-   vector<float>   *genH_px;
-   vector<float>   *genH_py;
-   vector<float>   *genH_pz;
-   vector<float>   *genH_e;
 
    // List of branches
    TBranch        *b_EventNumber;   //!
    TBranch        *b_RunNumber;   //!
-   TBranch        *b_lumi;          //!
-   TBranch        *b_MC_weight;           //!
+   TBranch        *b_lumi;   //!
    TBranch        *b_triggerbit;   //!
    TBranch        *b_metfilterbit;   //!
    TBranch        *b_met;   //!
    TBranch        *b_metphi;   //!
+   TBranch        *b_npv;   //!
+   TBranch        *b_npu;   //!
+   TBranch        *b_PUReweight;   //!
+   TBranch        *b_rho;   //!
    TBranch        *b_mothers_px;   //!
    TBranch        *b_mothers_py;   //!
    TBranch        *b_mothers_pz;   //!
@@ -100,22 +133,28 @@ public :
    TBranch        *b_daughters_py;   //!
    TBranch        *b_daughters_pz;   //!
    TBranch        *b_daughters_e;   //!
-   TBranch        *b_daughters_IetaIeta;
-   TBranch        *b_daughters_deltaPhiSuperClusterTrackAtVtx;
-   TBranch        *b_genDaughters;   //!
-   TBranch        *b_bquarks_px;   //!
-   TBranch        *b_bquarks_py;   //!
-   TBranch        *b_bquarks_pz;   //!
-   TBranch        *b_bquarks_e;   //!
-   TBranch        *b_bquarks_pdg; //!
-   TBranch        *b_bmotmass;   //!
+   TBranch        *b_daughters_genindex;   //!
+   TBranch        *b_MC_weight;   //!
+   TBranch        *b_genpart_px;   //!
+   TBranch        *b_genpart_py;   //!
+   TBranch        *b_genpart_pz;   //!
+   TBranch        *b_genpart_e;   //!
+   TBranch        *b_genpart_pdg;   //!
+   TBranch        *b_genpart_status;   //!
+   TBranch        *b_genpart_HMothInd;   //!
+   TBranch        *b_genpart_TopMothInd;   //!
+   TBranch        *b_genpart_TauMothInd;   //!
+   TBranch        *b_genpart_HZDecayMode;   //!
+   TBranch        *b_genpart_flags;   //!
    TBranch        *b_SVfitMass;   //!
+   TBranch        *b_isOSCand;   //!
    TBranch        *b_METx;   //!
    TBranch        *b_METy;   //!
    TBranch        *b_MET_cov00;   //!
    TBranch        *b_MET_cov01;   //!
    TBranch        *b_MET_cov10;   //!
    TBranch        *b_MET_cov11;   //!
+   TBranch        *b_MET_significance;   //!
    TBranch        *b_PDGIdDaughters;   //!
    TBranch        *b_indexDau1;   //!
    TBranch        *b_indexDau2;   //!
@@ -123,24 +162,45 @@ public :
    TBranch        *b_discriminator;   //!
    TBranch        *b_dxy;   //!
    TBranch        *b_dz;   //!
+   TBranch        *b_daughters_iseleBDT;   //!
+   TBranch        *b_daughters_iseleCUT;   //!
    TBranch        *b_decayMode;   //!
    TBranch        *b_combreliso;   //!
-   TBranch        *b_daughters_depositR03_tracker;
-   TBranch        *b_daughters_depositR03_ecal;
-   TBranch        *b_daughters_depositR03_hcal;
+   TBranch        *b_daughters_IetaIeta;   //!
+   TBranch        *b_daughters_deltaPhiSuperClusterTrackAtVtx;   //!
+   TBranch        *b_daughters_depositR03_tracker;   //!
+   TBranch        *b_daughters_depositR03_ecal;   //!
+   TBranch        *b_daughters_depositR03_hcal;   //!
+   TBranch        *b_daughters_decayModeFindingOldDMs;   //!
+   TBranch        *b_daughters_decayModeFindingNewDMs;   //!
+   TBranch        *b_daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;   //!
+   TBranch        *b_daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;   //!
+   TBranch        *b_daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;   //!
+   TBranch        *b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;   //!
+   TBranch        *b_daughters_chargedIsoPtSum;   //!
+   TBranch        *b_daughters_neutralIsoPtSum;   //!
+   TBranch        *b_daughters_puCorrPtSum;   //!
+   TBranch        *b_daughters_againstMuonLoose3;   //!
+   TBranch        *b_daughters_againstMuonTight3;   //!
+   TBranch        *b_daughters_againstElectronVLooseMVA5;   //!
+   TBranch        *b_daughters_againstElectronLooseMVA5;   //!
+   TBranch        *b_daughters_againstElectronMediumMVA5;   //!
+   TBranch        *b_daughters_isLastTriggerObjectforPath;   //!
+   TBranch        *b_daughters_isTriggerObjectforPath;   //!
+   TBranch        *b_daughters_FilterFired;   //!
+   TBranch        *b_daughters_isGoodTriggerType;   //!
+   TBranch        *b_daughters_L3FilterFired;   //!
+   TBranch        *b_daughters_L3FilterFiredLast;   //!
    TBranch        *b_JetsNumber;   //!
    TBranch        *b_jets_px;   //!
    TBranch        *b_jets_py;   //!
    TBranch        *b_jets_pz;   //!
    TBranch        *b_jets_e;   //!
    TBranch        *b_jets_Flavour;   //!
+   TBranch        *b_jets_PUJetID;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
-   TBranch        *b_genH_px;    //!
-   TBranch        *b_genH_py;    //!
-   TBranch        *b_genH_pz;    //!
-   TBranch        *b_genH_e;    //!
-
+   
    // methods
    HTauTauTree (TTree* tree); //ctor
    ~HTauTauTree();
@@ -168,22 +228,27 @@ void HTauTauTree::Init(TTree* tree)
    daughters_py = 0;
    daughters_pz = 0;
    daughters_e = 0;
-   daughters_IetaIeta= 0;
-   daughters_deltaPhiSuperClusterTrackAtVtx= 0;
-   genDaughters = 0;
-   bquarks_px = 0;
-   bquarks_py = 0;
-   bquarks_pz = 0;
-   bquarks_e = 0;
-   bquarks_pdg = 0;
-   bmotmass = 0;
+   daughters_genindex = 0;
+   genpart_px = 0;
+   genpart_py = 0;
+   genpart_pz = 0;
+   genpart_e = 0;
+   genpart_pdg = 0;
+   genpart_status = 0;
+   genpart_HMothInd = 0;
+   genpart_TopMothInd = 0;
+   genpart_TauMothInd = 0;
+   genpart_HZDecayMode = 0;
+   genpart_flags = 0;
    SVfitMass = 0;
+   isOSCand = 0;
    METx = 0;
    METy = 0;
    MET_cov00 = 0;
    MET_cov01 = 0;
    MET_cov10 = 0;
    MET_cov11 = 0;
+   MET_significance = 0;
    PDGIdDaughters = 0;
    indexDau1 = 0;
    indexDau2 = 0;
@@ -191,22 +256,43 @@ void HTauTauTree::Init(TTree* tree)
    discriminator = 0;
    dxy = 0;
    dz = 0;
+   daughters_iseleBDT = 0;
+   daughters_iseleCUT = 0;
    decayMode = 0;
    combreliso = 0;
-   daughters_depositR03_tracker=0;
-   daughters_depositR03_ecal=0;
-   daughters_depositR03_hcal=0;
+   daughters_IetaIeta = 0;
+   daughters_deltaPhiSuperClusterTrackAtVtx = 0;
+   daughters_depositR03_tracker = 0;
+   daughters_depositR03_ecal = 0;
+   daughters_depositR03_hcal = 0;
+   daughters_decayModeFindingOldDMs = 0;
+   daughters_decayModeFindingNewDMs = 0;
+   daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits = 0;
+   daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits = 0;
+   daughters_byTightCombinedIsolationDeltaBetaCorr3Hits = 0;
+   daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits = 0;
+   daughters_chargedIsoPtSum = 0;
+   daughters_neutralIsoPtSum = 0;
+   daughters_puCorrPtSum = 0;
+   daughters_againstMuonLoose3 = 0;
+   daughters_againstMuonTight3 = 0;
+   daughters_againstElectronVLooseMVA5 = 0;
+   daughters_againstElectronLooseMVA5 = 0;
+   daughters_againstElectronMediumMVA5 = 0;
+   daughters_isLastTriggerObjectforPath = 0;
+   daughters_isTriggerObjectforPath = 0;
+   daughters_FilterFired = 0;
+   daughters_isGoodTriggerType = 0;
+   daughters_L3FilterFired = 0;
+   daughters_L3FilterFiredLast = 0;
    jets_px = 0;
    jets_py = 0;
    jets_pz = 0;
    jets_e = 0;
    jets_Flavour = 0;
+   jets_PUJetID = 0;
    bDiscriminator = 0;
    bCSVscore = 0;
-   genH_px=0;
-   genH_py=0;
-   genH_pz=0;
-   genH_e=0;
 
    // Set branch addresses and branch pointers
    if (!tree) return;
@@ -221,6 +307,10 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("metfilterbit", &metfilterbit, &b_metfilterbit);
    _tree->SetBranchAddress("met", &met, &b_met);
    _tree->SetBranchAddress("metphi", &metphi, &b_metphi);
+   _tree->SetBranchAddress("npv", &npv, &b_npv);
+   _tree->SetBranchAddress("npu", &npu, &b_npu);
+   _tree->SetBranchAddress("PUReweight", &PUReweight, &b_PUReweight);
+   _tree->SetBranchAddress("rho", &rho, &b_rho);
    _tree->SetBranchAddress("mothers_px", &mothers_px, &b_mothers_px);
    _tree->SetBranchAddress("mothers_py", &mothers_py, &b_mothers_py);
    _tree->SetBranchAddress("mothers_pz", &mothers_pz, &b_mothers_pz);
@@ -229,15 +319,16 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("daughters_py", &daughters_py, &b_daughters_py);
    _tree->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
    _tree->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
-   _tree->SetBranchAddress("daughters_IetaIeta",&daughters_IetaIeta,&b_daughters_IetaIeta);
-   _tree->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx",&daughters_deltaPhiSuperClusterTrackAtVtx,&b_daughters_deltaPhiSuperClusterTrackAtVtx);
+   _tree->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
    _tree->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
+   _tree->SetBranchAddress("isOSCand", &isOSCand, &b_isOSCand);
    _tree->SetBranchAddress("METx", &METx, &b_METx);
    _tree->SetBranchAddress("METy", &METy, &b_METy);
    _tree->SetBranchAddress("MET_cov00", &MET_cov00, &b_MET_cov00);
    _tree->SetBranchAddress("MET_cov01", &MET_cov01, &b_MET_cov01);
    _tree->SetBranchAddress("MET_cov10", &MET_cov10, &b_MET_cov10);
    _tree->SetBranchAddress("MET_cov11", &MET_cov11, &b_MET_cov11);
+   _tree->SetBranchAddress("MET_significance", &MET_significance, &b_MET_significance);
    _tree->SetBranchAddress("PDGIdDaughters", &PDGIdDaughters, &b_PDGIdDaughters);
    _tree->SetBranchAddress("indexDau1", &indexDau1, &b_indexDau1);
    _tree->SetBranchAddress("indexDau2", &indexDau2, &b_indexDau2);
@@ -245,35 +336,60 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("discriminator", &discriminator, &b_discriminator);
    _tree->SetBranchAddress("dxy", &dxy, &b_dxy);
    _tree->SetBranchAddress("dz", &dz, &b_dz);
+   _tree->SetBranchAddress("daughters_iseleBDT", &daughters_iseleBDT, &b_daughters_iseleBDT);
+   _tree->SetBranchAddress("daughters_iseleCUT", &daughters_iseleCUT, &b_daughters_iseleCUT);
    _tree->SetBranchAddress("decayMode", &decayMode, &b_decayMode);
    _tree->SetBranchAddress("combreliso", &combreliso, &b_combreliso);
-   _tree->SetBranchAddress("daughters_depositR03_tracker",&daughters_depositR03_tracker,&b_daughters_depositR03_tracker);
-   _tree->SetBranchAddress("daughters_depositR03_ecal",&daughters_depositR03_ecal,&b_daughters_depositR03_ecal);
-   _tree->SetBranchAddress("daughters_depositR03_hcal",&daughters_depositR03_hcal,&b_daughters_depositR03_hcal);
+   _tree->SetBranchAddress("daughters_IetaIeta", &daughters_IetaIeta, &b_daughters_IetaIeta);
+   _tree->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx", &daughters_deltaPhiSuperClusterTrackAtVtx, &b_daughters_deltaPhiSuperClusterTrackAtVtx);
+   _tree->SetBranchAddress("daughters_depositR03_tracker", &daughters_depositR03_tracker, &b_daughters_depositR03_tracker);
+   _tree->SetBranchAddress("daughters_depositR03_ecal", &daughters_depositR03_ecal, &b_daughters_depositR03_ecal);
+   _tree->SetBranchAddress("daughters_depositR03_hcal", &daughters_depositR03_hcal, &b_daughters_depositR03_hcal);
+   _tree->SetBranchAddress("daughters_decayModeFindingOldDMs", &daughters_decayModeFindingOldDMs, &b_daughters_decayModeFindingOldDMs);
+   _tree->SetBranchAddress("daughters_decayModeFindingNewDMs", &daughters_decayModeFindingNewDMs, &b_daughters_decayModeFindingNewDMs);
+   _tree->SetBranchAddress("daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits", &daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits, &b_daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits);
+   _tree->SetBranchAddress("daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits", &daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits, &b_daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits);
+   _tree->SetBranchAddress("daughters_byTightCombinedIsolationDeltaBetaCorr3Hits", &daughters_byTightCombinedIsolationDeltaBetaCorr3Hits, &b_daughters_byTightCombinedIsolationDeltaBetaCorr3Hits);
+   _tree->SetBranchAddress("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits, &b_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
+   _tree->SetBranchAddress("daughters_chargedIsoPtSum", &daughters_chargedIsoPtSum, &b_daughters_chargedIsoPtSum);
+   _tree->SetBranchAddress("daughters_neutralIsoPtSum", &daughters_neutralIsoPtSum, &b_daughters_neutralIsoPtSum);
+   _tree->SetBranchAddress("daughters_puCorrPtSum", &daughters_puCorrPtSum, &b_daughters_puCorrPtSum);
+   _tree->SetBranchAddress("daughters_againstMuonLoose3", &daughters_againstMuonLoose3, &b_daughters_againstMuonLoose3);
+   _tree->SetBranchAddress("daughters_againstMuonTight3", &daughters_againstMuonTight3, &b_daughters_againstMuonTight3);
+   _tree->SetBranchAddress("daughters_againstElectronVLooseMVA5", &daughters_againstElectronVLooseMVA5, &b_daughters_againstElectronVLooseMVA5);
+   _tree->SetBranchAddress("daughters_againstElectronLooseMVA5", &daughters_againstElectronLooseMVA5, &b_daughters_againstElectronLooseMVA5);
+   _tree->SetBranchAddress("daughters_againstElectronMediumMVA5", &daughters_againstElectronMediumMVA5, &b_daughters_againstElectronMediumMVA5);
+   _tree->SetBranchAddress("daughters_isLastTriggerObjectforPath", &daughters_isLastTriggerObjectforPath, &b_daughters_isLastTriggerObjectforPath);
+   _tree->SetBranchAddress("daughters_isTriggerObjectforPath", &daughters_isTriggerObjectforPath, &b_daughters_isTriggerObjectforPath);
+   _tree->SetBranchAddress("daughters_FilterFired", &daughters_FilterFired, &b_daughters_FilterFired);
+   _tree->SetBranchAddress("daughters_isGoodTriggerType", &daughters_isGoodTriggerType, &b_daughters_isGoodTriggerType);
+   _tree->SetBranchAddress("daughters_L3FilterFired", &daughters_L3FilterFired, &b_daughters_L3FilterFired);
+   _tree->SetBranchAddress("daughters_L3FilterFiredLast", &daughters_L3FilterFiredLast, &b_daughters_L3FilterFiredLast);
    _tree->SetBranchAddress("JetsNumber", &JetsNumber, &b_JetsNumber);
    _tree->SetBranchAddress("jets_px", &jets_px, &b_jets_px);
    _tree->SetBranchAddress("jets_py", &jets_py, &b_jets_py);
    _tree->SetBranchAddress("jets_pz", &jets_pz, &b_jets_pz);
    _tree->SetBranchAddress("jets_e", &jets_e, &b_jets_e);
    _tree->SetBranchAddress("jets_Flavour", &jets_Flavour, &b_jets_Flavour);
+   _tree->SetBranchAddress("jets_PUJetID", &jets_PUJetID, &b_jets_PUJetID);
    _tree->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
    _tree->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
 
    // MC only
-   if(_tree->GetListOfBranches()->FindObject("genDaughters"))
+   if(_tree->GetListOfBranches()->FindObject("genpart_px"))
    {
-        _tree->SetBranchAddress("genDaughters", &genDaughters, &b_genDaughters);
-        _tree->SetBranchAddress("quarks_px", &bquarks_px, &b_bquarks_px);
-        _tree->SetBranchAddress("quarks_py", &bquarks_py, &b_bquarks_py);
-        _tree->SetBranchAddress("quarks_pz", &bquarks_pz, &b_bquarks_pz);
-        _tree->SetBranchAddress("quarks_e", &bquarks_e, &b_bquarks_e);
-        _tree->SetBranchAddress("quarks_pdg", &bquarks_pdg, &b_bquarks_pdg);
-        _tree->SetBranchAddress("motmass", &bmotmass, &b_bmotmass);
-        _tree->SetBranchAddress("MC_weight",&MC_weight,&b_MC_weight);
-        _tree->SetBranchAddress("genH_px",&genH_px,&b_genH_px);
-        _tree->SetBranchAddress("genH_py",&genH_py,&b_genH_py);
-        _tree->SetBranchAddress("genH_pz",&genH_pz,&b_genH_pz);
-        _tree->SetBranchAddress("genH_e",&genH_e,&b_genH_e);
+       _tree->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
+       _tree->SetBranchAddress("genpart_py", &genpart_py, &b_genpart_py);
+       _tree->SetBranchAddress("genpart_pz", &genpart_pz, &b_genpart_pz);
+       _tree->SetBranchAddress("genpart_e", &genpart_e, &b_genpart_e);
+       _tree->SetBranchAddress("genpart_pdg", &genpart_pdg, &b_genpart_pdg);
+       _tree->SetBranchAddress("genpart_status", &genpart_status, &b_genpart_status);
+       _tree->SetBranchAddress("genpart_HMothInd", &genpart_HMothInd, &b_genpart_HMothInd);
+       _tree->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd, &b_genpart_TopMothInd);
+       _tree->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd, &b_genpart_TauMothInd);
+       _tree->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
+       _tree->SetBranchAddress("genpart_flags", &genpart_flags, &b_genpart_flags);
+       _tree->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
    }
 }
 

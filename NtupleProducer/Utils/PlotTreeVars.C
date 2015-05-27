@@ -7,11 +7,40 @@
 #include "TCanvas.h"
 #include "TLorentzVector.h"
 #include "OfflineProducerHelper.h"
+#include "../interface/GenFlags.h"
 
 //For trigger selction tools, please refer to 
 //https://github.com/LLRCMS/LLRHiggsTauTau/blob/master/NtupleProducer/Utils/OfflineProducerHelper.h
 
 using namespace std;
+
+
+//return a certain bit in the gen flags word
+bool GenFlag (int word, GenFlags::genFlags bitPos)
+{
+    int bit = static_cast<int> bitPos;
+    bool res = word & ( 1 << bit );
+    return res;
+}
+
+// not supported now, a dedicated branch was used
+/*
+GenFlags::genFlags GetHZDecayMode (int word)
+{
+    if (GenFlags (word), GenFlags::HZToMuHad)   return GenFlags::HZToMuHad;
+    if (GenFlags (word), GenFlags::HZToEHad)    return GenFlags::HZToEHad;
+    if (GenFlags (word), GenFlags::HZToHadHad)  return GenFlags::HZToHadHad;
+    if (GenFlags (word), GenFlags::HZToMuMu)    return GenFlags::HZToMuMu;
+    if (GenFlags (word), GenFlags::HZToEE)      return GenFlags::HZToEE;
+    if (GenFlags (word), GenFlags::HZToEMu)     return GenFlags::HZToEMu;
+    if (GenFlags (word), GenFlags::HZToEEPrompt)   return GenFlags::HZToEEPrompt;
+    if (GenFlags (word), GenFlags::HZToMuMuPrompt) return GenFlags::HZToMuMuPrompt;
+    if (GenFlags (word), GenFlags::HZToOther)      return GenFlags::HZToOther;
+
+    // default, should never happen if input is a good particle (H/Z)
+    return GenFlags::HZToOther;
+}
+*/
 
 void PlotTreeVars()
 {
@@ -40,9 +69,14 @@ void PlotTreeVars()
     TH1F* h_mothers_px = new TH1F ("h_mothers_px", "mothers_px", 100, -100, 100);
     TH1F* h_mothers_SVmass = new TH1F ("h_mothers_SVfitMass", "mothers_SVfitMass", 100, -100, 800);
     TH2F *h_dauPtvsSVFit = new TH2F("dauPtvsSVMass","dauPtvsSVMass",100,-100,800,100,0,1000);
-    cout << "TreeEntries: " << tree->GetEntries() << endl;
-    for (int iEntry = 0; iEntry < tree->GetEntries() ; iEntry++)
+    
+    long int nentries = tree->GetEntries();
+    //long int nentries = 10;
+    cout << "TreeEntries: " << nentries << endl;
+    for (int iEntry = 0; iEntry < nentries ; iEntry++)
     {
+        cout << "  -------------------- NEW EVENT --------------------- " << endl;
+        
         tree->GetEntry(iEntry);
 
         //Check if a specific trigger is fired
@@ -83,6 +117,32 @@ void PlotTreeVars()
             h_dauPtvsSVFit->Fill(svmass, dau1.Pt());
             h_dauPtvsSVFit->Fill(svmass, dau2.Pt());
         }
+        
+        // reco leptons
+        cout << " === All saved leptons ===" << endl;        
+        for (int iDau = 0; iDau < tree->daughters_px->size(); iDau++)
+        {
+            float px = tree->daughters_px->at(iDau);        
+            float py = tree->daughters_py->at(iDau);
+            float pt = TMath::Sqrt (px*px + py*py);
+            cout << iDau << ") id: " << tree->PDGIdDaughters->at(iDau) << " -- pt :" << pt <<  " | gen: " << tree->daughters_genindex->at(iDau) << endl;
+        }
+        cout << endl;
+        
+        // gen level info
+        cout << " === All saved gen info ===" << endl;
+        for (int iGen = 0; iGen < tree->genpart_px->size(); iGen++)
+        {
+            int ApdgId = abs (tree->genpart_pdg->at(iGen));
+            cout << iGen << ")  Id: " << tree->genpart_pdg->at(iGen);
+            if (GenFlag (tree->genpart_flags->at(iGen) , GenFlags::fromH ) )   cout << "   , fromH num. " << tree->genpart_HMothInd->at(iGen);
+            if (GenFlag (tree->genpart_flags->at(iGen) , GenFlags::fromTop ) ) cout << "   , fromTop num. " << tree->genpart_TopMothInd->at(iGen);
+            if (GenFlag (tree->genpart_flags->at(iGen) , GenFlags::fromTau ) ) cout << "   , fromTau num. " << tree->genpart_TauMothInd->at(iGen);
+            if (ApdgId == 25 || ApdgId == 23)
+                cout << "  | decayMode: " << tree->genpart_HZDecayMode->at(iGen) << endl; // meaning of this values is in GenHelper.h
+            cout << endl;
+        }
+        cout << endl;
         
     }
     

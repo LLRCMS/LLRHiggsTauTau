@@ -1,0 +1,44 @@
+/* 
+**
+** Helpers for gen info
+** 
+** 
+** \date:    13 May 2015
+** \author:  L. Cadamuro (LLR)
+*/
+
+#ifndef GenHelper_h
+#define GenHelper_h
+
+#include <DataFormats/HepMCCandidate/interface/GenParticle.h>
+#include <vector>
+
+namespace genhelper {
+
+    enum HZDecay {
+        MuHad  = 0,
+        EHad   = 1,
+        HadHad = 2,
+        MuMu   = 3,
+        EE     = 4,
+        EMu    = 5,
+        EEPrompt = 6, // prompt Z->ee/mumu decays
+        MuMuPrompt = 7,
+        Other  = 8 // for e.g. h->bb
+    };
+
+    bool IsLastCopy (const reco::GenParticle& part); // return true if particle has no sons with its same pdgId to reject showering clones
+    bool IsFirstCopy (const reco::GenParticle& part); // return true if particle has no mothers with its same pdgId to handle showering clones
+    
+    int GetTauDecay (const reco::GenParticle& part); // 0: tau->mu; 1: tau->ele; 2: tau->had
+    int GetTauDecay (const reco::Candidate* part); // 0: tau->mu; 1: tau->ele; 2: tau->had
+
+    const reco::Candidate* GetLastCopy (const reco::Candidate* part); // follow all the replicated particle chain until the last clone
+    HZDecay GetHZDecay (const reco::Candidate* part); // return final state for H/Z -> see enum for code
+    
+    reco::GenParticle GetTauHad (const reco::Candidate* part); // build had tau by summing sons without nu
+    const reco::Candidate* IsFromID (const reco::Candidate* part, int targetPDGId); // find if is son of a certain particle (select by targetPDGId); if not found, return NULL, else return its pointer
+    int GetIndexInOutput (const reco::Candidate* part, std::vector<const reco::Candidate *> cands);
+}
+
+#endif

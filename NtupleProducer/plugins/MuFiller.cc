@@ -168,12 +168,18 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();
     float px=0,py=0,pz=0,E=0,fromH=0;
+    int status=99999, id=99999;
+
     //printf("%p\n",genL);
     if(genL){
       px =genL->p4().Px();
       py =genL->p4().Py();
       pz =genL->p4().Pz();
       E =genL->p4().E();
+      status =genL->status();
+      id =genL->pdgId();
+
+      //cout << "Mu filler: " << i << " [px, id] = " << l.px() << " , " << l.pdgId() << " | (px, py, pz, e) " << px << " " << py << " " << pz << " " << E << " | ID: " << genL->pdgId() << " | status: " << genL->status() << endl;
 
       //search if it comes from H
       Handle<edm::View<reco::GenParticle> > genHandle;
@@ -195,7 +201,9 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("genPx",px);
     l.addUserFloat("genPy",py);
     l.addUserFloat("genPz",pz);
-    l.addUserFloat("genE",E);
+    l.addUserFloat("genE",E);    
+    l.addUserInt("status", status);
+    l.addUserInt("id", id);
     l.addUserFloat("fromH",fromH);
 
 //     MCHistoryTools mch(iEvent);

@@ -7,12 +7,16 @@
  *  \author G. Ortona (LLR)
  */
 
+#define EPSIL 1.e-5 
+
 // system include files
 #include <memory>
 #include <cmath>
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <map>
+#include <utility>
 #include <TNtuple.h>
 //#include <XYZTLorentzVector.h>
 
@@ -74,6 +78,8 @@
 #include "LLRHiggsTauTau/NtupleProducer/interface/PUReweight.h"
 //#include "LLRHiggsTauTau/NtupleProducer/Utils/OfflineProducerHelper.h"
 #include "LLRHiggsTauTau/NtupleProducer/interface/ParticleType.h"
+#include "LLRHiggsTauTau/NtupleProducer/interface/GenFlags.h"
+#include "LLRHiggsTauTau/NtupleProducer/interface/GenHelper.h"
 
 
 //#include "TLorentzVector.h"
@@ -168,11 +174,16 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //virtual void FillPhoton(const pat::Photon& photon);
   int FillJet(const edm::View<pat::Jet>* jet);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR);
-  void FillbQuarks(const edm::Event&);
+  //void FillbQuarks(const edm::Event&);
+  void FillGenInfo(const edm::Event&);
+  int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
+  int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
   bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
   //bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j);
 
   // ----------member data ---------------------------
+  //std::map <int, int> genFlagPosMap_; // to convert from input to output enum format for H/Z decays
+  
   //Configs
   int theChannel;
   std::string theCandLabel;
@@ -222,34 +233,53 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _PUReweight;
   Float_t _rho;
   
-  //Leptons
+  // pairs
   //std::vector<TLorentzVector> _mothers;
   std::vector<Float_t> _mothers_px;
   std::vector<Float_t> _mothers_py;
   std::vector<Float_t> _mothers_pz;
   std::vector<Float_t> _mothers_e;
   
+  // reco leptons
   //std::vector<TLorentzVector> _daughters;
   std::vector<Float_t> _daughters_px;
   std::vector<Float_t> _daughters_py;
   std::vector<Float_t> _daughters_pz;
   std::vector<Float_t> _daughters_e;
+  std::vector<Int_t> _daughters_genindex;
+  
 
   std::vector<const reco::Candidate*> _softLeptons;
   
   //std::vector<TLorentzVector> _bquarks;
-  std::vector<Float_t> _bquarks_px;
-  std::vector<Float_t> _bquarks_py;
-  std::vector<Float_t> _bquarks_pz;
-  std::vector<Float_t> _bquarks_e;
-  std::vector<Int_t> _bquarks_pdg;
+  //std::vector<Float_t> _bquarks_px;
+  //std::vector<Float_t> _bquarks_py;
+  //std::vector<Float_t> _bquarks_pz;
+  //std::vector<Float_t> _bquarks_e;
+  //std::vector<Int_t> _bquarks_pdg;
+  
+  std::vector<Float_t> _genpart_px;
+  std::vector<Float_t> _genpart_py;
+  std::vector<Float_t> _genpart_pz;
+  std::vector<Float_t> _genpart_e;
+  std::vector<Int_t> _genpart_pdg;
+  std::vector<Int_t> _genpart_status;
+  //std::vector<Int_t> _genpart_mothInd;
+  std::vector<Int_t> _genpart_HMothInd;
+  std::vector<Int_t> _genpart_TopMothInd;
+  std::vector<Int_t> _genpart_TauMothInd;
+  std::vector<Int_t> _genpart_ZMothInd;
+  std::vector<Int_t> _genpart_HZDecayMode;
+  std::vector<Int_t> _genpart_TauGenDecayMode;
+
+  std::vector<Int_t> _genpart_flags; // vector of bit flags bout gen info
   
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
   //Mothers output variables
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
-  std::vector<Int_t> _genDaughters;
+  //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
   std::vector<Float_t> _SVmass;
   std::vector<Float_t> _metx;
@@ -259,7 +289,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _metCov10;
   std::vector<Float_t> _metCov11;
   std::vector<Float_t> _metSignif;
-  std::vector<Float_t> _bmotmass;
+  //std::vector<Float_t> _bmotmass;
    
   //Leptons variables
   std::vector<Int_t> _pdgdau;
@@ -310,10 +340,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _bdiscr2;
   
   //genH
-  std::vector<Float_t> _genH_px;
-  std::vector<Float_t> _genH_py;
-  std::vector<Float_t> _genH_pz;
-  std::vector<Float_t> _genH_e;
+  //std::vector<Float_t> _genH_px;
+  //std::vector<Float_t> _genH_py;
+  //std::vector<Float_t> _genH_pz;
+  //std::vector<Float_t> _genH_e;
 };
 
 // ----Constructor and Destructor -----
@@ -337,6 +367,19 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   processName= pset.getParameter<edm::InputTag>("triggerResultsLabel");
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
 
+  /*
+  // init map for flags
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::MuHad)  , static_cast<int> (GenFlags::HZToMuHad) ) );
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::EHad)   , static_cast<int> (GenFlags::HZToEHad) ) );
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::HadHad) , static_cast<int> (GenFlags::HZToHadHad) ) );
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::MuMu)   , static_cast<int> (GenFlags::HZToMuMu) ) );
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::EE)     , static_cast<int> (GenFlags::HZToEE) ) );
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::EMu)    , static_cast<int> (GenFlags::HZToEMu) ) );
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::EEPrompt)   , static_cast<int> (GenFlags::HZToEEPrompt) ) );
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::MuMuPrompt) , static_cast<int> (GenFlags::HZToMuMuPrompt) ) );
+  genFlagPosMap_.insert (std::pair<int,int> ( static_cast<int> (genhelper::HZDecay::Other)      , static_cast<int> (GenFlags::HZToOther) ) );
+  */
+
   Initialize();
 }
 
@@ -355,6 +398,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_py.clear();
   _daughters_pz.clear();
   _daughters_e.clear();
+  _daughters_genindex.clear();
   _daughters_IetaIeta.clear();
   _daughters_deltaPhiSuperClusterTrackAtVtx.clear();
   _daughters_depositR03_tracker.clear();  
@@ -384,15 +428,30 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_iseleCUT.clear();
   //_daughter2.clear();
   _softLeptons.clear();
-  _genDaughters.clear();
+  //_genDaughters.clear();
   
   //_bquarks.clear();
-  _bquarks_px.clear();
-  _bquarks_py.clear();
-  _bquarks_pz.clear();
-  _bquarks_e.clear();
-  _bquarks_pdg.clear();
-  _bmotmass.clear();
+  //_bquarks_px.clear();
+  //_bquarks_py.clear();
+  //_bquarks_pz.clear();
+  //_bquarks_e.clear();
+  //_bquarks_pdg.clear();
+  //_bmotmass.clear();
+  
+  _genpart_px.clear();
+  _genpart_py.clear();
+  _genpart_pz.clear();
+  _genpart_e.clear();
+  _genpart_pdg.clear();
+  _genpart_status.clear();
+  //_genpart_mothInd.clear();
+  _genpart_HMothInd.clear();
+  _genpart_TopMothInd.clear();
+  _genpart_TauMothInd.clear();
+  _genpart_ZMothInd.clear();
+  _genpart_HZDecayMode.clear();
+  _genpart_TauGenDecayMode.clear();
+  _genpart_flags.clear();
   
   _indexDau1.clear();
   _indexDau2.clear();
@@ -436,10 +495,10 @@ void HTauTauNtuplizer::Initialize(){
   _bdiscr.clear();
   _bdiscr2.clear();
   
-  _genH_px.clear();
-  _genH_py.clear();
-  _genH_pz.clear();
-  _genH_e.clear();
+  //_genH_px.clear();
+  //_genH_py.clear();
+  //_genH_pz.clear();
+  //_genH_e.clear();
 }
 
 void HTauTauNtuplizer::beginJob(){
@@ -472,18 +531,34 @@ void HTauTauNtuplizer::beginJob(){
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
-    myTree->Branch("genDaughters",&_genDaughters);
-    myTree->Branch("quarks_px",&_bquarks_px);
-    myTree->Branch("quarks_py",&_bquarks_py);
-    myTree->Branch("quarks_pz",&_bquarks_pz);
-    myTree->Branch("quarks_e",&_bquarks_e);
-    myTree->Branch("quarks_pdg",&_bquarks_pdg);
-    myTree->Branch("motmass",&_bmotmass);
-    myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
-    myTree->Branch("genH_px",&_genH_px);
-    myTree->Branch("genH_py",&_genH_py);
-    myTree->Branch("genH_pz",&_genH_pz);
-    myTree->Branch("genH_e",&_genH_e);
+    //myTree->Branch("genDaughters",&_genDaughters);
+    //myTree->Branch("quarks_px",&_bquarks_px);
+    //myTree->Branch("quarks_py",&_bquarks_py);
+    //myTree->Branch("quarks_pz",&_bquarks_pz);
+    //myTree->Branch("quarks_e",&_bquarks_e);
+    //myTree->Branch("quarks_pdg",&_bquarks_pdg);
+    //myTree->Branch("motmass",&_bmotmass);
+    //myTree->Branch("genH_px",&_genH_px);
+    //myTree->Branch("genH_py",&_genH_py);
+    //myTree->Branch("genH_pz",&_genH_pz);
+    //myTree->Branch("genH_e",&_genH_e);
+
+    myTree->Branch("daughters_genindex",&_daughters_genindex);
+    myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");    
+    myTree->Branch("genpart_px", &_genpart_px);
+    myTree->Branch("genpart_py", &_genpart_py);
+    myTree->Branch("genpart_pz", &_genpart_pz);
+    myTree->Branch("genpart_e", &_genpart_e);
+    myTree->Branch("genpart_pdg", &_genpart_pdg);
+    myTree->Branch("genpart_status", &_genpart_status);
+    //myTree->Branch("genpart_mothInd", _genpart_mothInd);
+    myTree->Branch("genpart_HMothInd", &_genpart_HMothInd);
+    myTree->Branch("genpart_TopMothInd", &_genpart_TopMothInd);
+    myTree->Branch("genpart_TauMothInd", &_genpart_TauMothInd);
+    myTree->Branch("genpart_ZMothInd", &_genpart_ZMothInd);
+    myTree->Branch("genpart_HZDecayMode", &_genpart_HZDecayMode);
+    myTree->Branch("genpart_TauGenDecayMode", &_genpart_TauGenDecayMode);
+    myTree->Branch("genpart_flags", &_genpart_flags);
   }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
@@ -627,7 +702,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   if(DEBUG)printf("===New Event===\n");
 
   //Loop over generated b quarks
-  if(theisMC)FillbQuarks(event);
+  //if(theisMC)FillbQuarks(event);
+  if(theisMC)FillGenInfo(event);
 
   //Loop of softleptons and fill them
   FillSoftLeptons(daus,event,theFSR);
@@ -814,8 +890,17 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_pz.push_back( (float) pfour.Z());
     _daughters_e.push_back( (float) pfour.T());
 
+    // gen info
+    
+    if (theisMC)
+    {
+        int iMatched = GetMatchedGen (cand, event);
+        _daughters_genindex.push_back(iMatched);
+    }
+
     //math::XYZTLorentzVector pfour(userdatahelpers::getUserFloat(cand,"genPx"),userdatahelpers::getUserFloat(cand,"genPy"),userdatahelpers::getUserFloat(cand,"genPz"),userdatahelpers::getUserFloat(cand,"genE"));
-    if(theisMC)_genDaughters.push_back(userdatahelpers::getUserFloat(cand,"fromH"));
+    //if(theisMC)_genDaughters.push_back(userdatahelpers::getUserFloat(cand,"fromH"));
+    
     _softLeptons.push_back(cand);//This is needed also for FindCandIndex
     _pdgdau.push_back(cand->pdgId());
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
@@ -949,6 +1034,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
   }
 }
 
+/*
 void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
   edm::Handle<edm::View<pat::GenericParticle>>candHandle;
   event.getByLabel("bQuarks",candHandle);
@@ -992,6 +1078,112 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
      }        
   } 
 }
+*/
+
+void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
+{
+    edm::Handle<edm::View<pat::GenericParticle>>candHandle;
+    event.getByLabel ("genInfo", candHandle);
+    const edm::View<pat::GenericParticle>* gens = candHandle.product();
+    for(edm::View<pat::GenericParticle>::const_iterator igen = gens->begin(); igen!=gens->end(); ++igen)
+    {
+        // fill gen particle branches
+        _genpart_px.push_back(igen->px());
+        _genpart_py.push_back(igen->py());
+        _genpart_pz.push_back(igen->pz());
+        _genpart_e.push_back(igen->energy());
+        _genpart_pdg.push_back(igen->pdgId());
+        _genpart_status.push_back(igen->status());
+        
+        int HMIndex = -1;
+        int TopMIndex = -1;
+        int TauMIndex = -1;
+        int ZMIndex = -1;
+        int HZDecayMode = -1;
+        int TauGenDecayMode = -1;
+        
+        if (igen->hasUserInt("HMothIndex"))   HMIndex = igen->userInt("HMothIndex");
+        if (igen->hasUserInt("TopMothIndex")) TopMIndex = igen->userInt("TopMothIndex");
+        if (igen->hasUserInt("TauMothIndex")) TauMIndex = igen->userInt("TauMothIndex");
+        if (igen->hasUserInt("ZMothIndex"))   ZMIndex = igen->userInt("ZMothIndex");
+        if (igen->hasUserInt("HZDecayMode"))   HZDecayMode = igen->userInt("HZDecayMode");
+        if (igen->hasUserInt("tauGenDecayMode"))   TauGenDecayMode = igen->userInt("tauGenDecayMode");
+        
+        _genpart_HMothInd.push_back(HMIndex);
+        _genpart_TopMothInd.push_back(TopMIndex);
+        _genpart_TauMothInd.push_back(TauMIndex);
+        _genpart_ZMothInd.push_back(ZMIndex);
+        _genpart_HZDecayMode.push_back(HZDecayMode);
+        _genpart_TauGenDecayMode.push_back(TauGenDecayMode);
+        
+        const pat::GenericParticle* genClone = &(*igen);
+        int flags = CreateFlagsWord (genClone);
+        _genpart_flags.push_back(flags);
+    }
+}
+
+// return index of gen matched to reco lepton, and -1 if not existing or not found
+int HTauTauNtuplizer::GetMatchedGen (const reco::Candidate* genL, const edm::Event& event)
+{
+    //cout.precision(15); // just to check real precision
+    
+    edm::Handle<edm::View<pat::GenericParticle>>candHandle;
+    event.getByLabel ("genInfo", candHandle);
+        
+    int index = -1;
+    int status = userdatahelpers::getUserInt(genL,"status");
+    int id = userdatahelpers::getUserInt(genL,"id");
+    if (status == 99999 && id == 99999) return -1; // default values in *Filler.cc when no matched gen found
+        
+    // get matched particle by looking at pdgId, px, py, pz, e --> not the most elegant, but should work
+    for (unsigned int iGen = 0; iGen < candHandle->size(); iGen++)
+    {
+        const pat::GenericParticle& genP = (*candHandle)[iGen];
+        // first check on pdgId only, then status to remove most of checks with a minimum amount of comparison
+        if (id == genP.pdgId())
+        {
+            if (status == genP.status())
+            {
+                
+                float px = userdatahelpers::getUserFloat(genL,"genPx");
+                float py = userdatahelpers::getUserFloat(genL,"genPy");
+                float pz = userdatahelpers::getUserFloat(genL,"genPz");
+                float e = userdatahelpers::getUserFloat(genL,"genE");            
+                //cout << "     ==> I'm in with " << fixed<< px << " " << fixed<<py << " " << fixed<<pz << " " << fixed<<e << "  ||| " << fixed<<genP.px() << " " << fixed<<genP.py() << " " << fixed<<genP.pz() << " " << fixed<<genP.energy() << endl;
+                // cast to float helps in the EPSIL comparison, but for safety EPSIL = 1.e-5 is used (seems reasonably small for the value range we use in 0.001 -- 1000) with "meaningful" values O(10) or larger
+                if ( fabs((float)genP.px() - px) < EPSIL && fabs((float)genP.py() - py) < EPSIL && fabs((float)genP.pz() - pz) < EPSIL && fabs((float)genP.energy() - e) < EPSIL )
+                {
+                    index = iGen;
+                    break; // found, no other comparisons needed
+                }
+            }
+        }
+    }
+    
+    return index;
+}
+
+int HTauTauNtuplizer::CreateFlagsWord (const pat::GenericParticle* part)
+{
+    int flag = 0;
+    
+    if (part->hasUserInt("HMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromH));
+    if (part->hasUserInt("TopMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTop));
+    if (part->hasUserInt("TauMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTau));
+    if (part->hasUserInt("ZMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromZ));
+    
+    /*
+    // H/Z decau --> was changed into a dedicated branch
+    if (part->hasUserInt("HZDecayMode"))
+    {
+        int decayMode = part->userInt ("HZDecayMode");
+        int bitToUse = genFlagPosMap_.at(decayMode);
+        flag |= (1 << bitToUse);
+    }
+    */
+    return flag;
+}
+
 
 void HTauTauNtuplizer::endJob(){
   hCounter->SetBinContent(1,Nevt_Gen);

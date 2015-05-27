@@ -352,18 +352,29 @@ process.tauMatch = cms.EDProducer("MCMatcher",
 
 process.taus=cms.Sequence(process.bareTaus + process.softTaus)
 
+# ### ----------------------------------------------------------------------
+# ### b quarks, only from MC
+# ### ----------------------------------------------------------------------
+# process.bQuarks = cms.EDProducer("bFiller",
+#          src = cms.InputTag("prunedGenParticles"),
+#          cut = cms.string(BCUT),
+#          flags = cms.PSet(
+#             isGood = cms.string("")
+#         )
+#  )                
+# if IsMC : process.bquarks = cms.Sequence(process.bQuarks)
+# else : process.bquarks = cms.Sequence()
+
 ### ----------------------------------------------------------------------
-### b quarks, only from MC
+### gen info, only from MC
 ### ----------------------------------------------------------------------
-process.bQuarks = cms.EDProducer("bFiller",
+process.genInfo = cms.EDProducer("GenFiller",
          src = cms.InputTag("prunedGenParticles"),
-         cut = cms.string(BCUT),
-         flags = cms.PSet(
-            isGood = cms.string("")
-        )
  )                
-if IsMC : process.bquarks = cms.Sequence(process.bQuarks)
-else : process.bquarks = cms.Sequence()
+if IsMC : process.geninfo = cms.Sequence(process.genInfo)
+else : process.geninfo = cms.Sequence()
+
+
 ### ----------------------------------------------------------------------
 ### Search for FSR candidates
 ### ----------------------------------------------------------------------
@@ -548,7 +559,7 @@ process.Candidates = cms.Sequence(
     process.softLeptons       + process.barellCand +
     process.jets              +
     process.METSequence       +
-    process.bquarks           +
+    process.geninfo           +
     process.SVFit             #+ process.HTauTauTree
     )
 if RUN_NTUPLIZER:
