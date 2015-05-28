@@ -241,6 +241,12 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // define algorithm (set the debug level to 3 for testing)
     unsigned int verbosity = 0;
     double SVfitMass = -999.;
+    double SVpt = -999.;
+    double SVeta = -999.;
+    double SVphi = -999.;
+    double SVptUnc = -999.;
+    double SVetaUnc = -999.;
+    double SVphiUnc = -999.;
      
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
@@ -252,10 +258,22 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if ( algo.isValidSolution() )
     {    
       SVfitMass = algo.getMass(); // return value is in units of GeV
+      SVpt = algo.pt();
+      SVeta = algo.eta();
+      SVphi = algo.phi();
+      SVptUnc = algo.ptUncert();
+      SVetaUnc = algo.etaUncert();
+      SVphiUnc = algo.phiUncert();
     } // otherwise mass will be -1
     
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", (float) SVfitMass);
+    pair.addUserFloat("SVfit_pt", (float) SVpt);
+    pair.addUserFloat("SVfit_eta", (float) SVeta);
+    pair.addUserFloat("SVfit_phi", (float) SVphi);
+    pair.addUserFloat("SVfit_ptUnc", (float) SVptUnc);
+    pair.addUserFloat("SVfit_etaUnc", (float) SVetaUnc);
+    pair.addUserFloat("SVfit_phiUnc", (float) SVphiUnc);
     pair.addUserFloat("MEt_px", (float) METx);
     pair.addUserFloat("MEt_py", (float) METy);
     pair.addUserFloat("MEt_cov00", (float) covMET[0][0]);

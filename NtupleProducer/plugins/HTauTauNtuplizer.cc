@@ -283,6 +283,12 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
   std::vector<Float_t> _SVmass;
+  std::vector<Float_t> _SVpt;
+  std::vector<Float_t> _SVptUnc;
+  std::vector<Float_t> _SVeta;
+  std::vector<Float_t> _SVetaUnc;
+  std::vector<Float_t> _SVphi;
+  std::vector<Float_t> _SVphiUnc;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
   std::vector<Float_t> _metCov00;
@@ -460,6 +466,12 @@ void HTauTauNtuplizer::Initialize(){
   _indexDau2.clear();
   _pdgdau.clear();
   _SVmass.clear();
+  _SVpt.clear();
+  _SVptUnc.clear();
+  _SVeta.clear();
+  _SVetaUnc.clear();
+  _SVphi.clear();
+  _SVphiUnc.clear();
   _isOSCand.clear();
   _metx.clear();
   _mety.clear();
@@ -567,6 +579,13 @@ void HTauTauNtuplizer::beginJob(){
   }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
+  myTree->Branch("SVfit_pt", &_SVpt);
+  myTree->Branch("SVfit_ptUnc", &_SVptUnc);
+  myTree->Branch("SVfit_eta", &_SVeta);
+  myTree->Branch("SVfit_etaUnc", &_SVetaUnc);
+  myTree->Branch("SVfit_phi", &_SVphi);
+  myTree->Branch("SVfit_phiUnc", &_SVphiUnc);
+
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
@@ -735,8 +754,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpy = cand.userFloat("MEt_py");
     
     _SVmass.push_back(cand.userFloat("SVfitMass"));
+    _SVpt.push_back(cand.userFloat("SVfit_pt"));
+    _SVptUnc.push_back(cand.userFloat("SVfit_ptUnc"));
+    _SVeta.push_back(cand.userFloat("SVfit_eta"));
+    _SVetaUnc.push_back(cand.userFloat("SVfit_etaUnc"));
+    _SVphi.push_back(cand.userFloat("SVfit_phi"));
+    _SVphiUnc.push_back(cand.userFloat("SVfit_phiUnc"));
+
     _metx.push_back(thisMETpx);
-    _mety.push_back(thisMETpy);
+    _mety.push_back(thisMETpy);    
     _metCov00.push_back(cand.userFloat("MEt_cov00"));
     _metCov01.push_back(cand.userFloat("MEt_cov01"));
     _metCov10.push_back(cand.userFloat("MEt_cov10"));
