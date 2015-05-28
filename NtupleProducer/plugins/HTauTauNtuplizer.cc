@@ -4,7 +4,7 @@
  *
  *  $Date: 2014/10/31 10:08:19 $
  *  $Revision: 1.00 $
- *  \author G. Ortona (LLR)
+ *  \author G. Ortona (LLR) and L. Cadamuro (LLR)
  */
 
 #define EPSIL 1.e-5 
@@ -179,6 +179,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
   int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
   bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
+  float ComputeMT (math::XYZTLorentzVector visP4, float METx, float METy);
   //bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j);
 
   // ----------member data ---------------------------
@@ -289,6 +290,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _metCov10;
   std::vector<Float_t> _metCov11;
   std::vector<Float_t> _metSignif;
+  std::vector<Float_t> _mTDau1;
+  std::vector<Float_t> _mTDau2;
   //std::vector<Float_t> _bmotmass;
    
   //Leptons variables
@@ -465,6 +468,8 @@ void HTauTauNtuplizer::Initialize(){
   _metCov10.clear();
   _metCov11.clear();
   _metSignif.clear();
+  _mTDau1.clear();
+  _mTDau2.clear();
   _particleType.clear();
   _discriminator.clear();
   _dxy.clear();
@@ -570,6 +575,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("MET_cov10",&_metCov10);
   myTree->Branch("MET_cov11",&_metCov11);  
   myTree->Branch("MET_significance",&_metSignif); 
+  myTree->Branch("mT_Dau1",&_mTDau1); 
+  myTree->Branch("mT_Dau2",&_mTDau2); 
   myTree->Branch("PDGIdDaughters",&_pdgdau);
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
@@ -723,9 +730,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   for(int iPair=0;iPair<int(candVector.size());iPair++){
     const pat::CompositeCandidate& cand = candVector.at(iPair);
     math::XYZTLorentzVector candp4 = cand.p4();
+
+    float thisMETpx = cand.userFloat("MEt_px");
+    float thisMETpy = cand.userFloat("MEt_py");
+    
     _SVmass.push_back(cand.userFloat("SVfitMass"));
-    _metx.push_back(cand.userFloat("MEt_px"));
-    _mety.push_back(cand.userFloat("MEt_py"));
+    _metx.push_back(thisMETpx);
+    _mety.push_back(thisMETpy);
     _metCov00.push_back(cand.userFloat("MEt_cov00"));
     _metCov01.push_back(cand.userFloat("MEt_cov01"));
     _metCov10.push_back(cand.userFloat("MEt_cov10"));
@@ -737,11 +748,21 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       //printf("%p %p %p\n",motherPoint[iMot],cand.daughter(0),cand.daughter(1));
     //}
     int index1=-1,index2=-1;
+    float mT1 = -1., mT2 = -1.;
     for(int iCand=0;iCand<2;iCand++){
         //int index=-1;
-        if(iCand==0) index1=FindCandIndex(cand,iCand);
-        else index2=FindCandIndex(cand,iCand);
         const reco::Candidate *daughter = cand.daughter(iCand);
+        float mT = ComputeMT ( daughter->p4(), thisMETpx, thisMETpy);
+        if(iCand==0)
+        {
+            index1=FindCandIndex(cand,iCand);
+            mT1 = mT;     
+        }
+        else
+        {
+            index2=FindCandIndex(cand,iCand);
+            mT2 = mT;
+        }
         if(theFSR){
             const pat::PFParticle* fsr=0;
             double maxPT=-1;
@@ -799,10 +820,14 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     }
     if(CompareLegs(cand.daughter(0),cand.daughter(1))){
       _indexDau1.push_back(index1);
-      _indexDau2.push_back(index2);	
+      _indexDau2.push_back(index2);
+      _mTDau1.push_back (mT1);
+      _mTDau2.push_back (mT2);
     }else {
       _indexDau1.push_back(index2);
       _indexDau2.push_back(index1);	    
+      _mTDau1.push_back (mT2);
+      _mTDau2.push_back (mT1);
     }
     if(fabs(cand.charge())>0.5)_isOSCand.push_back(false);
     else _isOSCand.push_back(true);
@@ -1257,6 +1282,19 @@ bool HTauTauNtuplizer::CompareLegs(const reco::Candidate *i, const reco::Candida
   else if(iType==jType && i->pt()<j->pt()) return false;
   
   return true;
+}
+
+float HTauTauNtuplizer::ComputeMT (math::XYZTLorentzVector visP4, float METx, float METy)
+{
+    float MET = TMath::Sqrt (METx*METx + METy*METy);
+    math::XYZTLorentzVector METP4 (METx, METy, 0, MET);
+    
+    float scalSum = MET + visP4.pt();
+    math::XYZTLorentzVector vecSum (visP4);
+    vecSum += METP4;
+    float vecSumPt = vecSum.pt();
+    
+    return TMath::Sqrt (scalSum*scalSum - vecSumPt*vecSumPt);
 }
 
 // // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

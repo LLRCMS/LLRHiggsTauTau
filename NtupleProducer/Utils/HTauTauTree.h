@@ -67,6 +67,8 @@ public :
    vector<float>   *MET_cov10;
    vector<float>   *MET_cov11;
    vector<float>   *MET_significance;
+   vector<float>   *mT_Dau1;
+   vector<float>   *mT_Dau2;
    vector<int>     *PDGIdDaughters;
    vector<int>     *indexDau1;
    vector<int>     *indexDau2;
@@ -155,6 +157,8 @@ public :
    TBranch        *b_MET_cov10;   //!
    TBranch        *b_MET_cov11;   //!
    TBranch        *b_MET_significance;   //!
+   TBranch        *b_mT_Dau1;   //!
+   TBranch        *b_mT_Dau2;   //!
    TBranch        *b_PDGIdDaughters;   //!
    TBranch        *b_indexDau1;   //!
    TBranch        *b_indexDau2;   //!
@@ -249,6 +253,8 @@ void HTauTauTree::Init(TTree* tree)
    MET_cov10 = 0;
    MET_cov11 = 0;
    MET_significance = 0;
+   mT_Dau1 = 0;
+   mT_Dau2 = 0;
    PDGIdDaughters = 0;
    indexDau1 = 0;
    indexDau2 = 0;
@@ -329,6 +335,8 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("MET_cov10", &MET_cov10, &b_MET_cov10);
    _tree->SetBranchAddress("MET_cov11", &MET_cov11, &b_MET_cov11);
    _tree->SetBranchAddress("MET_significance", &MET_significance, &b_MET_significance);
+   _tree->SetBranchAddress("mT_Dau1", &mT_Dau1, &b_mT_Dau1);
+   _tree->SetBranchAddress("mT_Dau2", &mT_Dau2, &b_mT_Dau2);
    _tree->SetBranchAddress("PDGIdDaughters", &PDGIdDaughters, &b_PDGIdDaughters);
    _tree->SetBranchAddress("indexDau1", &indexDau1, &b_indexDau1);
    _tree->SetBranchAddress("indexDau2", &indexDau2, &b_indexDau2);
