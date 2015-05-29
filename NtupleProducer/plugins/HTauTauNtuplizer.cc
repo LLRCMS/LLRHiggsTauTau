@@ -304,11 +304,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _pdgdau;
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
   std::vector<Float_t> _combreliso;
-  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, muonID for muons (bit 0 loose, 1 soft , 2 medium, 3 tight)
+  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, muonID for muons (bit 0 loose, 1 soft , 2 medium, 3 tight, 4 highPT 5 tight_noVtx)
   std::vector<Float_t> _dxy;
   std::vector<Float_t> _dz;
   std::vector<bool> _daughters_iseleBDT; //isBDT for ele
-  std::vector<bool> _daughters_iseleCUT; //isBDT for ele
+  std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
@@ -604,7 +604,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("dxy",&_dxy);
   myTree->Branch("dz",&_dz);
   myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
-  myTree->Branch("daughters_iseleCUT",&_daughters_iseleCUT);
+  myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT);
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
@@ -965,7 +965,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     
     // variables
     float discr=-1;
-    bool isgood = false,isgoodcut=false;
+    bool isgood = false;
     int decay=-1;
     float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1;
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
@@ -985,7 +985,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
       superatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
       if(userdatahelpers::getUserInt(cand,"isBDT"))isgood=true;
-      if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
+      //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
     }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
@@ -1006,7 +1006,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     }
     _discriminator.push_back(discr);
     _daughters_iseleBDT.push_back(isgood);
-    _daughters_iseleCUT.push_back(isgoodcut);
+    _daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
     _decayType.push_back(decay);
     _daughters_IetaIeta.push_back(ieta);
     _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(superatvtx);

@@ -148,16 +148,25 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // l.addUserCand("MCMatch",genMatch); // FIXME
     int idbit=0;
     if(l.isLooseMuon())idbit |= 1 << 0;
+    bool global =  l.isGlobalMuon();
+    int normX2 =  l.globalTrack()->normalizedChi2();
     if(vertex){
-        if(l.isSoftMuon(vertexs->front())) idbit |= 1 << 1;
-        //bool isMedium=l.muonID("POG_ID_Medium");
-        bool goodGlb = l.isGlobalMuon() && l.globalTrack()->normalizedChi2()<3 && l.combinedQuality().chi2LocalPosition < 12 && l.combinedQuality().trkKink   <   20;
-        bool isMedium = l.innerTrack()->validFraction() >= 0.8 && l.segmentCompatibility()   >=   (goodGlb   ? 0.303 : 0.451);
-        //if(isMedium!=good) cout<<"MERDA NON FUNZIONA"<<endl;
-        //else cout<<"ok"<<endl;
-        if(isMedium) idbit |= 1 << 2;
-        if(l.isTightMuon(vertexs->front())) idbit |= 1 << 3;
+      if(l.isSoftMuon(vertexs->front())) idbit |= 1 << 1;
+      //bool isMedium=l.muonID("POG_ID_Medium");
+      bool goodGlb = global && normX2<3 && l.combinedQuality().chi2LocalPosition < 12 && l.combinedQuality().trkKink   <   20;
+      bool isMedium = l.innerTrack()->validFraction() >= 0.8 && l.segmentCompatibility()   >=   (goodGlb   ? 0.303 : 0.451);
+      //if(isMedium!=good) cout<<"MERDA NON FUNZIONA"<<endl;
+      //else cout<<"ok"<<endl;
+      if(isMedium) idbit |= 1 << 2;
+      if(l.isTightMuon(vertexs->front())) idbit |= 1 << 3;
+      if(l.isHighPtMuon(vertexs->front())) idbit |= 1 << 4;
     }
+    if(l.isLooseMuon() && global && normX2<10){
+      if(l.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && l.numberOfMatchedStations()>1){
+	if(l.innerTrack()->hitPattern().numberOfValidPixelHits()>0 && l.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5)idbit |= 1 << 5;
+      }
+    }
+
     l.addUserFloat("muonID",idbit);
     //--- isPFMuon flag - in old samples, l.isPFMuon() is not functional, so this has to be filled
     //    beforehand with the module PATPFMuonEmbedder.
