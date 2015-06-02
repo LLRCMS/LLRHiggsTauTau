@@ -149,8 +149,8 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int idbit=0;
     if(l.isLooseMuon())idbit |= 1 << 0;
     bool global =  l.isGlobalMuon();
-    int normX2 =  l.globalTrack()->normalizedChi2();
     if(vertex){
+      int normX2 =  l.globalTrack()->normalizedChi2();
       if(l.isSoftMuon(vertexs->front())) idbit |= 1 << 1;
       //bool isMedium=l.muonID("POG_ID_Medium");
       bool goodGlb = global && normX2<3 && l.combinedQuality().chi2LocalPosition < 12 && l.combinedQuality().trkKink   <   20;
@@ -161,7 +161,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(l.isTightMuon(vertexs->front())) idbit |= 1 << 3;
       if(l.isHighPtMuon(vertexs->front())) idbit |= 1 << 4;
     }
-    if(l.isLooseMuon() && global && normX2<10){
+    if(l.isLooseMuon() && global && normX2<10 && l.globalTrack() && l.innerTrack()){
       if(l.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && l.numberOfMatchedStations()>1){
 	if(l.innerTrack()->hitPattern().numberOfValidPixelHits()>0 && l.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5)idbit |= 1 << 5;
       }
