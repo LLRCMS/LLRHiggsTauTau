@@ -20,40 +20,48 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #JETCUT="pt>15"
 
 USEPAIRMET=False
-SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 RUN_NTUPLIZER=False
+BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
 MUCUT="(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) && pt>8"
 ELECUT="userFloat('missingHit')<=1 && pt>10"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
-TAUCUT="pt>15"
+TAUCUT="pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
 JETCUT="pt>15"
 LLCUT="mass>0"
 BCUT="pt>5"
 
 TRIGGERLIST = [#"HLT_*", #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on DATA/MC 2012 # "HLT_*" is a empty path
-    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
-    "HLT_IsoMu17_eta2p1_v1",
-    "HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v1",
-    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v1",
-    "HLT_IsoMu24_eta2p1_IterTrk01_v1",
-    "HLT_IsoMu24_eta2p1_IterTrk02_v1",
-    "HLT_IsoMu24_eta2p1_IterTrk02_LooseIsoPFTau20_v1",
-    "HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
-    "HLT_Ele32_eta2p1_WP85_Gsf_v1",
-    "HLT_Ele32_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
-    "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v1",
-    "HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1_v1",
-    "HLT_IsoMu16_eta2p1_CaloMET30_v1",
-    "HLT_Mu16_eta2p1_CaloMET30_v1",
-    "HLT_LooseIsoPFTau50_Trk30_eta2p1_v1",
-    "HLT_DoubleIsoMu17_eta2p1_v1",
-    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v1",
-    "HLT_Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
-    "HLT_Ele27_eta2p1_WP85_Gsf_v1"]
-
+  "HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1",
+  "HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1",
+  "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
+  "HLT_IsoMu24_eta2p1_IterTrk02_v1",
+  "HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+  "HLT_Ele27_eta2p1_WP85_Gsf_v1",
+  "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1"
+#    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
+#    "HLT_IsoMu17_eta2p1_v1",
+#    "HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v1",
+#    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v1",
+#    "HLT_IsoMu24_eta2p1_IterTrk01_v1",
+#    "HLT_IsoMu24_eta2p1_IterTrk02_v1",
+#    "HLT_IsoMu24_eta2p1_IterTrk02_LooseIsoPFTau20_v1",
+#    "HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+#    "HLT_Ele32_eta2p1_WP85_Gsf_v1",
+#    "HLT_Ele32_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+#    "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v1",
+#    "HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1_v1",
+#    "HLT_IsoMu16_eta2p1_CaloMET30_v1",
+#    "HLT_Mu16_eta2p1_CaloMET30_v1",
+#    "HLT_LooseIsoPFTau50_Trk30_eta2p1_v1",
+#    "HLT_DoubleIsoMu17_eta2p1_v1",
+#    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v1",
+#    "HLT_Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
+#    "HLT_Ele27_eta2p1_WP85_Gsf_v1"
+]
 
 #Samples:
 IsMC=True
