@@ -289,6 +289,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _SVetaUnc;
   std::vector<Float_t> _SVphi;
   std::vector<Float_t> _SVphiUnc;
+  std::vector<Float_t> _SVMetRho;
+  std::vector<Float_t> _SVMetPhi;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
   std::vector<Float_t> _metCov00;
@@ -472,6 +474,8 @@ void HTauTauNtuplizer::Initialize(){
   _SVetaUnc.clear();
   _SVphi.clear();
   _SVphiUnc.clear();
+  _SVMetRho.clear();
+  _SVMetPhi.clear();
   _isOSCand.clear();
   _metx.clear();
   _mety.clear();
@@ -585,6 +589,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("SVfit_etaUnc", &_SVetaUnc);
   myTree->Branch("SVfit_phi", &_SVphi);
   myTree->Branch("SVfit_phiUnc", &_SVphiUnc);
+  myTree->Branch("SVfit_fitMETRho", &_SVMetRho);
+  myTree->Branch("SVfit_fitMETPhi", &_SVMetPhi);
 
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
@@ -760,6 +766,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _SVetaUnc.push_back(cand.userFloat("SVfit_etaUnc"));
     _SVphi.push_back(cand.userFloat("SVfit_phi"));
     _SVphiUnc.push_back(cand.userFloat("SVfit_phiUnc"));
+    _SVMetRho.push_back(cand.userFloat("SVfit_METRho"));
+    _SVMetPhi.push_back(cand.userFloat("SVfit_METPhi"));
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);    

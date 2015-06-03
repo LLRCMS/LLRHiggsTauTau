@@ -247,6 +247,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double SVptUnc = -999.;
     double SVetaUnc = -999.;
     double SVphiUnc = -999.;
+    double SVMETRho = -999.; // fitted MET
+    double SVMETPhi = -999.;
      
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
@@ -264,6 +266,9 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       SVptUnc = algo.ptUncert();
       SVetaUnc = algo.etaUncert();
       SVphiUnc = algo.phiUncert();
+      SVMETRho = algo.fittedMET().Rho();
+      SVMETPhi = algo.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
+      
     } // otherwise mass will be -1
     
     // add user floats: SVfit mass, met properties, etc..  
@@ -274,6 +279,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("SVfit_ptUnc", (float) SVptUnc);
     pair.addUserFloat("SVfit_etaUnc", (float) SVetaUnc);
     pair.addUserFloat("SVfit_phiUnc", (float) SVphiUnc);
+    pair.addUserFloat("SVfit_METRho", (float) SVMETRho);
+    pair.addUserFloat("SVfit_METPhi", (float) SVMETPhi);
     pair.addUserFloat("MEt_px", (float) METx);
     pair.addUserFloat("MEt_py", (float) METy);
     pair.addUserFloat("MEt_cov00", (float) covMET[0][0]);
