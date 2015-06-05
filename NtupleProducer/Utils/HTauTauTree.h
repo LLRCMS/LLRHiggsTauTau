@@ -345,7 +345,7 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("dxy", &dxy, &b_dxy);
    _tree->SetBranchAddress("dz", &dz, &b_dz);
    _tree->SetBranchAddress("daughters_iseleBDT", &daughters_iseleBDT, &b_daughters_iseleBDT);
-   _tree->SetBranchAddress("daughters_iseleCUT", &daughters_iseleCUT, &b_daughters_iseleCUT);
+   _tree->SetBranchAddress("daughters_eleCUTID", &daughters_iseleCUT, &b_daughters_iseleCUT);
    _tree->SetBranchAddress("decayMode", &decayMode, &b_decayMode);
    _tree->SetBranchAddress("combreliso", &combreliso, &b_combreliso);
    _tree->SetBranchAddress("daughters_IetaIeta", &daughters_IetaIeta, &b_daughters_IetaIeta);
