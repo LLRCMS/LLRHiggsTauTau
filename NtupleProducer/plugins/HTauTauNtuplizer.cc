@@ -354,6 +354,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
   std::vector<Int_t> _jetID; //1=loose, 2=tight
+  std::vector<Float_t> _jetrawf;
 
   //genH
   //std::vector<Float_t> _genH_px;
@@ -525,6 +526,7 @@ void HTauTauNtuplizer::Initialize(){
   _bdiscr.clear();
   _bdiscr2.clear();
   _jetID.clear();
+  _jetrawf.clear();
 
   //_genH_px.clear();
   //_genH_py.clear();
@@ -663,6 +665,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
   myTree->Branch("PFjetID",&_jetID);
+  myTree->Branch("jetRawf",&_jetrawf);
 }
 
 Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0){
@@ -945,6 +948,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
       if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)  ) jetid++;
     }
     _jetID.push_back(jetid);
+    _jetrawf.push_back(ijet->jecFactor("Uncorrected"));
   }
   return nJets;
 }
