@@ -173,7 +173,13 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(!l.hasUserFloat("isPFMuon")) {
       l.addUserFloat("isPFMuon",l.isPFMuon());
     }
-    
+    if(!l.hasUserFloat("isGlobalMuon")) {
+      l.addUserFloat("isGlobalMuon",l.isGlobalMuon());
+    }
+     if(!l.hasUserFloat("isTrackerMuon")) {
+      l.addUserFloat("isTrackerMuon",l.isTrackerMuon());
+    }
+   
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();
     float px=0,py=0,pz=0,E=0,fromH=0;
