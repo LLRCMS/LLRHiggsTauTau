@@ -195,12 +195,19 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			       (fSCeta >= 0.8 && fSCeta < 1.479 && BDT > -0.65) || 
 			       (fSCeta >= 1.479               && BDT > 0.6)));
     */
-        bool isBDT = (pt <= 10 && ((fSCeta < 0.8                    && BDT > -0.202) ||
+    // run 2 HZZ WP
+     /*   bool isBDT = (pt <= 10 && ((fSCeta < 0.8                    && BDT > -0.202) ||
 			       (fSCeta >= 0.8 && fSCeta < 1.479 && BDT > -0.444) ||
 			       (fSCeta >= 1.479                 && BDT >  0.264)   )) ||
                  (pt >  10 && ((fSCeta < 0.8                    && BDT > -0.110) ||
 		               (fSCeta >= 0.8 && fSCeta < 1.479 && BDT > -0.284) ||
 		               (fSCeta >= 1.479                 && BDT > -0.212)   ));
+	*/
+	// POG_MVA_ID_Run2_NonTrig_Tight PHYS14
+	bool isBDT = false;
+	if (fSCeta <0.8) isBDT = (BDT>0.73);
+	else if (fSCeta < 1.479) isBDT = (BDT>0.57);
+	else isBDT = (BDT >0.05);
 
 	//-- Missing hit  
 	int missingHit = l.gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
