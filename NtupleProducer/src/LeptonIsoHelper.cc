@@ -77,10 +77,10 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
 
 float LeptonIsoHelper::combRelIsoPF(const pat::Tau& l) {
 
-  float PFChargedHadIso   = l.chargedIsoPtSum();
-  float PFNeutralHadIso   = l.neutralIsoPtSum();
+  float PFChargedHadIso   = l.tauID ("chargedIsoPtSum");
+  float PFNeutralHadIso   = l.tauID ("neutralIsoPtSum");
   float PFPhotonIso       = 0;//l.photonIso();
-  float PFPUChargedHadIso = l.puCorrPtSum();
+  float PFPUChargedHadIso = l.tauID ("puCorrPtSum");
 
   return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - 0.5*PFPUChargedHadIso))/l.pt();
 }
