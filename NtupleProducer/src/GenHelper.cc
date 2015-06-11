@@ -13,9 +13,13 @@
 
 bool genhelper::IsLastCopy (const reco::GenParticle& part)
 {
-    if (part.numberOfDaughters() == 0) return false; // can happen to have a fake "clone" that does not decay --> reject (it is not a real "last")
     bool isLast = true;
     int thisPdgId = part.pdgId();
+
+    if (abs(thisPdgId) == 25 || abs(thisPdgId) == 23 || abs(thisPdgId) == 15) // H, Z, tau must decay
+        if (part.numberOfDaughters() == 0) return false; // can happen to have a fake "clone" that does not decay --> reject (it is not a real "last")
+    
+    // other particles, or H/Z/tau with sons
     for (unsigned int iDau = 0; iDau < part.numberOfDaughters(); iDau++)
     {
         const reco::Candidate * Dau = part.daughter(iDau);
