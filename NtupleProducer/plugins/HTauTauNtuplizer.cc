@@ -336,6 +336,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_againstElectronVLooseMVA5;
   std::vector<Int_t> _daughters_againstElectronLooseMVA5;
   std::vector<Int_t> _daughters_againstElectronMediumMVA5;
+  std::vector<Int_t> _daughters_againstElectronTightMVA5;
+  std::vector<Int_t> _daughters_againstElectronVTightMVA5;
   std::vector<Int_t> _daughters_LFtrigger;
   std::vector<Int_t> _daughters_L3trigger;
   std::vector<Int_t> _daughters_FilterFired;
@@ -438,6 +440,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_againstElectronVLooseMVA5.clear();
   _daughters_againstElectronLooseMVA5.clear();
   _daughters_againstElectronMediumMVA5.clear();
+  _daughters_againstElectronTightMVA5.clear();
+  _daughters_againstElectronVTightMVA5.clear();
   _daughters_LFtrigger.clear();
   _daughters_L3trigger.clear();
   _daughters_FilterFired.clear();
@@ -651,6 +655,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_againstElectronVLooseMVA5", &_daughters_againstElectronVLooseMVA5);
   myTree->Branch("daughters_againstElectronLooseMVA5", &_daughters_againstElectronLooseMVA5);
   myTree->Branch("daughters_againstElectronMediumMVA5", &_daughters_againstElectronMediumMVA5);
+  myTree->Branch("daughters_againstElectronTightMVA5", &_daughters_againstElectronTightMVA5);
+  myTree->Branch("daughters_againstElectronVTightMVA5", &_daughters_againstElectronVTightMVA5);
   myTree->Branch("daughters_isLastTriggerObjectforPath", &_daughters_LFtrigger);
   myTree->Branch("daughters_isTriggerObjectforPath", &_daughters_L3trigger);
   myTree->Branch("daughters_FilterFired",&_daughters_FilterFired);
@@ -1016,7 +1022,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _particleType.push_back(type);
     
     // variables
-    float discr=-1;
+    float discr=-1.;
+    int muIDflag = 0;
     bool isgood = false;
     int decay=-1;
     float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
@@ -1024,11 +1031,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     int byLooseCombinedIsolationDeltaBetaCorr3Hits=-1, byMediumCombinedIsolationDeltaBetaCorr3Hits=-1, byTightCombinedIsolationDeltaBetaCorr3Hits=-1; // tau 13 TeV Iso
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
     int againstMuonLoose3=-1, againstMuonTight3=-1; // tau 13 TeV muon rejection
-    int againstElectronVLooseMVA5 =-1, againstElectronLooseMVA5 = -1, againstElectronMediumMVA5 = -1; // tau 13 TeV ele rejection
+    int againstElectronVLooseMVA5 =-1, againstElectronLooseMVA5 = -1, againstElectronMediumMVA5 = -1, againstElectronTightMVA5 = -1, againstElectronVTightMVA5 = -1; // tau 13 TeV ele rejection
     int typeOfMuon=0;
     
     if(type==ParticleType::MUON){
-      discr=userdatahelpers::getUserFloat(cand,"muonID");;
+      muIDflag=userdatahelpers::getUserInt(cand,"muonID");
+      discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
       if(userdatahelpers::getUserFloat(cand,"isPFMuon"))typeOfMuon |= 1 << 0;
       if(userdatahelpers::getUserFloat(cand,"isGlobalMuon"))typeOfMuon |= 1 << 1;
       if(userdatahelpers::getUserFloat(cand,"isTrackerMuon"))typeOfMuon |= 1 << 2;
@@ -1040,7 +1048,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
       superatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
       SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
-      if(userdatahelpers::getUserInt(cand,"isBDT"))isgood=true;
+      if(userdatahelpers::getUserInt(cand,"isBDT") == 1)isgood=true;
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
     }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
@@ -1059,10 +1067,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       againstElectronVLooseMVA5 = userdatahelpers::getUserInt (cand, "againstElectronVLooseMVA5");
       againstElectronLooseMVA5 = userdatahelpers::getUserInt (cand, "againstElectronLooseMVA5");
       againstElectronMediumMVA5 = userdatahelpers::getUserInt (cand, "againstElectronMediumMVA5");
+      againstElectronTightMVA5 = userdatahelpers::getUserInt (cand, "againstElectronTightMVA5");
+      againstElectronVTightMVA5 = userdatahelpers::getUserInt (cand, "againstElectronVTightMVA5");
     }
     _discriminator.push_back(discr);
     _daughters_typeOfMuon.push_back(typeOfMuon);
-    _daughters_muonID.push_back(discr);
+    _daughters_muonID.push_back(muIDflag);
     _daughters_charge.push_back(cand->charge());
     _daughters_iseleBDT.push_back(isgood);
     _daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
@@ -1087,6 +1097,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_againstElectronVLooseMVA5.push_back(againstElectronVLooseMVA5);
     _daughters_againstElectronLooseMVA5.push_back(againstElectronLooseMVA5);
     _daughters_againstElectronMediumMVA5.push_back(againstElectronMediumMVA5);
+    _daughters_againstElectronTightMVA5.push_back(againstElectronTightMVA5);
+    _daughters_againstElectronVTightMVA5.push_back(againstElectronVTightMVA5);
     
     //TRIGGER MATCHING
     int LFtriggerbit=0,L3triggerbit=0,filterFired=0;

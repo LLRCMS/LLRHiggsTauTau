@@ -167,7 +167,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
 
-    l.addUserFloat("muonID",idbit);
+    l.addUserInt("muonID",idbit);
     //--- isPFMuon flag - in old samples, l.isPFMuon() is not functional, so this has to be filled
     //    beforehand with the module PATPFMuonEmbedder.
     if(!l.hasUserFloat("isPFMuon")) {

@@ -222,7 +222,7 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("dxy",dxy);
     l.addUserFloat("dz",dz);
     l.addUserFloat("BDT",BDT);    
-    l.addUserInt("isBDT",isBDT);
+    l.addUserInt("isBDT",(isBDT ? 1 : 0));
     //l.addUserFloat("HLTMatch", HLTMatch);
     l.addUserFloat("missingHit", missingHit);
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());

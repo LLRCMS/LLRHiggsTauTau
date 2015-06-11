@@ -112,6 +112,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     float combRelIsoPF = LeptonIsoHelper::combRelIsoPF(l);
 
+    // NOTE: tauID returns a float but I checked that the returned value is always 0 or 1 for "booleans" --> safe implicit cast to an int
     //float decayModeFindingOldDMs = l.tauID ("decayModeFindingOldDMs");
     int decayModeFindingOldDMs = l.tauID ("decayModeFinding");
     int decayModeFindingNewDMs = l.tauID ("decayModeFindingNewDMs");
@@ -127,9 +128,12 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     int againstMuonLoose3 = l.tauID ("againstMuonLoose3");
     int againstMuonTight3 = l.tauID ("againstMuonTight3");
+    
     int againstElectronVLooseMVA5 = l.tauID ("againstElectronVLooseMVA5");
     int againstElectronLooseMVA5 = l.tauID ("againstElectronLooseMVA5");
     int againstElectronMediumMVA5 = l.tauID ("againstElectronMediumMVA5");
+    int againstElectronTightMVA5 = l.tauID ("againstElectronTightMVA5");
+    int againstElectronVTightMVA5 = l.tauID ("againstElectronVTightMVA5");
     
     //Decay mode
     //int decayMode = -1;
@@ -187,6 +191,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserInt("againstElectronVLooseMVA5", againstElectronVLooseMVA5);
     l.addUserInt("againstElectronLooseMVA5", againstElectronLooseMVA5);
     l.addUserInt("againstElectronMediumMVA5", againstElectronMediumMVA5);
+    l.addUserInt("againstElectronTightMVA5", againstElectronTightMVA5);
+    l.addUserInt("againstElectronVTightMVA5", againstElectronVTightMVA5);
     
     
 
