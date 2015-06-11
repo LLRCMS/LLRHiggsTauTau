@@ -183,7 +183,7 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //}
     
 
-    float pt = l.pt();
+    //float pt = l.pt();
     /*//old recipe
     bool isBDT = (pt <= 10 && (( fSCeta < 0.8 && BDT > 0.47)  ||
 			       (fSCeta >= 0.8 && fSCeta < 1.479 && BDT > 0.004) ||
