@@ -8,6 +8,9 @@
 // Create the HTauTauTree object from the pointer to the tree, then access the stored objects from it
 // Common TTree functions GetEntry (entry), GetEntries() are implemented
 
+#ifndef HTAUTAUTREE_H
+#define HTAUTAUTREE_H
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TTree.h>
@@ -45,6 +48,7 @@ public :
    vector<float>   *daughters_py;
    vector<float>   *daughters_pz;
    vector<float>   *daughters_e;
+   vector<int>     *daughters_charge;
    vector<int>     *daughters_genindex;
    Float_t         MC_weight;
    vector<float>   *genpart_px;
@@ -56,9 +60,20 @@ public :
    vector<int>     *genpart_HMothInd;
    vector<int>     *genpart_TopMothInd;
    vector<int>     *genpart_TauMothInd;
+   vector<int>     *genpart_ZMothInd;
    vector<int>     *genpart_HZDecayMode;
+   vector<int>     *genpart_TauGenDecayMode;
    vector<int>     *genpart_flags;
+   Int_t           NUP;
    vector<float>   *SVfitMass;
+   vector<float>   *SVfit_pt;
+   vector<float>   *SVfit_ptUnc;
+   vector<float>   *SVfit_eta;
+   vector<float>   *SVfit_etaUnc;
+   vector<float>   *SVfit_phi;
+   vector<float>   *SVfit_phiUnc;
+   vector<float>   *SVfit_fitMETRho;
+   vector<float>   *SVfit_fitMETPhi;
    vector<bool>    *isOSCand;
    vector<float>   *METx;
    vector<float>   *METy;
@@ -74,14 +89,17 @@ public :
    vector<int>     *indexDau2;
    vector<int>     *particleType;
    vector<float>   *discriminator;
+   vector<int>     *daughters_muonID;
+   vector<int>     *daughters_typeOfMuon;
    vector<float>   *dxy;
    vector<float>   *dz;
    vector<bool>    *daughters_iseleBDT;
-   vector<bool>    *daughters_iseleCUT;
+   vector<int>     *daughters_eleCUTID;
    vector<int>     *decayMode;
    vector<float>   *combreliso;
    vector<float>   *daughters_IetaIeta;
    vector<float>   *daughters_deltaPhiSuperClusterTrackAtVtx;
+   vector<float>   *daughters_SCeta;
    vector<float>   *daughters_depositR03_tracker;
    vector<float>   *daughters_depositR03_ecal;
    vector<float>   *daughters_depositR03_hcal;
@@ -99,6 +117,8 @@ public :
    vector<int>     *daughters_againstElectronVLooseMVA5;
    vector<int>     *daughters_againstElectronLooseMVA5;
    vector<int>     *daughters_againstElectronMediumMVA5;
+   vector<int>     *daughters_againstElectronTightMVA5;
+   vector<int>     *daughters_againstElectronVTightMVA5;
    vector<int>     *daughters_isLastTriggerObjectforPath;
    vector<int>     *daughters_isTriggerObjectforPath;
    vector<int>     *daughters_FilterFired;
@@ -114,6 +134,8 @@ public :
    vector<float>   *jets_PUJetID;
    vector<float>   *bDiscriminator;
    vector<float>   *bCSVscore;
+   vector<int>     *PFjetID;
+   vector<float>   *jetRawf;
 
    // List of branches
    TBranch        *b_EventNumber;   //!
@@ -135,6 +157,7 @@ public :
    TBranch        *b_daughters_py;   //!
    TBranch        *b_daughters_pz;   //!
    TBranch        *b_daughters_e;   //!
+   TBranch        *b_daughters_charge;   //!
    TBranch        *b_daughters_genindex;   //!
    TBranch        *b_MC_weight;   //!
    TBranch        *b_genpart_px;   //!
@@ -146,9 +169,20 @@ public :
    TBranch        *b_genpart_HMothInd;   //!
    TBranch        *b_genpart_TopMothInd;   //!
    TBranch        *b_genpart_TauMothInd;   //!
+   TBranch        *b_genpart_ZMothInd;   //!
    TBranch        *b_genpart_HZDecayMode;   //!
+   TBranch        *b_genpart_TauGenDecayMode;   //!
    TBranch        *b_genpart_flags;   //!
+   TBranch        *b_NUP;   //!
    TBranch        *b_SVfitMass;   //!
+   TBranch        *b_SVfit_pt;   //!
+   TBranch        *b_SVfit_ptUnc;   //!
+   TBranch        *b_SVfit_eta;   //!
+   TBranch        *b_SVfit_etaUnc;   //!
+   TBranch        *b_SVfit_phi;   //!
+   TBranch        *b_SVfit_phiUnc;   //!
+   TBranch        *b_SVfit_fitMETRho;   //!
+   TBranch        *b_SVfit_fitMETPhi;   //!
    TBranch        *b_isOSCand;   //!
    TBranch        *b_METx;   //!
    TBranch        *b_METy;   //!
@@ -164,14 +198,17 @@ public :
    TBranch        *b_indexDau2;   //!
    TBranch        *b_particleType;   //!
    TBranch        *b_discriminator;   //!
+   TBranch        *b_daughters_muonID;   //!
+   TBranch        *b_daughters_typeOfMuon;   //!
    TBranch        *b_dxy;   //!
    TBranch        *b_dz;   //!
    TBranch        *b_daughters_iseleBDT;   //!
-   TBranch        *b_daughters_iseleCUT;   //!
+   TBranch        *b_daughters_eleCUTID;   //!
    TBranch        *b_decayMode;   //!
    TBranch        *b_combreliso;   //!
    TBranch        *b_daughters_IetaIeta;   //!
    TBranch        *b_daughters_deltaPhiSuperClusterTrackAtVtx;   //!
+   TBranch        *b_daughters_SCeta;   //!
    TBranch        *b_daughters_depositR03_tracker;   //!
    TBranch        *b_daughters_depositR03_ecal;   //!
    TBranch        *b_daughters_depositR03_hcal;   //!
@@ -189,6 +226,8 @@ public :
    TBranch        *b_daughters_againstElectronVLooseMVA5;   //!
    TBranch        *b_daughters_againstElectronLooseMVA5;   //!
    TBranch        *b_daughters_againstElectronMediumMVA5;   //!
+   TBranch        *b_daughters_againstElectronTightMVA5;   //!
+   TBranch        *b_daughters_againstElectronVTightMVA5;   //!
    TBranch        *b_daughters_isLastTriggerObjectforPath;   //!
    TBranch        *b_daughters_isTriggerObjectforPath;   //!
    TBranch        *b_daughters_FilterFired;   //!
@@ -204,6 +243,8 @@ public :
    TBranch        *b_jets_PUJetID;   //!
    TBranch        *b_bDiscriminator;   //!
    TBranch        *b_bCSVscore;   //!
+   TBranch        *b_PFjetID;   //!
+   TBranch        *b_jetRawf;   //!
    
    // methods
    HTauTauTree (TTree* tree); //ctor
@@ -232,6 +273,7 @@ void HTauTauTree::Init(TTree* tree)
    daughters_py = 0;
    daughters_pz = 0;
    daughters_e = 0;
+   daughters_charge = 0;
    daughters_genindex = 0;
    genpart_px = 0;
    genpart_py = 0;
@@ -242,9 +284,19 @@ void HTauTauTree::Init(TTree* tree)
    genpart_HMothInd = 0;
    genpart_TopMothInd = 0;
    genpart_TauMothInd = 0;
+   genpart_ZMothInd = 0;
    genpart_HZDecayMode = 0;
+   genpart_TauGenDecayMode = 0;
    genpart_flags = 0;
    SVfitMass = 0;
+   SVfit_pt = 0;
+   SVfit_ptUnc = 0;
+   SVfit_eta = 0;
+   SVfit_etaUnc = 0;
+   SVfit_phi = 0;
+   SVfit_phiUnc = 0;
+   SVfit_fitMETRho = 0;
+   SVfit_fitMETPhi = 0;
    isOSCand = 0;
    METx = 0;
    METy = 0;
@@ -260,14 +312,17 @@ void HTauTauTree::Init(TTree* tree)
    indexDau2 = 0;
    particleType = 0;
    discriminator = 0;
+   daughters_muonID = 0;
+   daughters_typeOfMuon = 0;
    dxy = 0;
    dz = 0;
    daughters_iseleBDT = 0;
-   daughters_iseleCUT = 0;
+   daughters_eleCUTID = 0;
    decayMode = 0;
    combreliso = 0;
    daughters_IetaIeta = 0;
    daughters_deltaPhiSuperClusterTrackAtVtx = 0;
+   daughters_SCeta = 0;
    daughters_depositR03_tracker = 0;
    daughters_depositR03_ecal = 0;
    daughters_depositR03_hcal = 0;
@@ -285,6 +340,8 @@ void HTauTauTree::Init(TTree* tree)
    daughters_againstElectronVLooseMVA5 = 0;
    daughters_againstElectronLooseMVA5 = 0;
    daughters_againstElectronMediumMVA5 = 0;
+   daughters_againstElectronTightMVA5 = 0;
+   daughters_againstElectronVTightMVA5 = 0;
    daughters_isLastTriggerObjectforPath = 0;
    daughters_isTriggerObjectforPath = 0;
    daughters_FilterFired = 0;
@@ -299,11 +356,12 @@ void HTauTauTree::Init(TTree* tree)
    jets_PUJetID = 0;
    bDiscriminator = 0;
    bCSVscore = 0;
+   PFjetID = 0;
+   jetRawf = 0;
 
    // Set branch addresses and branch pointers
    if (!tree) return;
-   _tree = tree;
-   
+   _tree = tree;  
    _tree->SetMakeClass(1); // needed especially when compiling
 
    _tree->SetBranchAddress("EventNumber", &EventNumber, &b_EventNumber);
@@ -325,8 +383,17 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("daughters_py", &daughters_py, &b_daughters_py);
    _tree->SetBranchAddress("daughters_pz", &daughters_pz, &b_daughters_pz);
    _tree->SetBranchAddress("daughters_e", &daughters_e, &b_daughters_e);
-   _tree->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
+   _tree->SetBranchAddress("daughters_charge", &daughters_charge, &b_daughters_charge);
+
    _tree->SetBranchAddress("SVfitMass", &SVfitMass, &b_SVfitMass);
+   _tree->SetBranchAddress("SVfit_pt", &SVfit_pt, &b_SVfit_pt);
+   _tree->SetBranchAddress("SVfit_ptUnc", &SVfit_ptUnc, &b_SVfit_ptUnc);
+   _tree->SetBranchAddress("SVfit_eta", &SVfit_eta, &b_SVfit_eta);
+   _tree->SetBranchAddress("SVfit_etaUnc", &SVfit_etaUnc, &b_SVfit_etaUnc);
+   _tree->SetBranchAddress("SVfit_phi", &SVfit_phi, &b_SVfit_phi);
+   _tree->SetBranchAddress("SVfit_phiUnc", &SVfit_phiUnc, &b_SVfit_phiUnc);
+   _tree->SetBranchAddress("SVfit_fitMETRho", &SVfit_fitMETRho, &b_SVfit_fitMETRho);
+   _tree->SetBranchAddress("SVfit_fitMETPhi", &SVfit_fitMETPhi, &b_SVfit_fitMETPhi);
    _tree->SetBranchAddress("isOSCand", &isOSCand, &b_isOSCand);
    _tree->SetBranchAddress("METx", &METx, &b_METx);
    _tree->SetBranchAddress("METy", &METy, &b_METy);
@@ -342,14 +409,17 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("indexDau2", &indexDau2, &b_indexDau2);
    _tree->SetBranchAddress("particleType", &particleType, &b_particleType);
    _tree->SetBranchAddress("discriminator", &discriminator, &b_discriminator);
+   _tree->SetBranchAddress("daughters_muonID", &daughters_muonID, &b_daughters_muonID);
+   _tree->SetBranchAddress("daughters_typeOfMuon", &daughters_typeOfMuon, &b_daughters_typeOfMuon);
    _tree->SetBranchAddress("dxy", &dxy, &b_dxy);
    _tree->SetBranchAddress("dz", &dz, &b_dz);
    _tree->SetBranchAddress("daughters_iseleBDT", &daughters_iseleBDT, &b_daughters_iseleBDT);
-   _tree->SetBranchAddress("daughters_eleCUTID", &daughters_iseleCUT, &b_daughters_iseleCUT);
+   _tree->SetBranchAddress("daughters_eleCUTID", &daughters_eleCUTID, &b_daughters_eleCUTID);
    _tree->SetBranchAddress("decayMode", &decayMode, &b_decayMode);
    _tree->SetBranchAddress("combreliso", &combreliso, &b_combreliso);
    _tree->SetBranchAddress("daughters_IetaIeta", &daughters_IetaIeta, &b_daughters_IetaIeta);
    _tree->SetBranchAddress("daughters_deltaPhiSuperClusterTrackAtVtx", &daughters_deltaPhiSuperClusterTrackAtVtx, &b_daughters_deltaPhiSuperClusterTrackAtVtx);
+   _tree->SetBranchAddress("daughters_SCeta", &daughters_SCeta, &b_daughters_SCeta);
    _tree->SetBranchAddress("daughters_depositR03_tracker", &daughters_depositR03_tracker, &b_daughters_depositR03_tracker);
    _tree->SetBranchAddress("daughters_depositR03_ecal", &daughters_depositR03_ecal, &b_daughters_depositR03_ecal);
    _tree->SetBranchAddress("daughters_depositR03_hcal", &daughters_depositR03_hcal, &b_daughters_depositR03_hcal);
@@ -367,6 +437,8 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("daughters_againstElectronVLooseMVA5", &daughters_againstElectronVLooseMVA5, &b_daughters_againstElectronVLooseMVA5);
    _tree->SetBranchAddress("daughters_againstElectronLooseMVA5", &daughters_againstElectronLooseMVA5, &b_daughters_againstElectronLooseMVA5);
    _tree->SetBranchAddress("daughters_againstElectronMediumMVA5", &daughters_againstElectronMediumMVA5, &b_daughters_againstElectronMediumMVA5);
+   _tree->SetBranchAddress("daughters_againstElectronTightMVA5", &daughters_againstElectronTightMVA5, &b_daughters_againstElectronTightMVA5);
+   _tree->SetBranchAddress("daughters_againstElectronVTightMVA5", &daughters_againstElectronVTightMVA5, &b_daughters_againstElectronVTightMVA5);
    _tree->SetBranchAddress("daughters_isLastTriggerObjectforPath", &daughters_isLastTriggerObjectforPath, &b_daughters_isLastTriggerObjectforPath);
    _tree->SetBranchAddress("daughters_isTriggerObjectforPath", &daughters_isTriggerObjectforPath, &b_daughters_isTriggerObjectforPath);
    _tree->SetBranchAddress("daughters_FilterFired", &daughters_FilterFired, &b_daughters_FilterFired);
@@ -382,22 +454,28 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("jets_PUJetID", &jets_PUJetID, &b_jets_PUJetID);
    _tree->SetBranchAddress("bDiscriminator", &bDiscriminator, &b_bDiscriminator);
    _tree->SetBranchAddress("bCSVscore", &bCSVscore, &b_bCSVscore);
+   _tree->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
+   _tree->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
 
    // MC only
    if(_tree->GetListOfBranches()->FindObject("genpart_px"))
    {
-       _tree->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
-       _tree->SetBranchAddress("genpart_py", &genpart_py, &b_genpart_py);
-       _tree->SetBranchAddress("genpart_pz", &genpart_pz, &b_genpart_pz);
-       _tree->SetBranchAddress("genpart_e", &genpart_e, &b_genpart_e);
-       _tree->SetBranchAddress("genpart_pdg", &genpart_pdg, &b_genpart_pdg);
-       _tree->SetBranchAddress("genpart_status", &genpart_status, &b_genpart_status);
-       _tree->SetBranchAddress("genpart_HMothInd", &genpart_HMothInd, &b_genpart_HMothInd);
-       _tree->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd, &b_genpart_TopMothInd);
-       _tree->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd, &b_genpart_TauMothInd);
-       _tree->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
-       _tree->SetBranchAddress("genpart_flags", &genpart_flags, &b_genpart_flags);
-       _tree->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
+        _tree->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
+        _tree->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
+        _tree->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
+        _tree->SetBranchAddress("genpart_py", &genpart_py, &b_genpart_py);
+        _tree->SetBranchAddress("genpart_pz", &genpart_pz, &b_genpart_pz);
+        _tree->SetBranchAddress("genpart_e", &genpart_e, &b_genpart_e);
+        _tree->SetBranchAddress("genpart_pdg", &genpart_pdg, &b_genpart_pdg);
+        _tree->SetBranchAddress("genpart_status", &genpart_status, &b_genpart_status);
+        _tree->SetBranchAddress("genpart_HMothInd", &genpart_HMothInd, &b_genpart_HMothInd);
+        _tree->SetBranchAddress("genpart_TopMothInd", &genpart_TopMothInd, &b_genpart_TopMothInd);
+        _tree->SetBranchAddress("genpart_TauMothInd", &genpart_TauMothInd, &b_genpart_TauMothInd);
+        _tree->SetBranchAddress("genpart_ZMothInd", &genpart_ZMothInd, &b_genpart_ZMothInd);
+        _tree->SetBranchAddress("genpart_HZDecayMode", &genpart_HZDecayMode, &b_genpart_HZDecayMode);
+        _tree->SetBranchAddress("genpart_TauGenDecayMode", &genpart_TauGenDecayMode, &b_genpart_TauGenDecayMode);
+        _tree->SetBranchAddress("genpart_flags", &genpart_flags, &b_genpart_flags);
+        _tree->SetBranchAddress("NUP", &NUP, &b_NUP);
    }
 }
 
@@ -415,3 +493,5 @@ TTree* HTauTauTree::GetTree()
 {
     return _tree;
 }
+
+#endif
