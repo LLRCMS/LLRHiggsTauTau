@@ -318,6 +318,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
+  std::vector<Float_t> _daughters_SCeta;
   std::vector<Float_t> _daughters_depositR03_tracker;
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
@@ -419,6 +420,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_genindex.clear();
   _daughters_IetaIeta.clear();
   _daughters_deltaPhiSuperClusterTrackAtVtx.clear();
+  _daughters_SCeta.clear();
   _daughters_depositR03_tracker.clear();  
   _daughters_depositR03_ecal.clear();  
   _daughters_depositR03_hcal.clear();  
@@ -631,6 +633,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
   myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
+  myTree->Branch("daughters_SCeta",&_daughters_SCeta);
   myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
@@ -1016,7 +1019,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     float discr=-1;
     bool isgood = false;
     int decay=-1;
-    float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1;
+    float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     int byLooseCombinedIsolationDeltaBetaCorr3Hits=-1, byMediumCombinedIsolationDeltaBetaCorr3Hits=-1, byTightCombinedIsolationDeltaBetaCorr3Hits=-1; // tau 13 TeV Iso
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
@@ -1036,6 +1039,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       discr=userdatahelpers::getUserFloat(cand,"BDT");
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
       superatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
+      SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
       if(userdatahelpers::getUserInt(cand,"isBDT"))isgood=true;
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
     }else if(type==ParticleType::TAU){
@@ -1065,6 +1069,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _decayType.push_back(decay);
     _daughters_IetaIeta.push_back(ieta);
     _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(superatvtx);
+    _daughters_SCeta.push_back(SCeta);
     _daughters_depositR03_tracker.push_back(depositTracker);
     _daughters_depositR03_ecal.push_back(depositEcal);
     _daughters_depositR03_hcal.push_back(depositHcal);

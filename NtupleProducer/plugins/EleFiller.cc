@@ -227,6 +227,7 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("missingHit", missingHit);
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
     l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
+    l.addUserFloat("SCeta", fSCeta);
     const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
     int eleCUT=0;
     if((*veto_id_decisions)[ elPtr ])eleCUT |= 1 << 0;
