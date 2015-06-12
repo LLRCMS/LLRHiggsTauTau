@@ -14,7 +14,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/TriggerNamesService.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerMapper.h"
-
+#include <iostream>
 
 using namespace std;
 using namespace edm;
