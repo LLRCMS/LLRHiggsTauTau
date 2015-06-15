@@ -204,6 +204,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Output Objects
   TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
+  triggerhelper myTriggerHelper;
 
   PUReweight reweight;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
@@ -313,6 +314,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_typeOfMuon; //bitwise, 0=PF, 1=Global, 2=Tracker
   std::vector<Float_t> _dxy;
   std::vector<Float_t> _dz;
+  std::vector<Float_t> _SIP;
   std::vector<bool> _daughters_iseleBDT; //isBDT for ele
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
@@ -505,6 +507,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_muonID.clear();
   _dxy.clear();
   _dz.clear();
+  _SIP.clear();
   _decayType.clear();
   _combreliso.clear();
   _indexevents=0;
@@ -543,7 +546,8 @@ void HTauTauNtuplizer::Initialize(){
 void HTauTauNtuplizer::beginJob(){
   edm::Service<TFileService> fs;
   myTree = fs->make<TTree>("HTauTauTree","HTauTauTree");
-  hCounter = fs->make<TH1F>("Counters","Counters",3,0,3);
+  int nbins=3+myTriggerHelper.GetNTriggers();
+  hCounter = fs->make<TH1F>("Counters","Counters",nbins,0,nbins);
 
   //Branches
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
@@ -631,6 +635,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_typeOfMuon",&_daughters_typeOfMuon);
   myTree->Branch("dxy",&_dxy);
   myTree->Branch("dz",&_dz);
+  myTree->Branch("SIP",&_SIP);
   myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
   myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT);
   myTree->Branch("decayMode",&_decayType);
@@ -720,7 +725,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   }
   // }
   
-  triggerhelper myTriggerHelper;
   _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
   _metfilterbit = myTriggerHelper.FindMETBit(event);
 
@@ -1015,7 +1019,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
-    
+    _SIP.push_back(userdatahelpers::getUserFloat(cand,"SIP"));
     int type = ParticleType::TAU;
     if(cand->isMuon()) type = ParticleType::MUON;
     else if(cand->isElectron()) type = ParticleType::ELECTRON;
@@ -1122,6 +1126,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           int triggerbit = myTriggerHelper.FindTriggerNumber(pathNamesAll[h],true);
           if(triggerbit>=0){
             triggerMapper map = myTriggerHelper.GetTriggerMap(pathNamesAll[h]);
+	    for(int itr=0;itr<myTriggerHelper.GetNTriggers();itr++)if(myTriggerHelper.IsTriggerFired(triggerbit,itr))hCounter->Fill(itr+3);
             bool isfilterGood = true;
             if(type==ParticleType::TAU){
               for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
@@ -1316,6 +1321,10 @@ void HTauTauNtuplizer::endJob(){
   hCounter->GetXaxis()->SetBinLabel(1,"Nevt_Gen");
   hCounter->GetXaxis()->SetBinLabel(2,"Nevt_PassTrigger");
   hCounter->GetXaxis()->SetBinLabel(3,"Npairs");
+
+  for(int i=0;i<myTriggerHelper.GetNTriggers();i++){
+    hCounter->GetXaxis()->SetBinLabel(i+4,myTriggerHelper.printTriggerName(i));
+  }
 }
 
 

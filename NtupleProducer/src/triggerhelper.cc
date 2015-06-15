@@ -228,3 +228,9 @@ int triggerhelper::printFiredPaths(int triggerbit, bool isTrigger){
   }
   return nFired;
 }
+
+TString triggerhelper::printTriggerName(int ntrigger){
+  if(ntrigger<nTriggers) return triggerlist[ntrigger];
+  return "";
+}
+

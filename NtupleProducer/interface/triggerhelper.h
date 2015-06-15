@@ -31,7 +31,9 @@ class triggerhelper {
   bool IsTriggerFired(int triggerbit, TString triggerName,bool istrigger=true){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
   int printFiredPaths(int triggerbit,bool istrigger=true);
   triggerMapper GetTriggerMap(TString trigger);
-  
+  int GetNTriggers(){return nTriggers;}
+  TString printTriggerName(int ntrigger);
+
   ~triggerhelper(){}
 
  private:
