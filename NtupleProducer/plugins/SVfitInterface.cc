@@ -143,23 +143,17 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      METy = patMET.py();
      
      Handle<double> significanceHandle;
-     Handle<double> sig00Handle;
-     Handle<double> sig01Handle;
-     Handle<double> sig10Handle;
-     Handle<double> sig11Handle;
-    
+     Handle<math::Error<2>::type> covHandle;
+     
      iEvent.getByLabel ("METSignificance", "METSignificance", significanceHandle);
-     iEvent.getByLabel ("METSignificance", "CovarianceMatrix00", sig00Handle);
-     iEvent.getByLabel ("METSignificance", "CovarianceMatrix01", sig01Handle);
-     iEvent.getByLabel ("METSignificance", "CovarianceMatrix10", sig10Handle);
-     iEvent.getByLabel ("METSignificance", "CovarianceMatrix11", sig11Handle);
+     iEvent.getByLabel ("METSignificance", "METCovariance", covHandle);
      
      //cout << *significanceHandle << " " << *sig00Handle << " " << *sig01Handle << " " << *sig10Handle << " " << *sig11Handle << endl;
-     
-     covMET[0][0] = *sig00Handle;
-     covMET[1][0] = *sig10Handle;
-     covMET[0][1] = *sig01Handle;
-     covMET[1][1] = *sig11Handle;
+     covMET[0][0] = (*covHandle)(0,0);
+     covMET[1][0] = (*covHandle)(1,0);
+     covMET[0][1] = covMET[1][0]; // (1,0) is the only one saved
+     covMET[1][1] = (*covHandle)(1,1);
+
      significance = (float) (*significanceHandle);
      
      // protection against singular matrices
