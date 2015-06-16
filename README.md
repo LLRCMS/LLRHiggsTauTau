@@ -50,10 +50,10 @@ cd Muon/MuonAnalysisTools ; git checkout master -- interface/MuonEffectiveArea.h
 cd -
 git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
 cd EGamma/EGammaAnalysisTools; git checkout c0db796 -- interface/ElectronEffectiveArea.h
+cd -
 git cms-merge-topic 9003 #this is the version that is in CMSSW_7_4_X
 rm -rf RecoEgamma/ElectronIdentification/data
 git clone https://github.com/cms-data/RecoEgamma-ElectronIdentification.git RecoEgamma/ElectronIdentification/data
-cd -
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons
 cd -
