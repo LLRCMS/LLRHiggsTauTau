@@ -190,6 +190,11 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //cout << l1Type << " " << decay1 << endl;
     //cout << l2Type << " " << decay2 << endl;
    
+    // compute SVfit only if tau(s) pass the OldDM discriminator (avoids crashes...)
+    bool passOldDM = true;
+    if (l1Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingOldDMs") != 1) passOldDM = false;
+    if (l2Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingOldDMs") != 1) passOldDM = false;
+
     bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
   
     if (_usePairMET)
@@ -247,23 +252,27 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
-    //algo.integrateVEGAS();
-    algo.shiftVisPt(true, inputFile_visPtResolution_);
-    algo.integrateMarkovChain();
-    
-    if ( algo.isValidSolution() )
-    {    
-      SVfitMass = algo.getMass(); // return value is in units of GeV
-      SVpt = algo.pt();
-      SVeta = algo.eta();
-      SVphi = algo.phi();
-      SVptUnc = algo.ptUncert();
-      SVetaUnc = algo.etaUncert();
-      SVphiUnc = algo.phiUncert();
-      SVMETRho = algo.fittedMET().Rho();
-      SVMETPhi = algo.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
+    // only run SVfit if taus are passing OldDM discriminator
+    if (passOldDM)
+    {
+      //algo.integrateVEGAS();
+      algo.shiftVisPt(true, inputFile_visPtResolution_);
+      algo.integrateMarkovChain();
       
-    } // otherwise mass will be -1
+      if ( algo.isValidSolution() )
+      {    
+        SVfitMass = algo.getMass(); // return value is in units of GeV
+        SVpt = algo.pt();
+        SVeta = algo.eta();
+        SVphi = algo.phi();
+        SVptUnc = algo.ptUncert();
+        SVetaUnc = algo.etaUncert();
+        SVphiUnc = algo.phiUncert();
+        SVMETRho = algo.fittedMET().Rho();
+        SVMETPhi = algo.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
+        
+      } // otherwise mass will be -1
+    }
     
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", (float) SVfitMass);
