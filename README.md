@@ -23,7 +23,7 @@ git-cms-merge-topic -u cms-met:72X-MetSig-150311
 git-cms-merge-topic -u cms-met:72X-mvaMETForMiniAOD
 cd RecoMET/METPUSubtraction/ ; git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 72X-13TeV-Phys14_25_V4-26Mar15 
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
-cd LLRHiggsTauTau; git checkout master ; cd -
+cd LLRHiggsTauTau; git checkout for72X ; cd -
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
 cd Muon/MuonAnalysisTools ; git checkout master -- interface/MuonEffectiveArea.h ; cd -
 git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
