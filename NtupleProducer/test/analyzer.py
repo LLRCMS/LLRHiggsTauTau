@@ -77,7 +77,8 @@ execfile(PyFilePath+"python/HiggsTauTauProducer.py")
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:00C90EFC-3074-E411-A845-002590DB9262.root'
+	'/store/mc/RunIISpring15DR74/TTTo2L2Nu_13TeV-powheg/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/50000/0457C8B3-BA09-E511-80D0-008CFA56D58C.root',
+#    'file:00C90EFC-3074-E411-A845-002590DB9262.root'
 #         'file:/data_CMS/cms/ortona/Lambda20_step3/miniAOD_lambda20_3_300000Events_0Skipped_1425913946.36/output_0.root',
 #        '/store/mc/Phys14DR/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/00C90EFC-3074-E411-A845-002590DB9262.root',
 #        'root://cms-xrd-global.cern.ch//store/mc/Phys14DR/GluGluToHToTauTau_M-125_13TeV-powheg-pythia6/MINIAODSIM/PU20bx25_tsg_PHYS14_25_V1-v1/00000/2405749F-8B6F-E411-88EE-848F69FD2910.root',
@@ -108,7 +109,7 @@ process.source = cms.Source("PoolSource",
 )
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 1000
+process.maxEvents.input = 10
 
 ##
 ## Output file
