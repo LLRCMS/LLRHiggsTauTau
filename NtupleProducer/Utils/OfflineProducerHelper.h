@@ -48,6 +48,7 @@ class OfflineProducerHelper {
   int getPairType (int type1, int type2); // return pair type
   bool checkBit (int word, int bitpos); // check bit "bitpos" in a word
   
+  // whatApply: use "OSCharge" (appplies on pairs only)
   // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
   // is contains "All" it will override all the other settings; additional parameters are not considered (have no effect) 
   // a selection is applied by default if no parameter is specified
@@ -177,6 +178,9 @@ bool OfflineProducerHelper::pairPassBaseline (HTauTauTree* tree, int iPair, TStr
     int type1 = tree->particleType->at(dau1index);
     int type2 = tree->particleType->at(dau2index);
     int pairType = getPairType (type1, type2);
+
+    bool isOS = tree->isOSCand->at(iPair);
+    if (whatApply.Contains("OScharge") && !isOS) return false; // do not even check the rest if requiring the charge
 
     // pairs are always ordered as: e mu | e tau | mu tau  (e < mu < tau)
     // if same type of particle, highest pt one is the first
