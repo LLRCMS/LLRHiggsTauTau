@@ -171,7 +171,7 @@ int triggerhelper::FindMETBit(const edm::Event& event){
 
   int bit =0;
   edm::Handle<edm::TriggerResults> metFilterBits;
-  event.getByLabel(InputTag("TriggerResults","","PAT"), metFilterBits);
+  event.getByLabel(InputTag("TriggerResults","","HLT"), metFilterBits);
   //edm::EDGetTokenT<edm::TriggerResults> metFilterBitsToken_;//(consumes<edm::TriggerResults>(<edm::InputTag>("metFilterBits")));
   //event.getByToken(metFilterBitsToken_, metFilterBits);
   const edm::TriggerNames &metNames = event.triggerNames(*metFilterBits);
