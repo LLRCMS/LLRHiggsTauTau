@@ -47,13 +47,18 @@ class OfflineProducerHelper {
   bool isTau(int type){if(type == TAU)return true; else return false;}
   int getPairType (int type1, int type2); // return pair type
   bool checkBit (int word, int bitpos); // check bit "bitpos" in a word
-  bool pairPassBaseline (HTauTauTree* tree, int iPair);
-  bool eleBaseline (HTauTauTree* tree, int iDau, float ptMin, float relIso); // return true if leptons passes the baseline selections
-  bool muBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, float relIso);
-  bool tauBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits);
+  
+  // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
+  // is contains "All" it will override all the other settings; additional parameters are not considered (have no effect) 
+  // a selection is applied by default if no parameter is specified
+  bool pairPassBaseline (HTauTauTree* tree, int iPair, TString whatApply = "All");
+  bool eleBaseline (HTauTauTree* tree, int iDau, float ptMin, float relIso, TString whatApply = "All"); // return true if leptons passes the baseline selections
+  bool muBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, float relIso, TString whatApply = "All");
+  bool tauBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply = "All");
   bool tightEleMVAID (float BDT, float fSCeta); // compute tight ele MVA id WP, but isBDT in ntuples has been fixed --> this will be soon deprecated
                                                 // approx!! I call it using lepton eta and not superCluster eta
   
+  /*
   // separate check of various requirements applied in baseline
   bool combRelIso (HTauTauTree* tree, int iDau, float iso); // for mu, ele
   bool combIsodBetaRaw3Hits (HTauTauTree* tree, int iDau, float iso); // for tau
@@ -62,7 +67,8 @@ class OfflineProducerHelper {
   bool passTauID (HTauTauTree* tree, int iDau); // tau pog ID (decay Mode Finding OLD || NEW)
   bool passTauAntiEle (HTauTauTree* tree, int iDau, int againstEleWP);
   bool passTauAntiMu  (HTauTauTree* tree, int iDau, int againstMuWP); 
-  
+  */
+
   TLorentzVector buildDauP4 (HTauTauTree* tree, int iDau); // build daughter 4 vector
   TLorentzVector buildMothP4 (HTauTauTree* tree, int iMoth); // build pair 4 vector
   ~OfflineProducerHelper(){}
@@ -164,7 +170,7 @@ int OfflineProducerHelper::getPairType (int type1, int type2)
 
 }
 
-bool OfflineProducerHelper::pairPassBaseline (HTauTauTree* tree, int iPair)
+bool OfflineProducerHelper::pairPassBaseline (HTauTauTree* tree, int iPair, TString whatApply)
 {
     int dau1index = tree->indexDau1->at(iPair);
     int dau2index = tree->indexDau2->at(iPair);
@@ -176,30 +182,30 @@ bool OfflineProducerHelper::pairPassBaseline (HTauTauTree* tree, int iPair)
     // if same type of particle, highest pt one is the first
     if (pairType == MuHad)
     {
-        bool leg1 = muBaseline (tree, dau1index, 18., 2.1, 0.1);
-        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 1.5);
+        bool leg1 = muBaseline (tree, dau1index, 18., 2.1, 0.1, whatApply);
+        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 0, 1, 1.5, whatApply);
         return (leg1 && leg2);
     }
 
     if (pairType == EHad)
     {
-        bool leg1 = eleBaseline (tree, dau1index, 23., 0.1);
-        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 1.5);
+        bool leg1 = eleBaseline (tree, dau1index, 23., 0.1, whatApply);
+        bool leg2 = tauBaseline (tree, dau2index, 20., 2.3, 3, 0, 1.5, whatApply);
         return (leg1 && leg2);
     }
 
     // ordered by pT and not by most isolated, but baseline asked in sync is the same...
     if (pairType == HadHad)
     {
-        bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, 0, 0, 1.0);
-        bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, 0, 0, 1.0);
+        bool leg1 = tauBaseline (tree, dau1index, 45., 2.1, 0, 0, 1.0, whatApply);
+        bool leg2 = tauBaseline (tree, dau2index, 45., 2.1, 0, 0, 1.0, whatApply);
         return (leg1 && leg2);
     }
 
     if (pairType == EMu)
     {
-        bool leg1 = eleBaseline (tree, dau1index, 13., 0.15);
-        bool leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15);
+        bool leg1 = eleBaseline (tree, dau1index, 13., 0.15, whatApply);
+        bool leg2 = muBaseline (tree, dau2index, 9., 2.4, 0.15, whatApply);
         return (leg1 && leg2);
     }
     
@@ -212,29 +218,47 @@ bool OfflineProducerHelper::pairPassBaseline (HTauTauTree* tree, int iPair)
 }
 
 
-bool OfflineProducerHelper::eleBaseline (HTauTauTree* tree, int iDau, float ptMin, float relIso)
-{
+bool OfflineProducerHelper::eleBaseline (HTauTauTree* tree, int iDau, float ptMin, float relIso, TString whatApply)
+{ 
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
     float pz = tree->daughters_pz->at(iDau);
     float e =  tree->daughters_e->at(iDau);
 
     TLorentzVector p4 (px, py, pz, e);
-    
-    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2);
-    //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3); // 3 is TIGHT ele id CUT BASED
-    //bool idS = tree->daughters_iseleBDT->at(iDau); // use it in ntuples produced after 11 June 2015, contains tight WP bool  
-    bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())); // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
-    bool isoS = (tree->combreliso->at(iDau) < relIso);
-    bool ptS = (p4.Pt() > ptMin);
-    bool etaS = (fabs(p4.Eta()) < 2.5);
+ 
+    // bypasser(s) according to the string content
+    bool byp_vertexS = false;
+    bool byp_idS  = false;
+    bool byp_isoS = false;
+    bool byp_ptS  = false;
+    bool byp_etaS = false;
+
+    // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
+    if (!whatApply.Contains("All"))
+    {
+      // set selections
+      if (whatApply.Contains("Vertex")) byp_vertexS = true; 
+      if (whatApply.Contains("Iso"))    byp_isoS = true; 
+      if (whatApply.Contains("LepID"))  byp_idS = true; 
+      if (whatApply.Contains("pTMin"))  byp_ptS = true; 
+      if (whatApply.Contains("etaMax")) byp_etaS = true;
+    }
+
+    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    //bool idS = checkBit (tree->daughters_iseleCUT->at(iDau), 3) || byp_idS; // 3 is TIGHT ele id CUT BASED
+    bool idS = tree->daughters_iseleBDT->at(iDau) || byp_idS; // use it in ntuples produced after 11 June 2015, contains tight WP bool  
+    //bool idS = tightEleMVAID (tree->discriminator->at(iDau), TMath::Abs(p4.Eta())) || byp_idS; // APPROX! Using lepton eta and not super cluster eta, discriminator contains ele BDT  
+    bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
+    bool ptS = (p4.Pt() > ptMin) || byp_ptS;
+    bool etaS = (fabs(p4.Eta()) < 2.5) || byp_etaS;
     
     bool totalS = (vertexS && idS && isoS && ptS && etaS);
     return totalS;
     
 }
 
-bool OfflineProducerHelper::muBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, float relIso)
+bool OfflineProducerHelper::muBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, float relIso, TString whatApply)
 {
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -243,12 +267,30 @@ bool OfflineProducerHelper::muBaseline (HTauTauTree* tree, int iDau, float ptMin
 
     TLorentzVector p4 (px, py, pz, e);
     int discr = tree->daughters_muonID->at(iDau);
+
+    // bypasser(s) according to the string content
+    bool byp_vertexS = false;
+    bool byp_idS  = false;
+    bool byp_isoS = false;
+    bool byp_ptS  = false;
+    bool byp_etaS = false;
+
+    // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
+    if (!whatApply.Contains("All"))
+    {
+      // set selections
+      if (whatApply.Contains("Vertex")) byp_vertexS = true; 
+      if (whatApply.Contains("Iso"))    byp_isoS = true; 
+      if (whatApply.Contains("LepID"))  byp_idS = true; 
+      if (whatApply.Contains("pTMin"))  byp_ptS = true; 
+      if (whatApply.Contains("etaMax")) byp_etaS = true;
+    }
         
-    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2);
-    bool idS = checkBit (discr, 2); // bit 2 is MEDIUM mu id
-    bool isoS = (tree->combreliso->at(iDau) < relIso);
-    bool ptS = (p4.Pt() > ptMin);
-    bool etaS = (fabs(p4.Eta()) < etaMax);
+    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    bool idS = checkBit (discr, 2) || byp_idS; // bit 2 is MEDIUM mu id
+    bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
+    bool ptS = (p4.Pt() > ptMin) || byp_ptS;
+    bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
     
     bool totalS = (vertexS && idS && isoS && ptS && etaS);
     return totalS;
@@ -256,7 +298,7 @@ bool OfflineProducerHelper::muBaseline (HTauTauTree* tree, int iDau, float ptMin
 
 // againstEleWP: 0 = VLoose, 1 = Loose, 2 = Medium, 3 = Tight, 4 = VTight [all are MVA discr]
 // againstMuWP: 0 = Loose, 1 = Tight
-bool OfflineProducerHelper::tauBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits)
+bool OfflineProducerHelper::tauBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply)
 {
     float px = tree->daughters_px->at(iDau);
     float py = tree->daughters_py->at(iDau);
@@ -264,6 +306,29 @@ bool OfflineProducerHelper::tauBaseline (HTauTauTree* tree, int iDau, float ptMi
     float e =  tree->daughters_e->at(iDau);
 
     TLorentzVector p4 (px, py, pz, e);
+
+    // bypasser(s) according to the string content
+    bool byp_vertexS = false;
+    bool byp_dmfS  = false;
+    bool byp_agEleS = false;
+    bool byp_agMuS = false;
+    bool byp_isoS = false;
+    bool byp_ptS  = false;
+    bool byp_etaS = false;
+
+    // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
+    if (!whatApply.Contains("All"))
+    {
+      // set selections
+      if (whatApply.Contains("Vertex")) byp_vertexS = true; 
+      if (whatApply.Contains("Iso"))    byp_isoS = true; 
+      if (whatApply.Contains("LepID"))  byp_dmfS = true; 
+      if (whatApply.Contains("againstEle"))  byp_agEleS = true; 
+      if (whatApply.Contains("againstMu"))   byp_agMuS = true;       
+      if (whatApply.Contains("pTMin"))  byp_ptS = true; 
+      if (whatApply.Contains("etaMax")) byp_etaS = true;
+    }
+
 
     if (againstEleWP < 0 || againstEleWP > 4) {
         cout << " ** OfflineProducerHelper::tauBaseline: againstEleWP must be between 0 and 4 --> using 0" << endl;
@@ -289,13 +354,13 @@ bool OfflineProducerHelper::tauBaseline (HTauTauTree* tree, int iDau, float ptMi
     if (againstMuWP == 0)      agMuVal = tree->daughters_againstMuonLoose3->at(iDau);
     else if (againstMuWP == 1) agMuVal = tree->daughters_againstMuonTight3->at(iDau);
 
-    bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1);
-    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2);
-    bool agEleS = (agEleVal == 1); 
-    bool agMuS  = (agMuVal == 1); 
-    bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits);
-    bool ptS = (p4.Pt() > ptMin);
-    bool etaS = (fabs(p4.Eta()) < etaMax);
+    bool dmfS = (tree->daughters_decayModeFindingOldDMs->at(iDau) == 1 || tree->daughters_decayModeFindingNewDMs->at(iDau) == 1) || byp_dmfS;
+    bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
+    bool agEleS = (agEleVal == 1) || byp_agEleS; 
+    bool agMuS  = (agMuVal == 1) || byp_agMuS; 
+    bool isoS = (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(iDau) < isoRaw3Hits) || byp_isoS;
+    bool ptS = (p4.Pt() > ptMin) || byp_ptS;
+    bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
 
     bool totalS = (dmfS && vertexS && agEleS && agMuS && isoS && ptS && etaS);
     return totalS;    
