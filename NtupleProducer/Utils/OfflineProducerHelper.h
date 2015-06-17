@@ -53,7 +53,18 @@ class OfflineProducerHelper {
   bool tauBaseline (HTauTauTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits);
   bool tightEleMVAID (float BDT, float fSCeta); // compute tight ele MVA id WP, but isBDT in ntuples has been fixed --> this will be soon deprecated
                                                 // approx!! I call it using lepton eta and not superCluster eta
+  
+  // separate check of various requirements applied in baseline
+  bool combRelIso (HTauTauTree* tree, int iDau, float iso); // for mu, ele
+  bool combIsodBetaRaw3Hits (HTauTauTree* tree, int iDau, float iso); // for tau
+  bool passEleID (HTauTauTree* tree, int iDau); // tight ele ID
+  bool passMuID (HTauTauTree* tree, int iDau); // medium mu ID
+  bool passTauID (HTauTauTree* tree, int iDau); // tau pog ID (decay Mode Finding OLD || NEW)
+  bool passTauAntiEle (HTauTauTree* tree, int iDau, int againstEleWP);
+  bool passTauAntiMu  (HTauTauTree* tree, int iDau, int againstMuWP); 
+  
   TLorentzVector buildDauP4 (HTauTauTree* tree, int iDau); // build daughter 4 vector
+  TLorentzVector buildMothP4 (HTauTauTree* tree, int iMoth); // build pair 4 vector
   ~OfflineProducerHelper(){}
 
  private:
@@ -309,6 +320,17 @@ TLorentzVector OfflineProducerHelper::buildDauP4 (HTauTauTree* tree, int iDau)
     float py = tree->daughters_py->at(iDau);
     float pz = tree->daughters_pz->at(iDau);
     float e =  tree->daughters_e->at(iDau);
+
+    TLorentzVector p4 (px, py, pz, e);
+    return p4;
+}
+
+TLorentzVector OfflineProducerHelper::buildMothP4 (HTauTauTree* tree, int iMoth)
+{
+    float px = tree->mothers_px->at(iMoth);
+    float py = tree->mothers_py->at(iMoth);
+    float pz = tree->mothers_pz->at(iMoth);
+    float e =  tree->mothers_e->at(iMoth);
 
     TLorentzVector p4 (px, py, pz, e);
     return p4;
