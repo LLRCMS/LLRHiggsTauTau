@@ -180,7 +180,7 @@ bool OfflineProducerHelper::pairPassBaseline (HTauTauTree* tree, int iPair, TStr
     int pairType = getPairType (type1, type2);
 
     bool isOS = tree->isOSCand->at(iPair);
-    if (whatApply.Contains("OScharge") && !isOS) return false; // do not even check the rest if requiring the charge
+    if ((whatApply.Contains("OScharge") || whatApply.Contains("All"))  && !isOS) return false; // do not even check the rest if requiring the charge
 
     // pairs are always ordered as: e mu | e tau | mu tau  (e < mu < tau)
     // if same type of particle, highest pt one is the first
@@ -241,12 +241,13 @@ bool OfflineProducerHelper::eleBaseline (HTauTauTree* tree, int iDau, float ptMi
     // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
     if (!whatApply.Contains("All"))
     {
+      byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = true;
       // set selections
-      if (whatApply.Contains("Vertex")) byp_vertexS = true; 
-      if (whatApply.Contains("Iso"))    byp_isoS = true; 
-      if (whatApply.Contains("LepID"))  byp_idS = true; 
-      if (whatApply.Contains("pTMin"))  byp_ptS = true; 
-      if (whatApply.Contains("etaMax")) byp_etaS = true;
+      if (whatApply.Contains("Vertex")) byp_vertexS = false; 
+      if (whatApply.Contains("Iso"))    byp_isoS = false; 
+      if (whatApply.Contains("LepID"))  byp_idS = false; 
+      if (whatApply.Contains("pTMin"))  byp_ptS = false; 
+      if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
 
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
@@ -282,12 +283,13 @@ bool OfflineProducerHelper::muBaseline (HTauTauTree* tree, int iDau, float ptMin
     // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
     if (!whatApply.Contains("All"))
     {
+      byp_vertexS = byp_idS = byp_isoS = byp_ptS = byp_etaS = true;
       // set selections
-      if (whatApply.Contains("Vertex")) byp_vertexS = true; 
-      if (whatApply.Contains("Iso"))    byp_isoS = true; 
-      if (whatApply.Contains("LepID"))  byp_idS = true; 
-      if (whatApply.Contains("pTMin"))  byp_ptS = true; 
-      if (whatApply.Contains("etaMax")) byp_etaS = true;
+      if (whatApply.Contains("Vertex")) byp_vertexS = false; 
+      if (whatApply.Contains("Iso"))    byp_isoS = false; 
+      if (whatApply.Contains("LepID"))  byp_idS = false; 
+      if (whatApply.Contains("pTMin"))  byp_ptS = false; 
+      if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
         
     bool vertexS = (tree->dxy->at(iDau) < 0.045 && tree->dz->at(iDau) < 0.2) || byp_vertexS;
@@ -323,14 +325,15 @@ bool OfflineProducerHelper::tauBaseline (HTauTauTree* tree, int iDau, float ptMi
     // whatApply: use "All", "Iso", "LepID", pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
     if (!whatApply.Contains("All"))
     {
+      byp_vertexS = byp_dmfS = byp_agEleS = byp_agMuS = byp_isoS = byp_ptS = byp_etaS = true;
       // set selections
-      if (whatApply.Contains("Vertex")) byp_vertexS = true; 
-      if (whatApply.Contains("Iso"))    byp_isoS = true; 
-      if (whatApply.Contains("LepID"))  byp_dmfS = true; 
-      if (whatApply.Contains("againstEle"))  byp_agEleS = true; 
-      if (whatApply.Contains("againstMu"))   byp_agMuS = true;       
-      if (whatApply.Contains("pTMin"))  byp_ptS = true; 
-      if (whatApply.Contains("etaMax")) byp_etaS = true;
+      if (whatApply.Contains("Vertex")) byp_vertexS = false; 
+      if (whatApply.Contains("Iso"))    byp_isoS = false; 
+      if (whatApply.Contains("LepID"))  byp_dmfS = false; 
+      if (whatApply.Contains("againstEle"))  byp_agEleS = false; 
+      if (whatApply.Contains("againstMu"))   byp_agMuS = false;       
+      if (whatApply.Contains("pTMin"))  byp_ptS = false; 
+      if (whatApply.Contains("etaMax")) byp_etaS = false;
     }
 
 
@@ -339,7 +342,7 @@ bool OfflineProducerHelper::tauBaseline (HTauTauTree* tree, int iDau, float ptMi
         againstEleWP = 0;
     } 
 
-    if (againstMuWP < 0 || againstEleWP > 1) {
+    if (againstMuWP < 0 || againstMuWP > 1) {
         cout << " ** OfflineProducerHelper::tauBaseline: againstMuWP must be between 0 and 1 --> using 0" << endl;
         againstMuWP = 0;
     }
