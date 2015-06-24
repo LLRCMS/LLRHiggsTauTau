@@ -7,6 +7,8 @@
 
 # create file list for CMSSW compatible with ntuplizer for tier3
 
+#usage: source MakeFileList.sh -t "HH 74X lambda-4 gen info fix " -o HH_Lambdam4.txt -p /data_CMS/cms/salerno/Lambdam4_74x_step2/miniAOD_lambdam4_2_300000Events_0Skipped_1435089918.88
+
 PRINTHEADER=true
 
 while [[ $# > 0 ]]
