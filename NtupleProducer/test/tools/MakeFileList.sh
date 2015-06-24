@@ -47,7 +47,8 @@ if [ $PRINTHEADER = true ] ; then
 fi
 
 # file list formatted using awk
-ls $FILEPATH/*.root | awk -v pathto=$FILEPATH '{print "'\''file:" pathto "/"$1 "'\''," }' >> $OUTFILE
+#ls $FILEPATH/*.root | awk -v pathto=$FILEPATH '{print "'\''file:" pathto "/"$1 "'\''," }' >> $OUTFILE
+ls $FILEPATH/*.root | awk '{print "'\''file:"$1 "'\''," }' >> $OUTFILE
 
 if [ $PRINTHEADER = true ] ; then
     echo "])" >> $OUTFILE
