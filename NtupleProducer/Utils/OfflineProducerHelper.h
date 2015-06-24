@@ -70,8 +70,11 @@ class OfflineProducerHelper {
   bool passTauAntiMu  (HTauTauTree* tree, int iDau, int againstMuWP); 
   */
 
+  int MCHiggsTauTauDecayMode (HTauTauTree* tree); // find the MC decay of the Higgs to tau in the event
+
   TLorentzVector buildDauP4 (HTauTauTree* tree, int iDau); // build daughter 4 vector
   TLorentzVector buildMothP4 (HTauTauTree* tree, int iMoth); // build pair 4 vector
+
   ~OfflineProducerHelper(){}
 
  private:
@@ -406,6 +409,21 @@ TLorentzVector OfflineProducerHelper::buildMothP4 (HTauTauTree* tree, int iMoth)
 
     TLorentzVector p4 (px, py, pz, e);
     return p4;
+}
+
+int OfflineProducerHelper::MCHiggsTauTauDecayMode (HTauTauTree* tree)
+{
+    int decay = -1; // good decays go from 0 to 7, see enum
+    for (int i = 0; i < tree->genpart_HZDecayMode->size(); i++)
+    {
+        int val = tree->genpart_HZDecayMode->at(i);
+        if (val >= 0 && val <= 7)
+        {
+            decay = val;
+            break; // I don;t expect more than 1 H to tau tau per event
+        }
+    }
+    return decay; 
 }
 
 #endif
