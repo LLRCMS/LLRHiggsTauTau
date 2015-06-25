@@ -14,6 +14,8 @@
 #include "HTauTauTree.h"
 #include "TLorentzVector.h"
 #include <iostream>
+#include <vector>
+#include <utility>
 
 using namespace std;
  
@@ -74,7 +76,8 @@ class OfflineProducerHelper {
 
   TLorentzVector buildDauP4 (HTauTauTree* tree, int iDau); // build daughter 4 vector
   TLorentzVector buildMothP4 (HTauTauTree* tree, int iMoth); // build pair 4 vector
-
+  bool getBestJets (HTauTauTree* tree, int& jet1, int& jet2, int strategy); // select jets, possibly two b jets, returns true if found, else false
+  
   ~OfflineProducerHelper(){}
 
  private:
@@ -425,5 +428,33 @@ int OfflineProducerHelper::MCHiggsTauTauDecayMode (HTauTauTree* tree)
     }
     return decay; 
 }
+
+
+bool OfflineProducerHelper::getBestJets (HTauTauTree* tree, int& jet1, int& jet2, int strategy)
+{
+    jet1 = jet2 = -1;
+    switch (strategy)
+    {
+        case(0): // two with highest b score
+        {
+            int njets = tree->bCSVscore->size();
+            if (njets < 2) return false;
+            std::vector<std::pair<float, int>> scores;
+            for (int i = 0; i < njets; i++) scores.push_back (std::make_pair(tree->bCSVscore->at(i), i));
+            std::sort (scores.begin(), scores.end()); // are sorted according to the first index, i.e. the CSV score
+            jet1 = (scores.at(njets-1)).second; //leading
+            jet2 = (scores.at(njets-2)).second; // subleading
+            return true;                            
+            break;
+        }
+        
+        default:
+        {
+            std::cout << "B jet selection strategy" << strategy << " not implemented" << std::endl;
+            return false;
+        }
+    }
+}
+
 
 #endif

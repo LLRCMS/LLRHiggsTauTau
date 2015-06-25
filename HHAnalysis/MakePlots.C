@@ -32,14 +32,22 @@ void Concatenate (TString* sel, int nsel, TString* selConc)
 int main()
 {
     cout << "Start" << endl;
-    // lambda 1
-    TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda1_74X_NoSVFit_300000Events_0Skipped_1434535751.84/HH_Lambda1_74X_NoSvFit.root"); // file molto piccolo...
-
+ 
     // lambda 20
-    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda20_74X_NoSVFit_300000Events_0Skipped_1434535782.38/HH_Lambda20_74X_NoSvFit.root");
+    TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda20_NoSvFit_genFix_74X_300000Events_0Skipped_1435155734.19/HH_Lambda20_74X_NoSvFit.root");
+
+    // lambda -4
+    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambdam4_NoSvFit_genFix_74X_300000Events_0Skipped_1435155744.32/HH_Lambdam4_74X_NoSvFit.root");
+ 
+    // lambda 2.46
+    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda2dot46_NoSvFit_genFix_74X_300000Events_0Skipped_1435182646.12/HH_Lambda2dot46_74X_NoSvFit.root");
+ 
+    // TTbar
+    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/TTBar_74X_NoSvFit_17Giu2015/TTbar_NoSVFit_74X.root");
+
     const char * decModeNames[6] = {"MuTau", "ETau", "TauTau", "MuMu", "EE", "EMu"}; // follows pairType enum
 
-    /*
+    
     // histos
     HistoManager* HM [6];
     for (int i = 0; i < 6; i++) HM[i] = new HistoManager (decModeNames[i]); 
@@ -50,9 +58,10 @@ int main()
         HM[i] -> AddNewHisto ("pTLeg2", "pTLeg2; pT; a.u.", 250, 0, 500);   
         HM[i] -> AddNewHisto ("etaLeg1", "etaLeg1; #eta; a.u.", 100, -3., 3.);   
         HM[i] -> AddNewHisto ("etaLeg2", "etaLeg2; #eta; a.u.", 100, -3., 3.);   
+        HM[i] -> AddNewHisto ("isoLeg1", "isoLeg1; iso; a.u.", 100, -10., 90.);
+        HM[i] -> AddNewHisto ("isoLeg2", "isoLeg2; iso; a.u.", 100, -10., 90.);
     }
-    */
-    
+     
 
     TTree* treePtr = (TTree*) fIn->Get("HTauTauTree/HTauTauTree");
     TH1F *evCounter = (TH1F*) fIn->Get("HTauTauTree/Counters");
@@ -60,12 +69,13 @@ int main()
     HTauTauTree* tree = new HTauTauTree (treePtr);
     OfflineProducerHelper helper;
 
-    int nEvents = tree->GetEntries();
+    //int nEvents = tree->GetEntries();
+    int nEvents = 100000;
 
     // whatApply: use "OSCharge" (appplies on pairs only)
     // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
 
-    // array of subsequent selections; write the selections to apply (exception: "All" applies everything)
+    // array of subsequent selections; write the selections to apply ("All" applies everything)
     TString sel[] = {"Vertex", "pTMin", "etaMax", "LepID", "againstEle", "againstMu", "OSCharge"};
     int nsel = sizeof(sel)/sizeof(TString);
     TString selConc[nsel];
@@ -102,6 +112,9 @@ int main()
 
             for (int i = 0; i < 6; i++) thisEvPass[i] = false;
 
+            // MC truth
+            //int MCDecayTruth = tree->
+
             // loop on all pairs in the event
             for (int iMoth = 0; iMoth < tree->mothers_px->size(); iMoth++)
             {
@@ -113,7 +126,15 @@ int main()
                 TLorentzVector v1 (helper.buildDauP4(tree, dau1index));
                 TLorentzVector v2 (helper.buildDauP4(tree, dau2index));
 
-                thisEvPass[pairType] = thisEvPass[pairType] || helper.pairPassBaseline (tree, iMoth, selConc[iSel]);
+                bool PairPassBaseline = helper.pairPassBaseline (tree, iMoth, selConc[iSel]);
+
+                thisEvPass[pairType] = thisEvPass[pairType] || PairPassBaseline;
+
+                if (PairPassBaseline && iSel == nsel-1) // last step    
+                {
+                    HM[pairType] -> GetHisto ("isoLeg1") -> Fill (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(dau1index));
+                    HM[pairType] -> GetHisto ("isoLeg2") -> Fill (tree->daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits->at(dau2index));
+                }
 
                 /*
                 HM[pairType] -> GetHisto ("pTLeg1") -> Fill (v1.Pt());
@@ -154,9 +175,9 @@ int main()
         cout << endl << "  ==============================  " << endl;
     }
 
-    /*
+    
     cout << "Saving histos..." << endl;
     TFile* fOut = new TFile ("Histos_perMode.root", "recreate");
     for (int i = 0; i < 6; i++) HM[i] -> SaveAllToFile (fOut);
-    */
+    
 }
