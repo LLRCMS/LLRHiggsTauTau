@@ -943,7 +943,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
     _jets_Flavour.push_back(ijet->partonFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
-    _bdiscr2.push_back(ijet->bDiscriminator("combinedInclusiveSecondaryVertexV2BJetTags"));
+    _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
 
     //PF jet ID
     float NHF = ijet->neutralHadronEnergyFraction();
