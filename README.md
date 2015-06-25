@@ -1,6 +1,6 @@
 ### Description
 
-This package provides tools to READ miniAOD events and store the results in an TNtuple optimized for the HTauTau analysis.
+This package provides tools to READ miniAOD events and store the results in an TNtuple optimized for the HTauTau analyses.
 
 The package workflow is the following:
 Main flags/cut/configuration tools can be set in analyzer.py
