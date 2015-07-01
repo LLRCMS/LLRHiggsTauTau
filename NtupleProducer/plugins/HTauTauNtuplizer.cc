@@ -330,6 +330,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;
   std::vector<Int_t> _daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;
   std::vector<Float_t> _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
+  std::vector<Float_t> _daughters_byIsolationMVA3oldDMwoLTraw;
+  std::vector<Float_t> _daughters_byIsolationMVA3oldDMwLTraw;
+  std::vector<Float_t> _daughters_byIsolationMVA3newDMwoLTraw;
+  std::vector<Float_t> _daughters_byIsolationMVA3newDMwLTraw;
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
   std::vector<Float_t> _daughters_puCorrPtSum;
@@ -434,6 +438,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits.clear();
   _daughters_byTightCombinedIsolationDeltaBetaCorr3Hits.clear();
   _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits.clear();
+  _daughters_byIsolationMVA3oldDMwoLTraw.clear();
+  _daughters_byIsolationMVA3oldDMwLTraw.clear();
+  _daughters_byIsolationMVA3newDMwoLTraw.clear();
+  _daughters_byIsolationMVA3newDMwLTraw.clear();
   _daughters_chargedIsoPtSum.clear();
   _daughters_neutralIsoPtSum.clear();
   _daughters_puCorrPtSum.clear();
@@ -652,6 +660,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits", &_daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits);
   myTree->Branch("daughters_byTightCombinedIsolationDeltaBetaCorr3Hits", &_daughters_byTightCombinedIsolationDeltaBetaCorr3Hits);
   myTree->Branch("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
+  myTree->Branch("daughters_byIsolationMVA3oldDMwoLTraw",&_daughters_byIsolationMVA3oldDMwoLTraw);
+  myTree->Branch("daughters_byIsolationMVA3oldDMwLTraw",&_daughters_byIsolationMVA3oldDMwLTraw);
+  myTree->Branch("daughters_byIsolationMVA3newDMwoLTraw",&_daughters_byIsolationMVA3newDMwoLTraw);
+  myTree->Branch("daughters_byIsolationMVA3newDMwLTraw",&_daughters_byIsolationMVA3newDMwLTraw);
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
   myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
@@ -1037,7 +1049,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     int againstMuonLoose3=-1, againstMuonTight3=-1; // tau 13 TeV muon rejection
     int againstElectronVLooseMVA5 =-1, againstElectronLooseMVA5 = -1, againstElectronMediumMVA5 = -1, againstElectronTightMVA5 = -1, againstElectronVTightMVA5 = -1; // tau 13 TeV ele rejection
     int typeOfMuon=0;
-    
+    float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1;
+
     if(type==ParticleType::MUON){
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
       discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
@@ -1063,6 +1076,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       byMediumCombinedIsolationDeltaBetaCorr3Hits = userdatahelpers::getUserInt (cand, "byMediumCombinedIsolationDeltaBetaCorr3Hits");
       byTightCombinedIsolationDeltaBetaCorr3Hits = userdatahelpers::getUserInt (cand, "byTightCombinedIsolationDeltaBetaCorr3Hits");
       byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
+      byIsolationMVA3oldDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwoLTraw");
+      byIsolationMVA3oldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwLTraw");
+      byIsolationMVA3newDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwoLTraw");
+      byIsolationMVA3newDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwLTraw");
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
@@ -1103,7 +1120,11 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_againstElectronMediumMVA5.push_back(againstElectronMediumMVA5);
     _daughters_againstElectronTightMVA5.push_back(againstElectronTightMVA5);
     _daughters_againstElectronVTightMVA5.push_back(againstElectronVTightMVA5);
-    
+    _daughters_byIsolationMVA3oldDMwoLTraw.push_back(byIsolationMVA3oldDMwoLTraw);
+    _daughters_byIsolationMVA3oldDMwLTraw.push_back(byIsolationMVA3oldDMwLTraw);
+    _daughters_byIsolationMVA3newDMwoLTraw.push_back(byIsolationMVA3newDMwoLTraw);
+    _daughters_byIsolationMVA3newDMwLTraw.push_back(byIsolationMVA3newDMwLTraw);
+
     //TRIGGER MATCHING
     int LFtriggerbit=0,L3triggerbit=0,filterFired=0;
     bool triggerType=false;
