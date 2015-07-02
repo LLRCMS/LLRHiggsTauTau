@@ -25,17 +25,8 @@ int main()
 {
     cout << "Start HH computation..." << endl;
 
-    // lambda 20
-    TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda20_NoSvFit_genFix_74X_300000Events_0Skipped_1435155734.19/HH_Lambda20_74X_NoSvFit.root");
-
-    // lambda -4
-    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambdam4_NoSvFit_genFix_74X_300000Events_0Skipped_1435155744.32/HH_Lambdam4_74X_NoSvFit.root");
- 
-    // lambda 2.46
-    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda2dot46_NoSvFit_genFix_74X_300000Events_0Skipped_1435182646.12/HH_Lambda2dot46_74X_NoSvFit.root");
- 
-    // TTbar
-    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/TTBar_74X_NoSvFit_17Giu2015/TTbar_NoSVFit_74X.root");
+    // lambda 1
+    TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda1_genFix_NoSvFit_Prod1Lug2015_300000Events_0Skipped_1435751891.02/HH_Lambda1_NoSvFit_1Lug2015.root");
 
     
     TTree* treePtr = (TTree*) fIn->Get("HTauTauTree/HTauTauTree");
@@ -44,8 +35,8 @@ int main()
     HTauTauTree* tree = new HTauTauTree (treePtr);
     OfflineProducerHelper helper;
 
-    //int nEvents = tree->GetEntries();
-    int nEvents = 10000;
+    int nEvents = tree->GetEntries();
+    //int nEvents = 10000;
 
     TH1D* HHMass = new TH1D ("HHMass", "HHMass", 300, 0, 300);
 
@@ -67,6 +58,12 @@ int main()
         bool jetFound = helper.getBestJets (tree, jet1, jet2, 0); // 0 --> ordered by CVS score
         if (!jetFound) continue;  
         
+        // ask for 2 MEDIUM b tagged jets
+        if (tree->bCSVscore->at(jet2) <= 0.89)
+            continue;
+        
+        // pritn selected b jets among jet list
+        /*
         for (int i = 0; i < tree->bCSVscore->size(); i++)
         {
             cout << tree->bCSVscore->at(i) << " ";
@@ -74,21 +71,40 @@ int main()
             cout << endl;
         }
         cout << endl;        
+        */
+        
         TLorentzVector b1      = TLorentzVector(tree->jets_px->at(jet1), tree->jets_py->at(jet1), tree->jets_pz->at(jet1), tree->jets_e->at(jet1));
         TLorentzVector b2      = TLorentzVector(tree->jets_px->at(jet2), tree->jets_py->at(jet2), tree->jets_pz->at(jet2), tree->jets_e->at(jet2));
-        
+               
         // do just HH kin fit for pair 0, to test
         if (tree->indexDau1->size() == 0) continue; // no pairs here
-        int iMoth = 0;
-
+        
+        int iMoth = -1;
+        for (int iPair = 0; iPair < tree->mothers_px->size(); iPair++)
+        {
+            if (helper.pairPassBaseline (tree, iPair) )
+            {
+                iMoth = iPair; 
+                break; // one is enough for this test
+            }
+        }
+        if (iMoth == -1) continue;
+        
         int dau1index = tree->indexDau1->at(iMoth); // take first
         int dau2index = tree->indexDau2->at(iMoth);
         TLorentzVector tau1vis = TLorentzVector(tree->daughters_px->at(dau1index), tree->daughters_py->at(dau1index), tree->daughters_pz->at(dau1index), tree->daughters_e->at(dau1index));
         TLorentzVector tau2vis = TLorentzVector(tree->daughters_px->at(dau2index), tree->daughters_py->at(dau2index), tree->daughters_pz->at(dau2index), tree->daughters_e->at(dau2index));
  
+        // not filled, use raw MET for tests
+        /*
         float METx = tree->METx->at(iMoth);
         float METy = tree->METy->at(iMoth);
         float METpt = TMath::Sqrt(METx*METx + METy*METy);
+        */
+        float METx = tree->met * TMath::Cos(tree->metphi);
+        float METy = tree->met * TMath::Sin(tree->metphi);
+        float METpt = tree->met;
+        
         TLorentzVector ptmiss  = TLorentzVector(METx, METy,0, METpt);
         TMatrixD metcov(2,2);
         metcov(0,0)=tree->MET_cov00->at(iMoth);
