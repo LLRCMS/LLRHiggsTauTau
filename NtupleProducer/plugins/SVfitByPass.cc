@@ -56,7 +56,7 @@ SVfitBypass::SVfitBypass(const edm::ParameterSet& iConfig)
   //_usePairMET = iConfig.getUntrackedParameter<bool>("usePairMET");
   //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
 
-  //vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
+  vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
 
   produces<pat::CompositeCandidateCollection>();
 }  
@@ -74,6 +74,26 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
     // Output collection
   auto_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
+
+  // get event pat MET to be saved in output
+  Handle<View<pat::MET> > METHandle_PatMET;
+  iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
+  double METx = 0.;
+  double METy = 0.; 
+  TMatrixD covMET(2, 2);
+  float significance = -999.;
+  const pat::MET& patMET = (*METHandle_PatMET)[0];
+  METx = patMET.px();
+  METy = patMET.py();
+  Handle<double> significanceHandle;
+  Handle<math::Error<2>::type> covHandle;
+  iEvent.getByLabel ("METSignificance", "METSignificance", significanceHandle);
+  iEvent.getByLabel ("METSignificance", "METCovariance", covHandle);
+  covMET[0][0] = (*covHandle)(0,0);
+  covMET[1][0] = (*covHandle)(1,0);
+  covMET[0][1] = covMET[1][0]; // (1,0) is the only one saved
+  covMET[1][1] = (*covHandle)(1,1);
+  significance = (float) (*significanceHandle);
 
   // loop on all the pairs
   for (unsigned int i = 0; i < elNumber; ++i)
@@ -93,13 +113,13 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("SVfit_phiUnc",  -999);
     pair.addUserFloat("SVfit_METRho", -999);
     pair.addUserFloat("SVfit_METPhi", -999);
-    pair.addUserFloat("MEt_px", -999);
-    pair.addUserFloat("MEt_py", -999);
-    pair.addUserFloat("MEt_cov00", -999);
-    pair.addUserFloat("MEt_cov01", -999);
-    pair.addUserFloat("MEt_cov10", -999);
-    pair.addUserFloat("MEt_cov11", -999);
-    pair.addUserFloat("MEt_significance", -999);
+    pair.addUserFloat("MEt_px", (float) METx);
+    pair.addUserFloat("MEt_py", (float) METy);
+    pair.addUserFloat("MEt_cov00", (float) covMET[0][0]);
+    pair.addUserFloat("MEt_cov01", (float) covMET[0][1]);
+    pair.addUserFloat("MEt_cov10", (float) covMET[1][0]);
+    pair.addUserFloat("MEt_cov11", (float) covMET[1][1]);
+    pair.addUserFloat("MEt_significance", significance);
 
     result->push_back(pair);
   }

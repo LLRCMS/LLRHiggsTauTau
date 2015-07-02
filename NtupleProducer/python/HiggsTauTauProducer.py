@@ -517,7 +517,8 @@ else:
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass and don't get MET userfloats
 ## ----------------------------------------------------------------------
 process.SVbypass = cms.EDProducer ("SVfitBypass",
-                                    srcPairs   = cms.InputTag("barellCand")
+                                    srcPairs   = cms.InputTag("barellCand"),
+                                    srcMET     = cms.VInputTag("slimmedMETs")
 )
 
 
