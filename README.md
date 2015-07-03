@@ -55,6 +55,7 @@ git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons
 cd -
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+scram b -j 4
 ```
 
 ### Quick usage:
