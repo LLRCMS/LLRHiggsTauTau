@@ -42,6 +42,7 @@ class GenFiller : public edm::EDProducer {
 
   bool IsInteresting (const GenParticle& p);
   int makeFlagVector (const GenParticle* p); // put all gen flags in a single int word
+  bool isVBFParton(const GenParticle& p);
 
   edm::InputTag src_;
   std::vector<const reco::Candidate *> cands_;
@@ -202,17 +203,19 @@ bool GenFiller::IsInteresting (const GenParticle& p)
     
     bool IsLast = genhelper::IsLastCopy(p);
     bool GoodPdgId = (APdgId == 25 || APdgId == 23 || // bosons
-                      APdgId == 6 || // quarks
+		      APdgId == 6 || // quarks
                       APdgId == 11 || APdgId == 12 || APdgId == 13 || APdgId == 14 || APdgId == 15 || APdgId == 16); // leptons
+
+    if(isVBFParton(p)) return true ;
             
     if (IsLast && GoodPdgId) return true;
     
     // case of b quarks, just save first one (too many showering products)
     bool IsFirst = genhelper::IsFirstCopy(p, true);
-    if (APdgId == 5 && IsFirst) return true; // for b, save also the first copy in the list
+    if ((APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21) && IsFirst) return true; // for b, save also the first copy in the list
+    // if (APdgId == 5 && IsFirst) return true; // for b, save also the first copy in the list
                                              // check abs id to avoid problems if b -> (b bar) b as the bbar woudl result as first
-    
-            
+
     return false;
 }
 
@@ -237,8 +240,30 @@ int GenFiller::makeFlagVector (const GenParticle* p)
     if (fl.isFirstCopy())               flags |= (1 << 12);
     if (fl.isLastCopy())                flags |= (1 << 13);
     if (fl.isLastCopyBeforeFSR())       flags |= (1 << 14);
-            
+    if (isVBFParton(*p))                 flags |= (1 << 15);   
     return flags;
+}
+
+bool GenFiller::isVBFParton(const GenParticle& p)
+{
+  int APdgId = abs(p.pdgId());
+  bool IsVBFPartonPdgId = (APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21);// quark or gluon
+  bool FoundHiggs = false;
+  
+  if(IsVBFPartonPdgId)
+    {
+      for(unsigned int iMother = 0 ; iMother < p.numberOfMothers() ; ++iMother)
+	{
+	  const reco::Candidate* Mother = p.mother(iMother);
+	  for(unsigned int iDaughter = 0 ; iDaughter < Mother->numberOfDaughters() ; ++iDaughter)
+	    {
+	      const reco::Candidate* Daughter = Mother->daughter(iDaughter);
+	      if(Daughter->pdgId()==25) FoundHiggs = true ;
+	      if(FoundHiggs) break;
+	    }
+	}
+    }
+  return FoundHiggs ;
 }
 
 
