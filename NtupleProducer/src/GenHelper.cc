@@ -23,7 +23,8 @@ bool genhelper::IsLastCopy (const reco::GenParticle& part)
     for (unsigned int iDau = 0; iDau < part.numberOfDaughters(); iDau++)
     {
         const reco::Candidate * Dau = part.daughter(iDau);
-        if (Dau->pdgId() == thisPdgId && Dau->numberOfDaughters() > 0) // sometimes a "fake" clone is produced but not decayed
+        bool pdgDecaying = (abs(thisPdgId) == 25 || abs(thisPdgId) == 23 || abs(thisPdgId) == 15);
+        if (Dau->pdgId() == thisPdgId && (Dau->numberOfDaughters() > 0 || !pdgDecaying)) // sometimes a "fake" clone is produced but not decayed
         {
             isLast = false;
             break;
@@ -32,14 +33,15 @@ bool genhelper::IsLastCopy (const reco::GenParticle& part)
     return isLast;
 }
 
-bool genhelper::IsFirstCopy (const reco::GenParticle& part)
+bool genhelper::IsFirstCopy (const reco::GenParticle& part, const bool checkAbsPdg)
 {
     bool isFirst = true;
     int thisPdgId = part.pdgId();
     for (unsigned int iMo = 0; iMo < part.numberOfMothers(); iMo++)
     {
         const reco::Candidate * Mo = part.mother(iMo);
-        if (Mo->pdgId() == thisPdgId)
+        bool pdgMatch = (checkAbsPdg ? (abs(thisPdgId) == abs(Mo->pdgId())) : (thisPdgId == Mo->pdgId()) );
+        if (pdgMatch)
         {
             isFirst = false;
             break;

@@ -28,7 +28,7 @@ namespace genhelper {
     };
 
     bool IsLastCopy (const reco::GenParticle& part); // return true if particle has no sons with its same pdgId to reject showering clones
-    bool IsFirstCopy (const reco::GenParticle& part); // return true if particle has no mothers with its same pdgId to handle showering clones
+    bool IsFirstCopy (const reco::GenParticle& part, const bool checkAbsPdg = false); // return true if particle has no mothers with its same pdgId to handle showering clones
     
     int GetTauDecay (const reco::GenParticle& part); // 0: tau->mu; 1: tau->ele; 2: tau->had
     int GetTauDecay (const reco::Candidate* part); // 0: tau->mu; 1: tau->ele; 2: tau->had

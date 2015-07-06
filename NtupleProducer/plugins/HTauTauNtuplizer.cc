@@ -155,7 +155,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   explicit HTauTauNtuplizer(const edm::ParameterSet&);
     
   /// Destructor
-  ~HTauTauNtuplizer();  
+  virtual ~HTauTauNtuplizer();  
 
  private:
   //----edm control---
@@ -178,7 +178,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
   int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
-  int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
+  //int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
   bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
   float ComputeMT (math::XYZTLorentzVector visP4, float METx, float METy);
   //bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j);
@@ -1265,8 +1265,9 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         _genpart_HZDecayMode.push_back(HZDecayMode);
         _genpart_TauGenDecayMode.push_back(TauGenDecayMode);
         
-        const pat::GenericParticle* genClone = &(*igen);
-        int flags = CreateFlagsWord (genClone);
+        //const pat::GenericParticle* genClone = &(*igen);
+        //int flags = CreateFlagsWord (genClone);
+        int flags = igen -> userInt ("generalGenFlags");
         _genpart_flags.push_back(flags);
     }
 }
@@ -1312,26 +1313,27 @@ int HTauTauNtuplizer::GetMatchedGen (const reco::Candidate* genL, const edm::Eve
     return index;
 }
 
-int HTauTauNtuplizer::CreateFlagsWord (const pat::GenericParticle* part)
-{
-    int flag = 0;
-    
-    if (part->hasUserInt("HMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromH));
-    if (part->hasUserInt("TopMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTop));
-    if (part->hasUserInt("TauMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTau));
-    if (part->hasUserInt("ZMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromZ));
-    
-    /*
-    // H/Z decau --> was changed into a dedicated branch
-    if (part->hasUserInt("HZDecayMode"))
-    {
-        int decayMode = part->userInt ("HZDecayMode");
-        int bitToUse = genFlagPosMap_.at(decayMode);
-        flag |= (1 << bitToUse);
-    }
-    */
-    return flag;
-}
+// not used anymore, all info already stored in genFiller
+// int HTauTauNtuplizer::CreateFlagsWord (const pat::GenericParticle* part)
+// {
+//     int flag = 0;
+//     
+//     if (part->hasUserInt("HMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromH));
+//     if (part->hasUserInt("TopMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTop));
+//     if (part->hasUserInt("TauMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTau));
+//     if (part->hasUserInt("ZMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromZ));
+//     
+//     /*
+//     // H/Z decau --> was changed into a dedicated branch
+//     if (part->hasUserInt("HZDecayMode"))
+//     {
+//         int decayMode = part->userInt ("HZDecayMode");
+//         int bitToUse = genFlagPosMap_.at(decayMode);
+//         flag |= (1 << bitToUse);
+//     }
+//     */
+//     return flag;
+// }
 
 
 void HTauTauNtuplizer::endJob(){

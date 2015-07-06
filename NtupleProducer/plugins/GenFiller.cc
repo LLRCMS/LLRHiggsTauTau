@@ -18,6 +18,7 @@
 #include <FWCore/Utilities/interface/InputTag.h>
 #include <DataFormats/PatCandidates/interface/GenericParticle.h>
 #include <DataFormats/PatCandidates/interface/PackedGenParticle.h>
+#include <DataFormats/HepMCCandidate/interface/GenStatusFlags.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenHelper.h"
 //#include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 
@@ -40,6 +41,8 @@ class GenFiller : public edm::EDProducer {
   virtual void endJob(){};
 
   bool IsInteresting (const GenParticle& p);
+  int makeFlagVector (const GenParticle* p); // put all gen flags in a single int word
+  bool isVBFParton(const GenParticle& p);
 
   edm::InputTag src_;
   std::vector<const reco::Candidate *> cands_;
@@ -85,6 +88,7 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (unsigned int iGen = 0; iGen < NGenSel; iGen++)
     {        
         const reco::Candidate* genP = cands_.at(iGen);
+        const GenParticle* genPClone = (GenParticle*) cands_.at(iGen);
         int PdgId = genP->pdgId();
         int APdgId = abs(PdgId);
 
@@ -92,6 +96,9 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         pat::GenericParticle filtGenP (*genP); // to be saved in output
         if (DEBUG) cout << iGen << " | id: " << genP->pdgId () << "   pt: " << genP->pt() << "   eta: " << genP->eta() << " | px: " << genP->px() << " , eta: " << genP->eta() << endl;
         
+        // ------------------- general info flag on particles
+        filtGenP.addUserInt ("generalGenFlags", makeFlagVector (genPClone));
+
         // ------------------- tau decay flags
         if (APdgId == 15)
         {
@@ -172,6 +179,17 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         int tauMothInd = tauHadcandsMothers_.at(iTauH);
         pat::GenericParticle tauH (genhelper::GetTauHad(cands_.at(tauMothInd)));       
         tauH.addUserInt ("TauMothIndex", tauMothInd);
+        
+        // copy all the other flags from original tau
+        pat::GenericParticle& tauMothGenP = result->at(tauMothInd);
+        if (tauMothGenP.hasUserInt("HMothIndex") ) tauH.addUserInt ("HMothIndex", tauMothGenP.userInt ("HMothIndex"));
+        if (tauMothGenP.hasUserInt("TopMothIndex") ) tauH.addUserInt ("TopMothIndex", tauMothGenP.userInt ("TopMothIndex"));
+        if (tauMothGenP.hasUserInt("ZMothIndex") ) tauH.addUserInt ("ZMothIndex", tauMothGenP.userInt ("ZMothIndex"));
+        
+        // many flags change of meaning w.r.t. mother tau, put everything to 0 (can be changed in future)
+        int tauhFlags = 0;        
+        tauH.addUserInt ("generalGenFlags", tauhFlags); // remember! TauH inherits ALL the flags from 
+        
         if (DEBUG) cout << " ++ " << iTauH << " id: " << tauH.pdgId() << " | pt: " << tauH.pt() << " | eta: " << tauH.eta() << endl;
         result->push_back (tauH);
     }        
@@ -184,21 +202,69 @@ bool GenFiller::IsInteresting (const GenParticle& p)
     int APdgId = abs(p.pdgId());
     
     bool IsLast = genhelper::IsLastCopy(p);
-    //bool IsFirst = genhelper::IsFirstCopy(p);
     bool GoodPdgId = (APdgId == 25 || APdgId == 23 || // bosons
-                      APdgId == 5 || APdgId == 6 || // quarks
+		      APdgId == 6 || // quarks
                       APdgId == 11 || APdgId == 12 || APdgId == 13 || APdgId == 14 || APdgId == 15 || APdgId == 16); // leptons
+
+    if(isVBFParton(p)) return true ;
             
     if (IsLast && GoodPdgId) return true;
     
-    /*
-    if (APdgId == 5 && IsFirst) return true; // for b, save also the first copy in the list
-                                             // --> note: might give problems if b -> (b bar) b as the bbar woudl result as first
-    */
-            
+    // case of b quarks, just save first one (too many showering products)
+    bool IsFirst = genhelper::IsFirstCopy(p, true);
+    if ((APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21) && IsFirst) return true; // for b, save also the first copy in the list
+    // if (APdgId == 5 && IsFirst) return true; // for b, save also the first copy in the list
+                                             // check abs id to avoid problems if b -> (b bar) b as the bbar woudl result as first
+
     return false;
 }
 
+
+int GenFiller::makeFlagVector (const GenParticle* p)
+{
+    int flags = 0;
+    const GenStatusFlags& fl = p->statusFlags();
+    
+    if (fl.isPrompt())                  flags |= (1 << 0);
+    if (fl.isDecayedLeptonHadron())     flags |= (1 << 1);
+    if (fl.isTauDecayProduct())         flags |= (1 << 2);
+    if (fl.isPromptTauDecayProduct())   flags |= (1 << 3);
+    if (fl.isDirectTauDecayProduct())   flags |= (1 << 4);
+    if (fl.isDirectPromptTauDecayProduct())       flags |= (1 << 5);
+    if (fl.isDirectHadronDecayProduct())          flags |= (1 << 6);
+    if (fl.isHardProcess())             flags |= (1 << 7);
+    if (fl.fromHardProcess())           flags |= (1 << 8);
+    if (fl.isHardProcessTauDecayProduct())       flags |= (1 << 9);
+    if (fl.isDirectHardProcessTauDecayProduct()) flags |= (1 << 10);
+    if (fl.fromHardProcessBeforeFSR())  flags |= (1 << 11);
+    if (fl.isFirstCopy())               flags |= (1 << 12);
+    if (fl.isLastCopy())                flags |= (1 << 13);
+    if (fl.isLastCopyBeforeFSR())       flags |= (1 << 14);
+    if (isVBFParton(*p))                 flags |= (1 << 15);   
+    return flags;
+}
+
+bool GenFiller::isVBFParton(const GenParticle& p)
+{
+  int APdgId = abs(p.pdgId());
+  bool IsVBFPartonPdgId = (APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21);// quark or gluon
+  bool FoundHiggs = false;
+  
+  if(IsVBFPartonPdgId)
+    {
+      for(unsigned int iMother = 0 ; iMother < p.numberOfMothers() ; ++iMother)
+	{
+	  const reco::Candidate* Mother = p.mother(iMother);
+	  for(unsigned int iDaughter = 0 ; iDaughter < Mother->numberOfDaughters() ; ++iDaughter)
+	    {
+	      const reco::Candidate* Daughter = Mother->daughter(iDaughter);
+	      if(Daughter->pdgId()==25) FoundHiggs = true ;
+	      if(FoundHiggs) break;
+	    }
+	}
+    }
+  return FoundHiggs ;
+}
 
 
 #include <FWCore/Framework/interface/MakerMacros.h>
