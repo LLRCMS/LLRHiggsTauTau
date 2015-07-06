@@ -1,4 +1,4 @@
-## TO BE REMOVED - CHECK README.md IN MAIN PAGE
+## TO BE REMOVED - CHECK README.md IN MAIN PAGE ##
 
 This package provides tools to READ miniAOD events and store the results in an TNtuple optimized for the HTauTau analysis.
 
