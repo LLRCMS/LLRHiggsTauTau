@@ -155,7 +155,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   explicit HTauTauNtuplizer(const edm::ParameterSet&);
     
   /// Destructor
-  ~HTauTauNtuplizer();  
+  virtual ~HTauTauNtuplizer();  
 
  private:
   //----edm control---
