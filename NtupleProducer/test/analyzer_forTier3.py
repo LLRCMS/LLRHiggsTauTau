@@ -106,7 +106,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'
