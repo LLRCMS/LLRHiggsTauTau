@@ -62,6 +62,7 @@ if __name__ == "__main__":
     else:
         # prepare a list of lists of files to run on subsets of the total files list
         fileslist = trimInputFileList (opt.samplefile)
+        if opt.njobs > len (fileslist) : opt.njobs = len (fileslist)
         nfiles = (len (fileslist) + len (fileslist) % opt.njobs) / opt.njobs
         chunks = [fileslist[x:x+nfiles] for x in xrange (0, len (fileslist), nfiles)]
 
