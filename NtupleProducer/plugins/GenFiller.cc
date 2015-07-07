@@ -116,6 +116,22 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> H/Z decay: " << decay << endl;
         }
 
+	// -------------------- W decay mode: set final state and is is prompt
+        if (APdgId == 24)
+        {
+            genhelper::WDecay decay = genhelper::GetWDecay (genP);
+            filtGenP.addUserInt ("WDecayMode", static_cast<int> (decay));
+            if (DEBUG) cout << "   --> W decay: " << decay << endl;
+        }
+
+	// -------------------- top decay mode: set final state and is is prompt
+        if (APdgId == 6)
+        {
+            genhelper::WDecay decay = genhelper::GetTopDecay (genP);
+            filtGenP.addUserInt ("TopDecayMode", static_cast<int> (decay));
+            if (DEBUG) cout << "   --> Top decay: " << decay << endl;
+        }
+
         // ------------------- additional flags for b (first & last) ==> TO DO if needed
         /*
         
@@ -159,6 +175,24 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> fromTop: 1, indexTop: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
         }
 
+	// W        
+        MothPtr = genhelper::IsFromID (genP, 24);
+        if (MothPtr != NULL) // save space, only add userfloats when valid
+        {
+            //filtGenP.addUserInt ("fromW", 1);
+            filtGenP.addUserInt ("WMothIndex", genhelper::GetIndexInOutput(MothPtr, cands_));       
+            if (DEBUG) cout << "   --> fromW: 1, indexW: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
+        }
+
+	// b
+        MothPtr = genhelper::IsFromID (genP, 5);
+        if (MothPtr != NULL)
+        {
+            //filtGenP.addUserInt ("fromb", 1);
+            filtGenP.addUserInt ("bMothIndex", genhelper::GetIndexInOutput(MothPtr, cands_));       
+            if (DEBUG) cout << "   --> fromb: 1, indexb: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
+        }
+
         // tau
         MothPtr = genhelper::IsFromID (genP, 15);
         if (MothPtr != NULL)
@@ -184,6 +218,8 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         pat::GenericParticle& tauMothGenP = result->at(tauMothInd);
         if (tauMothGenP.hasUserInt("HMothIndex") ) tauH.addUserInt ("HMothIndex", tauMothGenP.userInt ("HMothIndex"));
         if (tauMothGenP.hasUserInt("TopMothIndex") ) tauH.addUserInt ("TopMothIndex", tauMothGenP.userInt ("TopMothIndex"));
+        if (tauMothGenP.hasUserInt("bMothIndex") ) tauH.addUserInt ("bMothIndex", tauMothGenP.userInt ("bMothIndex"));
+        if (tauMothGenP.hasUserInt("WMothIndex") ) tauH.addUserInt ("WMothIndex", tauMothGenP.userInt ("WMothIndex"));
         if (tauMothGenP.hasUserInt("ZMothIndex") ) tauH.addUserInt ("ZMothIndex", tauMothGenP.userInt ("ZMothIndex"));
         
         // many flags change of meaning w.r.t. mother tau, put everything to 0 (can be changed in future)
@@ -202,7 +238,7 @@ bool GenFiller::IsInteresting (const GenParticle& p)
     int APdgId = abs(p.pdgId());
     
     bool IsLast = genhelper::IsLastCopy(p);
-    bool GoodPdgId = (APdgId == 25 || APdgId == 23 || // bosons
+    bool GoodPdgId = (APdgId == 25 || APdgId == 23 || APdgId == 24 ||// bosons
 		      APdgId == 6 || // quarks
                       APdgId == 11 || APdgId == 12 || APdgId == 13 || APdgId == 14 || APdgId == 15 || APdgId == 16); // leptons
 

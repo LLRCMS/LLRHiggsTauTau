@@ -78,6 +78,30 @@ int genhelper::GetTauDecay (const reco::GenParticle& part)
     return genhelper::GetTauDecay(p);
 }
 
+
+
+const reco::Candidate* genhelper::GetFirstCopy (const reco::Candidate* part)
+{
+    int cloneInd = -1;
+    int id = part->pdgId();
+    for (unsigned int iMot = 0; iMot < part->numberOfMothers(); iMot++)
+    {
+        const reco::Candidate * Mot = part->mother( iMot );
+        if (id == Mot->pdgId())
+        {
+            cloneInd = iMot;
+            break;
+        }
+    }
+    
+    if (cloneInd == -1) return part;
+    else return (GetFirstCopy (part->mother(cloneInd)));
+    
+}
+
+
+
+
 const reco::Candidate* genhelper::GetLastCopy (const reco::Candidate* part)
 {
     int cloneInd = -1;
@@ -140,6 +164,83 @@ genhelper::HZDecay genhelper::GetHZDecay (const reco::Candidate* part)
 }
 
 
+
+
+genhelper::WDecay genhelper::GetWDecay (const reco::Candidate* part)
+{
+
+    if (abs(part->pdgId()) != 24) return genhelper::WDecay::other; // only on W's
+
+    int ntau = 0;
+    int nele = 0;
+    int nmu = 0;
+    int nquark = 0;
+    
+    const reco::Candidate * W = genhelper::GetLastCopy(part);
+
+    for (unsigned int iDau = 0; iDau < W->numberOfDaughters(); iDau++)
+    {
+        const reco::Candidate * Dau = W->daughter( iDau );
+	if (abs(Dau->pdgId()) < 5   ) nquark++;
+	if (abs(Dau->pdgId()) == 11 ) nele++;
+        if (abs(Dau->pdgId()) == 13 ) nmu++;
+        if (abs(Dau->pdgId()) == 15 )
+        {
+            ntau++;
+            int decay = genhelper::GetTauDecay (genhelper::GetLastCopy(Dau));
+            if (decay == 0) nmu++;
+            if (decay == 1) nele++;
+        }
+    }
+    
+    // determine decay mode
+    if (nquark == 2 && (nmu+nele+ntau)==0)
+      return genhelper::WDecay::Had;
+
+    else if (nquark ==0 && ntau == 0)
+    {
+        if      (nele == 0 && nmu == 1) return genhelper::WDecay::MuPrompt;
+        else if (nele == 1 && nmu == 0) return genhelper::WDecay::EPrompt;
+        else return genhelper::WDecay::other;
+    }
+    
+    else if (nquark==0 && ntau == 1)
+    {
+        if (nmu == 0 && nele == 0) return genhelper::WDecay::TauHad;    
+        if (nmu == 0 && nele == 1) return genhelper::WDecay::TauE;    
+        if (nmu == 1 && nele == 0) return genhelper::WDecay::TauMu;
+	else return genhelper::WDecay::other;
+    }
+    
+    return genhelper::WDecay::other;
+    
+}
+
+
+
+
+
+genhelper::WDecay genhelper::GetTopDecay (const reco::Candidate* part)
+{
+
+    if (abs(part->pdgId()) != 6) return genhelper::WDecay::other; // only on tops
+    const reco::Candidate * top = genhelper::GetLastCopy(part);
+    
+
+    for (unsigned int iDau = 0; iDau < top->numberOfDaughters(); iDau++)
+    {
+        const reco::Candidate * Dau = top->daughter( iDau );
+	if(abs(Dau->pdgId()) == 24  ) return genhelper::GetWDecay(Dau);
+
+    }
+       
+    return genhelper::WDecay::other;
+    
+}
+
+
+
+
 reco::GenParticle genhelper::GetTauHad (const reco::Candidate* part)
 {
     if (abs(part->pdgId()) != 15)
@@ -165,7 +266,10 @@ reco::GenParticle genhelper::GetTauHad (const reco::Candidate* part)
 
 const reco::Candidate* genhelper::IsFromID (const reco::Candidate* part, int targetPDGId)
 {
-    if (abs(part->pdgId()) == targetPDGId) return part;
+    if (abs(part->pdgId()) == targetPDGId){ 
+      if(abs(part->pdgId()) == 5) return GetFirstCopy(part);
+      else return part;
+    }
 
     for (unsigned int i = 0; i < part->numberOfMothers(); i++)
     {
