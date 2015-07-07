@@ -273,7 +273,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _genpart_TopMothInd;
   std::vector<Int_t> _genpart_TauMothInd;
   std::vector<Int_t> _genpart_ZMothInd;
+  std::vector<Int_t> _genpart_WMothInd;
+  std::vector<Int_t> _genpart_bMothInd;
   std::vector<Int_t> _genpart_HZDecayMode;
+  std::vector<Int_t> _genpart_WDecayMode;
+  std::vector<Int_t> _genpart_TopDecayMode;
   std::vector<Int_t> _genpart_TauGenDecayMode;
 
   std::vector<Int_t> _genpart_flags; // vector of bit flags bout gen info
@@ -483,7 +487,11 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_TopMothInd.clear();
   _genpart_TauMothInd.clear();
   _genpart_ZMothInd.clear();
+  _genpart_WMothInd.clear();
+  _genpart_bMothInd.clear();
   _genpart_HZDecayMode.clear();
+  _genpart_TopDecayMode.clear();
+  _genpart_WDecayMode.clear();
   _genpart_TauGenDecayMode.clear();
   _genpart_flags.clear();
   
@@ -608,7 +616,11 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_TopMothInd", &_genpart_TopMothInd);
     myTree->Branch("genpart_TauMothInd", &_genpart_TauMothInd);
     myTree->Branch("genpart_ZMothInd", &_genpart_ZMothInd);
+    myTree->Branch("genpart_WMothInd", &_genpart_WMothInd);
+    myTree->Branch("genpart_bMothInd", &_genpart_bMothInd);
     myTree->Branch("genpart_HZDecayMode", &_genpart_HZDecayMode);
+    myTree->Branch("genpart_TopDecayMode", &_genpart_TopDecayMode);
+    myTree->Branch("genpart_WDecayMode", &_genpart_WDecayMode);
     myTree->Branch("genpart_TauGenDecayMode", &_genpart_TauGenDecayMode);
     myTree->Branch("genpart_flags", &_genpart_flags);
     myTree->Branch("NUP", &_nup,"NUP/I");
@@ -1248,21 +1260,33 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         int TopMIndex = -1;
         int TauMIndex = -1;
         int ZMIndex = -1;
+	int WMIndex = -1;
+        int bMIndex = -1;
         int HZDecayMode = -1;
+	int TopDecayMode = -1;
+	int WDecayMode = -1;
         int TauGenDecayMode = -1;
         
         if (igen->hasUserInt("HMothIndex"))   HMIndex = igen->userInt("HMothIndex");
         if (igen->hasUserInt("TopMothIndex")) TopMIndex = igen->userInt("TopMothIndex");
         if (igen->hasUserInt("TauMothIndex")) TauMIndex = igen->userInt("TauMothIndex");
         if (igen->hasUserInt("ZMothIndex"))   ZMIndex = igen->userInt("ZMothIndex");
+	if (igen->hasUserInt("WMothIndex")) WMIndex = igen->userInt("WMothIndex");
+        if (igen->hasUserInt("bMothIndex")) bMIndex = igen->userInt("bMothIndex");
         if (igen->hasUserInt("HZDecayMode"))   HZDecayMode = igen->userInt("HZDecayMode");
+	if (igen->hasUserInt("TopDecayMode"))   TopDecayMode = igen->userInt("TopDecayMode");
+	if (igen->hasUserInt("WDecayMode"))   WDecayMode = igen->userInt("WDecayMode");
         if (igen->hasUserInt("tauGenDecayMode"))   TauGenDecayMode = igen->userInt("tauGenDecayMode");
         
         _genpart_HMothInd.push_back(HMIndex);
         _genpart_TopMothInd.push_back(TopMIndex);
         _genpart_TauMothInd.push_back(TauMIndex);
         _genpart_ZMothInd.push_back(ZMIndex);
+	_genpart_WMothInd.push_back(WMIndex);
+        _genpart_bMothInd.push_back(bMIndex);
         _genpart_HZDecayMode.push_back(HZDecayMode);
+	_genpart_TopDecayMode.push_back(TopDecayMode);
+        _genpart_WDecayMode.push_back(WDecayMode);
         _genpart_TauGenDecayMode.push_back(TauGenDecayMode);
         
         //const pat::GenericParticle* genClone = &(*igen);
