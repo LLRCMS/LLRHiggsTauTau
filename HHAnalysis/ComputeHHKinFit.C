@@ -4,6 +4,7 @@
 #include "TLorentzVector.h"
 #include "TMath.h"
 #include "TMatrixD.h"
+#include "TString.h"
 #include <utility>
 #include "../NtupleProducer/Utils/OfflineProducerHelper.h"
 #include "../NtupleProducer/interface/GenFlags.h"
@@ -26,8 +27,19 @@ int main()
     cout << "Start HH computation..." << endl;
 
     // lambda 1
-    TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda1_genFix_NoSvFit_Prod1Lug2015_300000Events_0Skipped_1435751891.02/HH_Lambda1_NoSvFit_1Lug2015.root");
+    // waiting for the file...
+        
+    // lambda 20
+    TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda20_NoSvfit_Prod5Lug2015_300000Events_0Skipped_1436090974.69/HH_Lambda20_NoSVFit_5Lug2015.root"); TString outName = "HHLambda20_5Lug_";
 
+    // lambda 2.46
+    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambda2dot46_NoSvFit_Prod5Lug2015_300000Events_0Skipped_1436090991.56/HH_Lambda2dot46_NoSVFit_5Lug2015.root"); TString outName = "HHLambda2dot46_";
+    
+    // lambda -4
+    //TFile* fIn = new TFile ("/data_CMS/cms/cadamuro/test_submit_to_tier3/HiggsTauTauOutput_HH_Lambdam4_NoSvFit_Prod5Lug2015_300000Events_0Skipped_1436091004.38/HH_Lambdam4_NoSVFit_5Lug2015.root"); TString outName = "HHLambdam4_";
+    
+    // ttbar
+    //TFile* fIn = new TFile ("/home/llr/cms/cadamuro/TTJets_Govoni.root"); TString outName = "TTBar_";
     
     TTree* treePtr = (TTree*) fIn->Get("HTauTauTree/HTauTauTree");
     TH1F *evCounter = (TH1F*) fIn->Get("HTauTauTree/Counters");
@@ -38,7 +50,7 @@ int main()
     int nEvents = tree->GetEntries();
     //int nEvents = 10000;
 
-    TH1D* HHMass = new TH1D ("HHMass", "HHMass", 300, 0, 300);
+    TH1D* HHMass = new TH1D ("HHMass", "HHMass", 200, 200, 800);
 
     //define the testd hypotheses
     std::vector<Int_t> hypo_mh1;
@@ -95,16 +107,10 @@ int main()
         TLorentzVector tau1vis = TLorentzVector(tree->daughters_px->at(dau1index), tree->daughters_py->at(dau1index), tree->daughters_pz->at(dau1index), tree->daughters_e->at(dau1index));
         TLorentzVector tau2vis = TLorentzVector(tree->daughters_px->at(dau2index), tree->daughters_py->at(dau2index), tree->daughters_pz->at(dau2index), tree->daughters_e->at(dau2index));
  
-        // not filled, use raw MET for tests
-        /*
         float METx = tree->METx->at(iMoth);
         float METy = tree->METy->at(iMoth);
         float METpt = TMath::Sqrt(METx*METx + METy*METy);
-        */
-        float METx = tree->met * TMath::Cos(tree->metphi);
-        float METy = tree->met * TMath::Sin(tree->metphi);
-        float METpt = tree->met;
-        
+      
         TLorentzVector ptmiss  = TLorentzVector(METx, METy,0, METpt);
         TMatrixD metcov(2,2);
         metcov(0,0)=tree->MET_cov00->at(iMoth);
@@ -132,10 +138,10 @@ int main()
         std::map< std::pair<Int_t, Int_t>, Double_t> fit_results_pull_balance = kinFits.getPullBalanceFullFit();
         std::map< std::pair<Int_t, Int_t>, Int_t> fit_convergence = kinFits.getConvergenceFullFit();
 
-        cout << mh_best << " with chi2 best of " << chi2_best << endl;
+        //cout << mh_best << " with chi2 best of " << chi2_best << endl;
         HHMass -> Fill (mh_best);
     }
     
-    TFile* fOut = new TFile ("HHMass.root", "recreate");
+    TFile* fOut = new TFile (outName + "HHMass.root", "recreate");
     HHMass->Write();
 }
