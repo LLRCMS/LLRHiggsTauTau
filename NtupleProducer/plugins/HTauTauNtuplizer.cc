@@ -923,8 +923,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       _mTDau1.push_back (mT2);
       _mTDau2.push_back (mT1);
     }
-    if(fabs(cand.charge())>0.5)_isOSCand.push_back(false);
-    else _isOSCand.push_back(true);
+
+    // do not read pair charge: sometimes taus have charge +/- 3 and this spoils the pair charge
+    //if(fabs(cand.charge())>0.5)_isOSCand.push_back(false);
+    //else _isOSCand.push_back(true);
+    int chDau1 = (cand.daughter(0))->charge();
+    int chDau2 = (cand.daughter(1))->charge();
+    bool isOS = (chDau1/abs(chDau1) != chDau2/abs(chDau2));
+    _isOSCand.push_back(isOS);
+
 //    if(cand.charge()!=cand.daughter(0)->charge()+cand.daughter(1)->charge())cout<<"charge DIVERSA!!!!!!!!! "<<cand.charge()<<" "<<cand.daughter(0)->charge()<<" "<<cand.daughter(1)->charge()<<endl;
 //    else cout<<"charge uguale "<<endl;
     _mothers_px.push_back( (float) candp4.X());
