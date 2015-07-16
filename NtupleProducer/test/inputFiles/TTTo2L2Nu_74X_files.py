@@ -1,4 +1,4 @@
-# XS = 730.58 pb
+# XS = 77.55 pb # this is with the powheg XS
 FILELIST = cms.untracked.vstring()
 FILELIST.extend ([
        '/store/mc/RunIISpring15DR74/TTTo2L2Nu_13TeV-powheg/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/50000/004FB226-F005-E511-AE60-00259073E382.root',
