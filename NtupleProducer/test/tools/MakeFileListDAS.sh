@@ -49,7 +49,7 @@ fi
 
 # file list formatted using awk
 #ls $FILEPATH/*.root | awk -v pathto=$FILEPATH '{print "'\''file:" pathto "/"$1 "'\''," }' >> $OUTFILE
-python das_client.py --query="file dataset=$DATASET" --limit=0 --verbose=1 | awk '{print "'\''"$1"'\'',"}'
+python das_client.py --query="file dataset=$DATASET" --limit=0 --verbose=1 | awk '{print "'\''"$1"'\'',"}' >> $OUTFILE
 #ls $FILEPATH/*.root | awk '{print "'\''file:"$1 "'\''," }' >> $OUTFILE
 
 if [ $PRINTHEADER = true ] ; then
