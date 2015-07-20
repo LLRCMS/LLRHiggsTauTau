@@ -8,7 +8,7 @@
 # create file list for CMSSW compatible with ntuplizer for tier3
 
 # input: use DATASET!
-#usage: source MakeFileListDAS.sh -t "Data_MuMu" -o Data_MuMu.py -p /DoubleMuon/Run2015B-PromptReco-v1/MINIAOD/
+#usage: source MakeFileListDAS.sh -t "Data_MuMu" -o Data_MuMu.py -p /DoubleMuon/Run2015B-PromptReco-v1/MINIAOD
 
 PRINTHEADER=true
 
@@ -46,6 +46,8 @@ if [ $PRINTHEADER = true ] ; then
     echo "FILELIST = cms.untracked.vstring()" >> $OUTFILE
     echo "FILELIST.extend ([" >> $OUTFILE
 fi
+
+if [[ $DATASET = *"/" ]] ; then DATASET=${DATASET%?} ; fi
 
 # file list formatted using awk
 #ls $FILEPATH/*.root | awk -v pathto=$FILEPATH '{print "'\''file:" pathto "/"$1 "'\''," }' >> $OUTFILE
