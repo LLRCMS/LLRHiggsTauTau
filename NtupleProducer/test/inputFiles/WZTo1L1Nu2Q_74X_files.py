@@ -1,7 +1,6 @@
 # XS = 10.96 pb
 FILELIST = cms.untracked.vstring()
 FILELIST.extend ([
-readFiles.extend( [
        '/store/mc/RunIISpring15DR74/WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/00949148-3813-E511-BEA1-F45214938690.root',
        '/store/mc/RunIISpring15DR74/WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/063EC4F5-3413-E511-88BB-00259059642A.root',
        '/store/mc/RunIISpring15DR74/WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/0857B822-3513-E511-AC33-002590596490.root',
