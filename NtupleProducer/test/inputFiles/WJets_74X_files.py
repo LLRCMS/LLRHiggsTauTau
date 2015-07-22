@@ -1,4 +1,4 @@
-# XS = 20508.9 pb
+# XS = 61526.7 pb 
 FILELIST = cms.untracked.vstring()
 FILELIST.extend ([
        '/store/mc/RunIISpring15DR74/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/048FB1EE-33FD-E411-A2BA-0025905A6094.root',
