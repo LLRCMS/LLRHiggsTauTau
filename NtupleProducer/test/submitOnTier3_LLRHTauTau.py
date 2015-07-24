@@ -44,6 +44,7 @@ if __name__ == "__main__":
     parser.add_option('-r', '--rep'           ,    dest='customReplacements' , help='sed replacements for cfg  key1:val1,key2:val2,...'  , default=None)
     parser.add_option('-t', '--tag'           ,    dest='nameTag'            , help='tag defining the sample and production'             , default='')
     parser.add_option('-z', '--offset'        ,    dest='offset'             , help='overall offset (events to be skipped)'              , default=0, type=int)
+    parser.add_option('-i', '--ismc'          ,    dest='isMC'               , help='is an MC sample'                                    , default=True)
     (opt, args) = parser.parse_args()
 
     if not opt.wholefile: 
@@ -109,7 +110,8 @@ if __name__ == "__main__":
                             'XXX_MAXEVENTS_XXX':str(EvPerJob),
                             'XXX_SKIPEVENTS_XXX':str(n*EvPerJob + opt.offset),
                             'XXX_SAMPLEFILENAME_XXX':opt.samplefile,
-                            'XXX_OUTPUTFILE_XXX':outFullLFN
+                            'XXX_OUTPUTFILE_XXX':outFullLFN,
+                            'XXX_ISMC_XXX':str(opt.isMC)
                            }
         else:
             # scrivi un file name con dentro la lista giusta
@@ -118,7 +120,8 @@ if __name__ == "__main__":
                             'XXX_MAXEVENTS_XXX':'-1',
                             'XXX_SKIPEVENTS_XXX':str (opt.offset),
                             'XXX_SAMPLEFILENAME_XXX':chunkfilename,
-                            'XXX_OUTPUTFILE_XXX':outFullLFN
+                            'XXX_OUTPUTFILE_XXX':outFullLFN,
+                            'XXX_ISMC_XXX':str(opt.isMC)
                            }
 
         if opt.customReplacements is not None:

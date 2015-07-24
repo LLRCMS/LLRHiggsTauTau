@@ -64,7 +64,7 @@ TRIGGERLIST = [#"HLT_*", #["HLT_Mu17_Mu8_v*", "HLT_Mu17_TkMu8_v*"] # to run on D
 ]
 
 #Samples:
-IsMC=True
+IsMC=XXX_ISMC_XXX
 
 ##
 ## Standard sequence
@@ -87,6 +87,36 @@ process.source = cms.Source("PoolSource",
 #Limited nEv for testing purposes. -1 to run all events
 process.maxEvents.input = cms.untracked.int32 (XXX_MAXEVENTS_XXX)
 process.source.skipEvents = cms.untracked.uint32 (XXX_SKIPEVENTS_XXX)
+
+# JSON mask for data --> to upload each time with the proper list using the macro in tools/
+#from JSON file
+if not IsMC:
+  process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange( *(
+      '251244:85-251244:86',
+      '251244:88-251244:93',
+      '251244:96-251244:121',
+      '251244:123-251244:156',
+      '251244:158-251244:428',
+      '251244:430-251244:442',
+      '251251:1-251251:31',
+      '251251:33-251251:97',
+      '251251:99-251251:167',
+      '251252:1-251252:283',
+      '251252:285-251252:505',
+      '251252:507-251252:554',
+      '251561:1-251561:94',
+      '251562:1-251562:439',
+      '251562:443-251562:691',
+      '251643:1-251643:216',
+      '251643:222-251643:606',
+      '251721:21-251721:36',
+      '251721:123-251721:244',
+      '251883:56-251883:56',
+      '251883:58-251883:60',
+      '251883:62-251883:144',
+      '251883:156-251883:437',
+  ))
+
 ##
 ## Output file
 ##
