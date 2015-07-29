@@ -96,56 +96,6 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-static bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j){
-  //sto sbagliando! la cosa dovrebbe essere disponibile per i vari criteri, non per la sequenza 
-  //First criteria: OS<SS
-  if ( j.charge()==0 && i.charge()!=0) return false;
-  else if ( i.charge()==0 && j.charge()!=0) return true;
-
-  //Second criteria: legs pt
-  if(i.daughter(0)->pt()+i.daughter(1)->pt()<j.daughter(0)->pt()+j.daughter(1)->pt()) return false;
-  if(i.daughter(0)->pt()+i.daughter(1)->pt()>j.daughter(0)->pt()+j.daughter(1)->pt()) return true; 
-  
-  //Protection for duplicated taus, damn it!
-  int iType=0,jType=0;
-  for(int idau=0;idau<2;idau++){
-    if(i.daughter(idau)->isElectron())iType+=0;
-    else if(i.daughter(idau)->isMuon())iType+=1;
-    else iType+=2;
-    if(j.daughter(idau)->isElectron())jType+=0;
-    else if(j.daughter(idau)->isMuon())jType+=1;
-    else jType+=2;
-  }
-  
-  return (iType<jType);
-  
-  //I need a criteria for where to put pairs wo taus and how to deal with tautau candidates
-  
-  //third criteria: are there taus?
-  int ilegtau=-1,jlegtau=-1;
-  if(!i.daughter(0)->isMuon() && !i.daughter(0)->isElectron())ilegtau=0;
-  if(!j.daughter(0)->isMuon() && !j.daughter(0)->isElectron())jlegtau=0;
- 
-  if(!i.daughter(1)->isMuon() && !i.daughter(1)->isElectron()){
-    if(ilegtau==-1 || i.daughter(1)->pt()>i.daughter(0)->pt())ilegtau=1;}
-  if(!j.daughter(1)->isMuon() && !j.daughter(1)->isElectron()){
-    if(ilegtau==-1 || i.daughter(1)->pt()>i.daughter(0)->pt())jlegtau=1;}
-
-  
-  if(ilegtau==-1 && jlegtau>-1) return false; //i has no tau leptons, j has
-  else if(ilegtau==-1 && jlegtau == -1) return true; //no tau leptons in neither pair, leave as it is
-  
-  //fourth criteria: Iso x Legpt
-  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*i.daughter(fabs(ilegtau-1))->pt()>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*j.daughter(fabs(jlegtau-1))->pt()) return false;
-  
-  //fifth criteria: Iso (cut based)
-  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"combRelIsoPF")) return false;
-  
-  //sixth criteria: ISO (MVA)
-  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(i.daughter(fabs(ilegtau-1)),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(j.daughter(fabs(jlegtau-1)),"combRelIsoPF")) return false;
-
-  return true;
-}
 
 // class declaration
 
@@ -179,9 +129,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   void FillGenInfo(const edm::Event&);
   int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
   //int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
-  bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
+  static bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
   float ComputeMT (math::XYZTLorentzVector visP4, float METx, float METy);
-  //bool ComparePairs(pat::CompositeCandidate i, pat::CompositeCandidate j);
+  static bool ComparePairsbyPt(pat::CompositeCandidate i, pat::CompositeCandidate j);
+  static bool ComparePairsbyIso(pat::CompositeCandidate i, pat::CompositeCandidate j);
 
   // ----------member data ---------------------------
   //std::map <int, int> genFlagPosMap_; // to convert from input to output enum format for H/Z decays
@@ -810,7 +761,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     const pat::CompositeCandidate& cand = (*candi); 
     candVector.push_back(cand);
   }
-  std::sort(candVector.begin(),candVector.end(),ComparePairs);
+  std::sort(candVector.begin(),candVector.end(),ComparePairsbyIso);
   for(int iPair=0;iPair<int(candVector.size());iPair++){
     const pat::CompositeCandidate& cand = candVector.at(iPair);
     math::XYZTLorentzVector candp4 = cand.p4();
@@ -1443,6 +1394,97 @@ bool HTauTauNtuplizer::CompareLegs(const reco::Candidate *i, const reco::Candida
   
   return true;
 }
+bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::CompositeCandidate j){
+  //First criteria: OS<SS
+  if ( j.charge()==0 && i.charge()!=0) return false;
+  else if ( i.charge()==0 && j.charge()!=0) return true;
+
+  //Second criteria: ISO
+  float isoi=999,isoj=999;
+  int cand1j=-1,cand1i=-1;
+
+  if(CompareLegs(i.daughter(0),i.daughter(1)))cand1i=0;
+  else cand1i=1;
+  if(CompareLegs(j.daughter(0),j.daughter(1)))cand1j=0;
+  else cand1j=1;
+
+  //step 1, l;eg 1 ISO
+  isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"combRelIsoPF");
+  isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"combRelIsoPF");
+
+  if (isoi<isoj)return true;
+  else if(isoi>isoj)return false;
+
+  //step 2, leg 1 Pt
+  if(i.daughter(cand1i)->pt()>j.daughter(cand1j)->pt()) return true;
+  else if(i.daughter(cand1i)->pt()<j.daughter(cand1j)->pt()) return false;
+
+  //step 3, leg 2 ISO
+  isoi=userdatahelpers::getUserFloat(i.daughter(1-cand1i),"combRelIsoPF");
+  isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"combRelIsoPF");
+
+  if (isoi<isoj)return true;
+  else if(isoi>isoj)return false;
+
+  //step 4, leg 2 Pt
+  if(i.daughter(1-cand1i)->pt()>j.daughter(1-cand1j)->pt()) return true;
+  else if(i.daughter(1-cand1i)->pt()<j.daughter(1-cand1j)->pt()) return false;
+
+  return true;
+
+}
+
+bool HTauTauNtuplizer::ComparePairsbyPt(pat::CompositeCandidate i, pat::CompositeCandidate j){
+  //sto sbagliando! la cosa dovrebbe essere disponibile per i vari criteri, non per la sequenza 
+  //First criteria: OS<SS
+  if ( j.charge()==0 && i.charge()!=0) return false;
+  else if ( i.charge()==0 && j.charge()!=0) return true;
+
+  //Second criteria: legs pt
+  if(i.daughter(0)->pt()+i.daughter(1)->pt()<j.daughter(0)->pt()+j.daughter(1)->pt()) return false;
+  if(i.daughter(0)->pt()+i.daughter(1)->pt()>j.daughter(0)->pt()+j.daughter(1)->pt()) return true; 
+  
+  //Protection for duplicated taus, damn it!
+  int iType=0,jType=0;
+  for(int idau=0;idau<2;idau++){
+    if(i.daughter(idau)->isElectron())iType+=0;
+    else if(i.daughter(idau)->isMuon())iType+=1;
+    else iType+=2;
+    if(j.daughter(idau)->isElectron())jType+=0;
+    else if(j.daughter(idau)->isMuon())jType+=1;
+    else jType+=2;
+  }
+  
+  return (iType<jType);
+  
+  //I need a criteria for where to put pairs wo taus and how to deal with tautau candidates
+  
+  //third criteria: are there taus?
+  int ilegtau=-1,jlegtau=-1;
+  if(!i.daughter(0)->isMuon() && !i.daughter(0)->isElectron())ilegtau=0;
+  if(!j.daughter(0)->isMuon() && !j.daughter(0)->isElectron())jlegtau=0;
+ 
+  if(!i.daughter(1)->isMuon() && !i.daughter(1)->isElectron()){
+    if(ilegtau==-1 || i.daughter(1)->pt()>i.daughter(0)->pt())ilegtau=1;}
+  if(!j.daughter(1)->isMuon() && !j.daughter(1)->isElectron()){
+    if(ilegtau==-1 || i.daughter(1)->pt()>i.daughter(0)->pt())jlegtau=1;}
+
+  
+  if(ilegtau==-1 && jlegtau>-1) return false; //i has no tau leptons, j has
+  else if(ilegtau==-1 && jlegtau == -1) return true; //no tau leptons in neither pair, leave as it is
+  
+  //fourth criteria: Iso x Legpt
+  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*i.daughter(fabs(ilegtau-1))->pt()>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*j.daughter(fabs(jlegtau-1))->pt()) return false;
+  
+  //fifth criteria: Iso (cut based)
+  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"combRelIsoPF")) return false;
+  
+  //sixth criteria: ISO (MVA)
+  if(userdatahelpers::getUserFloat(i.daughter(ilegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(i.daughter(fabs(ilegtau-1)),"combRelIsoPF")>userdatahelpers::getUserFloat(j.daughter(jlegtau),"byCombinedIsolationDeltaBetaCorrRaw3Hits")*userdatahelpers::getUserFloat(j.daughter(fabs(jlegtau-1)),"combRelIsoPF")) return false;
+
+  return true;
+}
+
 
 float HTauTauNtuplizer::ComputeMT (math::XYZTLorentzVector visP4, float METx, float METy)
 {
