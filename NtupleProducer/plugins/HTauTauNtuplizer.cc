@@ -736,7 +736,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _indexevents = event.id().event();
   _runNumber = event.id().run();
   _lumi=event.luminosityBlock();
-  _met = met.sumEt();
+  // _met = met.sumEt(); // scalar sum of the pf candidates
+  _met = met.pt();
   _metphi = met.phi();
     
   //Do all the stuff here
@@ -761,7 +762,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     const pat::CompositeCandidate& cand = (*candi); 
     candVector.push_back(cand);
   }
-  std::sort(candVector.begin(),candVector.end(),ComparePairsbyIso);
+  //std::sort(candVector.begin(),candVector.end(),ComparePairsbyIso);
+  std::sort(candVector.begin(),candVector.end(),ComparePairsbyPt);
   for(int iPair=0;iPair<int(candVector.size());iPair++){
     const pat::CompositeCandidate& cand = candVector.at(iPair);
     math::XYZTLorentzVector candp4 = cand.p4();
