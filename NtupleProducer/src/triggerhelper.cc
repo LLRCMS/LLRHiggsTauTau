@@ -36,47 +36,47 @@ triggerhelper::triggerhelper(std::vector<std::string> HLTPaths) : nTriggers(HLTP
     TString dummyList[1] = {"dummy"};
     if(triggerlist[iHLT]=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v1"){
     	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT],
-                      ,"hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter",
+                      "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter",
                       "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23",triggerMapper::kemu);
     }else if(triggerlist[iHLT]=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v1"){
-    	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+    	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,"hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter",
                       "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8",triggerMapper::kemu);
     }else if(triggerlist[iHLT]=="HLT_IsoMu24_eta2p1_v1"){
-    	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+    	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,"",
                       "hltL3crIsoL1sMu20Eta2p1L1f0L2f10QL3f24QL3trkIsoFiltered0p09",triggerMapper::kemu);
     }else if(triggerlist[iHLT]=="HLT_IsoMu27_v1"){
-    	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+    	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,"",
                       "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09",triggerMapper::kemu);
                       
     }else if(triggerlist[iHLT]=="HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1"){
     	TString listfilt2[2]={"hltPFTau20TrackLooseIsoAgainstMuon ","hltOverlapFilterIsoMu17LooseIsoPFTau20"};
   	TString listfilt1[2]={"hltL3crIsoL1sMu16erTauJet20erL1f0L2f10QL3f17QL3trkIsoFiltered0p09","hltOverlapFilterIsoMu17LooseIsoPFTau20"};
-  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,listfilt1
                       ,listfilt2,2,2,triggerMapper::kmutau);
     }else if(triggerlist[iHLT]=="HLT_IsoMu24_eta2p1_v1"){
-  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,"hltL3crIsoL1sMu20Eta2p1L1f0L2f10QL3f24QL3trkIsoFiltered0p09"
                       ,"",triggerMapper::kmutau);
     }else if(triggerlist[iHLT]=="HLT_IsoMu27_v1"){
-  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,"hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
                       ,"",triggerMapper::kmutau);
     }else if(triggerlist[iHLT]=="HLT_Ele22_eta2p1_WP75_Gsf_LooseIsoPFTau20_v1"){
     	TString listfilt2[2]={"hltPFTau20TrackLooseIso ","hltOverlapFilterIsoEle22WP75GsfLooseIsoPFTau20"};
   	TString listfilt1[2]={"hltEle22WP75L1IsoEG20erTau20erGsfTrackIsoFilter ","hltOverlapFilterIsoEle22WP75GsfLooseIsoPFTau20"};
-  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,listfilt1
                       ,listfilt2,2,2,triggerMapper::ketau);
     }else if(triggerlist[iHLT]=="HLT_Ele32_eta2p1_WP75_Gsf_v1"){
-  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,"hltEle32WP75GsfTrackIsoFilter"
                       ,"",triggerMapper::ketau);
     }else if(triggerlist[iHLT]=="HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1"){
-  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT])
+  	triggerMap[iHLT]=triggerMapper(triggerlist[iHLT]
                       ,"hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"
                       ,"hltDoublePFTau40TrackPt1MediumIsolationDz02Reg",triggerMapper::ktautau);
    }else triggerMap[iHLT] = triggerMapper (triggerlist[iHLT] , dummyList, dummyList, 1, 1, triggerMapper::kemu);
