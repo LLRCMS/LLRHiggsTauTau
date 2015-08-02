@@ -22,9 +22,6 @@ using namespace edm;
 triggerhelper::triggerhelper(std::vector<std::string> HLTPaths) : nTriggers(HLTPaths.size())
 {
 
-  ////////////////////
-  //FIXME : no meaningful filter names used for the moment
-  ////////////////
   //cout << "nTriggers: " << nTriggers << endl;
 
   triggerlist = new TString [nTriggers];
