@@ -18,12 +18,13 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <string>
 
 using namespace std;
 
 class triggerhelper {
  public:
-  triggerhelper();
+  triggerhelper(std::vector<std::string> HLTPaths);
   int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
   int FindMETBit(const edm::Event&);
   int FindTriggerNumber(TString triggername,bool istrigger=true);
@@ -34,12 +35,12 @@ class triggerhelper {
   int GetNTriggers(){return nTriggers;}
   TString printTriggerName(int ntrigger);
 
-  ~triggerhelper(){}
+  ~triggerhelper();
 
  private:
-  static const int nTriggers =7;
-  TString triggerlist[nTriggers];
-  triggerMapper triggerMap[nTriggers];
+  const int nTriggers;
+  TString* triggerlist;
+  triggerMapper* triggerMap;
   static const int nMETs =13;
   TString metlist[nMETs];
 

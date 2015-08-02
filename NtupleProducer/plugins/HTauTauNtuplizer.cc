@@ -155,7 +155,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Output Objects
   TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
-  triggerhelper myTriggerHelper;
+  triggerhelper* myTriggerHelper;
 
   PUReweight reweight;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
@@ -344,9 +344,16 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   Nevt_Gen=0;
   Nevt_PassTrigger = 0;
   Npairs=0;
+  
+  ///// TRIGGER
   //triggerResultsLabel = InputTag("TriggerResults","","HLT");
   processName= pset.getParameter<edm::InputTag>("triggerResultsLabel");
+  std::vector<std::string> HLTList = pset.getParameter <std::vector<std::string> > ("triggerList");
+  myTriggerHelper = new triggerhelper (HLTList);
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
+
+
+
 
   /*
   // init map for flags
@@ -364,7 +371,9 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   Initialize();
 }
 
-HTauTauNtuplizer::~HTauTauNtuplizer(){}
+HTauTauNtuplizer::~HTauTauNtuplizer(){
+  delete myTriggerHelper;
+}
 //
 
 void HTauTauNtuplizer::Initialize(){
@@ -513,7 +522,7 @@ void HTauTauNtuplizer::Initialize(){
 void HTauTauNtuplizer::beginJob(){
   edm::Service<TFileService> fs;
   myTree = fs->make<TTree>("HTauTauTree","HTauTauTree");
-  int nbins=3+myTriggerHelper.GetNTriggers();
+  int nbins=3+(myTriggerHelper->GetNTriggers());
   hCounter = fs->make<TH1F>("Counters","Counters",nbins,0,nbins);
 
   //Branches
@@ -699,8 +708,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     }
   }
   
-  _triggerbit = myTriggerHelper.FindTriggerBit(event,foundPaths,indexOfPath);
-  _metfilterbit = myTriggerHelper.FindMETBit(event);
+  _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
+  _metfilterbit = myTriggerHelper->FindMETBit(event);
 
   //Get candidate collection
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
@@ -1107,7 +1116,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
         if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
         if (type==ParticleType::MUON && (obj.hasTriggerObjectType(trigger::TriggerMuon)))triggerType=true;
-        triggerhelper myTriggerHelper;
+        //triggerhelper myTriggerHelper;
         //check fired paths
         obj.unpackPathNames(names);
         std::vector<std::string> pathNamesAll  = obj.pathNames(false);
@@ -1115,10 +1124,22 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
-          int triggerbit = myTriggerHelper.FindTriggerNumber(pathNamesAll[h],true);
+          //int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+          
+          /*
+          for (int i = 0; i < myTriggerHelper->GetNTriggers(); i++)
+          {
+            TString nameTr = myTriggerHelper->printTriggerName(i);
+            cout << i << ") " << nameTr << " - " << myTriggerHelper->FindTriggerNumber(nameTr) << endl;
+          }
+          cout << " =============================== " << endl;
+          */
+          int triggerbit = _triggerbit;
           if(triggerbit>=0){
-            triggerMapper map = myTriggerHelper.GetTriggerMap(pathNamesAll[h]);
-	    for(int itr=0;itr<myTriggerHelper.GetNTriggers();itr++)if(myTriggerHelper.IsTriggerFired(triggerbit,itr))hCounter->Fill(itr+3);
+            triggerMapper map = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
+	          for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
+              if(myTriggerHelper->IsTriggerFired(triggerbit,itr)) hCounter->Fill(itr+3);
+            }
             bool isfilterGood = true;
             if(type==ParticleType::TAU){
               for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
@@ -1328,8 +1349,8 @@ void HTauTauNtuplizer::endJob(){
   hCounter->GetXaxis()->SetBinLabel(2,"Nevt_PassTrigger");
   hCounter->GetXaxis()->SetBinLabel(3,"Npairs");
 
-  for(int i=0;i<myTriggerHelper.GetNTriggers();i++){
-    hCounter->GetXaxis()->SetBinLabel(i+4,myTriggerHelper.printTriggerName(i));
+  for(int i=0;i<myTriggerHelper->GetNTriggers();i++){
+    hCounter->GetXaxis()->SetBinLabel(i+4,myTriggerHelper->printTriggerName(i));
   }
 }
 
@@ -1358,6 +1379,8 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       //foundThisPath = true;
       indexOfPath.push_back(j);
       foundPaths.push_back(pathName);
+
+      //cout << j << " - TTT: " << pathName << endl;
 	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
     } 
   }

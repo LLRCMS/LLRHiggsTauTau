@@ -533,7 +533,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
-                      triggerSet = cms.InputTag("selectedPatTrigger")
+                      triggerSet = cms.InputTag("selectedPatTrigger"),
+                      triggerList = TRIGGERLIST
                       )
 if SVFITBYPASS:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")

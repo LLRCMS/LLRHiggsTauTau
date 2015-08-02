@@ -14,18 +14,31 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/TriggerNamesService.h>
+#include <iostream>
 
 using namespace std;
 using namespace edm;
 
-triggerhelper::triggerhelper(){
-//  "HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1",
- // "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
-  //"HLT_IsoMu24_eta2p1_IterTrk02_v1",
-  //"HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1",
-  //"HLT_Ele27_eta2p1_WP85_Gsf_v1",
-  //"HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1"
+triggerhelper::triggerhelper(std::vector<std::string> HLTPaths) : nTriggers(HLTPaths.size())
+{
 
+  ////////////////////
+  //FIXME : no meaningful filter names used for the moment
+  ////////////////
+  //cout << "nTriggers: " << nTriggers << endl;
+
+  triggerlist = new TString [nTriggers];
+  triggerMap = new triggerMapper [nTriggers];
+  
+  for (int iHLT = 0; iHLT < nTriggers; ++iHLT)
+  {
+    triggerlist[iHLT] = HLTPaths.at(iHLT);
+    TString dummyList[1] = {"dummy"};
+    triggerMap[iHLT] = triggerMapper (triggerlist[iHLT] , dummyList, dummyList, 1, 1, triggerMapper::kemu);
+  }
+
+
+  /*
   triggerMap[0]=triggerMapper("HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1"
                       ,"hltMu23Ele12GsfTrackIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter",
                       "hltL1Mu12EG7L3IsoMuFiltered23",triggerMapper::kemu);
@@ -59,7 +72,8 @@ triggerhelper::triggerhelper(){
   triggerMap[6]=triggerMapper("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1"
                       ,taulist,
                       taulist,3,3,triggerMapper::ktautau);
-                      
+  */
+
   /*
   TString tmptrigger[nTriggers]={
     "IsoMu17_eta2p1_LooseIsoPFTau20",
@@ -82,13 +96,16 @@ triggerhelper::triggerhelper(){
     "Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20",
     "Ele27_eta2p1_WP85_Gsf"
   };*/
+  
+  /*
   for(int i=0;i<nTriggers;i++){
     triggerlist[i]=triggerMap[i].GetHLTPath();
     //pathKind[i]=-1;
     //triggerlist[i].Prepend("HLT_");
     //triggerlist[i].Append("_v1");
   }
-  
+  */
+
   TString tmpMETfilters[nMETs]={
                    "Flag_CSCTightHaloFilter", 
  "Flag_EcalDeadCellTriggerPrimitiveFilter",
@@ -138,6 +155,12 @@ triggerhelper::triggerhelper(){
   };*/
 }
 
+triggerhelper::~triggerhelper(){
+  delete triggerlist;
+  delete triggerMap;
+}
+
+
 int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
   
   int bit =0;
@@ -153,7 +176,7 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
   //   }
   // }
   // return bit;
-  
+ 
   for(int it=0;it<nTriggers;it++){
     //for(int j=0;j<(int)foundPaths.size();j++){
     for(int j=0;j<(int)foundPaths.size();j++){
