@@ -1419,7 +1419,9 @@ bool HTauTauNtuplizer::CompareLegs(const reco::Candidate *i, const reco::Candida
   
   return true;
 }
+// implements operator "<" (return i < j)
 bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::CompositeCandidate j){
+  
   //First criteria: OS<SS
   if ( j.charge()==0 && i.charge()!=0) return false;
   else if ( i.charge()==0 && j.charge()!=0) return true;
@@ -1453,9 +1455,9 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
 
   //step 4, leg 2 Pt
   if(i.daughter(1-cand1i)->pt()>j.daughter(1-cand1j)->pt()) return true;
-  else if(i.daughter(1-cand1i)->pt()<j.daughter(1-cand1j)->pt()) return false;
+  //else if(i.daughter(1-cand1i)->pt()<j.daughter(1-cand1j)->pt()) return false;
 
-  return true;
+  return false;
 
 }
 
