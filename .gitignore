@@ -5,3 +5,4 @@
 *.h~
 *.cc.1
 *.root
+JobLauncher*/
