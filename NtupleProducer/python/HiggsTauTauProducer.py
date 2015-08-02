@@ -24,7 +24,8 @@ except NameError:
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if IsMC:
     #process.GlobalTag.globaltag = 'PLS170_V6AN1::All'#'GR_70_V2_AN1::All'   #MC in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
-    process.GlobalTag.globaltag = 'PHYS14_25_V1::All' #MC in PHYS14
+    #process.GlobalTag.globaltag = 'PHYS14_25_V1::All' #MC in PHYS14
+    process.GlobalTag.globaltag = 'MCRUN2_74_V9::All' #MC Spring 2015
     #process.GlobalTag.globaltag = 'PHYS14_ST_V1::All'
 else :
     process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
