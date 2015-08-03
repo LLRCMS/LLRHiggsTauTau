@@ -8,9 +8,12 @@ import re
 ###################################################################
 #### Parameters to be changed for each production
 
-PROCESS = ["BKGPU40", "OPT"] # select blocks of datasets to be processed
+#PROCESS = ["HHBACKGROUNDS"] # select blocks of datasets to be processed
+#tag = "produzione_MC_3Ago2015" # a folder with cra3_[tag] is created, ad appended in many places
+PROCESS = ["2015RUNBDATA"]
+tag = "produzione_DATA_3Ago2015"
+
 datasetsFile = "datasets.txt" # name of file containing datasets
-tag = "prod_di_test" # a folder with cra3_[tag] is created, ad appended in many places
 
 
 ###################################################################
