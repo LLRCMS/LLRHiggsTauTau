@@ -24,7 +24,10 @@ using namespace std;
 
 class triggerhelper {
  public:
-  triggerhelper(std::vector<std::string> HLTPaths);
+  triggerhelper(vector<string> HLTPaths);
+  triggerhelper();
+
+  void addTriggerMap(TString hlt,vector<string> path1, vector<string> path2, int channel);
   int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
   int FindMETBit(const edm::Event&);
   int FindTriggerNumber(TString triggername,bool istrigger=true);
@@ -32,14 +35,14 @@ class triggerhelper {
   bool IsTriggerFired(int triggerbit, TString triggerName,bool istrigger=true){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
   int printFiredPaths(int triggerbit,bool istrigger=true);
   triggerMapper GetTriggerMap(TString trigger);
-  int GetNTriggers(){return nTriggers;}
+  int GetNTriggers(){return triggerlist.size();}
   TString printTriggerName(int ntrigger);
 
   ~triggerhelper();
 
  private:
-  const int nTriggers;
-  TString* triggerlist;
+  //const int nTriggers;
+  vector<string> triggerlist;
   vector<triggerMapper> triggerMap;
   static const int nMETs =13;
   TString metlist[nMETs];

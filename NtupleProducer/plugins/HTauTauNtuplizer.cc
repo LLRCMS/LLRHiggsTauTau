@@ -348,8 +348,19 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   ///// TRIGGER
   //triggerResultsLabel = InputTag("TriggerResults","","HLT");
   processName= pset.getParameter<edm::InputTag>("triggerResultsLabel");
-  std::vector<std::string> HLTList = pset.getParameter <std::vector<std::string> > ("triggerList");
-  myTriggerHelper = new triggerhelper (HLTList);
+  std::vector<edm::ParameterSet> HLTList = pset.getParameter <std::vector<edm::ParameterSet> > ("triggerList");
+  //std::vector<std::string> 
+  myTriggerHelper = new triggerhelper();// (HLTList);
+  for (std::vector<edm::ParameterSet>::const_iterator iPSet = HLTList.begin();iPSet != HLTList.end(); ++iPSet) {
+    const std::string& hlt = iPSet->getParameter<std::string>("HLT");
+    const std::vector<std::string>& path1 = iPSet->getParameter<std::vector<std::string>>("path1");
+    const std::vector<std::string>& path2 = iPSet->getParameter<std::vector<std::string>>("path2");
+    const int& chan = iPSet->getParameter<int>("channel");
+    // Build the mape
+    myTriggerHelper->addTriggerMap(TString(hlt),path1,path2,chan);
+  
+  }
+
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
 
 

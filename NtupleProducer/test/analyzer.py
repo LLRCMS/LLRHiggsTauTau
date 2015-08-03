@@ -3,7 +3,7 @@
 #Producer controller
 #
 #-----------------------------------------
-import os
+import os, re
 PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
 #samples list (it could be moved to a cfg file for better reading
@@ -39,44 +39,77 @@ IsMC=True
 # spring15 triggers
 # NOTE: wildcards for the moment are only allowed for trigger filter but not to set trigger bits in ntuples
 # NOTE2 (FIXME) : no trigger matching with reco objects for the moment!
-TRIGGERLIST = cms.vstring (
-      ### e mu triggers
-  "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v1",
-  "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v1",
-  "HLT_IsoMu24_eta2p1_v1", # NOT IN BASELINE
-  "HLT_IsoMu27_v1", # NOT IN BASELINE
-  
-      ### mu tau triggers
-  "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
-  "HLT_IsoMu24_eta2p1_v1",
-  "HLT_IsoMu27_v1", # NOT IN BASELINE
-  
-      ### e tau triggers
-  "HLT_Ele22_eta2p1_WP75_Gsf_LooseIsoPFTau20_v1",
-  "HLT_Ele32_eta2p1_WP75_Gsf_v1",
 
-      ### tau tau triggers
-  "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1",
-)
+#TRIGGERLIST = cms.vstring (
+#      ### e mu triggers
+#  "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v1",
+#  "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v1",
+#  "HLT_IsoMu24_eta2p1_v1", # NOT IN BASELINE
+#  "HLT_IsoMu27_v1", # NOT IN BASELINE
+#  
+#      ### mu tau triggers
+#  "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1",
+#  "HLT_IsoMu24_eta2p1_v1",
+#  "HLT_IsoMu27_v1", # NOT IN BASELINE
+#  
+#      ### e tau triggers
+#  "HLT_Ele22_eta2p1_WP75_Gsf_LooseIsoPFTau20_v1",
+#  "HLT_Ele32_eta2p1_WP75_Gsf_v1",
+#
+#      ### tau tau triggers
+#  "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1",
+#)
+#
+##DATA samples
+#if not  IsMC:
+#    TRIGGERLIST = cms.vstring (
+#        ### e mu triggers
+#        "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v2",
+#        "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v2",
+#
+#        ### mu tau
+#        "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2",
+#        "HLT_IsoMu24_eta2p1_IterTrk02_v2",
+#
+#        ### e tau
+#        "HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v1",
+#        "HLT_Ele32_eta2p1_WPTight_Gsf_v1",
+#
+#        ### tau tau
+#        "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v2"	
+#        )
 
-#DATA samples
-if not  IsMC:
-    TRIGGERLIST = cms.vstring (
-        ### e mu triggers
-        "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v2",
-        "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v2",
+#word = cms.string("vaffanculo")
+#print word.c_str()
+#print word.data()
+#print word.Data()
+#print str(word)
 
-        ### mu tau
-        "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2",
-        "HLT_IsoMu24_eta2p1_IterTrk02_v2",
+#TRIGGERLIST=cms.vstring()
+TRIGGERLIST=[]
+#list triggers and filter paths here!
+HLTLIST = cms.VPSet(
+    cms.PSet (
+        HLT = cms.string("HLTname"),
+        path1 = cms.vstring ("fiol1", "fil2"),
+        path2 = cms.vstring (""),
+        channel = cms.int32(0)
+        ),
+    cms.PSet (
+        HLT = cms.string("pippoplutotopolino"),
+        path1 = cms.vstring ("pluto", "pippo"),
+        path2 = cms.vstring ("topolino"),
+        channel = cms.int32(2)
+        ),
+    )
+#now I create the trigger list for HLTconfig
+for i in range(len(HLTLIST)):
+    tmpl =  str(HLTLIST[i].HLT).replace('cms.string(\'','') ##CMSSW Vaffanculo
+    tmpl = tmpl.replace('\')','') ##CMSSW Vaffanculo x 2
+    TRIGGERLIST.append(tmpl)
+#print TRIGGERLIST
 
-        ### e tau
-        "HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v1",
-        "HLT_Ele32_eta2p1_WPTight_Gsf_v1",
 
-        ### tau tau
-        "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v2"	
-        )
 ##
 ## Standard sequence
 ##

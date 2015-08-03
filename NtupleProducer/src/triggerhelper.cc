@@ -20,84 +20,37 @@
 using namespace std;
 using namespace edm;
 
-triggerhelper::triggerhelper(std::vector<std::string> HLTPaths) : nTriggers(HLTPaths.size())
+triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.size())
 {
 
   //cout << "nTriggers: " << nTriggers << endl;
-  bool found = false;
-  triggerlist = new TString [nTriggers];
-  //triggerMap = vector<triggerMapper>;
+  triggerlist=HLTPaths;
+
+  TString tmpMETfilters[nMETs]={
+                   "Flag_CSCTightHaloFilter", 
+ "Flag_EcalDeadCellTriggerPrimitiveFilter",
+                    "Flag_HBHENoiseFilter",  
+                         "Flag_METFilters",  
+                "Flag_ecalLaserCorrFilter",  
+                      "Flag_eeBadScFilter",  
+                       "Flag_goodVertices",  
+               "Flag_hcalLaserEventFilter",  
+              "Flag_trackingFailureFilter",  
+                      "Flag_trkPOGFilters",  
+     "Flag_trkPOG_logErrorTooManyClusters",  
+            "Flag_trkPOG_manystripclus53X",  
+         "Flag_trkPOG_toomanystripclus53X",  
+  };
+  for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
+
   
-  for (int iHLT = 0; iHLT < nTriggers; ++iHLT)
-  {
-    triggerlist[iHLT] = HLTPaths.at(iHLT);
-    TString dummyList[1] = {"dummy"};
-    if(triggerlist[iHLT]=="HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v1"){
-    	triggerMap.push_back(triggerMapper(triggerlist[iHLT],
-                      "hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter",
-					"hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23",triggerMapper::kemu));
-	found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v1"){
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,"hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter",
-				      "hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8",triggerMapper::kemu));
-      found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_IsoMu24_eta2p1_v1"){
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,"",
-				      "hltL3crIsoL1sMu20Eta2p1L1f0L2f10QL3f24QL3trkIsoFiltered0p09",triggerMapper::kemu));
-      found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_IsoMu27_v1"){
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,"",
-				      "hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09",triggerMapper::kemu));
-      found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1"){
-      TString listfilt2[2]={"hltPFTau20TrackLooseIsoAgainstMuon ","hltOverlapFilterIsoMu17LooseIsoPFTau20"};
-      TString listfilt1[2]={"hltL3crIsoL1sMu16erTauJet20erL1f0L2f10QL3f17QL3trkIsoFiltered0p09","hltOverlapFilterIsoMu17LooseIsoPFTau20"};
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,listfilt1
-				      ,listfilt2,2,2,triggerMapper::kmutau));
-      found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_IsoMu24_eta2p1_v1"){
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,"hltL3crIsoL1sMu20Eta2p1L1f0L2f10QL3f24QL3trkIsoFiltered0p09"
-				      ,"",triggerMapper::kmutau));
-      found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_IsoMu27_v1"){
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,"hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"
-				      ,"",triggerMapper::kmutau));
-      found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_Ele22_eta2p1_WP75_Gsf_LooseIsoPFTau20_v1"){
-      TString listfilt2[2]={"hltPFTau20TrackLooseIso ","hltOverlapFilterIsoEle22WP75GsfLooseIsoPFTau20"};
-      TString listfilt1[2]={"hltEle22WP75L1IsoEG20erTau20erGsfTrackIsoFilter ","hltOverlapFilterIsoEle22WP75GsfLooseIsoPFTau20"};
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,listfilt1
-				      ,listfilt2,2,2,triggerMapper::ketau));
-      found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_Ele32_eta2p1_WP75_Gsf_v1"){
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,"hltEle32WP75GsfTrackIsoFilter"
-				      ,"",triggerMapper::ketau));
-      found=true;
-    }
-    if(triggerlist[iHLT]=="HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1"){
-      triggerMap.push_back(triggerMapper(triggerlist[iHLT]
-				      ,"hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"
-				      ,"hltDoublePFTau40TrackPt1MediumIsolationDz02Reg",triggerMapper::ktautau));
-      found=true;
-    }
-    if(!found)triggerMap.push_back(triggerMapper (triggerlist[iHLT] , dummyList, dummyList, 1, 1, triggerMapper::kemu));
-  }
+}
+
+triggerhelper::triggerhelper()//:nTriggers(0)
+{
+
+  //cout << "nTriggers: " << nTriggers << endl;
+  //nTriggers=0;
 
 
   /*
@@ -218,10 +171,25 @@ triggerhelper::triggerhelper(std::vector<std::string> HLTPaths) : nTriggers(HLTP
 }
 
 triggerhelper::~triggerhelper(){
-  delete triggerlist;
+  //delete triggerlist;
   //delete triggerMap;
 }
 
+void triggerhelper::addTriggerMap(TString hlt,vector<string> path1, vector<string> path2, int channel){
+  
+  triggerlist.push_back(hlt.Data());
+  const int n1 = path1.size();
+  const int n2 = path2.size();
+  TString *list1 = new TString[n1];
+  TString *list2 = new TString[n2];
+  for(int i=0;i<n1;i++)list1[i]=path1.at(i);
+  for(int i=0;i<n2;i++)list2[i]=path2.at(i);
+  triggerMapper map(hlt.Data(),list1,list2,n1,n2,channel);
+  triggerMap.push_back(map);
+  delete list1;
+  delete list2;
+  //nTriggers++;
+}
 
 int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
   
@@ -239,10 +207,11 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
   // }
   // return bit;
  
-  for(int it=0;it<nTriggers;it++){
+  for(int it=0;it<(int)triggerlist.size();it++){
     //for(int j=0;j<(int)foundPaths.size();j++){
     for(int j=0;j<(int)foundPaths.size();j++){
-      if(triggerlist[it].CompareTo(foundPaths.at(j))==0){
+      TString myString = triggerlist.at(it);
+      if(myString.CompareTo(foundPaths.at(j))==0){
 	      if(triggerResults->accept(indexOfPaths[j]))bit |= 1 <<it;
 	      break;
       }
@@ -272,26 +241,33 @@ int triggerhelper::FindMETBit(const edm::Event& event){
 }
 
 triggerMapper triggerhelper::GetTriggerMap(TString path){
-  for(int i=0;i<nTriggers;i++){
-    if(triggerMap[i].GetHLTPath().CompareTo(path.Data())==0)return triggerMap[i];
+  for(int i=0;i<(int)triggerMap.size();i++){
+    if(triggerMap.at(i).GetHLTPath().CompareTo(path.Data())==0)return triggerMap.at(i);
   }
   return triggerMapper();
 }
+
 int triggerhelper::FindTriggerNumber(TString triggername, bool isTrigger){ 
-  int nLoop = nTriggers;
-  TString *list = triggerlist;
+  int nLoop = (int)triggerMap.size();
+  TString *list = new TString[triggerlist.size()];
   if(!isTrigger){
     list = metlist;
     nLoop = nMETs;
+  }else{
+    for(int i =0;i<(int)triggerlist.size();i++)list[i]=triggerlist.at(i);
   }
   for(int it=0;it<nLoop;it++){ 	
-  	if(list[it].CompareTo(triggername.Data())==0)return it;
+    if(list[it].CompareTo(triggername.Data())==0){
+      delete list;
+      return it;
+    }
   }
+  delete list;
   return -1;
 }
 
 bool triggerhelper::IsTriggerFired(int triggerbit, int triggernumber, bool isTrigger){ 
-  int nLoop = nTriggers;
+  int nLoop = triggerMap.size();
   if(!isTrigger)nLoop = nMETs;
   if(triggernumber>=0 && triggernumber<nLoop) return triggerbit & (1 << triggernumber);
   return false;
@@ -299,23 +275,26 @@ bool triggerhelper::IsTriggerFired(int triggerbit, int triggernumber, bool isTri
 
 int triggerhelper::printFiredPaths(int triggerbit, bool isTrigger){
   int nFired = 0;
-  int nLoop = nTriggers;
-  TString *list = triggerlist;
+  int nLoop = triggerlist.size();
+  TString *list = new TString[triggerlist.size()];
   if(!isTrigger){
     list = metlist;
     nLoop = nMETs;
-  }  
+  }else{
+    for(int i =0;i<(int)triggerlist.size();i++)list[i]=triggerlist.at(i);
+  }
   for(int it=0;it<nLoop;it++){ 	
   	if(IsTriggerFired(triggerbit,it,isTrigger)) {
   	  printf("%s\n",list[it].Data());
   	  nFired++;
   	  }
   }
+  delete list;
   return nFired;
 }
 
 TString triggerhelper::printTriggerName(int ntrigger){
-  if(ntrigger<nTriggers) return triggerlist[ntrigger];
+  if(ntrigger<(int)triggerlist.size()) return triggerlist[ntrigger];
   return "";
 }
 
