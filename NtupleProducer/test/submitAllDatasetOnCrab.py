@@ -6,11 +6,10 @@ import re
 # source /cvmfs/cms.cern.ch/crab3/crab.sh
 
 ###################################################################
-#### Parameters to be changed for 
+#### Parameters to be changed for each production
 
-#PROCESS = ["BKGPU40", "OPT"]
-PROCESS = ["TEST"]
-datasetsFile = "datasets.txt"
+PROCESS = ["BKGPU40", "OPT"] # select blocks of datasets to be processed
+datasetsFile = "datasets.txt" # name of file containing datasets
 tag = "prod_di_test" # a folder with cra3_[tag] is created, ad appended in many places
 
 
