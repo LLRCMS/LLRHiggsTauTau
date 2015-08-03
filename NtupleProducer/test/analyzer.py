@@ -34,6 +34,8 @@ JETCUT="pt>15"
 LLCUT="mass>0"
 BCUT="pt>5"
 
+IsMC=True
+
 # spring15 triggers
 # NOTE: wildcards for the moment are only allowed for trigger filter but not to set trigger bits in ntuples
 # NOTE2 (FIXME) : no trigger matching with reco objects for the moment!
@@ -57,9 +59,24 @@ TRIGGERLIST = cms.vstring (
   "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1",
 )
 
-#Samples:
-IsMC=True
+#DATA samples
+if not  IsMC:
+    TRIGGERLIST = cms.vstring (
+        ### e mu triggers
+        "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v2",
+        "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v2",
 
+        ### mu tau
+        "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2",
+        "HLT_IsoMu24_eta2p1_IterTrk02_v2",
+
+        ### e tau
+        "HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v1",
+        "HLT_Ele32_eta2p1_WPTight_Gsf_v1",
+
+        ### tau tau
+        "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v2"	
+        )
 ##
 ## Standard sequence
 ##

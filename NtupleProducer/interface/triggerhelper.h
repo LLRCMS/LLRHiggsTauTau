@@ -40,7 +40,7 @@ class triggerhelper {
  private:
   const int nTriggers;
   TString* triggerlist;
-  triggerMapper* triggerMap;
+  vector<triggerMapper> triggerMap;
   static const int nMETs =13;
   TString metlist[nMETs];
 
