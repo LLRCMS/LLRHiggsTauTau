@@ -6,7 +6,7 @@ TRIGGERLIST=[]
 # channel: kemu=0, ketau=1,kmutau=2,ktautau=3
 HLTLIST = cms.VPSet(
 
-### ----------------- SPRING 15 - MC
+### ===================== MC, Spring15 ============================
     ### e mu 
     cms.PSet (
         HLT = cms.string("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v1"),
@@ -75,7 +75,7 @@ HLTLIST = cms.VPSet(
         channel = cms.int32(3)
         ),
 
-### ----------------- DATA, August 2015
+### ===================== DATA, August 2015 ============================
     ### e mu 
     cms.PSet (
         HLT = cms.string("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v2"),
@@ -104,7 +104,7 @@ HLTLIST = cms.VPSet(
         channel = cms.int32(1)
         ),
 
-  ### mu tauh
+    ### mu tauh
     cms.PSet (
         HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2"),
         path1 = cms.vstring ("hltL3crIsoL1sMu16erTauJet20erL1f0L2f10QL3f17QL3trkIsoFiltered0p09", "hltOverlapFilterIsoMu17LooseIsoPFTau20"), # mu filters
@@ -118,7 +118,7 @@ HLTLIST = cms.VPSet(
         channel = cms.int32(2)
         ),
     
-### tauh tauh
+    ### tauh tauh
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v2"),
         path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"), # tauh filters
