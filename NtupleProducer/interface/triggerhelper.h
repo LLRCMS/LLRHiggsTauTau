@@ -27,16 +27,26 @@ class triggerhelper {
   triggerhelper(vector<string> HLTPaths);
   triggerhelper();
 
-  void addTriggerMap(TString hlt,vector<string> path1, vector<string> path2, int channel);
+  void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int channel);
   int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
   int FindMETBit(const edm::Event&);
-  int FindTriggerNumber(TString triggername,bool istrigger=true);
+  
+  int FindTriggerNumber(string triggername,bool istrigger=true); // calls the following according to istrigger
+  int FindTriggerNumberMET(string triggername);
+  int FindTriggerNumberTrig(string triggername);
+  
   bool IsTriggerFired(int triggerbit, int triggerNumber,bool istrigger=true);
-  bool IsTriggerFired(int triggerbit, TString triggerName,bool istrigger=true){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
+  
+  bool IsTriggerFired(int triggerbit, string triggerName,bool istrigger=true){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
+
   int printFiredPaths(int triggerbit,bool istrigger=true);
-  triggerMapper GetTriggerMap(TString trigger);
+  int printFiredPathsMET(int triggerbit);
+  int printFiredPathsTrig(int triggerbit);
+
+
+  triggerMapper GetTriggerMap(string trigger);
   int GetNTriggers(){return triggerlist.size();}
-  TString printTriggerName(int ntrigger);
+  string printTriggerName(int ntrigger);
 
   ~triggerhelper();
 
@@ -45,7 +55,7 @@ class triggerhelper {
   vector<string> triggerlist;
   vector<triggerMapper> triggerMap;
   static const int nMETs =13;
-  TString metlist[nMETs];
+  string metlist[nMETs];
 
 };
 #endif

@@ -15,6 +15,8 @@
 #include <FWCore/Framework/interface/TriggerNamesService.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerMapper.h"
 #include <iostream>
+#include <vector>
+#include <string>
 
 using namespace std;
 using namespace edm;
@@ -25,17 +27,17 @@ triggerMapper::triggerMapper(){
   filter_leg2.push_back("");
 }
 
-triggerMapper::triggerMapper(TString HLTtrigger, TString *filters1, TString *filters2,int n1, int n2, int c){
-  HLT=HLTtrigger.Data();
-  for(int i=0;i<n1;i++)filter_leg1.push_back(filters1[i].Data());
-  for(int i=0;i<n1;i++)filter_leg2.push_back(filters2[i].Data());
+triggerMapper::triggerMapper(string HLTtrigger, std::vector<string> filters1, std::vector<string> filters2, int n1, int n2, int c){
+  HLT=HLTtrigger;
+  for(int i=0;i<n1;i++)filter_leg1.push_back(filters1.at(i));
+  for(int i=0;i<n2;i++)filter_leg2.push_back(filters2.at(i));
   channel = c;
 }
 
-triggerMapper::triggerMapper(TString HLTtrigger, TString filter1, TString filter2, int c){
-  HLT=HLTtrigger.Data();
-  filter_leg1.push_back(filter1.Data());
-  filter_leg2.push_back(filter2.Data());
+triggerMapper::triggerMapper(string HLTtrigger, string filter1, string filter2, int c){
+  HLT=HLTtrigger;
+  filter_leg1.push_back(filter1);
+  filter_leg2.push_back(filter2);
   channel=c;
 }
 
@@ -45,14 +47,14 @@ triggerMapper::~triggerMapper(){
   filter_leg2.clear();
 }
 
-TString triggerMapper::Getfilter(bool isleg1,int iFilter){
-  TString result="";
+string triggerMapper::Getfilter(bool isleg1,int iFilter){
+  string result("");
   if(isleg1){
     if(iFilter>(int)(filter_leg1.size()))cout<<"TRIGGER MAPPER ERROR NFILTER "<<iFilter<<endl;
-    else result=filter_leg1.at(iFilter).Data();
+    else result=filter_leg1.at(iFilter);
   }else {
     if(iFilter>(int)(filter_leg2.size()))cout<<"TRIGGER MAPPER ERROR NFILTER "<<iFilter<<endl;
-    else result=filter_leg2.at(iFilter).Data();
+    else result=filter_leg2.at(iFilter);
   }
   return result;
 }

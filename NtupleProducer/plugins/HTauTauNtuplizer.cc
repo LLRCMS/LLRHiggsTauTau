@@ -350,6 +350,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   processName= pset.getParameter<edm::InputTag>("triggerResultsLabel");
   std::vector<edm::ParameterSet> HLTList = pset.getParameter <std::vector<edm::ParameterSet> > ("triggerList");
   //std::vector<std::string> 
+
   myTriggerHelper = new triggerhelper();// (HLTList);
   for (std::vector<edm::ParameterSet>::const_iterator iPSet = HLTList.begin();iPSet != HLTList.end(); ++iPSet) {
     const std::string& hlt = iPSet->getParameter<std::string>("HLT");
@@ -357,8 +358,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
     const std::vector<std::string>& path2 = iPSet->getParameter<std::vector<std::string>>("path2");
     const int& chan = iPSet->getParameter<int>("channel");
     // Build the mape
-    myTriggerHelper->addTriggerMap(TString(hlt),path1,path2,chan);
-  
+    myTriggerHelper->addTriggerMap(hlt,path1,path2,chan);
   }
 
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
@@ -1154,20 +1154,20 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
             bool isfilterGood = true;
             if(type==ParticleType::TAU){
               for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
-                if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).Data()))isfilterGood=false;
+                if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
               }
             }else if(type==ParticleType::ELECTRON){
               for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
-                if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).Data()))isfilterGood=false;
+                if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
               }
             }else{//muons
               if(map.GetTriggerChannel()==triggerMapper::kemu){
                 for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
-                  if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).Data()))isfilterGood=false;
+                  if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
                 }
               }else{
                 for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
-                  if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).Data()))isfilterGood=false;
+                  if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
                 }
               }
             }
@@ -1361,7 +1361,7 @@ void HTauTauNtuplizer::endJob(){
   hCounter->GetXaxis()->SetBinLabel(3,"Npairs");
 
   for(int i=0;i<myTriggerHelper->GetNTriggers();i++){
-    hCounter->GetXaxis()->SetBinLabel(i+4,myTriggerHelper->printTriggerName(i));
+    hCounter->GetXaxis()->SetBinLabel(i+4,(myTriggerHelper->printTriggerName(i)).c_str());
   }
 }
 

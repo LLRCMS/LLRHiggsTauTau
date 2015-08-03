@@ -24,22 +24,22 @@ class triggerMapper {
  public:
   enum triggerChannel {kemu=0, ketau=1,kmutau=2,ktautau=3};
   triggerMapper();
-  triggerMapper(TString, TString*,TString*,int,int,int);
+  triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int, int, int);
   //triggerMapper(TString, TString*,TString*,int,int);
-  triggerMapper(TString, TString,TString,int);
+  triggerMapper(string, string, string, int);
   
-  TString GetHLTPath(){return HLT.Data();}
+  string GetHLTPath(){return HLT;}
   int GetNfiltersleg1(){return filter_leg1.size();}
   int GetNfiltersleg2(){return filter_leg2.size();}
-  TString Getfilter(bool isleg1,int iFilter);
+  string Getfilter(bool isleg1, int iFilter);
   int GetTriggerChannel(){return channel;}
   
   ~triggerMapper();
 
  private:
-  TString HLT;
-  std::vector<TString> filter_leg1;
-  std::vector<TString> filter_leg2;
+  string HLT;
+  std::vector<string> filter_leg1;
+  std::vector<string> filter_leg2;
   int channel;
 };
 #endif

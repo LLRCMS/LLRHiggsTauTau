@@ -25,9 +25,8 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
 
   //cout << "nTriggers: " << nTriggers << endl;
   triggerlist=HLTPaths;
-
-  TString tmpMETfilters[nMETs]={
-                   "Flag_CSCTightHaloFilter", 
+  string tmpMETfilters[nMETs]={
+                 "Flag_CSCTightHaloFilter", 
  "Flag_EcalDeadCellTriggerPrimitiveFilter",
                     "Flag_HBHENoiseFilter",  
                          "Flag_METFilters",  
@@ -39,7 +38,7 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
                       "Flag_trkPOGFilters",  
      "Flag_trkPOG_logErrorTooManyClusters",  
             "Flag_trkPOG_manystripclus53X",  
-         "Flag_trkPOG_toomanystripclus53X",  
+         "Flag_trkPOG_toomanystripclus53X"  
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -48,81 +47,8 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
 
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
-
-  //cout << "nTriggers: " << nTriggers << endl;
-  //nTriggers=0;
-
-
-  /*
-  triggerMap[0]=triggerMapper("HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1"
-                      ,"hltMu23Ele12GsfTrackIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter",
-                      "hltL1Mu12EG7L3IsoMuFiltered23",triggerMapper::kemu);
-                      
-  triggerMap[1]=triggerMapper("HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1"
-                      ,"hltMu8Ele23GsfTrackIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter",
-                      "hltL1sL1Mu5EG20ORL1Mu5IsoEG18L3IsoFiltered8",triggerMapper::kemu);
-  
-  TString listfilt2[2]={"hltL1sMu16erTauJet20er","hltOverlapFilterIsoMu17LooseIsoPFTau20"};
-  TString listfilt1[1]={"hltOverlapFilterIsoMu17LooseIsoPFTau20"};
-  triggerMap[2]=triggerMapper("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1"
-                      ,listfilt1
-                      ,listfilt2,1,2,triggerMapper::kmutau);
-  
-  triggerMap[3]=triggerMapper("HLT_IsoMu24_eta2p1_IterTrk02_v1"
-                      ,"hltL3crIsoL1sMu20Eta2p1L1f0L2f20QL3f24QL3crIsoRhoFiltered0p15IterTrk02",
-                      "",triggerMapper::kmutau);
-  
-  listfilt2[0]="hltL1sL1IsoEG20erTauJet20er ";
-  listfilt2[1]="hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20";
-  listfilt1[0]="hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20";
-  triggerMap[4]=triggerMapper("HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1"
-                      ,listfilt1,
-                      listfilt2,1,2,triggerMapper::ketau);
-  
-  triggerMap[5]=triggerMapper("HLT_Ele27_eta2p1_WP85_Gsf_v1"
-                      ,"hltEle27WP85GsfTrackIsoFilter",
-                      "",triggerMapper::ketau);
-  
-  TString taulist[3]={"hltL1sDoubleTauJet36erORDoubleTauJet68er", "hltDoubleL2IsoTau35eta2p1", "hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"};
-  triggerMap[6]=triggerMapper("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1"
-                      ,taulist,
-                      taulist,3,3,triggerMapper::ktautau);
-  */
-
-  /*
-  TString tmptrigger[nTriggers]={
-    "IsoMu17_eta2p1_LooseIsoPFTau20",
-    "IsoMu17_eta2p1",
-    "IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg",
-    "IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1",
-    "IsoMu24_eta2p1_IterTrk01",
-    "IsoMu24_eta2p1_IterTrk02",
-    "IsoMu24_eta2p1_IterTrk02_LooseIsoPFTau20",
-    "Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20",
-    "Ele32_eta2p1_WP85_Gsf",
-    "Ele32_eta2p1_WP85_Gsf_LooseIsoPFTau20",
-    "LooseIsoPFTau50_Trk30_eta2p1_MET120",
-    "IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1",
-    "IsoMu16_eta2p1_CaloMET30",
-    "Mu16_eta2p1_CaloMET30",
-    "LooseIsoPFTau50_Trk30_eta2p1",
-    "DoubleIsoMu17_eta2p1",
-    "Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
-    "Ele27_eta2p1_WP85_Gsf_LooseIsoPFTau20",
-    "Ele27_eta2p1_WP85_Gsf"
-  };*/
-  
-  /*
-  for(int i=0;i<nTriggers;i++){
-    triggerlist[i]=triggerMap[i].GetHLTPath();
-    //pathKind[i]=-1;
-    //triggerlist[i].Prepend("HLT_");
-    //triggerlist[i].Append("_v1");
-  }
-  */
-
-  TString tmpMETfilters[nMETs]={
-                   "Flag_CSCTightHaloFilter", 
+  string tmpMETfilters[nMETs]={
+                 "Flag_CSCTightHaloFilter", 
  "Flag_EcalDeadCellTriggerPrimitiveFilter",
                     "Flag_HBHENoiseFilter",  
                          "Flag_METFilters",  
@@ -134,40 +60,10 @@ triggerhelper::triggerhelper()//:nTriggers(0)
                       "Flag_trkPOGFilters",  
      "Flag_trkPOG_logErrorTooManyClusters",  
             "Flag_trkPOG_manystripclus53X",  
-         "Flag_trkPOG_toomanystripclus53X",  
+         "Flag_trkPOG_toomanystripclus53X"  
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
-/*    
-  pathKind[0]=kemuPath;
-  pathKind[1]=kemuPath;
-  pathKind[2]=kmutauPath;
-  pathKind[3]=kmutauPath;
-  pathKind[4]=ketauPath;
-  pathKind[5]=ketauPath;
-  pathKind[6]=ktautauPath;
 
-  //Careful: e<mu<tau
-  nFiltersforPath_leg1={1,1,1,1,1,1,3};
-  nFiltersforPath_leg2={1,1,2,0,2,0,0};
-  filterPaths_leg1={
-    "hltMu23Ele12GsfTrackIsoLegEle12GsfCaloIdTrackIdIsoMediumWPFilter",
-    "hltMu8Ele23GsfTrackIsoLegEle23GsfCaloIdTrackIdIsoMediumWPFilter",
-    "hltOverlapFilterIsoMu17LooseIsoPFTau20",
-    "hltL3crIsoL1sMu20Eta2p1L1f0L2f20QL3f24QL3crIsoRhoFiltered0p15IterTrk02",
-    "hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20",
-    "hltEle27WP85GsfTrackIsoFilter",
-    "hltL1sDoubleTauJet36erORDoubleTauJet68er ",
-    "hltDoubleL2IsoTau35eta2p1",
-    "hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"
-  };
-  filterPaths_leg2={
-    "hltL1Mu12EG7L3IsoMuFiltered23",
-    "hltL1sL1Mu5EG20ORL1Mu5IsoEG18L3IsoFiltered8",
-    "hltL1sMu16erTauJet20er ",
-    "hltOverlapFilterIsoMu17LooseIsoPFTau20",
-    "hltL1sL1IsoEG20erTauJet20er ",
-    "hltOverlapFilterIsoEle22WP85GsfLooseIsoPFTau20",
-  };*/
 }
 
 triggerhelper::~triggerhelper(){
@@ -175,19 +71,12 @@ triggerhelper::~triggerhelper(){
   //delete triggerMap;
 }
 
-void triggerhelper::addTriggerMap(TString hlt,vector<string> path1, vector<string> path2, int channel){
-  
-  triggerlist.push_back(hlt.Data());
+void triggerhelper::addTriggerMap(string hlt, vector<string> path1, vector<string> path2, int channel){
+  triggerlist.push_back(hlt);
   const int n1 = path1.size();
   const int n2 = path2.size();
-  TString *list1 = new TString[n1];
-  TString *list2 = new TString[n2];
-  for(int i=0;i<n1;i++)list1[i]=path1.at(i);
-  for(int i=0;i<n2;i++)list2[i]=path2.at(i);
-  triggerMapper map(hlt.Data(),list1,list2,n1,n2,channel);
+  triggerMapper map(hlt,path1,path2,n1,n2,channel);
   triggerMap.push_back(map);
-  delete list1;
-  delete list2;
   //nTriggers++;
 }
 
@@ -210,8 +99,8 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
   for(int it=0;it<(int)triggerlist.size();it++){
     //for(int j=0;j<(int)foundPaths.size();j++){
     for(int j=0;j<(int)foundPaths.size();j++){
-      TString myString = triggerlist.at(it);
-      if(myString.CompareTo(foundPaths.at(j))==0){
+      string myString (triggerlist.at(it));
+      if(myString.compare(foundPaths.at(j))==0){
 	      if(triggerResults->accept(indexOfPaths[j]))bit |= 1 <<it;
 	      break;
       }
@@ -231,7 +120,7 @@ int triggerhelper::FindMETBit(const edm::Event& event){
   const edm::TriggerNames &metNames = event.triggerNames(*metFilterBits);
   for(int im=0;im<nMETs;im++){
     for(unsigned int i = 0; i < metFilterBits->size(); ++i){
-      if(metlist[im].CompareTo(metNames.triggerName(i))==0){
+      if(metlist[im].compare(metNames.triggerName(i))==0){
 	      if(metFilterBits->accept(i))bit |= 1 <<im;
 	      break;
       }
@@ -240,61 +129,75 @@ int triggerhelper::FindMETBit(const edm::Event& event){
   return bit;
 }
 
-triggerMapper triggerhelper::GetTriggerMap(TString path){
+triggerMapper triggerhelper::GetTriggerMap(string path){
   for(int i=0;i<(int)triggerMap.size();i++){
-    if(triggerMap.at(i).GetHLTPath().CompareTo(path.Data())==0)return triggerMap.at(i);
+    if(triggerMap.at(i).GetHLTPath().compare(path)==0)return triggerMap.at(i);
   }
   return triggerMapper();
 }
 
-int triggerhelper::FindTriggerNumber(TString triggername, bool isTrigger){ 
-  int nLoop = (int)triggerMap.size();
-  TString *list = new TString[triggerlist.size()];
-  if(!isTrigger){
-    list = metlist;
-    nLoop = nMETs;
-  }else{
-    for(int i =0;i<(int)triggerlist.size();i++)list[i]=triggerlist.at(i);
+
+int triggerhelper::FindTriggerNumber(string triggername, bool isTrigger){ 
+  if (isTrigger) return FindTriggerNumberTrig (triggername);
+  else return FindTriggerNumberMET (triggername);
+}
+
+int triggerhelper::FindTriggerNumberMET (string triggername)
+{
+  for(int it=0; it < nMETs; it++){   
+    if(metlist[it].compare(triggername)==0) return it;
   }
-  for(int it=0;it<nLoop;it++){ 	
-    if(list[it].CompareTo(triggername.Data())==0){
-      delete list;
-      return it;
-    }
-  }
-  delete list;
   return -1;
 }
 
+int triggerhelper::FindTriggerNumberTrig (string triggername)
+{
+  for(unsigned int it=0; it < triggerlist.size(); it++){   
+    if(triggerlist.at(it).compare(triggername)==0) return it;
+  }
+  return -1;
+}
+
+
 bool triggerhelper::IsTriggerFired(int triggerbit, int triggernumber, bool isTrigger){ 
-  int nLoop = triggerMap.size();
+  int nLoop = triggerlist.size();
   if(!isTrigger)nLoop = nMETs;
   if(triggernumber>=0 && triggernumber<nLoop) return triggerbit & (1 << triggernumber);
   return false;
 }
 
+
 int triggerhelper::printFiredPaths(int triggerbit, bool isTrigger){
+  if (isTrigger) return printFiredPathsTrig (triggerbit);
+  else return printFiredPathsMET (triggerbit);
+}
+
+int triggerhelper::printFiredPathsMET(int triggerbit)
+{
   int nFired = 0;
-  int nLoop = triggerlist.size();
-  TString *list = new TString[triggerlist.size()];
-  if(!isTrigger){
-    list = metlist;
-    nLoop = nMETs;
-  }else{
-    for(int i =0;i<(int)triggerlist.size();i++)list[i]=triggerlist.at(i);
+  for (unsigned int it = 0; it < nMETs; it++)
+  {
+      printf("%s\n",metlist[it].c_str());
+      nFired++;    
   }
-  for(int it=0;it<nLoop;it++){ 	
-  	if(IsTriggerFired(triggerbit,it,isTrigger)) {
-  	  printf("%s\n",list[it].Data());
-  	  nFired++;
-  	  }
-  }
-  delete list;
   return nFired;
 }
 
-TString triggerhelper::printTriggerName(int ntrigger){
-  if(ntrigger<(int)triggerlist.size()) return triggerlist[ntrigger];
-  return "";
+int triggerhelper::printFiredPathsTrig(int triggerbit)
+{
+  int nFired = 0;
+  for (unsigned int it = 0; it < triggerlist.size(); it++)
+  {
+      printf("%s\n",triggerlist.at(it).c_str());
+      nFired++;    
+  }  
+  return nFired;
+}
+
+
+string triggerhelper::printTriggerName(int ntrigger){
+  if(ntrigger<(int)triggerlist.size()) return triggerlist.at(ntrigger);
+  string dummy ("");
+  return dummy;
 }
 
