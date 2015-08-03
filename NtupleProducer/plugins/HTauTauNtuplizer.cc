@@ -721,6 +721,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
   _metfilterbit = myTriggerHelper->FindMETBit(event);
+  int tbit = _triggerbit;
+  for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
+    if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
+  }
 
   //Get candidate collection
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
@@ -1148,9 +1152,6 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           int triggerbit = _triggerbit;
           if(triggerbit>=0){
             triggerMapper map = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
-	          for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
-              if(myTriggerHelper->IsTriggerFired(triggerbit,itr)) hCounter->Fill(itr+3);
-            }
             bool isfilterGood = true;
             if(type==ParticleType::TAU){
               for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
