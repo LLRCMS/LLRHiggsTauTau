@@ -55,7 +55,7 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
   float PFChargedHadIso   = l.chargedHadronIso();
   float PFNeutralHadIso   = l.neutralHadronIso();
   float PFPhotonIso       = l.photonIso();
-  float PFPUChargedHadIso = l.puChargedHadronIso();
+  //float PFPUChargedHadIso = l.puChargedHadronIso();
     
   MuonEffectiveArea::MuonEffectiveAreaTarget EAsetup;
   if (sampleType==2011) {
@@ -70,7 +70,11 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
     return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - fsr - rho * EA))/l.pt();
 
   } else if (correctionType==2) {
-    return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - fsr - 0.5*PFPUChargedHadIso))/l.pt();
+    //return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - fsr - 0.5*PFPUChargedHadIso))/l.pt();
+    return (l.pfIsolationR03().sumChargedHadronPt + max(
+           l.pfIsolationR03().sumNeutralHadronEt +
+           l.pfIsolationR03().sumPhotonEt - 
+           0.5 * l.pfIsolationR03().sumPUPt, 0.0)) / l.pt();
   }
   return 0;
 }
@@ -83,13 +87,19 @@ float LeptonIsoHelper::combRelIsoPF(const pat::Tau& l) {
   float PFPUChargedHadIso = l.tauID ("puCorrPtSum");
 
   return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - 0.5*PFPUChargedHadIso))/l.pt();
+
+//    return (l.pfIsolationVariables().sumChargedHadronPt + max(
+//           l.pfIsolationVariables().sumNeutralHadronEt +
+//           l.pfIsolationVariables().sumPhotonEt -
+//           0.5 * l.pfIsolationVariables().sumPUPt, 0.0)) / l.pt();
+
 }
 
 float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const pat::Electron& l, float fsr) {
   float PFChargedHadIso   = l.chargedHadronIso();
   float PFNeutralHadIso   = l.neutralHadronIso();
   float PFPhotonIso       = l.photonIso();
-
+  if(correctionType==1){
   ElectronEffectiveArea::ElectronEffectiveAreaTarget EAsetup;
   if (sampleType ==2011) {
     EAsetup = ElectronEffectiveArea::kEleEAData2011;
@@ -103,6 +113,13 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
   float EA = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso04,
 							     l.superCluster()->eta(), EAsetup);
   return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - fsr - rho * EA))/l.pt();
+  }else{
+    return (l.pfIsolationVariables().sumChargedHadronPt + max(
+           l.pfIsolationVariables().sumNeutralHadronEt +
+           l.pfIsolationVariables().sumPhotonEt - 
+           0.5 * l.pfIsolationVariables().sumPUPt, 0.0)) / l.pt();
+  }
+
 }
 
 
@@ -114,7 +131,7 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
   } else if (lep->isElectron()) {
     const pat::Electron* ele = dynamic_cast<const pat::Electron*>(lep->masterClone().get());
     return combRelIsoPF(sampleType, setup, rho, *ele, fsr);    
-  } else {
+  }else {
     cout << "ERROR: LeptonIsoHelper: unknown type" << endl;
     abort();
   }
