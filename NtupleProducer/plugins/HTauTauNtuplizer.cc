@@ -318,7 +318,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_LFtrigger;
   std::vector<Int_t> _daughters_L3trigger;
   std::vector<Int_t> _daughters_FilterFired;
-  std::vector<bool> _daughters_isGoodTriggerType;
+  std::vector<Int_t> _daughters_isGoodTriggerType;
   std::vector<Int_t> _daughters_L3FilterFired;
   std::vector<Int_t> _daughters_L3FilterFiredLast;
 
@@ -1205,12 +1205,13 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
 
     //TRIGGER MATCHING
     int LFtriggerbit=0,L3triggerbit=0,filterFired=0;
-    bool triggerType=false;
+    int triggertypeIsGood = 0;
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
       //check if the trigger object matches cand
       //bool matchCand = false;
       //if(type == ParticleType::TAU && 
-    if(deltaR2(obj,*cand)<0.25){
+      bool triggerType=false;
+      if(deltaR2(obj,*cand)<0.25){
         if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
         if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
         if (type==ParticleType::MUON && (obj.hasTriggerObjectType(trigger::TriggerMuon)))triggerType=true;
@@ -1222,7 +1223,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
-          //int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
           
           /*
           for (int i = 0; i < myTriggerHelper->GetNTriggers(); i++)
@@ -1232,8 +1233,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           }
           cout << " =============================== " << endl;
           */
-          int triggerbit = _triggerbit;
-          if(triggerbit>=0){
+          //int triggerbit = _triggerbit;
+          if(triggerbit>=0){ // get the number (position) of this trigger in the _triggerbit branch output (yes, names are too similar!)
             triggerMapper map = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
             bool isfilterGood = true;
             if(type==ParticleType::TAU){
@@ -1259,11 +1260,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
             if(isfilterGood)filterFired |= 1 <<triggerbit;
             if(isLF)LFtriggerbit |= 1 <<triggerbit;
             if(isL3)L3triggerbit |= 1 <<triggerbit;
+            if (triggerType) triggertypeIsGood |= 1 << triggerbit;
           }
         }
       }
     }
-    _daughters_isGoodTriggerType.push_back(triggerType);
+    _daughters_isGoodTriggerType.push_back(triggertypeIsGood);
     _daughters_FilterFired.push_back(filterFired);
     _daughters_L3FilterFired.push_back(LFtriggerbit);
     _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
