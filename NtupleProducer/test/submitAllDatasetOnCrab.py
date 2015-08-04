@@ -43,7 +43,7 @@ dtsetToLaunch = []
 # READ INPUT FILE
 with open(datasetsFile) as fIn:
     for line in fIn:
-        line = line [:-1] # remove newline at the end
+        line = line.strip() # remove newline at the end and leding/trailing whitespaces
         
         if not line: #skip empty lines
             continue
@@ -67,8 +67,12 @@ print crabJobsFolder
 os.system ("mkdir %s" % crabJobsFolder)
 
 for dtset in dtsetToLaunch:
-    dtsetNames = dtset.replace('/MINIAODSIM', "")
-    dtsetNames = dtset.replace('/', "__")
+    if '/MINIAODSIM' in dtset:
+        dtsetNames = dtset.replace('/MINIAODSIM', "")
+    elif '/MINIAOD' in dtset:
+        dtsetNames = dtset.replace('/MINIAOD', "")
+
+    dtsetNames = dtsetNames.replace('/', "__")
     #dtSetName = dtsetNames[1]
     command = "crab submit -c crab3_template.py"
     command += " General.requestName=%s" % (dtsetNames + "_" + tag)
