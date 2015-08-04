@@ -1435,8 +1435,8 @@ bool HTauTauNtuplizer::CompareLegs(const reco::Candidate *i, const reco::Candida
 bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::CompositeCandidate j){
   
   //First criteria: OS<SS
-  if ( j.charge()==0 && i.charge()!=0) return false;
-  else if ( i.charge()==0 && j.charge()!=0) return true;
+  //if ( j.charge()==0 && i.charge()!=0) return false;
+  //else if ( i.charge()==0 && j.charge()!=0) return true;
 
   //Second criteria: ISO
   float isoi=999,isoj=999;
@@ -1474,10 +1474,10 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
 }
 
 bool HTauTauNtuplizer::ComparePairsbyPt(pat::CompositeCandidate i, pat::CompositeCandidate j){
-  //sto sbagliando! la cosa dovrebbe essere disponibile per i vari criteri, non per la sequenza 
+  
   //First criteria: OS<SS
-  if ( j.charge()==0 && i.charge()!=0) return false;
-  else if ( i.charge()==0 && j.charge()!=0) return true;
+  //if ( j.charge()==0 && i.charge()!=0) return false;
+  //else if ( i.charge()==0 && j.charge()!=0) return true;
 
   //Second criteria: legs pt
   if(i.daughter(0)->pt()+i.daughter(1)->pt()<j.daughter(0)->pt()+j.daughter(1)->pt()) return false;
