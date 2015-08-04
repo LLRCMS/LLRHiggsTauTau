@@ -88,7 +88,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //double rho = 1.;
 
   edm::Handle<vector<Vertex> >  vertexs;
-  iEvent.getByLabel("goodPrimaryVertices",vertexs);
+  iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
 
   // Output collection
   auto_ptr<pat::MuonCollection> result( new pat::MuonCollection() );

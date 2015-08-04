@@ -183,19 +183,23 @@ process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process
 
 # Load tools and function definitions
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+#**********************
+dataFormat = DataFormat.MiniAOD
+switchOnVIDElectronIdProducer(process, dataFormat)
+#**********************
 
-process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
+#process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
 # overwrite a default parameter: for miniAOD, the collection name is a slimmed one
-process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
+#process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
 
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
+#from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+#process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
 
 # Define which IDs we want to produce
 # Each of these two example IDs contains all four standard 
 # cut-based ID working points (only two WP of the PU20bx25 are actually used here).
 #my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_miniAOD_cff']
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff']
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
 #Add them to the VID producer
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
@@ -220,6 +224,10 @@ process.softElectrons = cms.EDProducer("EleFiller",
    electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
    electronMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
    electronLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose"),
+   eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"),
+   eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"),
+   mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigValues"),
+   mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigCategories"),
 #    cut = cms.string("userFloat('SIP')<100"),
 #   cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
    cut = cms.string(ELECUT),

@@ -29,12 +29,12 @@ TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
 MUCUT="(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) && pt>8"
 ELECUT="userFloat('missingHit')<=1 && pt>10"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
-TAUCUT="pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
+TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
 JETCUT="pt>15"
 LLCUT="mass>0"
 BCUT="pt>5"
 
-IsMC=False
+IsMC=True
 
 ##
 ## Standard sequence

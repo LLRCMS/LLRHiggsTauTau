@@ -134,6 +134,18 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int againstElectronMediumMVA5 = l.tauID ("againstElectronMediumMVA5");
     int againstElectronTightMVA5 = l.tauID ("againstElectronTightMVA5");
     int againstElectronVTightMVA5 = l.tauID ("againstElectronVTightMVA5");
+
+    int numChargedParticlesSignalCone = l.signalChargedHadrCands().size();
+    int numNeutralHadronsSignalCone = l.signalNeutrHadrCands().size();
+    int numPhotonsSignalCone = l.signalGammaCands().size();
+    int numParticlesSignalCone = l.signalCands().size();
+    int numChargedParticlesIsoCone = l.isolationChargedHadrCands().size();
+    int numNeutralHadronsIsoCone = l.isolationNeutrHadrCands().size();
+    int numPhotonsIsoCone = l.isolationGammaCands().size();
+    int numParticlesIsoCone = l.isolationCands().size();
+    float leadChargedParticlePt=l.leadCand()->pt();
+    float trackRefPt = (l.leadChargedHadrCand().isNonnull() ? l.leadChargedHadrCand()->pt() : 0.);
+
     
     //Decay mode
     //int decayMode = -1;
@@ -157,9 +169,14 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float dxy = 999.;
     float dz  = 999.;
     if (vertexs->size()>0) {
-      dxy = l.dxy();
-      const Vertex* vertex = &(vertexs->front());          
-      dz = l.vertex().z() - vertex[0].z();
+      //dxy = l.dxy();
+      //const Vertex* vertex = &(vertexs->front());          
+      //dz = l.vertex().z() - vertex[0].z();
+
+      pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(l.leadChargedHadrCand().get());
+      dz=packedLeadTauCand->dz();
+      dxy=packedLeadTauCand->dxy();
+
       //For some reasons, the reference secondaryVertex() is empty EVEN if hasSecondaryVertex is true
       //To be asked to miniAOD people
       //if(l.hasSecondaryVertex()) {
@@ -197,8 +214,16 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserInt("againstElectronMediumMVA5", againstElectronMediumMVA5);
     l.addUserInt("againstElectronTightMVA5", againstElectronTightMVA5);
     l.addUserInt("againstElectronVTightMVA5", againstElectronVTightMVA5);
-    
-    
+    l.addUserInt("numChargedParticlesSignalCone",numChargedParticlesSignalCone);
+    l.addUserInt("numNeutralHadronsSignalCone",numNeutralHadronsSignalCone);
+    l.addUserInt("numPhotonsSignalCone",numPhotonsSignalCone);
+    l.addUserInt("numParticlesSignalCone",numParticlesSignalCone);
+    l.addUserInt("numChargedParticlesIsoCone",numChargedParticlesIsoCone);
+    l.addUserInt("numNeutralHadronsIsoCone",numNeutralHadronsIsoCone);
+    l.addUserInt("numPhotonsIsoCone",numPhotonsIsoCone);
+    l.addUserInt("numParticlesIsoCone",numParticlesIsoCone);
+    l.addUserFloat("leadChargedParticlePt",leadChargedParticlePt);
+    l.addUserFloat("trackRefPt",trackRefPt);
 
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();

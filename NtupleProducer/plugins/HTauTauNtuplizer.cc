@@ -22,6 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -182,6 +183,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _met;
   Float_t _metphi;
   Float_t _MC_weight;
+  Float_t _aMCatNLOweight;
   Int_t _npv;
   Int_t _npu;
   Float_t _PUReweight;
@@ -271,6 +273,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _dz;
   std::vector<Float_t> _SIP;
   std::vector<bool> _daughters_iseleBDT; //isBDT for ele
+  std::vector<bool> _daughters_iseleWP80; //isBDT for ele
+  std::vector<bool> _daughters_iseleWP90; //isBDT for ele
+  std::vector<Float_t> _daughters_eleMVAnt; //isBDT for ele
+  std::vector<bool> _daughters_passConversionVeto; //isBDT for ele
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Float_t> _daughters_IetaIeta;
@@ -299,6 +305,16 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_againstElectronMediumMVA5;
   std::vector<Int_t> _daughters_againstElectronTightMVA5;
   std::vector<Int_t> _daughters_againstElectronVTightMVA5;
+  std::vector<Int_t> _daughters_numChargedParticlesSignalCone;
+  std::vector<Int_t> _daughters_numNeutralHadronsSignalCone;
+  std::vector<Int_t> _daughters_numPhotonsSignalCone;
+  std::vector<Int_t> _daughters_numParticlesSignalCone;
+  std::vector<Int_t> _daughters_numChargedParticlesIsoCone;
+  std::vector<Int_t> _daughters_numNeutralHadronsIsoCone;
+  std::vector<Int_t> _daughters_numPhotonsIsoCone;
+  std::vector<Int_t> _daughters_numParticlesIsoCone;
+  std::vector<Float_t> _daughters_leadChargedParticlePt;
+  std::vector<Float_t> _daughters_trackRefPt;
   std::vector<Int_t> _daughters_LFtrigger;
   std::vector<Int_t> _daughters_L3trigger;
   std::vector<Int_t> _daughters_FilterFired;
@@ -427,6 +443,16 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_againstElectronMediumMVA5.clear();
   _daughters_againstElectronTightMVA5.clear();
   _daughters_againstElectronVTightMVA5.clear();
+  _daughters_numChargedParticlesSignalCone.clear();
+  _daughters_numNeutralHadronsSignalCone.clear();
+  _daughters_numPhotonsSignalCone.clear();
+  _daughters_numParticlesSignalCone.clear();
+  _daughters_numChargedParticlesIsoCone.clear();
+  _daughters_numNeutralHadronsIsoCone.clear();
+  _daughters_numPhotonsIsoCone.clear();
+  _daughters_numParticlesIsoCone.clear();
+  _daughters_leadChargedParticlePt.clear();
+  _daughters_trackRefPt.clear();
   _daughters_LFtrigger.clear();
   _daughters_L3trigger.clear();
   _daughters_FilterFired.clear();
@@ -434,6 +460,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_L3FilterFired.clear();
   _daughters_L3FilterFiredLast.clear();
   _daughters_iseleBDT.clear();
+  _daughters_iseleWP80.clear();
+  _daughters_iseleWP90.clear();
+  _daughters_eleMVAnt.clear();
+  _daughters_passConversionVeto.clear();
   _daughters_iseleCUT.clear();
   //_daughter2.clear();
   _softLeptons.clear();
@@ -575,7 +605,8 @@ void HTauTauNtuplizer::beginJob(){
     //myTree->Branch("genH_e",&_genH_e);
 
     myTree->Branch("daughters_genindex",&_daughters_genindex);
-    myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");    
+    myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
+    myTree->Branch("aMCatNLOweight",&_aMCatNLOweight,"aMCatNLOweight/F");    
     myTree->Branch("genpart_px", &_genpart_px);
     myTree->Branch("genpart_py", &_genpart_py);
     myTree->Branch("genpart_pz", &_genpart_pz);
@@ -628,6 +659,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("dz",&_dz);
   myTree->Branch("SIP",&_SIP);
   myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
+  myTree->Branch("daughters_iseleWP80",&_daughters_iseleWP80);
+  myTree->Branch("daughters_iseleWP90",&_daughters_iseleWP90);
+  myTree->Branch("daughters_eleMVAnt",&_daughters_eleMVAnt);
+  myTree->Branch("daughters_passConversionVeto",&_daughters_passConversionVeto);
   myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT);
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("combreliso",& _combreliso);
@@ -657,6 +692,16 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_againstElectronMediumMVA5", &_daughters_againstElectronMediumMVA5);
   myTree->Branch("daughters_againstElectronTightMVA5", &_daughters_againstElectronTightMVA5);
   myTree->Branch("daughters_againstElectronVTightMVA5", &_daughters_againstElectronVTightMVA5);
+  myTree->Branch("daughters_numChargedParticlesSignalCone", &_daughters_numChargedParticlesSignalCone);
+  myTree->Branch("daughters_numNeutralHadronsSignalCone", &_daughters_numNeutralHadronsSignalCone);
+  myTree->Branch("daughters_numPhotonsSignalCone", &_daughters_numPhotonsSignalCone);
+  myTree->Branch("daughters_daughters_numParticlesSignalCone", &_daughters_numParticlesSignalCone);
+  myTree->Branch("daughters_numChargedParticlesIsoCone", &_daughters_numChargedParticlesIsoCone);
+  myTree->Branch("daughters_numNeutralHadronsIsoCone", &_daughters_numNeutralHadronsIsoCone);
+  myTree->Branch("daughters_numPhotonsIsoCone", &_daughters_numPhotonsIsoCone);
+  myTree->Branch("daughters_numParticlesIsoCone", &_daughters_numParticlesIsoCone);
+  myTree->Branch("daughters_leadChargedParticlePt", &_daughters_leadChargedParticlePt);
+  myTree->Branch("daughters_trackRefPt", &_daughters_trackRefPt);
   myTree->Branch("daughters_isLastTriggerObjectforPath", &_daughters_LFtrigger);
   myTree->Branch("daughters_isTriggerObjectforPath", &_daughters_L3trigger);
   myTree->Branch("daughters_FilterFired",&_daughters_FilterFired);
@@ -695,7 +740,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   Initialize();
 
   Handle<vector<reco::Vertex> >  vertexs;
-  event.getByLabel("goodPrimaryVertices",vertexs);
+  event.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
   
   //----------------------------------------------------------------------
   // Analyze MC history. THIS HAS TO BE DONE BEFORE ANY RETURN STATEMENT
@@ -749,6 +794,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     if (lheeventinfo.isValid()) {
       _nup=lheeventinfo->hepeup().NUP;
      }
+     edm::Handle<GenEventInfoProduct> genEvt;
+     event.getByLabel("generator",genEvt);
+     _aMCatNLOweight=genEvt->weight();
+     std::cout<<genEvt->weight()<<std::endl;
   }
 
   const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
@@ -1036,12 +1085,18 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     float discr=-1.;
     int muIDflag = 0;
     bool isgood = false;
+    bool isele80=false;
+    bool isele90=false;
+    float elemva=-2;
+    bool isconversionveto=false;
     int decay=-1;
     float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     int byLooseCombinedIsolationDeltaBetaCorr3Hits=-1, byMediumCombinedIsolationDeltaBetaCorr3Hits=-1, byTightCombinedIsolationDeltaBetaCorr3Hits=-1; // tau 13 TeV Iso
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
     int againstMuonLoose3=-1, againstMuonTight3=-1; // tau 13 TeV muon rejection
+    int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
+    float leadChargedParticlePt=-1., trackRefPt=-1.;
     int againstElectronVLooseMVA5 =-1, againstElectronLooseMVA5 = -1, againstElectronMediumMVA5 = -1, againstElectronTightMVA5 = -1, againstElectronVTightMVA5 = -1; // tau 13 TeV ele rejection
     int typeOfMuon=0;
     float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1;
@@ -1061,6 +1116,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       superatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
       SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
       if(userdatahelpers::getUserInt(cand,"isBDT") == 1)isgood=true;
+      if(userdatahelpers::getUserInt(cand,"isEleID80") == 1) isele80=true;
+      if(userdatahelpers::getUserInt(cand,"isEleID90") == 1) isele90=true;
+      elemva=(userdatahelpers::getUserFloat(cand,"eleMVAvalue"));
+      if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
     }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
@@ -1085,12 +1144,26 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       againstElectronMediumMVA5 = userdatahelpers::getUserInt (cand, "againstElectronMediumMVA5");
       againstElectronTightMVA5 = userdatahelpers::getUserInt (cand, "againstElectronTightMVA5");
       againstElectronVTightMVA5 = userdatahelpers::getUserInt (cand, "againstElectronVTightMVA5");
+      numChargedParticlesSignalCone = userdatahelpers::getUserInt (cand, "numChargedParticlesSignalCone");
+      numNeutralHadronsSignalCone = userdatahelpers::getUserInt (cand, "numNeutralHadronsSignalCone");
+      numPhotonsSignalCone = userdatahelpers::getUserInt (cand, "numPhotonsSignalCone");
+      numParticlesSignalCone = userdatahelpers::getUserInt (cand, "numParticlesSignalCone");
+      numChargedParticlesIsoCone = userdatahelpers::getUserInt (cand, "numChargedParticlesIsoCone");
+      numNeutralHadronsIsoCone = userdatahelpers::getUserInt (cand, "numNeutralHadronsIsoCone");
+      numPhotonsIsoCone = userdatahelpers::getUserInt (cand, "numPhotonsIsoCone");
+      numParticlesIsoCone = userdatahelpers::getUserInt (cand, "numParticlesIsoCone");
+      leadChargedParticlePt = userdatahelpers::getUserFloat (cand, "leadChargedParticlePt");
+      trackRefPt = userdatahelpers::getUserFloat (cand, "trackRefPt");
     }
     _discriminator.push_back(discr);
     _daughters_typeOfMuon.push_back(typeOfMuon);
     _daughters_muonID.push_back(muIDflag);
     _daughters_charge.push_back(cand->charge());
     _daughters_iseleBDT.push_back(isgood);
+    _daughters_iseleWP80.push_back(isele80);
+    _daughters_iseleWP90.push_back(isele90);
+    _daughters_eleMVAnt.push_back(elemva);
+    _daughters_passConversionVeto.push_back(isconversionveto);
     _daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
     _decayType.push_back(decay);
     _daughters_IetaIeta.push_back(ieta);
@@ -1119,6 +1192,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_byIsolationMVA3oldDMwLTraw.push_back(byIsolationMVA3oldDMwLTraw);
     _daughters_byIsolationMVA3newDMwoLTraw.push_back(byIsolationMVA3newDMwoLTraw);
     _daughters_byIsolationMVA3newDMwLTraw.push_back(byIsolationMVA3newDMwLTraw);
+    _daughters_numChargedParticlesSignalCone.push_back(numChargedParticlesSignalCone);
+    _daughters_numNeutralHadronsSignalCone.push_back(numNeutralHadronsSignalCone);
+    _daughters_numPhotonsSignalCone.push_back(numPhotonsSignalCone);
+    _daughters_numParticlesSignalCone.push_back(numParticlesSignalCone);
+    _daughters_numChargedParticlesIsoCone.push_back(numChargedParticlesIsoCone);
+    _daughters_numNeutralHadronsIsoCone.push_back(numNeutralHadronsIsoCone);
+    _daughters_numPhotonsIsoCone.push_back(numPhotonsIsoCone);
+    _daughters_numParticlesIsoCone.push_back(numParticlesIsoCone);
+    _daughters_leadChargedParticlePt.push_back(leadChargedParticlePt);
+    _daughters_trackRefPt.push_back(trackRefPt);
 
     //TRIGGER MATCHING
     int LFtriggerbit=0,L3triggerbit=0,filterFired=0;
