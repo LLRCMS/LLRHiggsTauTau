@@ -10,8 +10,17 @@ import re
 
 #PROCESS = ["HHBACKGROUNDS"] # select blocks of datasets to be processed
 #tag = "produzione_MC_3Ago2015" # a folder with cra3_[tag] is created, ad appended in many places
-PROCESS = ["2015RUNBDATA"]
-tag = "produzione_DATA_3Ago2015"
+#PROCESS = ["2015RUNBDATA"]
+#tag = "produzione_DATA_3Ago2015"
+
+#datasetsFile = "datasets.txt" # name of file containing datasets
+
+#PROCESS = ["PROD_PARTIAL"]
+#tag = "llrNtuples_partial_5Ago"
+#datasetsFile = "datasets_Enriched.txt"
+
+PROCESS = ["HHBACKGROUNDS_RES"]
+tag = "produzione_DATA_3Ago2015_resubTTJets_enrich"
 
 datasetsFile = "datasets.txt" # name of file containing datasets
 
@@ -51,6 +60,7 @@ with open(datasetsFile) as fIn:
         if comment in line:
             continue
         
+        #print line        
         words = line.split()
         if len(words) >= 3:
             if words[0] == sectionBeginEnd and words[2] == sectionBeginEnd: 
@@ -67,11 +77,11 @@ print crabJobsFolder
 os.system ("mkdir %s" % crabJobsFolder)
 
 for dtset in dtsetToLaunch:
+    dtsetNames = dtset
     if '/MINIAODSIM' in dtset:
         dtsetNames = dtset.replace('/MINIAODSIM', "")
     elif '/MINIAOD' in dtset:
         dtsetNames = dtset.replace('/MINIAOD', "")
-
     dtsetNames = dtsetNames.replace('/', "__")
     #dtSetName = dtsetNames[1]
     command = "crab submit -c crab3_template.py"
@@ -80,5 +90,5 @@ for dtset in dtsetToLaunch:
     command += " Data.inputDataset=%s" % dtset
     command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s" % tag
     command += " Data.publishDataName=%s" % tag
-    #print command
+    print command
     os.system (command)
