@@ -10,7 +10,6 @@ config.General.workArea = 'DefaultCrab3Area'
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'analyzer.py' # to produce LLR ntuples or EnrichedMiniAOD according to the RunNtuplizer bool
-#config.JobType.psetName = 'ntuplizer.py' # to produce LLR ntuples from Enriched MiniAOD
 
 config.section_("Data")
 config.Data.inputDataset = '/my/precious/dataset'
