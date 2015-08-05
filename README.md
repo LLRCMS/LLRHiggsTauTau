@@ -38,8 +38,8 @@ THEN EDIT THE RecoMET/METPUSubtraction/python/mvaPFMET_cff.py at LINE 75 (could 
 ### Instructions for 7_4_X
 
 ```
-cmsrel CMSSW_7_4_5
-cd CMSSW_7_4_5/src
+cmsrel CMSSW_7_4_7
+cd CMSSW_7_4_7/src
 cmsenv
 git cms-merge-topic sregnard:Phys14ElectronMvaIdFor745
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
