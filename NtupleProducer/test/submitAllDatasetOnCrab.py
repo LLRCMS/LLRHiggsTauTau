@@ -15,15 +15,16 @@ import re
 
 #datasetsFile = "datasets.txt" # name of file containing datasets
 
-#PROCESS = ["PROD_PARTIAL"]
-#tag = "llrNtuples_partial_5Ago"
-#datasetsFile = "datasets_Enriched.txt"
+PROCESS = ["PROD_PARTIAL"]
+tag = "llrNtuples_partial_5Ago_resub"
+datasetsFile = "datasets_Enriched.txt"
 
-PROCESS = ["HHBACKGROUNDS_RES"]
-tag = "produzione_DATA_3Ago2015_resubTTJets_enrich"
+#PROCESS = ["HHBACKGROUNDS_RES"]
+#tag = "produzione_DATA_3Ago2015_resubTTJets_enrich"
 
-datasetsFile = "datasets.txt" # name of file containing datasets
+#datasetsFile = "datasets.txt" # name of file containing datasets
 
+EnrichedToNtuples = True # do not create ntuples on CRAB because it is very slow
 
 ###################################################################
 #### Automated script starting
@@ -90,5 +91,8 @@ for dtset in dtsetToLaunch:
     command += " Data.inputDataset=%s" % dtset
     command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s" % tag
     command += " Data.publishDataName=%s" % tag
+    if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
+    if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
+    if (EnrichedToNtuples): command += " Data.publication=False" # cannot publish flat root ntuples
     print command
     os.system (command)

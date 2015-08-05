@@ -35,6 +35,7 @@ class ProcDataset:
         self.Nfinished = num
 
 path = "crab3_produzione_MC_3Ago2015"
+#path = "crab3_llrNtuples_partial_5Ago"
 
 if not os.path.isdir(path):
     print "Folder %s does not exist" % path
