@@ -19,12 +19,14 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <TH1F.h>
 
 using namespace std;
 
 class triggerhelper {
  public:
   triggerhelper(vector<string> HLTPaths);
+  triggerhelper(TH1F* hCounter);
   triggerhelper();
 
   void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int channel);

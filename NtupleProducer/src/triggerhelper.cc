@@ -45,6 +45,33 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   
 }
 
+triggerhelper::triggerhelper(TH1F* hCounter){
+
+  for(int itr=1;itr<=hCounter->GetNbinsX();itr++){
+    TString binlabel = hCounter->GetXaxis()->GetBinLabel(itr);
+    if(binlabel.BeginsWith("HLT"))triggerlist.push_back(hCounter->GetXaxis()->GetBinLabel(itr));
+  }
+
+  string tmpMETfilters[nMETs]={
+                 "Flag_CSCTightHaloFilter",
+ "Flag_EcalDeadCellTriggerPrimitiveFilter",
+                    "Flag_HBHENoiseFilter",
+                         "Flag_METFilters",
+                "Flag_ecalLaserCorrFilter",
+                      "Flag_eeBadScFilter",
+                       "Flag_goodVertices",
+               "Flag_hcalLaserEventFilter",
+              "Flag_trackingFailureFilter",
+                      "Flag_trkPOGFilters",
+     "Flag_trkPOG_logErrorTooManyClusters",
+            "Flag_trkPOG_manystripclus53X",
+         "Flag_trkPOG_toomanystripclus53X"
+  };
+  for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
+
+
+}
+
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
