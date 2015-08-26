@@ -797,7 +797,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
      edm::Handle<GenEventInfoProduct> genEvt;
      event.getByLabel("generator",genEvt);
      _aMCatNLOweight=genEvt->weight();
-     std::cout<<genEvt->weight()<<std::endl;
+     //std::cout<<genEvt->weight()<<std::endl;
   }
 
   const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
