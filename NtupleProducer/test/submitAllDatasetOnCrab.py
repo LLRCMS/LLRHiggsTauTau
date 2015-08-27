@@ -8,24 +8,20 @@ import re
 ###################################################################
 #### Parameters to be changed for each production
 
-#PROCESS = ["HHBACKGROUNDS"] # select blocks of datasets to be processed
-#tag = "produzione_MC_3Ago2015" # a folder with cra3_[tag] is created, ad appended in many places
-#PROCESS = ["2015RUNBDATA"]
-#tag = "produzione_DATA_3Ago2015"
 
-#datasetsFile = "datasets.txt" # name of file containing datasets
+#PROCESS = ["HHBACKGROUNDS"]
+#tag = "llrNt_NoSVFit_bkg_27Ago2015"
+#datasetsFile = "datasets.txt"
 
-PROCESS = ["HHBACKGROUNDS"]
-tag = "llrNt_NoSVFit_bkg_27Ago2015"
+PROCESS = ["2015RUNBDATA"]
+tag = "llrNt_NoSVFit_data_27Ago2015"
 datasetsFile = "datasets.txt"
 
-#PROCESS = ["HHBACKGROUNDS_RES"]
-#tag = "produzione_DATA_3Ago2015_resubTTJets_enrich"
-
-#datasetsFile = "datasets.txt" # name of file containing datasets
 
 FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
+PublishDataset = False # publish dataset; set to false if producing ntuples
+
 
 ###################################################################
 #### Automated script starting
@@ -33,6 +29,9 @@ EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB becaus
 # dataset block definition
 comment = "#"
 sectionBeginEnd = "==="
+
+if EnrichedToNtuples: PublishDataset = False
+
 
 # check if file with dataset exist
 if not os.path.isfile(datasetsFile):
@@ -55,8 +54,9 @@ print " =========  Starting submission on CRAB ========"
 print " Parameters: "
 print " PROCESS: "
 for pr in PROCESS: print "   * " , pr
-print "tag: " , tag
-print "Fast jobs?: " , FastJobs
+print " tag: " , tag
+print " Fast jobs?: " , FastJobs
+print " Publish?: "   , PublishDataset
 
 # READ INPUT FILE
 with open(datasetsFile) as fIn:
@@ -87,6 +87,15 @@ os.system ("mkdir %s" % crabJobsFolder)
 
 counter = 1 # appended to the request name to avoid overlaps between datasets with same name e.g. /DoubleEG/Run2015B-17Jul2015-v1/MINIAOD vs /DoubleEG/Run2015B-PromptReco-v1/MINIAOD
 outlog = open ((crabJobsFolder + "/submissionLog.txt"), "w")
+outlog.write (" =========  Starting submission on CRAB ========\n")
+outlog.write (" Parameters: \n")
+outlog.write (" PROCESS: \n")
+for pr in PROCESS: outlog.write ("   * %s\n" % pr)
+outlog.write (" tag: %s\n" % tag)
+outlog.write (" Fast jobs?: %s\n" % str(FastJobs))
+outlog.write (" Publish?: %s\n"   % str(PublishDataset))
+outlog.write (" ===============================================\n\n\n")
+
 for dtset in dtsetToLaunch:
     dtsetNames = dtset
     if '/MINIAODSIM' in dtset:
@@ -104,8 +113,8 @@ for dtset in dtsetToLaunch:
     command += " Data.publishDataName=%s" % tag
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
-    if (EnrichedToNtuples): command += " Data.publication=False" # cannot publish flat root ntuples
-    if (FastJobs):          command += " Data.unitsPerJob=100000" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
+    if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
+    if (FastJobs)         : command += " Data.unitsPerJob=100000" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
     print command ,  "\n"
     os.system (command)
     outlog.write(command + "\n\n")
