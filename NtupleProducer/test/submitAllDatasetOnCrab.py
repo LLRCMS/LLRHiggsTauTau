@@ -85,6 +85,8 @@ for name in PROCESS: crabJobsFolder + "_" + name
 print crabJobsFolder
 os.system ("mkdir %s" % crabJobsFolder)
 
+counter = 1 # appended to the request name to avoid overlaps between datasets with same name e.g. /DoubleEG/Run2015B-17Jul2015-v1/MINIAOD vs /DoubleEG/Run2015B-PromptReco-v1/MINIAOD
+outlog = open ((crabJobsFolder + "/submissionLog.txt"), "w")
 for dtset in dtsetToLaunch:
     dtsetNames = dtset
     if '/MINIAODSIM' in dtset:
@@ -92,16 +94,19 @@ for dtset in dtsetToLaunch:
     elif '/MINIAOD' in dtset:
         dtsetNames = dtset.replace('/MINIAOD', "")
     dtsetNames = dtsetNames.replace('/', "__")
+    dtsetNames = dtsetNames.strip("__") # remove leading and trailing double __ 
     #dtSetName = dtsetNames[1]
     command = "crab submit -c crab3_template.py"
-    command += " General.requestName=%s" % (dtsetNames + "_" + tag)
+    command += " General.requestName=%s" % (dtsetNames + "_" + tag + "_" + str(counter))
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
-    command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s" % tag
+    command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s" % tag # FIXME: stesso folder per datasets che hanno lo stesso nome?
     command += " Data.publishDataName=%s" % tag
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if (EnrichedToNtuples): command += " Data.publication=False" # cannot publish flat root ntuples
     if (FastJobs):          command += " Data.unitsPerJob=100000" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
-    print command
+    print command ,  "\n"
     os.system (command)
+    outlog.write(command + "\n\n")
+    counter = counter + 1
