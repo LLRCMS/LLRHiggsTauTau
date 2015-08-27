@@ -15,16 +15,17 @@ import re
 
 #datasetsFile = "datasets.txt" # name of file containing datasets
 
-PROCESS = ["PROD_PARTIAL"]
-tag = "llrNtuples_partial_5Ago_resub"
-datasetsFile = "datasets_Enriched.txt"
+PROCESS = ["HHBACKGROUNDS"]
+tag = "llrNt_NoSVFit_bkg_27Ago2015"
+datasetsFile = "datasets.txt"
 
 #PROCESS = ["HHBACKGROUNDS_RES"]
 #tag = "produzione_DATA_3Ago2015_resubTTJets_enrich"
 
 #datasetsFile = "datasets.txt" # name of file containing datasets
 
-EnrichedToNtuples = True # do not create ntuples on CRAB because it is very slow
+FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
+EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 
 ###################################################################
 #### Automated script starting
@@ -49,6 +50,13 @@ if os.path.isdir(crabJobsFolder):
 
 currSection = ""
 dtsetToLaunch = []
+
+print " =========  Starting submission on CRAB ========"
+print " Parameters: "
+print " PROCESS: "
+for pr in PROCESS: print "   * " , pr
+print "tag: " , tag
+print "Fast jobs?: " , FastJobs
 
 # READ INPUT FILE
 with open(datasetsFile) as fIn:
@@ -94,5 +102,6 @@ for dtset in dtsetToLaunch:
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if (EnrichedToNtuples): command += " Data.publication=False" # cannot publish flat root ntuples
+    if (FastJobs):          command += " Data.unitsPerJob=100000" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
     print command
     os.system (command)
