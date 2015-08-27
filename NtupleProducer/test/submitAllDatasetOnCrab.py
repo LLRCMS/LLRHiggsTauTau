@@ -100,7 +100,7 @@ for dtset in dtsetToLaunch:
     command += " General.requestName=%s" % (dtsetNames + "_" + tag + "_" + str(counter))
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
-    command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s" % tag # FIXME: stesso folder per datasets che hanno lo stesso nome?
+    command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
     command += " Data.publishDataName=%s" % tag
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
