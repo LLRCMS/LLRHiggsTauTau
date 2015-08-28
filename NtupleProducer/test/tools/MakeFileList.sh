@@ -10,6 +10,8 @@
 #usage: source MakeFileList.sh -t "HH 74X lambda-4 gen info fix " -o HH_Lambdam4.txt -p /data_CMS/cms/salerno/Lambdam4_74x_step2/miniAOD_lambdam4_2_300000Events_0Skipped_1435089918.88
 
 PRINTHEADER=true
+PRINTCMSSWFORMAT=true # lines begin with 'file: ...
+PRINTMESSAGE=true
 
 while [[ $# > 0 ]]
 do
@@ -30,6 +32,12 @@ case $key in
     -n|--noheader)
     PRINTHEADER=false
     ;;
+    -c|--cmsswformatoff)
+    PRINTCMSSWFORMAT=false
+    ;;
+    -m|--messageoff)
+    PRINTMESSAGE=false
+    ;;
     *)
             # unknown option
     ;;
@@ -38,7 +46,14 @@ shift # past argument or value
 done
 
 ## create file
-echo "#File list is: " $MESSAGE > $OUTFILE
+if [ -f $OUTFILE ] ; then
+    rm $OUTFILE
+fi
+touch $OUTFILE
+
+if $PRINTMESSAGE = true ] ; then
+    echo "#File list is: " $MESSAGE > $OUTFILE
+fi
 #echo "\n" >> $OUTFILE
 
 if [ $PRINTHEADER = true ] ; then
@@ -48,7 +63,11 @@ fi
 
 # file list formatted using awk
 #ls $FILEPATH/*.root | awk -v pathto=$FILEPATH '{print "'\''file:" pathto "/"$1 "'\''," }' >> $OUTFILE
-ls $FILEPATH/*.root | awk '{print "'\''file:"$1 "'\''," }' >> $OUTFILE
+if [ $PRINTCMSSWFORMAT = true ] ; then
+    ls $FILEPATH/*.root | awk '{print "'\''file:"$1 "'\''," }' >> $OUTFILE
+else
+    ls $FILEPATH/*.root | awk '{print $1}' >> $OUTFILE   
+fi
 
 if [ $PRINTHEADER = true ] ; then
     echo "])" >> $OUTFILE
