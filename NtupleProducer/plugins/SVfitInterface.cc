@@ -195,6 +195,11 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (l1Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingOldDMs") != 1) passOldDM = false;
     if (l2Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingOldDMs") != 1) passOldDM = false;
 
+    // do not compute SVfit on ee or mumu pairs
+    bool isGoodPairType = true;
+    if (l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToElecDecay) isGoodPairType = false;
+    if (l1Type == svFitStandalone::kTauToMuDecay && l2Type == svFitStandalone::kTauToMuDecay) isGoodPairType = false;
+
     bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
   
     if (_usePairMET)
@@ -252,8 +257,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
-    // only run SVfit if taus are passing OldDM discriminator
-    if (passOldDM)
+    // only run SVfit if taus are passing OldDM discriminator, skip mumu and ee pairs
+    if (passOldDM && isGoodPairType)
     {
       //algo.integrateVEGAS();
       algo.shiftVisPt(true, inputFile_visPtResolution_);
