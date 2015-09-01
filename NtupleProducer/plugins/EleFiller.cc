@@ -240,7 +240,7 @@ EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserInt("isBDT",(isBDT ? 1 : 0));
     l.addUserInt("isConversionVeto",(isconversionveto ? 1 : 0));
     //l.addUserFloat("HLTMatch", HLTMatch);
-    l.addUserFloat("missingHit", missingHit);
+    l.addUserInt("missingHit", missingHit);
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
     l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
     l.addUserFloat("SCeta", fSCeta);
