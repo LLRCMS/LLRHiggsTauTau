@@ -14,10 +14,11 @@ import re
 #datasetsFile = "datasets.txt"
 
 PROCESS = ["2015RUNBDATA"]
-tag = "llrNt_NoSVFit_data_27Ago2015"
+tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
 datasetsFile = "datasets.txt"
 
-
+isMC = False
+lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-                                           254349_13TeV_PromptReco_Collisions15_JSON_v2.txt"
 FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
@@ -115,6 +116,7 @@ for dtset in dtsetToLaunch:
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
     if (FastJobs)         : command += " Data.unitsPerJob=100000" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
+    if not isMC           : command += " Data.lumiMask=%s" % lumiMaskFileName
     print command ,  "\n"
     os.system (command)
     outlog.write(command + "\n\n")
