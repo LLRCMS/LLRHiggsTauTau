@@ -1511,11 +1511,11 @@ void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm
 bool HTauTauNtuplizer::CompareLegs(const reco::Candidate *i, const reco::Candidate *j){
   int iType=2,jType=2;
   
-  if(i->isElectron())iType=0;
-  else if(i->isMuon())iType=1;
+  if(i->isElectron())iType=1;
+  else if(i->isMuon())iType=0;
   
-  if(j->isElectron())jType=0;
-  else if(j->isMuon())jType=1;
+  if(j->isElectron())jType=1;
+  else if(j->isMuon())jType=0;
   
   if(iType>jType) return false;
   else if(iType==jType && i->pt()<j->pt()) return false;
