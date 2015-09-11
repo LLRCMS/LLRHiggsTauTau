@@ -1254,11 +1254,11 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
             }else{//muons
               if(map.GetTriggerChannel()==triggerMapper::kemu){
                 for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
-                  if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
+                  if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
                 }
               }else{
                 for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
-                  if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
+                  if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
                 }
               }
             }
