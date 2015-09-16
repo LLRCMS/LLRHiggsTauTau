@@ -789,9 +789,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByLabel("jets",jetHandle);
   event.getByLabel("softLeptons",dauHandle);
   event.getByLabel("slimmedMETs",metHandle);
-  if(theisMC){
-    event.getByLabel(edm::InputTag("generator","minVisPtFilter",""),embeddingWeightHandle);
-    _MC_weight = (embeddingWeightHandle.isValid() ? embeddingWeightHandle->filterEfficiency():1.0);
+  if(theisMC){    
     edm::Handle<LHEEventProduct> lheeventinfo;
     event.getByLabel("LHEEventProduct",lheeventinfo);
     if (lheeventinfo.isValid()) {
@@ -800,7 +798,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
      edm::Handle<GenEventInfoProduct> genEvt;
      event.getByLabel("generator",genEvt);
      _aMCatNLOweight=genEvt->weight();
-     //std::cout<<genEvt->weight()<<std::endl;
+     _MC_weight = _aMCatNLOweight; // duplicated
   }
 
   const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
