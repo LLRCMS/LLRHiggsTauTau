@@ -223,6 +223,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _genpart_status;
   //std::vector<Int_t> _genpart_mothInd;
   std::vector<Int_t> _genpart_HMothInd;
+  std::vector<Int_t> _genpart_MSSMHMothInd;
   std::vector<Int_t> _genpart_TopMothInd;
   std::vector<Int_t> _genpart_TauMothInd;
   std::vector<Int_t> _genpart_ZMothInd;
@@ -334,7 +335,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _jets_Flavour;
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
-  std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
+  std::vector<Int_t> _jetID; //1=loose, 2=tight
   std::vector<Float_t> _jetrawf;
 
   //genH
@@ -487,6 +488,7 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_status.clear();
   //_genpart_mothInd.clear();
   _genpart_HMothInd.clear();
+  _genpart_MSSMHMothInd.clear();
   _genpart_TopMothInd.clear();
   _genpart_TauMothInd.clear();
   _genpart_ZMothInd.clear();
@@ -617,6 +619,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_status", &_genpart_status);
     //myTree->Branch("genpart_mothInd", _genpart_mothInd);
     myTree->Branch("genpart_HMothInd", &_genpart_HMothInd);
+    myTree->Branch("genpart_MSSMHMothInd", &_genpart_MSSMHMothInd);
     myTree->Branch("genpart_TopMothInd", &_genpart_TopMothInd);
     myTree->Branch("genpart_TauMothInd", &_genpart_TauMothInd);
     myTree->Branch("genpart_ZMothInd", &_genpart_ZMothInd);
@@ -789,7 +792,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByLabel("jets",jetHandle);
   event.getByLabel("softLeptons",dauHandle);
   event.getByLabel("slimmedMETs",metHandle);
-  if(theisMC){    
+  if(theisMC){
+    event.getByLabel(edm::InputTag("generator","minVisPtFilter",""),embeddingWeightHandle);
+    _MC_weight = (embeddingWeightHandle.isValid() ? embeddingWeightHandle->filterEfficiency():1.0);
     edm::Handle<LHEEventProduct> lheeventinfo;
     event.getByLabel("LHEEventProduct",lheeventinfo);
     if (lheeventinfo.isValid()) {
@@ -798,7 +803,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
      edm::Handle<GenEventInfoProduct> genEvt;
      event.getByLabel("generator",genEvt);
      _aMCatNLOweight=genEvt->weight();
-     _MC_weight = _aMCatNLOweight; // duplicated
+     //std::cout<<genEvt->weight()<<std::endl;
   }
 
   const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
@@ -1008,33 +1013,14 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
     float CHF = ijet->chargedHadronEnergyFraction();
     float MUF = ijet->muonEnergyFraction();
     float CEMF = ijet->chargedEmEnergyFraction();
-    float NumNeutralParticles =ijet->neutralMultiplicity();
-    float NumConst = ijet->chargedMultiplicity()+NumNeutralParticles;
+    float NumConst = ijet->chargedMultiplicity()+ijet->neutralMultiplicity();
     float CHM = ijet->chargedMultiplicity();
     float absjeta = fabs(ijet->eta());
 
     int jetid=0;
-    //PHYS14
-    /*
     if((NHF<0.99 && NEMF<0.99 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4)){
       jetid++;
       if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)  ) jetid++;
-    }
-    */
-    //Spring15
-    if(absjeta<=3.0){
-      if((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ){
-        jetid++;
-        if( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ) {
-          jetid++;
-          if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)) jetid++;
-        }
-      }
-    }else{
-      if(NEMF<0.90 && NumNeutralParticles>10 ){
-        jetid++;
-        jetid++; //TIGHT and LOOSE are the same in this eta region
-      }
     }
     _jetID.push_back(jetid);
     _jetrawf.push_back(ijet->jecFactor("Uncorrected"));
@@ -1357,6 +1343,7 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         _genpart_status.push_back(igen->status());
         
         int HMIndex = -1;
+        int MSSMHMIndex = -1;
         int TopMIndex = -1;
         int TauMIndex = -1;
         int ZMIndex = -1;
@@ -1368,6 +1355,7 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         int TauGenDecayMode = -1;
         
         if (igen->hasUserInt("HMothIndex"))   HMIndex = igen->userInt("HMothIndex");
+        if (igen->hasUserInt("MSSMHMothIndex"))   MSSMHMIndex = igen->userInt("MSSMHMothIndex");
         if (igen->hasUserInt("TopMothIndex")) TopMIndex = igen->userInt("TopMothIndex");
         if (igen->hasUserInt("TauMothIndex")) TauMIndex = igen->userInt("TauMothIndex");
         if (igen->hasUserInt("ZMothIndex"))   ZMIndex = igen->userInt("ZMothIndex");
@@ -1379,6 +1367,7 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         if (igen->hasUserInt("tauGenDecayMode"))   TauGenDecayMode = igen->userInt("tauGenDecayMode");
         
         _genpart_HMothInd.push_back(HMIndex);
+        _genpart_MSSMHMothInd.push_back(MSSMHMIndex);
         _genpart_TopMothInd.push_back(TopMIndex);
         _genpart_TauMothInd.push_back(TauMIndex);
         _genpart_ZMothInd.push_back(ZMIndex);

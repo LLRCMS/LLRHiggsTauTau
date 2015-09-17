@@ -109,7 +109,7 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
 
         // -------------------- H/Z decay mode: set final state and is is prompt
-        if (APdgId == 25 || APdgId == 23)
+        if (APdgId == 25 || APdgId == 23 || APdgId == 36)
         {
             genhelper::HZDecay decay = genhelper::GetHZDecay (genP);
             filtGenP.addUserInt ("HZDecayMode", static_cast<int> (decay));
@@ -157,6 +157,15 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> fromH: 1, indexH: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
         }
 
+        // H MSSM
+        MothPtr = genhelper::IsFromID (genP, 36);
+        if (MothPtr != NULL) // save space, only add userfloats when valid
+	  {
+            //filtGenP.addUserInt ("fromH", 1);
+            filtGenP.addUserInt ("MSSMHMothIndex", genhelper::GetIndexInOutput(MothPtr, cands_));       
+            if (DEBUG) cout << "   --> fromH(MSSM): 1, indexH: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
+	  }
+	
         // Z        
         MothPtr = genhelper::IsFromID (genP, 23);
         if (MothPtr != NULL) // save space, only add userfloats when valid
@@ -217,6 +226,7 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         // copy all the other flags from original tau
         pat::GenericParticle& tauMothGenP = result->at(tauMothInd);
         if (tauMothGenP.hasUserInt("HMothIndex") ) tauH.addUserInt ("HMothIndex", tauMothGenP.userInt ("HMothIndex"));
+        if (tauMothGenP.hasUserInt("MSSMHMothIndex") ) tauH.addUserInt ("MSSMHMothIndex", tauMothGenP.userInt ("MSSMHMothIndex"));
         if (tauMothGenP.hasUserInt("TopMothIndex") ) tauH.addUserInt ("TopMothIndex", tauMothGenP.userInt ("TopMothIndex"));
         if (tauMothGenP.hasUserInt("bMothIndex") ) tauH.addUserInt ("bMothIndex", tauMothGenP.userInt ("bMothIndex"));
         if (tauMothGenP.hasUserInt("WMothIndex") ) tauH.addUserInt ("WMothIndex", tauMothGenP.userInt ("WMothIndex"));
@@ -238,7 +248,7 @@ bool GenFiller::IsInteresting (const GenParticle& p)
     int APdgId = abs(p.pdgId());
     
     bool IsLast = genhelper::IsLastCopy(p);
-    bool GoodPdgId = (APdgId == 25 || APdgId == 23 || APdgId == 24 ||// bosons
+    bool GoodPdgId = (APdgId == 25 || APdgId == 36 || APdgId == 23 || APdgId == 24 ||// bosons
 		      APdgId == 6 || // quarks
                       APdgId == 11 || APdgId == 12 || APdgId == 13 || APdgId == 14 || APdgId == 15 || APdgId == 16); // leptons
 
