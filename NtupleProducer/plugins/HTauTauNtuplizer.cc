@@ -334,7 +334,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _jets_Flavour;
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
-  std::vector<Int_t> _jetID; //1=loose, 2=tight
+  std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
   std::vector<Float_t> _jetrawf;
 
   //genH
@@ -1010,14 +1010,33 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
     float CHF = ijet->chargedHadronEnergyFraction();
     float MUF = ijet->muonEnergyFraction();
     float CEMF = ijet->chargedEmEnergyFraction();
-    float NumConst = ijet->chargedMultiplicity()+ijet->neutralMultiplicity();
+    float NumNeutralParticles =ijet->neutralMultiplicity();
+    float NumConst = ijet->chargedMultiplicity()+NumNeutralParticles;
     float CHM = ijet->chargedMultiplicity();
     float absjeta = fabs(ijet->eta());
 
     int jetid=0;
+    //PHYS14
+    /*
     if((NHF<0.99 && NEMF<0.99 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4)){
       jetid++;
       if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)  ) jetid++;
+    }
+    */
+    //Spring15
+    if(absjeta<=3.0){
+      if((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ){
+        jetid++;
+        if( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ) {
+          jetid++;
+          if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)) jetid++;
+        }
+      }
+    }else{
+      if(NEMF<0.90 && NumNeutralParticles>10 ){
+        jetid++;
+        jetid++; //TIGHT and LOOSE are the same in this eta region
+      }
     }
     _jetID.push_back(jetid);
     _jetrawf.push_back(ijet->jecFactor("Uncorrected"));
