@@ -1016,9 +1016,9 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
     float CHM = ijet->chargedMultiplicity();
     float absjeta = fabs(ijet->eta());
 
+    int jetid=0; 
     //PHYS14
     /*
-    int jetid=0;
     if((NHF<0.99 && NEMF<0.99 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4)){
       jetid++;
       if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)  ) jetid++;
