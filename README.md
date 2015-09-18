@@ -41,7 +41,7 @@ THEN EDIT THE RecoMET/METPUSubtraction/python/mvaPFMET_cff.py at LINE 75 (could 
 cmsrel CMSSW_7_4_7
 cd CMSSW_7_4_7/src
 cmsenv
-git cms-merge-topic sregnard:Phys14ElectronMvaIdFor745
+git cms-merge-topic ikrav:egm_id_747_v2
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau; git checkout master
 cd -
@@ -60,4 +60,5 @@ scram b -j 4
 
 ### Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
+Please note that since 7_4_7 we switched to a new eleID recipe and we are not using anymore git cms-merge-topic sregnard:Phys14ElectronMvaIdFor745
 

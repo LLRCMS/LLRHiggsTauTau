@@ -35,6 +35,7 @@ LLCUT="mass>0"
 BCUT="pt>5"
 
 IsMC=True
+Is25ns=True
 
 ##
 ## Standard sequence
