@@ -22,6 +22,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+ #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TTree.h"
@@ -36,7 +37,7 @@
 #include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/CutSet.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
-#include "EgammaAnalysis/ElectronTools/interface/EGammaMvaEleEstimatorCSA14.h"
+//#include "EgammaAnalysis/ElectronTools/interface/EGammaMvaEleEstimatorCSA14.h"
 
 #include <vector>
 #include <string>
@@ -128,9 +129,9 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 	  EGammaMvaEleEstimatorCSA14::kNonTrigPhys14,
 	  true,
 	  myManualCatWeigthsTrig);
-
+  */
   produces<pat::ElectronCollection>();
-*/}
+}
 
   void EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {  

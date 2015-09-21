@@ -260,27 +260,27 @@ process.softElectrons = cms.EDProducer("EleFiller",
    )
 
 #process.electrons = cms.Sequence(process.eleRegressionEnergy + process.calibratedPatElectrons + process.bareSoftElectrons) #+ process.softElectrons)
-process.electrons = cms.Sequence(process.egmGsfElectronIDSequence  + process.softElectrons)#process.bareSoftElectrons
+process.electrons = cms.Sequence(process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
 
 # Handle special cases
-if ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
-    process.bareSoftElectrons.src = cms.InputTag('slimmedElectrons')#patElectronsWithTrigger')#RH
-    process.electrons = cms.Sequence(process.bareSoftElectrons + process.softElectrons)
-
-elif ELECORRTYPE == "Moriond" : # Moriond corrections: OLD ECAL regression + OLD calibration + OLD combination 
-    if (LEPTON_SETUP == 2011):
-        process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyReg2011Weights_V1.root")
-    else :
-        process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyReg2012Weights_V1.root")
-    process.eleRegressionEnergy.energyRegressionType = 1
-    process.calibratedPatElectrons.correctionsType   = 1
-    process.calibratedPatElectrons.combinationType   = 1
-
-elif ELECORRTYPE == "Paper" : # NEW ECAL regression + NO calibration + NO combination
-    process.eleRegressionEnergy.energyRegressionType = 2
-    process.calibratedPatElectrons.correctionsType   = 0
-    process.calibratedPatElectrons.combinationType   = 0
-    
+#if ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
+#    process.bareSoftElectrons.src = cms.InputTag('slimmedElectrons')#patElectronsWithTrigger')#RH
+#    process.electrons = cms.Sequence(process.bareSoftElectrons + process.softElectrons)
+#
+#elif ELECORRTYPE == "Moriond" : # Moriond corrections: OLD ECAL regression + OLD calibration + OLD combination 
+#    if (LEPTON_SETUP == 2011):
+#        process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyReg2011Weights_V1.root")
+#    else :
+#        process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyReg2012Weights_V1.root")
+#    process.eleRegressionEnergy.energyRegressionType = 1
+#    process.calibratedPatElectrons.correctionsType   = 1
+#    process.calibratedPatElectrons.combinationType   = 1
+#
+#elif ELECORRTYPE == "Paper" : # NEW ECAL regression + NO calibration + NO combination
+#    process.eleRegressionEnergy.energyRegressionType = 2
+#    process.calibratedPatElectrons.correctionsType   = 0
+#    process.calibratedPatElectrons.combinationType   = 0
+#    
 
 process.electronMatch = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
                                        src         = cms.InputTag("bareSoftElectrons"), # RECO objects to match
