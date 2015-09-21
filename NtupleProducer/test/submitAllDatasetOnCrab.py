@@ -18,7 +18,12 @@ tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
 datasetsFile = "datasets.txt"
 
 isMC = False
-lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-                                           254349_13TeV_PromptReco_Collisions15_JSON_v2.txt"
+#twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
+#50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
+lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
+#25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 16.09/pb - 18/09/2015
+#lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt"
+
 FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
