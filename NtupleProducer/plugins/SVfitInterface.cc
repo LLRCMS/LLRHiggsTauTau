@@ -200,6 +200,10 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToElecDecay) isGoodPairType = false;
     if (l1Type == svFitStandalone::kTauToMuDecay && l2Type == svFitStandalone::kTauToMuDecay) isGoodPairType = false;
 
+    // do not compute SVfit if the two pairs are too close one to the other
+    bool isGoodDR = true;
+    if (deltaR(l1->p4(), l2->p4()) < 0.25) isGoodDR = false;
+    
     bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
   
     if (_usePairMET)
@@ -258,7 +262,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
     // only run SVfit if taus are passing OldDM discriminator, skip mumu and ee pairs
-    if (passOldDM && isGoodPairType)
+    if (passOldDM && isGoodPairType && isGoodDR)
     {
       //algo.integrateVEGAS();
       algo.shiftVisPt(true, inputFile_visPtResolution_);
