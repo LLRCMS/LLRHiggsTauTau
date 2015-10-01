@@ -1,4 +1,4 @@
-SVFITBYPASS = False
+SVFITBYPASS = True
 IsMC = True
 APPLYFSR = False
 
@@ -24,10 +24,15 @@ print process.GlobalTag.globaltag
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
+
 # use local file
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/user/lcadamur/HTauTauTrees/test_prod_mem_1apr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/HHTauTauTrees_noNtupl_SVbypass/150402_090719/0000/Enriched_miniAOD_1.root',
+         #'/store/user/lcadamur/HTauTauTrees/test_prod_mem_1apr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/HHTauTauTrees_noNtupl_SVbypass/150402_090719/0000/Enriched_miniAOD_1.root',
+         'file:Enriched_miniAOD.root'
          )
     )
 
@@ -39,7 +44,8 @@ process.source = cms.Source("PoolSource",
 #process.load("FWCore.MessageService.MessageLogger_cfi")
 
 #Global configuration
-process.Ntuplizer = cms.EDAnalyzer("HTauTauNtuplizer",
+# the name of the process gives the name to the folder in the root file
+process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
                       skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),
@@ -50,9 +56,9 @@ process.Ntuplizer = cms.EDAnalyzer("HTauTauNtuplizer",
                       )
 
 if SVFITBYPASS:
-    process.Ntuplizer.CandCollection = cms.untracked.string("SVbypass")
+    process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")
 else:
-    process.Ntuplizer.CandCollection = cms.untracked.string("SVllCand")
+    process.HTauTauTree.CandCollection = cms.untracked.string("SVllCand")
 
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_ntuple.root'))
-process.p = cms.Path(process.Ntuplizer)
+process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+process.p = cms.Path(process.HTauTauTree)
