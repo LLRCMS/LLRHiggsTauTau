@@ -128,6 +128,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR);
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
+  void FillGenJetInfo(const edm::Event&);
   int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
   //int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
   static bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
@@ -236,6 +237,12 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   std::vector<Int_t> _genpart_flags; // vector of bit flags bout gen info
   
+  // gen jets
+  std::vector<Float_t> _genjet_px;
+  std::vector<Float_t> _genjet_py;
+  std::vector<Float_t> _genjet_pz;
+  std::vector<Float_t> _genjet_e;
+
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
   //Mothers output variables
@@ -501,6 +508,11 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_TauGenDecayMode.clear();
   _genpart_flags.clear();
   
+  _genjet_px.clear();
+  _genjet_py.clear();
+  _genjet_pz.clear();
+  _genjet_e.clear();
+  
   _indexDau1.clear();
   _indexDau2.clear();
   _pdgdau.clear();
@@ -632,6 +644,12 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_WDecayMode", &_genpart_WDecayMode);
     myTree->Branch("genpart_TauGenDecayMode", &_genpart_TauGenDecayMode);
     myTree->Branch("genpart_flags", &_genpart_flags);
+
+    myTree->Branch("genjet_px", &_genjet_px);
+    myTree->Branch("genjet_py", &_genjet_py);
+    myTree->Branch("genjet_pz", &_genjet_pz);
+    myTree->Branch("genjet_e" , &_genjet_e);
+
     myTree->Branch("NUP", &_nup,"NUP/I");
   }
   //myTree->Branch("daughters2",&_daughter2);
@@ -826,8 +844,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   //Loop over generated b quarks
   //if(theisMC)FillbQuarks(event);
-  if(theisMC)FillGenInfo(event);
-
+  if(theisMC)
+  {
+    FillGenInfo(event); // gen particles
+    FillGenJetInfo(event); // gen jets
+  }
   //Loop of softleptons and fill them
   FillSoftLeptons(daus,event,theFSR);
 
@@ -1404,6 +1425,25 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         int flags = igen -> userInt ("generalGenFlags");
         _genpart_flags.push_back(flags);
     }
+}
+
+
+void HTauTauNtuplizer::FillGenJetInfo(const edm::Event& event)
+{
+    edm::Handle<edm::View<reco::GenJet>> genJetHandle;
+    event.getByLabel ("slimmedGenJets", genJetHandle);
+    
+    unsigned int genJetSize = genJetHandle->size();
+    for (unsigned int igj = 0; igj < genJetSize; igj++)
+    {
+      const reco::GenJet& genJet = (*genJetHandle)[igj];
+      _genjet_px.push_back ( genJet.px() );
+      _genjet_py.push_back ( genJet.py() );
+      _genjet_pz.push_back ( genJet.pz() );
+      _genjet_e .push_back ( genJet.energy() );
+    }
+    return;
+
 }
 
 // return index of gen matched to reco lepton, and -1 if not existing or not found
