@@ -332,7 +332,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
   std::vector<Float_t> _jets_PUJetID;
-  std::vector<Int_t> _jets_Flavour;
+  std::vector<Int_t> _jets_Flavour; // parton flavour
+  std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
   std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
@@ -552,6 +553,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_e.clear();
   _jets_PUJetID.clear();
   _jets_Flavour.clear();
+  _jets_HadronFlavour.clear();
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -721,6 +723,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_pz",&_jets_pz);
   myTree->Branch("jets_e",&_jets_e);
   myTree->Branch("jets_Flavour",&_jets_Flavour);
+  myTree->Branch("jets_HadronFlavour",&_jets_HadronFlavour);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -1001,6 +1004,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
     _jets_pz.push_back( (float) ijet->pz());
     _jets_e.push_back( (float) ijet->energy());
     _jets_Flavour.push_back(ijet->partonFlavour());
+    _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
