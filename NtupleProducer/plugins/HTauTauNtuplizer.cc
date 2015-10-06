@@ -124,7 +124,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
-  int FillJet(const edm::View<pat::Jet>* jet);
+  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR);
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
@@ -242,6 +242,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _genjet_py;
   std::vector<Float_t> _genjet_pz;
   std::vector<Float_t> _genjet_e;
+  std::vector<Int_t> _genjet_partonFlavour; // from matched pat::Jet
+  std::vector<Int_t> _genjet_hadronFlavour; // (eh yes, because it is not accessible easily from gen jets)
 
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
@@ -341,6 +343,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_PUJetID;
   std::vector<Int_t> _jets_Flavour; // parton flavour
   std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
+  std::vector<Int_t> _jets_genjetIndex; // index of matched gen jet in genjet vector
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
   std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
@@ -512,6 +515,8 @@ void HTauTauNtuplizer::Initialize(){
   _genjet_py.clear();
   _genjet_pz.clear();
   _genjet_e.clear();
+  _genjet_partonFlavour.clear();
+  _genjet_hadronFlavour.clear();
   
   _indexDau1.clear();
   _indexDau2.clear();
@@ -566,6 +571,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_PUJetID.clear();
   _jets_Flavour.clear();
   _jets_HadronFlavour.clear();
+  _jets_genjetIndex.clear();
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -649,6 +655,8 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genjet_py", &_genjet_py);
     myTree->Branch("genjet_pz", &_genjet_pz);
     myTree->Branch("genjet_e" , &_genjet_e);
+    myTree->Branch("genjet_partonFlavour" , &_genjet_partonFlavour);
+    myTree->Branch("genjet_hadronFlavour" , &_genjet_hadronFlavour);
 
     myTree->Branch("NUP", &_nup,"NUP/I");
   }
@@ -742,6 +750,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_e",&_jets_e);
   myTree->Branch("jets_Flavour",&_jets_Flavour);
   myTree->Branch("jets_HadronFlavour",&_jets_HadronFlavour);
+  myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -854,7 +863,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   //Loop on Jets
   _numberOfJets = 0;
-  if(writeJets)_numberOfJets = FillJet(jets);
+  if(writeJets)_numberOfJets = FillJet(jets, event);
 
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
@@ -1016,7 +1025,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 }
 
 //Fill jets quantities
-int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
+int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event){
   int nJets=0;
   for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
     nJets++;
@@ -1067,6 +1076,33 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
     _jetID.push_back(jetid);
     _jetrawf.push_back(ijet->jecFactor("Uncorrected"));
   }
+
+
+  if ( theisMC )
+  {
+    edm::Handle<edm::View<reco::GenJet>> genJetHandle;
+    event.getByLabel ("slimmedGenJets", genJetHandle);
+    std::vector <const reco::GenJet*> ptrGenJets;
+    unsigned int genJetSize = genJetHandle->size();
+    for (unsigned int igj = 0; igj < genJetSize; igj++)
+    {
+      ptrGenJets.push_back ( &((*genJetHandle)[igj]) );
+    }
+
+    // now gather associated gen jets and save their address
+    // relies on the fact that gen jets are filled in the same order as they appear in the collection
+    std::vector <const reco::GenJet*>::iterator it;
+    for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet)
+    {
+      const reco::GenJet * thisGenJet =  ijet->genJet ();
+      int genindex = -1;
+      it = std::find(ptrGenJets.begin(), ptrGenJets.end(), thisGenJet);
+      if (it != ptrGenJets.end())
+          genindex = std::distance (ptrGenJets.begin(), it);
+      _jets_genjetIndex.push_back(genindex);
+    }
+  }
+
   return nJets;
 }
 
@@ -1389,11 +1425,11 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         int TopMIndex = -1;
         int TauMIndex = -1;
         int ZMIndex = -1;
-	int WMIndex = -1;
+        int WMIndex = -1;
         int bMIndex = -1;
         int HZDecayMode = -1;
-	int TopDecayMode = -1;
-	int WDecayMode = -1;
+        int TopDecayMode = -1;
+        int WDecayMode = -1;
         int TauGenDecayMode = -1;
         
         if (igen->hasUserInt("HMothIndex"))   HMIndex = igen->userInt("HMothIndex");
@@ -1401,11 +1437,11 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         if (igen->hasUserInt("TopMothIndex")) TopMIndex = igen->userInt("TopMothIndex");
         if (igen->hasUserInt("TauMothIndex")) TauMIndex = igen->userInt("TauMothIndex");
         if (igen->hasUserInt("ZMothIndex"))   ZMIndex = igen->userInt("ZMothIndex");
-	if (igen->hasUserInt("WMothIndex")) WMIndex = igen->userInt("WMothIndex");
+        if (igen->hasUserInt("WMothIndex")) WMIndex = igen->userInt("WMothIndex");
         if (igen->hasUserInt("bMothIndex")) bMIndex = igen->userInt("bMothIndex");
         if (igen->hasUserInt("HZDecayMode"))   HZDecayMode = igen->userInt("HZDecayMode");
-	if (igen->hasUserInt("TopDecayMode"))   TopDecayMode = igen->userInt("TopDecayMode");
-	if (igen->hasUserInt("WDecayMode"))   WDecayMode = igen->userInt("WDecayMode");
+        if (igen->hasUserInt("TopDecayMode"))   TopDecayMode = igen->userInt("TopDecayMode");
+        if (igen->hasUserInt("WDecayMode"))   WDecayMode = igen->userInt("WDecayMode");
         if (igen->hasUserInt("tauGenDecayMode"))   TauGenDecayMode = igen->userInt("tauGenDecayMode");
         
         _genpart_HMothInd.push_back(HMIndex);
@@ -1413,10 +1449,10 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         _genpart_TopMothInd.push_back(TopMIndex);
         _genpart_TauMothInd.push_back(TauMIndex);
         _genpart_ZMothInd.push_back(ZMIndex);
-	_genpart_WMothInd.push_back(WMIndex);
+        _genpart_WMothInd.push_back(WMIndex);
         _genpart_bMothInd.push_back(bMIndex);
         _genpart_HZDecayMode.push_back(HZDecayMode);
-	_genpart_TopDecayMode.push_back(TopDecayMode);
+        _genpart_TopDecayMode.push_back(TopDecayMode);
         _genpart_WDecayMode.push_back(WDecayMode);
         _genpart_TauGenDecayMode.push_back(TauGenDecayMode);
         
@@ -1432,8 +1468,13 @@ void HTauTauNtuplizer::FillGenJetInfo(const edm::Event& event)
 {
     edm::Handle<edm::View<reco::GenJet>> genJetHandle;
     event.getByLabel ("slimmedGenJets", genJetHandle);
-    
     unsigned int genJetSize = genJetHandle->size();
+
+    // to retrieve gen jet flavour from matched gen jet
+    edm::Handle<edm::View<pat::Jet>> patjetHandle;
+    event.getByLabel("jets", patjetHandle);
+    unsigned int jetSize = patjetHandle->size();
+
     for (unsigned int igj = 0; igj < genJetSize; igj++)
     {
       const reco::GenJet& genJet = (*genJetHandle)[igj];
@@ -1441,7 +1482,31 @@ void HTauTauNtuplizer::FillGenJetInfo(const edm::Event& event)
       _genjet_py.push_back ( genJet.py() );
       _genjet_pz.push_back ( genJet.pz() );
       _genjet_e .push_back ( genJet.energy() );
+
+      // jet flavour
+      int partFlav = -999;
+      int hadrFlav = -999;
+
+      for (unsigned int ijet = 0; ijet < jetSize; ijet++)
+      {
+        const pat::Jet& patjet = (*patjetHandle)[ijet];
+        const reco::GenJet * thismatchedGenJet =  patjet.genJet();
+
+        if (thismatchedGenJet == &genJet)
+        {
+          // no error, checked :-)
+          //if (partFlav != -999 && patjet.partonFlavour() != partFlav) cout << igj << " MISMATCH! Part flav: " << partFlav << " " << patjet.partonFlavour() << endl;
+          //if (hadrFlav != -999 && patjet.hadronFlavour() != hadrFlav) cout << igj << " MISMATCH! Hadr flav: " << hadrFlav << " " << patjet.hadronFlavour() << endl;
+          partFlav = patjet.partonFlavour();
+          hadrFlav = patjet.hadronFlavour();
+          break;
+        }      
+      }
+
+      _genjet_partonFlavour.push_back(partFlav);
+      _genjet_hadronFlavour.push_back(hadrFlav);
     }
+
     return;
 
 }
