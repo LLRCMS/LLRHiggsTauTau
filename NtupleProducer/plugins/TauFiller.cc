@@ -154,7 +154,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //if(A==1&&B==0)decayMode=1;
     //else if(A==1&&B>0)decayMode=2;
     //else if (A==3&&B==0)decayMode=3;
-    float tauid=l.tauID(theDiscriminatorTag);
+    float tauid = (l.isTauIDAvailable(theDiscriminatorTag) ? l.tauID(theDiscriminatorTag) : -999);
     //printf("A, B, tau %d %d %f \n",A,B,tauid);
 
     //if(decayMode<0&&tauid==0)edm::LogWarning("TauFiller: Unrecognized decay mode");
