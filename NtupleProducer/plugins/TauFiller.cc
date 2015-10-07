@@ -200,9 +200,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserInt("byMediumCombinedIsolationDeltaBetaCorr3Hits", byMediumCombinedIsolationDeltaBetaCorr3Hits);
     l.addUserInt("byTightCombinedIsolationDeltaBetaCorr3Hits", byTightCombinedIsolationDeltaBetaCorr3Hits);
     l.addUserFloat("byCombinedIsolationDeltaBetaCorrRaw3Hits", byCombinedIsolationDeltaBetaCorrRaw3Hits);
-    l.addUserFloat("byIsolationMVA3oldDMwoLTraw",l.tauID("byIsolationMVA3oldDMwoLTraw"));
+    if (l.isTauIDAvailable("byIsolationMVA3oldDMwoLTraw")) l.addUserFloat("byIsolationMVA3oldDMwoLTraw",l.tauID("byIsolationMVA3oldDMwoLTraw"));
+    else                                                   l.addUserFloat("byIsolationMVA3oldDMwoLTraw",-999.);    
     l.addUserFloat("byIsolationMVA3oldDMwLTraw",l.tauID("byIsolationMVA3oldDMwLTraw"));
-    l.addUserFloat("byIsolationMVA3newDMwoLTraw",l.tauID("byIsolationMVA3newDMwoLTraw"));
+    if (l.isTauIDAvailable("byIsolationMVA3newDMwoLTraw")) l.addUserFloat("byIsolationMVA3newDMwoLTraw",l.tauID("byIsolationMVA3newDMwoLTraw"));
+    else                                                   l.addUserFloat("byIsolationMVA3newDMwoLTraw",-999.);    
     l.addUserFloat("byIsolationMVA3newDMwLTraw",l.tauID("byIsolationMVA3newDMwLTraw"));
     l.addUserFloat("chargedIsoPtSum", chargedIsoPtSum);
     l.addUserFloat("neutralIsoPtSum", neutralIsoPtSum);
