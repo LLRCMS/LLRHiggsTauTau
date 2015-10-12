@@ -13,20 +13,29 @@ import re
 #tag = "llrNt_NoSVFit_bkg_27Ago2015"
 #datasetsFile = "datasets.txt"
 
-PROCESS = ["2015RUNBDATA"]
-tag = "llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
+#PROCESS = ["2015RUNBDATA", "2015RUNCDATA"] # 50 ns
+#tag = "Data50ns_SVFit_6Ott2015"
+#datasetsFile = "datasets.txt"
+
+#PROCESS = ["2015RUNCDATA", "2015RUNDDATA"] # 25 ns
+#tag = "Data25ns_SVFit_6Ott2015"
+#datasetsFile = "datasets.txt"
+
+PROCESS = ["2015DATA25NSRESUBMISSION"]
+tag = "Data25ns_SVFit_6Ott2015_resub"
 datasetsFile = "datasets.txt"
 
 isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
-lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
-#25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 16.09/pb - 18/09/2015
-#lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt"
+#lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
 
-FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
+#25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 592.27/pb - 09/10/2015
+lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-258159_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt"
+
+FastJobs = False # true if skipping SVfit, false if computing it (jobs will be smaller)
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
-PublishDataset = False # publish dataset; set to false if producing ntuples
+PublishDataset = True # publish dataset; set to false if producing ntuples
 
 
 ###################################################################
@@ -116,7 +125,7 @@ for dtset in dtsetToLaunch:
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
     command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
-    command += " Data.publishDataName=%s" % tag
+    command += " Data.publishDataName=%s" % (dtsetNames + "_" + tag + "_" + str(counter))
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
