@@ -784,13 +784,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   //  std::vector<const reco::Candidate *> genZs;
   // std::vector<const reco::Candidate *> genZLeps;
+  _npv = vertexs->size();
    if (theisMC) {
     Handle<std::vector< PileupSummaryInfo > >  PupInfo;
     event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);    
     std::vector<PileupSummaryInfo>::const_iterator PVI;
     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
       if(PVI->getBunchCrossing() == 0) { 
-        _npv = vertexs->size();
         _rho  = PVI->getPU_NumInteractions();
         int nTrueInt = PVI->getTrueNumInteractions();
         _npu = nTrueInt;
