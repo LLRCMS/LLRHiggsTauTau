@@ -30,7 +30,7 @@ class triggerhelper {
   triggerhelper();
 
   void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int channel);
-  int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
+  Long64_t FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
   int FindMETBit(const edm::Event&);
   
   int FindTriggerNumber(string triggername,bool istrigger=true); // calls the following according to istrigger

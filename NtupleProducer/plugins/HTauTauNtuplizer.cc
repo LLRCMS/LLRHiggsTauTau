@@ -179,7 +179,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _indexevents;
   Int_t _runNumber;
   Int_t _lumi;
-  Int_t _triggerbit;
+  Long64_t _triggerbit;
   Int_t _metfilterbit;
   Float_t _met;
   Float_t _metphi;
@@ -594,7 +594,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
-  myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
+  myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
@@ -802,7 +802,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
   _metfilterbit = myTriggerHelper->FindMETBit(event);
-  int tbit = _triggerbit;
+  Long64_t tbit = _triggerbit;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
   }
@@ -1310,7 +1310,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
-          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+          Long64_t triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
           
           /*
           for (int i = 0; i < myTriggerHelper->GetNTriggers(); i++)
