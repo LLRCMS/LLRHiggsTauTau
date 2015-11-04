@@ -1615,7 +1615,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       indexOfPath.push_back(j);
       foundPaths.push_back(pathName);
 
-      //cout << j << " - TTT: " << pathName << endl;
+      cout << j << " - TTT: " << pathName << endl;
 	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
     } 
   }
