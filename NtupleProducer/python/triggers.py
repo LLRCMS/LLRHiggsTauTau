@@ -128,7 +128,7 @@ HLTLIST = cms.VPSet(
         channel = cms.int32(1)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_Ele23_WPLoose_Gsf_v"), # DATA RUN2015D
+        HLT = cms.string("HLT_Ele23_WPLoose_Gsf_v2"), # DATA RUN2015D
         path1 = cms.vstring ("hltEle23WPLooseGsfTrackIsoFilter"), # e filters
         path2 = cms.vstring (""), # tauh filters
         channel = cms.int32(1)
@@ -167,7 +167,7 @@ HLTLIST = cms.VPSet(
         channel = cms.int32(2)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_IsoMu18_v"), #2015 RUN D
+        HLT = cms.string("HLT_IsoMu18_v1"), #2015 RUN D
         path1 = cms.vstring ("hltL3crIsoL1sMu16L1f0L2f10QL3f18QL3trkIsoFiltered0p09"), # mu filters
         path2 = cms.vstring (""), # tauh filters
         channel = cms.int32(2)
@@ -187,7 +187,13 @@ HLTLIST = cms.VPSet(
         channel = cms.int32(3)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v"), # RUN 2015 B/C
+        HLT = cms.string("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v3"), # RUN 2015 B/C
+        path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"), # tauh filters
+        path2 = cms.vstring ("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"), # tauh filters (replicated)
+        channel = cms.int32(3)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v1"),
         path1 = cms.vstring ("hltDoublePFTau35TrackPt1MediumIsolationDz02Reg"), # tauh filters
         path2 = cms.vstring ("hltDoublePFTau35TrackPt1MediumIsolationDz02Reg"), # tauh filters (replicated)
         channel = cms.int32(3)
