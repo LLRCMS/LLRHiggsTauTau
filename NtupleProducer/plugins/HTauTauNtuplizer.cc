@@ -781,22 +781,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   Handle<vector<reco::Vertex> >  vertexs;
   event.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
-
-  Handle<LHEEventProduct> lheEventProduct;
-  event.getByLabel("externalLHEProducer", lheEventProduct);
-  const lhef::HEPEUP& lheEvent = lheEventProduct->hepeup();
-  std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheEvent.PUP;
-  double lheHt = 0.;
-  size_t numParticles = lheParticles.size();
-  for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
-    int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
-    int status = lheEvent.ISTUP[idxParticle];
-    if ( status == 1 && ((absPdgId >= 1 &&  absPdgId<= 6) ||  absPdgId== 21) ) { // quarks and gluons
-      lheHt += TMath::Sqrt((lheParticles[idxParticle][0])*(lheParticles[idxParticle][0]) + (lheParticles[idxParticle][1])*(lheParticles[idxParticle][1])); // first entry is px, second py
-    }
-  }
-  _lheHt = lheHt;
-  cout<<"lheHt = "<<lheHt<<endl;
   
   //----------------------------------------------------------------------
   // Analyze MC history. THIS HAS TO BE DONE BEFORE ANY RETURN STATEMENT
@@ -819,6 +803,24 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       } 
     }
   }
+   
+   if (theisMC) {
+     Handle<LHEEventProduct> lheEventProduct;
+     event.getByLabel("externalLHEProducer", lheEventProduct);
+     const lhef::HEPEUP& lheEvent = lheEventProduct->hepeup();
+     std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheEvent.PUP;
+     double lheHt = 0.;
+     size_t numParticles = lheParticles.size();
+     for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
+       int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
+       int status = lheEvent.ISTUP[idxParticle];
+       if ( status == 1 && ((absPdgId >= 1 &&  absPdgId<= 6) ||  absPdgId== 21) ) { // quarks and gluons
+	 lheHt += TMath::Sqrt((lheParticles[idxParticle][0])*(lheParticles[idxParticle][0]) + (lheParticles[idxParticle][1])*(lheParticles[idxParticle][1])); // first entry is px, second py
+       }
+     }
+     _lheHt = lheHt;
+     //cout<<"lheHt = "<<lheHt<<endl;
+   }
   
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
   _metfilterbit = myTriggerHelper->FindMETBit(event);
