@@ -83,6 +83,7 @@
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenFlags.h"
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenHelper.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 //#include "TLorentzVector.h"
 
@@ -186,6 +187,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
+  Float_t _lheHt;
   Int_t _npu;
   Float_t _PUReweight;
   Float_t _rho;
@@ -558,6 +560,7 @@ void HTauTauNtuplizer::Initialize(){
   _metphi=0.;
   _MC_weight=0.;
   _npv=0;
+  _lheHt=0;
   _npu=0;
   _PUReweight=0.;
   _rho=0;
@@ -598,6 +601,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
+  myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/I"); 
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
@@ -777,6 +781,22 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   Handle<vector<reco::Vertex> >  vertexs;
   event.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
+
+  Handle<LHEEventProduct> lheEventProduct;
+  event.getByLabel("externalLHEProducer", lheEventProduct);
+  const lhef::HEPEUP& lheEvent = lheEventProduct->hepeup();
+  std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheEvent.PUP;
+  double lheHt = 0.;
+  size_t numParticles = lheParticles.size();
+  for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
+    int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
+    int status = lheEvent.ISTUP[idxParticle];
+    if ( status == 1 && ((absPdgId >= 1 &&  absPdgId<= 6) ||  absPdgId== 21) ) { // quarks and gluons
+      lheHt += TMath::Sqrt((lheParticles[idxParticle][0])*(lheParticles[idxParticle][0]) + (lheParticles[idxParticle][1])*(lheParticles[idxParticle][1])); // first entry is px, second py
+    }
+  }
+  _lheHt = lheHt;
+  cout<<"lheHt = "<<lheHt<<endl;
   
   //----------------------------------------------------------------------
   // Analyze MC history. THIS HAS TO BE DONE BEFORE ANY RETURN STATEMENT
