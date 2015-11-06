@@ -21,8 +21,12 @@ import re
 #tag = "Data25ns_SVFit_6Ott2015"
 #datasetsFile = "datasets.txt"
 
-PROCESS = ["2015DATA25NSRESUBMISSION"]
-tag = "Data25ns_SVFit_6Ott2015_resub"
+#PROCESS = ["2015DATA25NSRESUBMISSION"]
+#tag = "Data25ns_SVFit_6Ott2015_resub"
+#datasetsFile = "datasets.txt"
+
+PROCESS = ["2015DATARUND27OTT"]
+tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
 datasetsFile = "datasets.txt"
 
 isMC = False
@@ -30,12 +34,12 @@ isMC = False
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
 
-#25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 594.65/pb - 12/10/2015
-lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-258159_13TeV_PromptReco_Collisions15_25ns_JSON_v3.txt"
+#25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 1.56/fb - 30/10/2015
+lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
 
-FastJobs = False # true if skipping SVfit, false if computing it (jobs will be smaller)
+FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
-PublishDataset = True # publish dataset; set to false if producing ntuples
+PublishDataset = False # publish dataset; set to false if producing ntuples
 
 
 ###################################################################

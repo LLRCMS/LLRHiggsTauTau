@@ -20,9 +20,12 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #JETCUT="pt>15"
 
 USEPAIRMET=False
-SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
-RUN_NTUPLIZER=False
+SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+RUN_NTUPLIZER=True
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
+
+IsMC=False
+Is25ns=True
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
@@ -33,9 +36,6 @@ TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #mi
 JETCUT="pt>15"
 LLCUT="mass>0"
 BCUT="pt>5"
-
-IsMC=True
-Is25ns=True
 
 ##
 ## Standard sequence
@@ -48,7 +48,15 @@ execfile(PyFilePath+"python/HiggsTauTauProducer.py")
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/mc/RunIISpring15DR74/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/048FB1EE-33FD-E411-A2BA-0025905A6094.root',
+    '/store/data/Run2015D/Tau/MINIAOD/PromptReco-v4/000/258/159/00000/06064263-DD6B-E511-99BA-02163E013861.root',
+    #'/store/data/Run2015D/Tau/MINIAOD/05Oct2015-v1/30000/00756739-616F-E511-BC4F-003048FFCBB0.root',
+    #'/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root',
+    #'/store/data/Run2015D/SingleMuon/MINIAOD/05Oct2015-v1/10000/021FD3F0-876F-E511-99D2-0025905A6060.root',
+    #    '/store/data/Run2015D/Tau/MINIAOD/05Oct2015-v1/30000/00756739-616F-E511-BC4F-003048FFCBB0.root',   
+ #    '/store/data/Run2015D/SingleElectron/MINIAOD/PromptReco-v4/000/258/159/00000/D0E6617B-186C-E511-8FEE-02163E01452F.root',
+    #   '/store/data/Run2015C/SingleMuon/MINIAOD/PromptReco-v1/000/253/944/00000/BA286EB7-5141-E511-8829-02163E01437D.root',
+    #   '/store/data/Run2015C/SingleMuon/MINIAOD/PromptReco-v1/000/253/888/00000/DA473838-0941-E511-9644-02163E014405.root',
+    #   '/store/mc/RunIISpring15DR74/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/048FB1EE-33FD-E411-A2BA-0025905A6094.root',
     #  '/store/mc/RunIISpring15DR74/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/06B5178E-F008-E511-A2CF-00261894390B.root'
     #  'file:/data_CMS/cms/salerno/Lambdam4_74x_step2/miniAOD_lambdam4_2_300000Events_0Skipped_1435089918.88/output_65.root',
     #	 'file:/data_CMS/cms/salerno/Lambda20_74x_step2/miniAOD_lambda20_2_300000Events_0Skipped_1434450687.86/output_0.root',
@@ -59,13 +67,13 @@ process.source = cms.Source("PoolSource",
 )
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = -1
+process.maxEvents.input = 1000
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
-if not IsMC:
-  execfile(PyFilePath+"python/lumiMask.py")
-  process.source.lumisToProcess = LUMIMASK
+#if not IsMC:
+#  execfile(PyFilePath+"python/lumiMask.py")
+#  process.source.lumisToProcess = LUMIMASK
 
 ##
 ## Output file

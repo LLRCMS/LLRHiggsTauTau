@@ -24,18 +24,20 @@ SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy user
 RUN_NTUPLIZER=True
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
+#Samples:
+IsMC=XXX_ISMC_XXX
+Is25ns=True
+
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
-MUCUT="(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) && pt>8"
+MUCUT="isLooseMuon && pt>8"
 ELECUT="userFloat('missingHit')<=1 && pt>10"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
-TAUCUT="pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
+TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
 JETCUT="pt>15"
 LLCUT="mass>0"
 BCUT="pt>5"
 
-#Samples:
-IsMC=XXX_ISMC_XXX
 
 ##
 ## Standard sequence
@@ -59,34 +61,11 @@ process.source = cms.Source("PoolSource",
 process.maxEvents.input = cms.untracked.int32 (XXX_MAXEVENTS_XXX)
 process.source.skipEvents = cms.untracked.uint32 (XXX_SKIPEVENTS_XXX)
 
-# JSON mask for data --> to upload each time with the proper list using the macro in tools/
-#from JSON file
+# JSON mask for data --> defined in the lumiMask file
+# from JSON file
 if not IsMC:
-  process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange( *(
-      '251244:85-251244:86',
-      '251244:88-251244:93',
-      '251244:96-251244:121',
-      '251244:123-251244:156',
-      '251244:158-251244:428',
-      '251244:430-251244:442',
-      '251251:1-251251:31',
-      '251251:33-251251:97',
-      '251251:99-251251:167',
-      '251252:1-251252:283',
-      '251252:285-251252:505',
-      '251252:507-251252:554',
-      '251561:1-251561:94',
-      '251562:1-251562:439',
-      '251562:443-251562:691',
-      '251643:1-251643:216',
-      '251643:222-251643:606',
-      '251721:21-251721:36',
-      '251721:123-251721:244',
-      '251883:56-251883:56',
-      '251883:58-251883:60',
-      '251883:62-251883:144',
-      '251883:156-251883:437',
-  ))
+  execfile(PyFilePath+"python/lumiMask.py")
+  process.source.lumisToProcess = LUMIMASK
 
 ##
 ## Output file

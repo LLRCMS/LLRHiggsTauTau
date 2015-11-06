@@ -154,6 +154,12 @@ HLTLIST = cms.VPSet(
         path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterIsoMu17LooseIsoPFTau20"), # tauh filters
         channel = cms.int32(2)
         ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v3"), #2015 RUN B/C
+        path1 = cms.vstring ("hltL3crIsoL1sMu16erTauJet20erL1f0L2f10QL3f17QL3trkIsoFiltered0p09", "hltOverlapFilterIsoMu17LooseIsoPFTau20"), # mu filters
+        path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterIsoMu17LooseIsoPFTau20"), # tauh filters
+        channel = cms.int32(2)
+        ),
     # cms.PSet (
     #     HLT = cms.string("HLT_IsoMu24_eta2p1_IterTrk02_v2"),
     #     path1 = cms.vstring ("hltL3crIsoL1sMu20Eta2p1L1f0L2f10QL3f24QL3trkIsoFiltered0p09"), # mu filters
@@ -174,6 +180,18 @@ HLTLIST = cms.VPSet(
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu22_v1"), #2015 RUN D (FALLBACK)
+        path1 = cms.vstring ("hltL3crIsoL1sMu20L1f0L2f10QL3f22QL3trkIsoFiltered0p09"), # mu filters
+        path2 = cms.vstring (""), # tauh filters
+        channel = cms.int32(2)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu18_v2"), #2015 RUN D
+        path1 = cms.vstring ("hltL3crIsoL1sMu16L1f0L2f10QL3f18QL3trkIsoFiltered0p09"), # mu filters
+        path2 = cms.vstring (""), # tauh filters
+        channel = cms.int32(2)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu22_v2"), #2015 RUN D (FALLBACK)
         path1 = cms.vstring ("hltL3crIsoL1sMu20L1f0L2f10QL3f22QL3trkIsoFiltered0p09"), # mu filters
         path2 = cms.vstring (""), # tauh filters
         channel = cms.int32(2)
