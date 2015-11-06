@@ -21,7 +21,6 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 
 USEPAIRMET=False
 SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
-RUN_NTUPLIZER=True
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
 IsMC=False
@@ -36,6 +35,11 @@ TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #mi
 JETCUT="pt>15"
 LLCUT="mass>0"
 BCUT="pt>5"
+
+
+# ------------------------
+DO_ENRICHED=True # do True by default, both ntuples and enriched outputs are saved!
+# ------------------------
 
 ##
 ## Standard sequence
@@ -81,9 +85,9 @@ process.maxEvents.input = 1000
 ## Output file
 ##
 
-if RUN_NTUPLIZER:
-    process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
-else:
+process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+
+if DO_ENRICHED:
     process.out = cms.OutputModule("PoolOutputModule",
         fileName = cms.untracked.string('Enriched_miniAOD.root'),
         #outputCommands = cms.untracked.vstring(['keep *']),
@@ -97,7 +101,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'
