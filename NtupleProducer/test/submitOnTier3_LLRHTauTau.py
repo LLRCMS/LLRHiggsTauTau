@@ -103,14 +103,16 @@ if __name__ == "__main__":
         inCfg = open(opt.cfg).read()
         outCfg = open('%s/cmssw_%d_cfg.py'%(jobsDir,n), 'w')
         outFullLFN = outFullPath
-        outFullLFN += 'output_%d.root' % n
+        outFullLFNNtuples  = outFullLFN + 'HTauTauAnalysis_%d.root' % n
+        outFullLFNEnriched = outFullLFN + 'Enriched_miniAOD_%d.root' % n
     
         if not opt.wholefile: 
             replacements = {
                             'XXX_MAXEVENTS_XXX':str(EvPerJob),
                             'XXX_SKIPEVENTS_XXX':str(n*EvPerJob + opt.offset),
                             'XXX_SAMPLEFILENAME_XXX':opt.samplefile,
-                            'XXX_OUTPUTFILE_XXX':outFullLFN,
+                            'XXX_OUTPUTFILENTUPLE_XXX':outFullLFNNtuples,
+                            'XXX_OUTPUTFILEENRICHED_XXX':outFullLFNEnriched,
                             'XXX_ISMC_XXX':str(opt.isMC)
                            }
         else:
@@ -120,7 +122,8 @@ if __name__ == "__main__":
                             'XXX_MAXEVENTS_XXX':'-1',
                             'XXX_SKIPEVENTS_XXX':str (opt.offset),
                             'XXX_SAMPLEFILENAME_XXX':chunkfilename,
-                            'XXX_OUTPUTFILE_XXX':outFullLFN,
+                            'XXX_OUTPUTFILENTUPLE_XXX':outFullLFNNtuples,
+                            'XXX_OUTPUTFILEENRICHED_XXX':outFullLFNEnriched,
                             'XXX_ISMC_XXX':str(opt.isMC)
                            }
 

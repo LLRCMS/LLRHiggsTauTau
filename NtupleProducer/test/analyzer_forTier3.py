@@ -21,7 +21,6 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 
 USEPAIRMET=False
 SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
-RUN_NTUPLIZER=True
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
 #Samples:
@@ -38,6 +37,9 @@ JETCUT="pt>15"
 LLCUT="mass>0"
 BCUT="pt>5"
 
+# ------------------------
+DO_ENRICHED=True # do True by default, both ntuples and enriched outputs are saved!
+# ------------------------
 
 ##
 ## Standard sequence
@@ -70,11 +72,11 @@ if not IsMC:
 ##
 ## Output file
 ##
-if RUN_NTUPLIZER:
-    process.TFileService=cms.Service('TFileService',fileName=cms.string("XXX_OUTPUTFILE_XXX"))
-else:
+
+process.TFileService=cms.Service('TFileService',fileName=cms.string("XXX_OUTPUTFILENTUPLE_XXX"))
+if DO_ENRICHED:
     process.out = cms.OutputModule("PoolOutputModule",
-        fileName = cms.untracked.string("XXX_OUTPUTFILE_XXX"),
+        fileName = cms.untracked.string("XXX_OUTPUTFILEENRICHED_XXX"),
         #outputCommands = cms.untracked.vstring(['keep *']),
         fastCloning     = cms.untracked.bool(False)
     )
