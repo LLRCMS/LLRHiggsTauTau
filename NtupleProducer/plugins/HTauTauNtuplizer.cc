@@ -200,6 +200,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   
   // reco leptons
   //std::vector<TLorentzVector> _daughters;
+  std::vector<string> _trigger_name;
+  std::vector<Int_t> _trigger_accept;
   std::vector<Float_t> _daughters_px;
   std::vector<Float_t> _daughters_py;
   std::vector<Float_t> _daughters_pz;
@@ -250,6 +252,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Mothers output variables
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
+  std::vector<Float_t> _daughters_HLTpt;
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
   std::vector<Float_t> _SVmass;
@@ -297,6 +300,28 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
   std::vector<Int_t> _daughters_decayModeFindingOldDMs;
+  /*std::vector<Float_t> _daughters_againstElectronMVA5category;
+  std::vector<Float_t> _daughters_againstElectronMVA5raw;
+  std::vector<Int_t> _daughters_byLooseIsolationMVA3newDMwLT;
+  std::vector<Int_t> _daughters_byLooseIsolationMVA3oldDMwLT;
+  std::vector<Int_t> _daughters_byLoosePileupWeightedIsolation3Hits;
+  std::vector<Int_t> _daughters_byMediumIsolationMVA3newDMwLT;
+  std::vector<Int_t> _daughters_byMediumIsolationMVA3oldDMwLT;
+  std::vector<Int_t> _daughters_byMediumPileupWeightedIsolation3Hits;
+  std::vector<Int_t> _daughters_byPhotonPtSumOutsideSignalCone;
+  std::vector<Float_t> _daughters_byPileupWeightedIsolationRaw3Hits;
+  std::vector<Int_t> _daughters_byTightIsolationMVA3newDMwLT;
+  std::vector<Int_t> _daughters_byTightIsolationMVA3oldDMwLT;
+  std::vector<Int_t> _daughters_byTightPileupWeightedIsolation3Hits;
+  std::vector<Int_t> _daughters_byVLooseIsolationMVA3newDMwLT;
+  std::vector<Int_t> _daughters_byVLooseIsolationMVA3oldDMwLT;
+  std::vector<Int_t> _daughters_byVTightIsolationMVA3newDMwLT;
+  std::vector<Int_t> _daughters_byVTightIsolationMVA3oldDMwLT;
+  std::vector<Int_t> _daughters_byVVTightIsolationMVA3newDMwLT;
+  std::vector<Int_t> _daughters_byVVTightIsolationMVA3oldDMwLT;
+  std::vector<Float_t> _daughters_footprintCorrection;
+  std::vector<Float_t> _daughters_neutralIsoPtSumWeight;
+  std::vector<Float_t> _daughters_photonPtSumOutsideSignalCone;*/
   std::vector<Int_t> _daughters_decayModeFindingNewDMs;
   std::vector<Int_t> _daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;
   std::vector<Int_t> _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;
@@ -424,6 +449,8 @@ void HTauTauNtuplizer::Initialize(){
   _mothers_e.clear();
   
   //_daughters.clear();
+  _trigger_name.clear();
+  _trigger_accept.clear();
   _daughters_px.clear();
   _daughters_py.clear();
   _daughters_pz.clear();
@@ -445,6 +472,28 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_byIsolationMVA3oldDMwoLTraw.clear();
   _daughters_byIsolationMVA3oldDMwLTraw.clear();
   _daughters_byIsolationMVA3newDMwoLTraw.clear();
+  /*_daughters_againstElectronMVA5category.clear();
+  _daughters_againstElectronMVA5raw.clear();
+  _daughters_byLooseIsolationMVA3newDMwLT.clear();
+  _daughters_byLooseIsolationMVA3oldDMwLT.clear();
+  _daughters_byLoosePileupWeightedIsolation3Hits.clear();
+  _daughters_byMediumIsolationMVA3newDMwLT.clear();
+  _daughters_byMediumIsolationMVA3oldDMwLT.clear();
+  _daughters_byMediumPileupWeightedIsolation3Hits.clear();
+  _daughters_byPhotonPtSumOutsideSignalCone.clear();
+  _daughters_byPileupWeightedIsolationRaw3Hits.clear();
+  _daughters_byTightIsolationMVA3newDMwLT.clear();
+  _daughters_byTightIsolationMVA3oldDMwLT.clear();
+  _daughters_byTightPileupWeightedIsolation3Hits.clear();
+  _daughters_byVLooseIsolationMVA3newDMwLT.clear();
+  _daughters_byVLooseIsolationMVA3oldDMwLT.clear();
+  _daughters_byVTightIsolationMVA3newDMwLT.clear();
+  _daughters_byVTightIsolationMVA3oldDMwLT.clear();
+  _daughters_byVVTightIsolationMVA3newDMwLT.clear();
+  _daughters_byVVTightIsolationMVA3oldDMwLT.clear();
+  _daughters_footprintCorrection.clear();
+  _daughters_neutralIsoPtSumWeight.clear();
+  _daughters_photonPtSumOutsideSignalCone.clear();*/
   _daughters_byIsolationMVA3newDMwLTraw.clear();
   _daughters_chargedIsoPtSum.clear();
   _daughters_neutralIsoPtSum.clear();
@@ -531,6 +580,7 @@ void HTauTauNtuplizer::Initialize(){
   _SVMetRho.clear();
   _SVMetPhi.clear();
   _isOSCand.clear();
+  _daughters_HLTpt.clear();
   _metx.clear();
   _mety.clear();
   _metCov00.clear();
@@ -607,7 +657,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("mothers_py",&_mothers_py);
   myTree->Branch("mothers_pz",&_mothers_pz);
   myTree->Branch("mothers_e",&_mothers_e);
-
+  myTree->Branch("trigger_name",&_trigger_name);
+  myTree->Branch("trigger_accept",&_trigger_accept);
   myTree->Branch("daughters_px",&_daughters_px);
   myTree->Branch("daughters_py",&_daughters_py);
   myTree->Branch("daughters_pz",&_daughters_pz);
@@ -627,7 +678,6 @@ void HTauTauNtuplizer::beginJob(){
     //myTree->Branch("genH_py",&_genH_py);
     //myTree->Branch("genH_pz",&_genH_pz);
     //myTree->Branch("genH_e",&_genH_e);
-
     myTree->Branch("daughters_genindex",&_daughters_genindex);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
     myTree->Branch("aMCatNLOweight",&_aMCatNLOweight,"aMCatNLOweight/F");    
@@ -742,6 +792,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_isGoodTriggerType",&_daughters_isGoodTriggerType);
   myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired);
   myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
+  myTree->Branch("daughters_HLTpt",&_daughters_HLTpt);
   
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
@@ -786,7 +837,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // std::vector<const reco::Candidate *> genZLeps;
    if (theisMC) {
     Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-    event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);    
+    event.getByLabel(edm::InputTag("slimmedAddPileupInfo"), PupInfo);    
     std::vector<PileupSummaryInfo>::const_iterator PVI;
     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
       if(PVI->getBunchCrossing() == 0) { 
@@ -799,6 +850,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       } 
     }
   }
+
+  edm::Handle<edm::TriggerResults> triggerBits;
+
+  event.getByToken(triggerBits_, triggerBits);
+  const edm::TriggerNames &names = event.triggerNames(*triggerBits);
+
+  for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+        _trigger_name.push_back( (string) names.triggerName(i));
+        _trigger_accept.push_back( (int) triggerBits->accept(i));
+  }
+
   
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
   _metfilterbit = myTriggerHelper->FindMETBit(event);
@@ -1293,6 +1355,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     //TRIGGER MATCHING
     int LFtriggerbit=0,L3triggerbit=0,filterFired=0;
     int triggertypeIsGood = 0;
+    float hltpt=0;
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
       //check if the trigger object matches cand
       //bool matchCand = false;
@@ -1310,6 +1373,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
+	  if (type==ParticleType::MUON && obj.hasFilterLabel("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09") && (obj.hasPathName("HLT_IsoMu17_eta2p1_v1", false, true ) or obj.hasPathName("HLT_IsoMu17_eta2p1_v1", true, false )))
+	     hltpt = (float) obj.pt();
+          if (type==ParticleType::ELECTRON && obj.hasFilterLabel("hltSingleEle22WP75GsfTrackIsoFilter") && (obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v1", false, true ) or obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v1", true, false )))
+             hltpt = (float) obj.pt();
           int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
           
           /*
@@ -1356,6 +1423,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_FilterFired.push_back(filterFired);
     _daughters_L3FilterFired.push_back(LFtriggerbit);
     _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
+    _daughters_HLTpt.push_back(hltpt);
   }
 }
 
@@ -1671,8 +1739,11 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   else cand1j=1;
 
   //step 1, l;eg 1 ISO
+  //byCombinedIsolationDeltaBetaCorrRaw3Hits
   isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"combRelIsoPF");
+  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"byCombinedIsolationDeltaBetaCorrRaw3Hits");
+  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"byCombinedIsolationDeltaBetaCorrRaw3Hits");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
@@ -1684,6 +1755,8 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   //step 3, leg 2 ISO
   isoi=userdatahelpers::getUserFloat(i.daughter(1-cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"combRelIsoPF");
+  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi=userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byCombinedIsolationDeltaBetaCorrRaw3Hits");
+  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byCombinedIsolationDeltaBetaCorrRaw3Hits");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
