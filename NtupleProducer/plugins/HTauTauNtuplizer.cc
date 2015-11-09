@@ -83,6 +83,7 @@
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenFlags.h"
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenHelper.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 //#include "TLorentzVector.h"
 
@@ -179,13 +180,14 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _indexevents;
   Int_t _runNumber;
   Int_t _lumi;
-  Int_t _triggerbit;
+  Long64_t _triggerbit;
   Int_t _metfilterbit;
   Float_t _met;
   Float_t _metphi;
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
+  Float_t _lheHt;
   Int_t _npu;
   Float_t _PUReweight;
   Float_t _rho;
@@ -608,6 +610,7 @@ void HTauTauNtuplizer::Initialize(){
   _metphi=0.;
   _MC_weight=0.;
   _npv=0;
+  _lheHt=0;
   _npu=0;
   _PUReweight=0.;
   _rho=0;
@@ -644,10 +647,11 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
-  myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
+  myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
+  myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/I"); 
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
@@ -835,13 +839,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   //  std::vector<const reco::Candidate *> genZs;
   // std::vector<const reco::Candidate *> genZLeps;
+  _npv = vertexs->size();
    if (theisMC) {
     Handle<std::vector< PileupSummaryInfo > >  PupInfo;
     event.getByLabel(edm::InputTag("slimmedAddPileupInfo"), PupInfo);    
     std::vector<PileupSummaryInfo>::const_iterator PVI;
     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
       if(PVI->getBunchCrossing() == 0) { 
-        _npv = vertexs->size();
         _rho  = PVI->getPU_NumInteractions();
         int nTrueInt = PVI->getTrueNumInteractions();
         _npu = nTrueInt;
@@ -860,11 +864,28 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
         _trigger_name.push_back( (string) names.triggerName(i));
         _trigger_accept.push_back( (int) triggerBits->accept(i));
   }
-
+   
+   if (theisMC) {
+     Handle<LHEEventProduct> lheEventProduct;
+     event.getByLabel("externalLHEProducer", lheEventProduct);
+     const lhef::HEPEUP& lheEvent = lheEventProduct->hepeup();
+     std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheEvent.PUP;
+     double lheHt = 0.;
+     size_t numParticles = lheParticles.size();
+     for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
+       int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
+       int status = lheEvent.ISTUP[idxParticle];
+       if ( status == 1 && ((absPdgId >= 1 &&  absPdgId<= 6) ||  absPdgId== 21) ) { // quarks and gluons
+	        lheHt += TMath::Sqrt((lheParticles[idxParticle][0])*(lheParticles[idxParticle][0]) + (lheParticles[idxParticle][1])*(lheParticles[idxParticle][1])); // first entry is px, second py
+       }
+     }
+     _lheHt = lheHt;
+     //cout<<"lheHt = "<<lheHt<<endl;
+   }
   
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
   _metfilterbit = myTriggerHelper->FindMETBit(event);
-  int tbit = _triggerbit;
+  Long64_t tbit = _triggerbit;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
   }
@@ -1377,8 +1398,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
 	     hltpt = (float) obj.pt();
           if (type==ParticleType::ELECTRON && obj.hasFilterLabel("hltSingleEle22WP75GsfTrackIsoFilter") && (obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v1", false, true ) or obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v1", true, false )))
              hltpt = (float) obj.pt();
-          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
-          
+          Long64_t triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+                    
           /*
           for (int i = 0; i < myTriggerHelper->GetNTriggers(); i++)
           {
@@ -1683,7 +1704,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       indexOfPath.push_back(j);
       foundPaths.push_back(pathName);
 
-      //cout << j << " - TTT: " << pathName << endl;
+      cout << j << " - TTT: " << pathName << endl;
 	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
     } 
   }

@@ -4,6 +4,8 @@
 # source /cvmfs/cms.cern.ch/crab3/crab.sh
 
 import os, glob
+import time
+import datetime as dt
 from subprocess import Popen, PIPE
 
 class ProcDataset:
@@ -15,6 +17,7 @@ class ProcDataset:
         self.Nfailed = ""
         self.Nrunning = ""
         self.Nfinished = ""
+        self.TaskStatus = ""
 
     def addFolderName (self, name):
         self.FolderName = name
@@ -33,9 +36,22 @@ class ProcDataset:
 
     def setFinished (self, num):
         self.Nfinished = num
+    
 
-path = "crab3_produzione_MC_3Ago2015"
+#path = "crab3_produzione_MC_3Ago2015"
+#path = "crab3_produzione_DATA_3Ago2015"
 #path = "crab3_llrNtuples_partial_5Ago"
+
+#path = "crab3_llrNt_NoSVFit_bkg_27Ago2015"
+#path = "crab3_llrNt_NoSVFit_data_27Ago2015"
+#path = "crab3_llrNt_NoSVFit_data_30Ago2015_lumiMaskFix"
+#path = "crab3_Data50ns_SVFit_6Ott2015"
+#path = "crab3_Data25ns_SVFit_6Ott2015"
+#path = "crab3_Data25ns_noSVFit_27Ott2015"
+#path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015"
+#path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015_newJson"
+#path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix"
+path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
 
 if not os.path.isdir(path):
     print "Folder %s does not exist" % path
@@ -48,21 +64,44 @@ dirsLevel1 = filter(lambda f: os.path.isdir(f), filesLevel1) # this is the list 
 
 datasets = [] #list of all processed datasets, filled from the list of folders
 
+localtime = time.asctime( time.localtime(time.time()) )
+fulllogname = (path + "/fullStatusLog_{}.txt").format( dt.datetime.now().strftime('%Y.%m.%d_%H.%M.%S') )
+fulllog = open (fulllogname, "w")
+fulllog.write ("Local current time : %s\n" % localtime)
+
 for dirr in dirsLevel1:
     print dirr
+    fulllog.write ("=== DIRECTORY TASK IS: %s\n" % dirr)
     procdataset = ProcDataset()
     procdataset.addFolderName (dirr)
     command = "crab status -d %s" % dirr
     pipe = Popen(command, shell=True, stdout=PIPE)
     for line in pipe.stdout:
+        fulllog.write(line)
         line = line.strip()
-        blocks = line.split(':')
+        print line
+        blocks = line.split(':', 1) # split at 1st occurrence
         if blocks [0] == "Output dataset":
             dtsetName = blocks[1].strip()
             procdataset.addDatasetName (dtsetName)
+        elif blocks [0] == "Task status":
+            status = blocks[1].strip()
+            procdataset.TaskStatus = status
+        elif blocks [0] == "Output dataset DAS URL":
+            procdataset.DASurl = blocks[1].strip()
     datasets.append(procdataset)
+    print "\n\n"
+    fulllog.write("\n\n")
 
-print " ================================== "
+print "\n =================  TASK STATUS  ==================== \n\n"
+print "failed: "
+for dt in datasets:
+    status = dt.TaskStatus
+    if status == "FAILED":
+        print "crab resubmit -d %s" % dt.FolderName
+
+print "\n =================  PUBLICATION  ==================== \n\n"
+
 noDataset = []
 for dt in datasets:
     name = dt.DatasetName
@@ -70,7 +109,25 @@ for dt in datasets:
         print name
     else:
         noDataset.append(dt)
+        print "\n"
 
 print "\nNo Dataset name found for:"
 for dt in noDataset:
     print dt.FolderName
+
+
+print "\n =================  DAS URLS  ==================== \n\n"
+
+#noUrl = []
+for dt in datasets:
+    url = dt.DASurl
+    if url:
+        print url
+    else:
+        #noUrl.append(dt)
+        print "\n"
+
+#print "\nNo Dataset name found for:"
+#for dt in noDataset:
+#    print dt.FolderName
+

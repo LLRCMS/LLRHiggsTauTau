@@ -107,9 +107,9 @@ void triggerhelper::addTriggerMap(string hlt, vector<string> path1, vector<strin
   //nTriggers++;
 }
 
-int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
+Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
   
-  int bit =0;
+  Long64_t bit =0;
   
   edm::Handle<edm::TriggerResults> triggerResults;
   event.getByLabel(InputTag("TriggerResults","","HLT"), triggerResults);

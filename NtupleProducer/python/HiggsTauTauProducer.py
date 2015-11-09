@@ -105,6 +105,12 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(True),
 )
 
+#process.HT = cms.EDFilter("HT",
+#  #src = cms.InputTag("offlinePrimaryVertices"),
+#  src = cms.InputTag("externalLHEProducer"),
+#  filter = cms.bool(True),
+#)
+
 
 ### Mu Ghost cleaning
 process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
@@ -565,7 +571,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       IsMC = cms.bool(IsMC),
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
                       triggerSet = cms.InputTag("selectedPatTrigger"),
-                      triggerList = HLTLIST
+                      triggerList = HLTLIST,
+                      HT = cms.InputTag("externalLHEProducer")
                       )
 if SVFITBYPASS:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")
@@ -586,6 +593,8 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ## Paths
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
+
+#process.HTtruth = cms.Path(process.HT)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
