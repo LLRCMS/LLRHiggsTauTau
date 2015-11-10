@@ -451,8 +451,10 @@ void HTauTauNtuplizer::Initialize(){
   _mothers_e.clear();
   
   //_daughters.clear();
+  if(DEBUG){
   _trigger_name.clear();
   _trigger_accept.clear();
+  }
   _daughters_px.clear();
   _daughters_py.clear();
   _daughters_pz.clear();
@@ -661,8 +663,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("mothers_py",&_mothers_py);
   myTree->Branch("mothers_pz",&_mothers_pz);
   myTree->Branch("mothers_e",&_mothers_e);
+  if(DEBUG){
   myTree->Branch("trigger_name",&_trigger_name);
   myTree->Branch("trigger_accept",&_trigger_accept);
+  }
   myTree->Branch("daughters_px",&_daughters_px);
   myTree->Branch("daughters_py",&_daughters_py);
   myTree->Branch("daughters_pz",&_daughters_pz);
@@ -859,12 +863,12 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   event.getByToken(triggerBits_, triggerBits);
   const edm::TriggerNames &names = event.triggerNames(*triggerBits);
-
+if(DEBUG){
   for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
         _trigger_name.push_back( (string) names.triggerName(i));
         _trigger_accept.push_back( (int) triggerBits->accept(i));
   }
-   
+} 
    if (theisMC) {
      Handle<LHEEventProduct> lheEventProduct;
      event.getByLabel("externalLHEProducer", lheEventProduct);
