@@ -33,7 +33,10 @@ if IsMC:
     #process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2::All' #MC 25 ns miniAODv2
     #process.GlobalTag.globaltag = 'PHYS14_ST_V1::All'
 else :
-    process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+    # New Tag format for 2015, also ::All no longer required 
+    process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
+    #process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
 print process.GlobalTag.globaltag
 
 nanosec="25"
