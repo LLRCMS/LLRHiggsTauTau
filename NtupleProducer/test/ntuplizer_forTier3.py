@@ -92,5 +92,5 @@ if SVFITBYPASS:
 else:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVllCand")
 
-process.TFileService=cms.Service('TFileService',fileName=cms.string("XXX_OUTPUTFILE_XXX"))
+process.TFileService=cms.Service('TFileService',fileName=cms.string("XXX_OUTPUTFILENTUPLE_XXX"))
 process.p = cms.Path(process.HTauTauTree)

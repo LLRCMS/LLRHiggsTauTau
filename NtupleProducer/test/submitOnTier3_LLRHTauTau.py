@@ -91,10 +91,11 @@ if __name__ == "__main__":
         return repldict[match.group(0)]
 
     #initialize t3 for submission
-    proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
-    tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
-    if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 24 : # hours
-        os.system ('source /opt/exp_soft/cms/t3/t3setup')
+    # usually I call it externally
+    # proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
+    # tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
+    # if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 24 : # hours
+    #     os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
     #loop over the required number of jobs
     for n in xrange (0, len (chunks)) :

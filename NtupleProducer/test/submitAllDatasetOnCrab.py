@@ -25,8 +25,12 @@ import re
 #tag = "Data25ns_SVFit_6Ott2015_resub"
 #datasetsFile = "datasets.txt"
 
-PROCESS = ["2015DATARUND27OTT"]
-tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
+#PROCESS = ["2015DATARUND27OTT"]
+#tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
+#datasetsFile = "datasets.txt"
+
+PROCESS = ["2015DATAPROMPTRECOONLY"]
+tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
 datasetsFile = "datasets.txt"
 
 isMC = False
@@ -34,8 +38,9 @@ isMC = False
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
 
-#25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 1.56/fb - 30/10/2015
-lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-259891_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
+#25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 2.11/fb - 13/11/2015
+#lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
+lumiMaskFileName = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/diffLumiMasks/LumiMask_Diff_2p11fb_minus_1p56_13Nov2015.txt"
 
 FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3

@@ -19,7 +19,7 @@ config.Data.unitsPerJob = 4000 #number of events per jobs
 config.Data.totalUnits = -1 #number of event
 config.Data.outLFNDirBase = '/store/user/lcadamur/HHNtuples/DefaultOutLFNDirBase'
 config.Data.publication = True
-config.Data.publishDataName = 'DefaultPublishName'
+config.Data.outputDatasetTag = 'DefaultPublishName'
 
 config.section_("Site")
 config.Site.storageSite = 'T2_FR_GRIF_LLR'

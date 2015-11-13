@@ -120,3 +120,8 @@
 /Tau/Run2015D-PromptReco-v4/MINIAOD
 /SingleMuon/Run2015D-PromptReco-v4/MINIAOD
 /SingleElectron/Run2015D-PromptReco-v4/MINIAOD
+
+=== 2015DATAPROMPTRECOONLY ===
+/Tau/Run2015D-PromptReco-v4/MINIAOD
+/SingleMuon/Run2015D-PromptReco-v4/MINIAOD
+/SingleElectron/Run2015D-PromptReco-v4/MINIAOD
