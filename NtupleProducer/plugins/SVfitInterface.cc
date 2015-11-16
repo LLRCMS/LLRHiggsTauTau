@@ -266,7 +266,12 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //muon
     if(l1Type == svFitStandalone::kTauToMuDecay   && l1->pt() < 17.) GoodPairFlag = kFALSE;
     //tau
-    if(l1Type == svFitStandalone::kTauToHadDecay  && l1->pt() < 30.) GoodPairFlag = kFALSE;
+    ////mutau case
+    if(l1Type == svFitStandalone::kTauToHadDecay  && l2Type == svFitStandalone::kTauToMuDecay && l1->pt() < 19.) GoodPairFlag = kFALSE;
+    ///electau case
+    if(l1Type == svFitStandalone::kTauToHadDecay  && l2Type == svFitStandalone::kTauToElecDecay && l1->pt() < 19.) GoodPairFlag = kFALSE;
+    //tautau case
+    if(l1Type == svFitStandalone::kTauToHadDecay  && l2Type == svFitStandalone::kTauToHadDecay && l1->pt() < 30.) GoodPairFlag = kFALSE;
     if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserFloat(l1,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
     if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l1,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
     // if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l1,"againstMuonLoose3")<0.5)  GoodPairFlag = kFALSE;
@@ -278,7 +283,12 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //muon
     if(l2Type == svFitStandalone::kTauToMuDecay   && l2->pt() < 17.) GoodPairFlag = kFALSE;
     //tau
-    if(l2Type == svFitStandalone::kTauToHadDecay  && l2->pt() < 30.) GoodPairFlag = kFALSE;
+    ////mutau case
+    if(l2Type == svFitStandalone::kTauToHadDecay  && l1Type == svFitStandalone::kTauToMuDecay && l2->pt() < 19.) GoodPairFlag = kFALSE;
+    ///electau case
+    if(l2Type == svFitStandalone::kTauToHadDecay  && l1Type == svFitStandalone::kTauToElecDecay && l2->pt() < 19.) GoodPairFlag = kFALSE;
+    //tautau case
+    if(l2Type == svFitStandalone::kTauToHadDecay  && l1Type == svFitStandalone::kTauToHadDecay && l2->pt() < 30.) GoodPairFlag = kFALSE;
     if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserFloat(l2,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
     if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l2,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
     // if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l2,"againstMuonLoose3")<0.5)  GoodPairFlag = kFALSE;
