@@ -259,41 +259,56 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double SVMETPhi = -999.;
 
     Bool_t GoodPairFlag = kTRUE;
-    
-    //lepton 1
-    //electron
-    if(l1Type == svFitStandalone::kTauToElecDecay && l1->pt() < 17.) GoodPairFlag = kFALSE;
-    //muon
-    if(l1Type == svFitStandalone::kTauToMuDecay   && l1->pt() < 17.) GoodPairFlag = kFALSE;
-    //tau
-    ////mutau case
-    if(l1Type == svFitStandalone::kTauToHadDecay  && l2Type == svFitStandalone::kTauToMuDecay && l1->pt() < 19.) GoodPairFlag = kFALSE;
-    ///electau case
-    if(l1Type == svFitStandalone::kTauToHadDecay  && l2Type == svFitStandalone::kTauToElecDecay && l1->pt() < 19.) GoodPairFlag = kFALSE;
-    //tautau case
-    if(l1Type == svFitStandalone::kTauToHadDecay  && l2Type == svFitStandalone::kTauToHadDecay && l1->pt() < 30.) GoodPairFlag = kFALSE;
-    if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserFloat(l1,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
-    if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l1,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
-    // if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l1,"againstMuonLoose3")<0.5)  GoodPairFlag = kFALSE;
-    // if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l1,"againstElectronMediumMVA5")<0.5)  GoodPairFlag = kFALSE;
-    
-    //lepton 2
-    //electron
-    if(l2Type == svFitStandalone::kTauToElecDecay && l2->pt() < 17.) GoodPairFlag = kFALSE;
-    //muon
-    if(l2Type == svFitStandalone::kTauToMuDecay   && l2->pt() < 17.) GoodPairFlag = kFALSE;
-    //tau
-    ////mutau case
-    if(l2Type == svFitStandalone::kTauToHadDecay  && l1Type == svFitStandalone::kTauToMuDecay && l2->pt() < 19.) GoodPairFlag = kFALSE;
-    ///electau case
-    if(l2Type == svFitStandalone::kTauToHadDecay  && l1Type == svFitStandalone::kTauToElecDecay && l2->pt() < 19.) GoodPairFlag = kFALSE;
-    //tautau case
-    if(l2Type == svFitStandalone::kTauToHadDecay  && l1Type == svFitStandalone::kTauToHadDecay && l2->pt() < 30.) GoodPairFlag = kFALSE;
-    if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserFloat(l2,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
-    if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l2,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
-    // if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l2,"againstMuonLoose3")<0.5)  GoodPairFlag = kFALSE;
-    // if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l2,"againstElectronMediumMVA5")<0.5)  GoodPairFlag = kFALSE;
-    
+
+    Bool_t isMuTau = kFALSE;
+    Bool_t isTauMu = kFALSE;
+    Bool_t isElecTau = kFALSE;
+    Bool_t isTauElec = kFALSE;
+    Bool_t isTauTau = kFALSE;
+    Bool_t isElecMu = kFALSE;
+    Bool_t isMuElec = kFALSE;
+
+    if(l1Type == svFitStandalone::kTauToMuDecay && l2Type == svFitStandalone::kTauToHadDecay) isMuTau = kTRUE;
+    else if(l2Type == svFitStandalone::kTauToMuDecay && l1Type == svFitStandalone::kTauToHadDecay) isTauMu = kTRUE;
+    else if(l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToHadDecay) isElecTau = kTRUE;
+    else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToHadDecay) isTauElec = kTRUE;
+    else if(l1Type == svFitStandalone::kTauToHadDecay && l2Type == svFitStandalone::kTauToHadDecay) isTauTau = kTRUE;
+    else if(l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToMuDecay) isElecMu = kTRUE;
+    else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToMuDecay) isElecMu = kTRUE;
+    else GoodPairFlag = kFALSE;
+
+    //MuTau or TauMu
+    //mu leg
+    if(isMuTau && l1->pt()< 17.) GoodPairFlag = kFALSE;
+    if(isTauMu && l2->pt()< 17.) GoodPairFlag = kFALSE;
+    //tau leg
+    if(isMuTau && l2->pt()< 19.) GoodPairFlag = kFALSE;
+    if(isTauMu && l1->pt()< 19.) GoodPairFlag = kFALSE;
+
+    //ElecTau or TauElec
+    //elec leg
+    if(isElecTau && l1->pt()< 17.) GoodPairFlag = kFALSE;
+    if(isTauElec && l2->pt()< 17.) GoodPairFlag = kFALSE;
+    //tau leg
+    if(isElecTau && l2->pt()< 19.) GoodPairFlag = kFALSE;
+    if(isTauElec && l1->pt()< 19.) GoodPairFlag = kFALSE;
+
+    //Cuts to be applied on any lepton which is a tau
+    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserFloat(l1,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
+    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
+    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserFloat(l2,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
+    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
+
+    //TauTau
+    if(isTauTau && (l1->pt()< 30. || l2->pt()< 30.)) GoodPairFlag = kFALSE;
+
+    //ElecMu or MuElec
+    //elec leg
+    if(isElecMu && l1->pt()< 13.) GoodPairFlag = kFALSE;
+    if(isElecMu && l2->pt()< 10.) GoodPairFlag = kFALSE;
+    //mu leg
+    if(isMuElec && l2->pt()< 13.) GoodPairFlag = kFALSE;
+    if(isMuElec && l1->pt()< 10.) GoodPairFlag = kFALSE;    
 
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
