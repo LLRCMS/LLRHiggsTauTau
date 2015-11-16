@@ -257,12 +257,40 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double SVphiUnc = -999.;
     double SVMETRho = -999.; // fitted MET
     double SVMETPhi = -999.;
-     
+
+    Bool_t GoodPairFlag = kTRUE;
+    
+    //lepton 1
+    //electron
+    if(l1Type == svFitStandalone::kTauToElecDecay && l1->pt() < 17.) GoodPairFlag = kFALSE;
+    //muon
+    if(l1Type == svFitStandalone::kTauToMuDecay   && l1->pt() < 17.) GoodPairFlag = kFALSE;
+    //tau
+    if(l1Type == svFitStandalone::kTauToHadDecay  && l1->pt() < 30.) GoodPairFlag = kFALSE;
+    if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserFloat(l1,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
+    if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l1,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
+    // if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l1,"againstMuonLoose3")<0.5)  GoodPairFlag = kFALSE;
+    // if(l1Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l1,"againstElectronMediumMVA5")<0.5)  GoodPairFlag = kFALSE;
+    
+    //lepton 2
+    //electron
+    if(l2Type == svFitStandalone::kTauToElecDecay && l2->pt() < 17.) GoodPairFlag = kFALSE;
+    //muon
+    if(l2Type == svFitStandalone::kTauToMuDecay   && l2->pt() < 17.) GoodPairFlag = kFALSE;
+    //tau
+    if(l2Type == svFitStandalone::kTauToHadDecay  && l2->pt() < 30.) GoodPairFlag = kFALSE;
+    if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserFloat(l2,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
+    if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l2,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
+    // if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l2,"againstMuonLoose3")<0.5)  GoodPairFlag = kFALSE;
+    // if(l2Type == svFitStandalone::kTauToHadDecay  && userdatahelpers::getUserInt(l2,"againstElectronMediumMVA5")<0.5)  GoodPairFlag = kFALSE;
+    
+
     SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
     // only run SVfit if taus are passing OldDM discriminator, skip mumu and ee pairs
-    if (passOldDM && isGoodPairType && isGoodDR)
+    if (passOldDM && isGoodPairType && isGoodDR && GoodPairFlag)
+    // if (passOldDM && isGoodPairType && isGoodDR)
     {
       //algo.integrateVEGAS();
       algo.shiftVisPt(true, inputFile_visPtResolution_);
