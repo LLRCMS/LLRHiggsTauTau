@@ -274,7 +274,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToHadDecay) isTauElec = kTRUE;
     else if(l1Type == svFitStandalone::kTauToHadDecay && l2Type == svFitStandalone::kTauToHadDecay) isTauTau = kTRUE;
     else if(l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToMuDecay) isElecMu = kTRUE;
-    else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToMuDecay) isElecMu = kTRUE;
+    else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToMuDecay) isMuElec = kTRUE;
     else GoodPairFlag = kFALSE;
 
     //MuTau or TauMu
