@@ -112,6 +112,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     float combRelIsoPF = LeptonIsoHelper::combRelIsoPF(l);
 
+
     // NOTE: tauID returns a float but I checked that the returned value is always 0 or 1 for "booleans" --> safe implicit cast to an int
     //float decayModeFindingOldDMs = l.tauID ("decayModeFindingOldDMs");
     int decayModeFindingOldDMs = l.tauID ("decayModeFinding");
@@ -183,7 +184,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         //dz  = l.secondaryVertex().get()->z()-vertex->z();      
       //}
     } 
-
    
     //--- Embed user variables
     l.addUserFloat("HPSDiscriminator",tauid);
@@ -250,6 +250,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (l.isTauIDAvailable("photonPtSumOutsideSignalCone")) l.addUserFloat("photonPtSumOutsideSignalCone",l.tauID("photonPtSumOutsideSignalCone"));
     else l.addUserFloat("photonPtSumOutsideSignalCone",-999);
     l.addUserFloat("byIsolationMVA3newDMwLTraw",l.tauID("byIsolationMVA3newDMwLTraw"));
+
+
     l.addUserFloat("chargedIsoPtSum", chargedIsoPtSum);
     l.addUserFloat("neutralIsoPtSum", neutralIsoPtSum);
     l.addUserFloat("puCorrPtSum", puCorrPtSum);
