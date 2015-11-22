@@ -20,7 +20,7 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #JETCUT="pt>15"
 
 USEPAIRMET=False
-SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
 IsMC=False
@@ -52,7 +52,9 @@ execfile(PyFilePath+"python/HiggsTauTauProducer.py")
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Run2015D/Tau/MINIAOD/PromptReco-v4/000/258/159/00000/06064263-DD6B-E511-99BA-02163E013861.root',
+    '/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2_ext3-v1/10000/003964D7-D06E-E511-A8DA-001517F7F524.root', # miniAOD v2
+    #'/store/data/Run2015D/Tau/MINIAOD/PromptReco-v4/000/259/861/00000/A2D00E3D-457E-E511-BDEF-02163E012584.root', # DATA 2015D
+    #'/store/data/Run2015D/Tau/MINIAOD/PromptReco-v4/000/258/159/00000/06064263-DD6B-E511-99BA-02163E013861.root',
     #  '/store/data/Run2015D/Tau/MINIAOD/05Oct2015-v1/30000/00756739-616F-E511-BC4F-003048FFCBB0.root',
     #  '/store/data/Run2015D/SingleMuon/MINIAOD/PromptReco-v4/000/258/159/00000/6CA1C627-246C-E511-8A6A-02163E014147.root',
     #  '/store/data/Run2015D/SingleMuon/MINIAOD/05Oct2015-v1/10000/021FD3F0-876F-E511-99D2-0025905A6060.root',
@@ -73,7 +75,7 @@ process.source = cms.Source("PoolSource",
 )
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 1000
+process.maxEvents.input = 100
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file

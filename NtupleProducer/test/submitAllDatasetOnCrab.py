@@ -29,9 +29,26 @@ import re
 #tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
 #datasetsFile = "datasets.txt"
 
-PROCESS = ["2015DATAPROMPTRECOONLY"]
-tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
+#PROCESS = ["2015DATAPROMPTRECOONLY"]
+#tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
+#datasetsFile = "datasets.txt"
+
+#PROCESS = ["MINIAODV2"]
+#tag = "MC_NoSVFit_MiniAODV2_13Nov2015"
+#datasetsFile = "datasets.txt"
+
+# PROCESS = ["RESUBMINIAODV2"]
+# tag = "MC_NoSVFit_MiniAODV2_13Nov2015_DYresub"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["MINIV2SVFIT"]
+# tag = "MC_SVFit_MiniAODV2_22Nov2015"
+# datasetsFile = "datasets.txt"
+
+PROCESS = ["2015DATARUND27OTT"]
+tag = "Data_SVFit_MiniAODV2_22Nov2015"
 datasetsFile = "datasets.txt"
+
 
 isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
@@ -40,11 +57,12 @@ isMC = False
 
 #25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 2.11/fb - 13/11/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
-lumiMaskFileName = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/diffLumiMasks/LumiMask_Diff_2p11fb_minus_1p56_13Nov2015.txt"
+#lumiMaskFileName = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/diffLumiMasks/LumiMask_Diff_2p11fb_minus_1p56_13Nov2015.txt"
+lumiMaskFileName  = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
 
-FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
+FastJobs = False # true if skipping SVfit, false if computing it (jobs will be smaller)
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
-PublishDataset = False # publish dataset; set to false if producing ntuples
+PublishDataset = True # publish dataset; set to false if producing ntuples
 
 
 ###################################################################

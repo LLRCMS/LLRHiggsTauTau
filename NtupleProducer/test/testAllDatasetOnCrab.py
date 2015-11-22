@@ -51,7 +51,12 @@ class ProcDataset:
 #path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015"
 #path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015_newJson"
 #path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix"
-path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
+#path = "crab3_Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
+#path = "crab3_MC_NoSVFit_MiniAODV2_13Nov2015"
+
+#path = "crab3_MC_SVFit_MiniAODV2_22Nov2015"
+path = "crab3_Data_SVFit_MiniAODV2_22Nov2015"
+
 
 if not os.path.isdir(path):
     print "Folder %s does not exist" % path
