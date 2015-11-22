@@ -638,7 +638,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
-  myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/I"); 
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
@@ -673,6 +672,7 @@ void HTauTauNtuplizer::beginJob(){
     //myTree->Branch("genH_e",&_genH_e);
     myTree->Branch("daughters_genindex",&_daughters_genindex);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
+    myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("aMCatNLOweight",&_aMCatNLOweight,"aMCatNLOweight/F");    
     myTree->Branch("genpart_px", &_genpart_px);
     myTree->Branch("genpart_py", &_genpart_py);
@@ -847,29 +847,34 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   event.getByToken(triggerBits_, triggerBits);
   const edm::TriggerNames &names = event.triggerNames(*triggerBits);
-if(DEBUG){
-  for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
-        _trigger_name.push_back( (string) names.triggerName(i));
-        _trigger_accept.push_back( (int) triggerBits->accept(i));
-  }
-} 
-   if (theisMC) {
+  if(DEBUG){
+    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+          _trigger_name.push_back( (string) names.triggerName(i));
+          _trigger_accept.push_back( (int) triggerBits->accept(i));
+    }
+  } 
+  if (theisMC) {
      Handle<LHEEventProduct> lheEventProduct;
-     event.getByLabel("externalLHEProducer", lheEventProduct);
-     const lhef::HEPEUP& lheEvent = lheEventProduct->hepeup();
-     std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheEvent.PUP;
-     double lheHt = 0.;
-     size_t numParticles = lheParticles.size();
-     for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
-       int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
-       int status = lheEvent.ISTUP[idxParticle];
-       if ( status == 1 && ((absPdgId >= 1 &&  absPdgId<= 6) ||  absPdgId== 21) ) { // quarks and gluons
-	        lheHt += TMath::Sqrt((lheParticles[idxParticle][0])*(lheParticles[idxParticle][0]) + (lheParticles[idxParticle][1])*(lheParticles[idxParticle][1])); // first entry is px, second py
-       }
-     }
-     _lheHt = lheHt;
+     
+    try {event.getByLabel("externalLHEProducer", lheEventProduct);} catch (...) {;}
+    if (lheEventProduct.isValid())
+    {
+      const lhef::HEPEUP& lheEvent = lheEventProduct->hepeup();
+      std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheEvent.PUP;
+      double lheHt = 0.;
+      size_t numParticles = lheParticles.size();
+      for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
+        int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
+        int status = lheEvent.ISTUP[idxParticle];
+        if ( status == 1 && ((absPdgId >= 1 &&  absPdgId<= 6) ||  absPdgId== 21) ) { // quarks and gluons
+            lheHt += TMath::Sqrt((lheParticles[idxParticle][0])*(lheParticles[idxParticle][0]) + (lheParticles[idxParticle][1])*(lheParticles[idxParticle][1])); // first entry is px, second py
+        }
+      }
+       _lheHt = lheHt;
      //cout<<"lheHt = "<<lheHt<<endl;
-   }
+    }
+    //else cout << "LHE product not found" << endl;
+  }
   
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
   _metfilterbit = myTriggerHelper->FindMETBit(event);
