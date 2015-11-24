@@ -295,9 +295,9 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //Cuts to be applied on any lepton which is a tau
     if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserFloat(l1,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
-    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
+    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs")<0.5)  GoodPairFlag = kFALSE;
     if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserFloat(l2,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>10.)  GoodPairFlag = kFALSE;
-    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFinding")<0.5)  GoodPairFlag = kFALSE;
+    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs")<0.5)  GoodPairFlag = kFALSE;
 
     //TauTau
     if(isTauTau && (l1->pt()< 30. || l2->pt()< 30.)) GoodPairFlag = kFALSE;
