@@ -21,7 +21,15 @@ except NameError:
     BUILDONLYOS=False
 try: Is25ns
 except NameError:
-    Is25ns=True    
+    Is25ns=True
+
+try: USE_NOHFMET
+except NameError:
+    USE_NOHFMET=False
+
+PFMetName = "slimmedMETs"
+if USE_NOHFMET: PFMetName = "slimmedMETsNoHF"
+
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
@@ -551,7 +559,7 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
 if USEPAIRMET:
    process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
 else:
-   process.SVllCand.srcMET    = cms.VInputTag("slimmedMETs")
+   process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
 
 
 ## ----------------------------------------------------------------------
@@ -559,7 +567,7 @@ else:
 ## ----------------------------------------------------------------------
 process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcPairs   = cms.InputTag("barellCand"),
-                                    srcMET     = cms.VInputTag("slimmedMETs")
+                                    srcMET     = cms.VInputTag(PFMetName)
 )
 
 
@@ -575,7 +583,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
                       triggerSet = cms.InputTag("selectedPatTrigger"),
                       triggerList = HLTLIST,
-                      HT = cms.InputTag("externalLHEProducer")
+                      HT = cms.InputTag("externalLHEProducer"),
+                      useNOHFMet = cms.bool(USE_NOHFMET) # true to run on silver json, false to use ful MET including HF
                       )
 if SVFITBYPASS:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")

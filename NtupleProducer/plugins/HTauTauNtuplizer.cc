@@ -146,6 +146,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   TString theFileName;
   bool theFSR;
   Bool_t theisMC;
+  Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
   vector<string> foundPaths;
@@ -166,7 +167,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
 
   //flags
-  static const int nOutVars =14;
+  //static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
   bool applySkim;       //  "     "      "     skim
   bool skipEmptyEvents; // Skip events whith no candidate in the collection
@@ -402,6 +403,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   skipEmptyEvents = pset.getParameter<bool>("skipEmptyEvents");
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
+  theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
@@ -897,7 +899,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByLabel(theCandLabel,candHandle);
   event.getByLabel("jets",jetHandle);
   event.getByLabel("softLeptons",dauHandle);
-  event.getByLabel("slimmedMETs",metHandle);
+  
+  if (theUseNoHFPFMet) event.getByLabel("slimmedMETsNoHF",metHandle);
+  else event.getByLabel("slimmedMETs",metHandle);
+  
   if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
     event.getByLabel("LHEEventProduct",lheeventinfo);

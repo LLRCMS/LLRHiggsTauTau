@@ -19,11 +19,13 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #TAUCUT="pt>15"
 #JETCUT="pt>15"
 
-USEPAIRMET=False
+USEPAIRMET=False # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusion set using USE_NOHFMET)
+USE_NOHFMET = False # True to exclude HF and run on silver json
+
 SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
-IsMC=False
+IsMC=True
 Is25ns=True
 
 #relaxed sets for testing purposes
@@ -52,7 +54,9 @@ execfile(PyFilePath+"python/HiggsTauTauProducer.py")
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2_ext3-v1/10000/003964D7-D06E-E511-A8DA-001517F7F524.root', # miniAOD v2
+    '/store/mc/RunIISpring15MiniAODv2/SUSYGluGluToBBHToTauTau_M-1000_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/D4177994-FB78-E511-9D05-C4346BC76CD8.root',
+    #'/store/mc/RunIISpring15MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/003F1529-D36D-E511-9E33-001E6724816F.root',
+    #'/store/mc/RunIISpring15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2_ext3-v1/10000/003964D7-D06E-E511-A8DA-001517F7F524.root', # miniAOD v2
     #'/store/data/Run2015D/Tau/MINIAOD/PromptReco-v4/000/259/861/00000/A2D00E3D-457E-E511-BDEF-02163E012584.root', # DATA 2015D
     #'/store/data/Run2015D/Tau/MINIAOD/PromptReco-v4/000/258/159/00000/06064263-DD6B-E511-99BA-02163E013861.root',
     #  '/store/data/Run2015D/Tau/MINIAOD/05Oct2015-v1/30000/00756739-616F-E511-BC4F-003048FFCBB0.root',
