@@ -85,7 +85,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-//#include "TLorentzVector.h"
+#include "TLorentzVector.h"
 
  namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
@@ -191,6 +191,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _npv;
   Float_t _lheHt;
   Int_t _npu;
+  Float_t _PUNumInteractions;
   Float_t _PUReweight;
   Float_t _rho;
   Int_t _nup;
@@ -375,7 +376,19 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
+  std::vector<Float_t> _jets_rawPt;
+  std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
+  std::vector<Float_t> _jets_vtxPt;
+  std::vector<Float_t> _jets_vtxMass;
+  std::vector<Float_t> _jets_vtx3dL;
+  std::vector<Float_t> _jets_vtxNtrk;
+  std::vector<Float_t> _jets_vtx3deL;
+  std::vector<Float_t> _jets_leadTrackPt;
+  std::vector<Float_t> _jets_leptonPtRel; 
+  std::vector<Float_t> _jets_leptonPt;    
+  std::vector<Float_t> _jets_leptonDeltaR;
+
   std::vector<Int_t> _jets_Flavour; // parton flavour
   std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
   std::vector<Int_t> _jets_genjetIndex; // index of matched gen jet in genjet vector
@@ -600,6 +613,7 @@ void HTauTauNtuplizer::Initialize(){
   _npv=0;
   _lheHt=0;
   _npu=0;
+  _PUNumInteractions=0;
   _PUReweight=0.;
   _rho=0;
   _nup=-999;
@@ -609,7 +623,18 @@ void HTauTauNtuplizer::Initialize(){
   _jets_py.clear();
   _jets_pz.clear();
   _jets_e.clear();
+  _jets_rawPt.clear();
+  _jets_mT.clear();
   _jets_PUJetID.clear();
+  _jets_vtxPt.clear();
+  _jets_vtxMass.clear();
+  _jets_vtx3dL.clear();
+  _jets_vtxNtrk.clear();
+  _jets_vtx3deL.clear();
+  _jets_leadTrackPt.clear();
+  _jets_leptonPtRel.clear();
+  _jets_leptonPt.clear();
+  _jets_leptonDeltaR.clear();
   _jets_Flavour.clear();
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
@@ -642,6 +667,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("metphi",&_metphi,"metphi/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/I"); 
+  myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/F");  
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
   myTree->Branch("rho",&_rho,"rho/F");  
   
@@ -793,10 +819,22 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
   myTree->Branch("jets_e",&_jets_e);
+  myTree->Branch("jets_rawPt", &_jets_rawPt);
+  myTree->Branch("jets_mT", &_jets_mT);
   myTree->Branch("jets_Flavour",&_jets_Flavour);
   myTree->Branch("jets_HadronFlavour",&_jets_HadronFlavour);
   myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
+  myTree->Branch("jets_vtxPt", &_jets_vtxPt);
+  myTree->Branch("jets_vtxMass", &_jets_vtxMass);
+  myTree->Branch("jets_vtx3dL", &_jets_vtx3dL);
+  myTree->Branch("jets_vtxNtrk", &_jets_vtxNtrk);
+  myTree->Branch("jets_vtx3deL", &_jets_vtx3deL);
+  myTree->Branch("jets_leadTrackPt", &_jets_leadTrackPt);
+  myTree->Branch("jets_leptonPtRel", &_jets_leptonPtRel);
+  myTree->Branch("jets_leptonPt", &_jets_leptonPt);
+  myTree->Branch("jets_leptonDeltaR", &_jets_leptonDeltaR);
+
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
   myTree->Branch("PFjetID",&_jetID);
@@ -829,6 +867,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   //  std::vector<const reco::Candidate *> genZs;
   // std::vector<const reco::Candidate *> genZLeps;
+  
   _npv = vertexs->size();
    if (theisMC) {
     Handle<std::vector< PileupSummaryInfo > >  PupInfo;
@@ -836,14 +875,21 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     std::vector<PileupSummaryInfo>::const_iterator PVI;
     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
       if(PVI->getBunchCrossing() == 0) { 
-        _rho  = PVI->getPU_NumInteractions();
+        _PUNumInteractions  = PVI->getPU_NumInteractions();
         int nTrueInt = PVI->getTrueNumInteractions();
-        _npu = nTrueInt;
+        _npu = nTrueInt;        
         _PUReweight = reweight.weight(2012,2012,nTrueInt);
         break;
       } 
     }
   }
+
+
+  // pile up information -- rho
+  edm::Handle<double> rhoHandle;
+  event.getByLabel("fixedGridRhoFastjetAll", rhoHandle); // use instead fixedGridRhoAll?
+  _rho = *rhoHandle;
+
 
   edm::Handle<edm::TriggerResults> triggerBits;
 
@@ -1113,13 +1159,21 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_px.push_back( (float) ijet->px());
     _jets_py.push_back( (float) ijet->py());
     _jets_pz.push_back( (float) ijet->pz());
-    _jets_e.push_back( (float) ijet->energy());
+    _jets_e.push_back( (float) ijet->energy());    
+    _jets_mT.push_back( (float) ijet->mt());
     _jets_Flavour.push_back(ijet->partonFlavour());
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
+    float vtxPx = ijet->userFloat ("vtxPx");
+    float vtxPy = ijet->userFloat ("vtxPy");
+    _jets_vtxPt.  push_back(TMath::Sqrt(vtxPx*vtxPx + vtxPy*vtxPy));
+    _jets_vtxMass.push_back(ijet->userFloat("vtxMass"));
+    _jets_vtx3dL. push_back(ijet->userFloat("vtx3DVal"));
+    _jets_vtxNtrk.push_back(ijet->userFloat("vtxNtracks"));
+    _jets_vtx3deL.push_back(ijet->userFloat("vtx3DSig"));
+
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-
     //PF jet ID
     float NHF = ijet->neutralHadronEnergyFraction();
     float NEMF = ijet->neutralEmEnergyFraction();
@@ -1155,7 +1209,61 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
       }
     }    
     _jetID.push_back(jetid);
-    _jetrawf.push_back(ijet->jecFactor("Uncorrected"));
+    float jecFactor = ijet->jecFactor("Uncorrected") ;
+    float jetRawPt = jecFactor * ijet->pt();
+    //float jetRawPt2 = ijet->pt() / jecFactor; // this is wrong
+    _jets_rawPt.push_back ( jetRawPt );
+    _jetrawf.push_back(jecFactor);
+  
+    // loop on jet contituents to retrieve info for b jet regression
+    int nDau = ijet -> numberOfDaughters();
+    //cout << "JET: " << (ijet - jets->begin()) << " N daught: " << nDau << endl;
+
+    // TLorentzVector vJet (0,0,0,0);
+    // vJet.SetPxPyPzE (ijet->px(), ijet->py(), ijet->pz(), ijet->energy());
+    // TLorentzVector vDau (0,0,0,0); 
+    // TLorentzVector vSum (0,0,0,0); 
+
+    float leadTrackPt = 0.;
+    int softLeptIdx = -1;
+    for (int iDau = 0; iDau < nDau; ++iDau)
+    {
+      // pdg id for packed pf candidates meaning is:
+      // the particle charge and pdgId: 11, 13, 22 for ele/mu/gamma, 211 for charged hadrons, 130 for neutral hadrons, 1 and 2 for hadronic and em particles in HF. 
+      const Candidate * dau = ijet->daughter(iDau);
+      if (abs(dau->pdgId()) == 11 || abs(dau->pdgId()) == 13) softLeptIdx = iDau;      
+
+      if (dau->charge() != 0 ) // tracks -> charged
+      {
+        float ptBuf = dau->pt();
+        if (ptBuf > leadTrackPt) leadTrackPt = ptBuf;
+      }
+      // vDau.SetPxPyPzE (dau->px(), dau->py(), dau->pz(), dau->energy());
+      // vSum += vDau;
+      // cout << " - " << iDau << " pdg: " << dau->pdgId() << " pt: " << dau->pt() << " charge = " << dau->charge() << endl; 
+    }
+
+    //cout << " ## LEAD TRACK PT = " << leadTrackPt << endl;
+    //cout << " ## jet eta: " << ijet->eta() << endl;
+    _jets_leadTrackPt.push_back(leadTrackPt);
+    float leptonPtRel = -1.;
+    float leptonPt = -1.;
+    float leptonDeltaR = -1.;
+    if (softLeptIdx >= 0)
+    {
+      const Candidate * dau = ijet->daughter(softLeptIdx);
+      leptonPtRel = dau->pt() / ijet->pt() ;
+      leptonPt = dau->pt() ;
+      leptonDeltaR = deltaR(*dau, *ijet) ;
+    }
+    _jets_leptonPtRel .push_back (leptonPtRel);
+    _jets_leptonPt    .push_back (leptonPt);
+    _jets_leptonDeltaR.push_back (leptonDeltaR);
+
+    //cout << "     --> jet pt, eta, phi: " << vJet.Pt() << " " << vJet.Eta() << " " << vJet.Phi() << endl;
+    //cout << "     --> sum pt, eta, phi: " << vSum.Pt() << " " << vSum.Eta() << " " << vSum.Phi() << endl;
+    //if (abs(ijet->hadronFlavour()) == 5 ) cout << "     ------------ THIS WAS A B JET ------------" << endl;
+    //cout << "RAW pt: " << jetRawPt << " | " << jetRawPt2 << " --> " << vSum.Pt() << endl;
   }
 
 
