@@ -85,6 +85,12 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
+
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+
 #include "TLorentzVector.h"
 
  namespace {
@@ -125,7 +131,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
-  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&);
+  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR);
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
@@ -393,6 +399,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_nEmEF;
   std::vector<Float_t> _jets_nHEF;
   std::vector<Int_t> _jets_chMult;
+  std::vector<Float_t> _jets_jecUnc;
 
   std::vector<Int_t> _jets_Flavour; // parton flavour
   std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
@@ -648,6 +655,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_Flavour.clear();
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
+  _jets_jecUnc.clear();
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -849,6 +857,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_nEmEF"  , &_jets_nEmEF);
   myTree->Branch("jets_nHEF"   , &_jets_nHEF);
   myTree->Branch("jets_chMult" , &_jets_chMult);
+  myTree->Branch("jets_jecUnc" , &_jets_jecUnc);
 
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -954,6 +963,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
  
+   // Accessing the JEC uncertainties 
+  //ak4  
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl); 
+  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+  JetCorrectionUncertainty *jecUnc=0;
+  jecUnc = new JetCorrectionUncertainty(JetCorPar);
+
+
   // protect in case of events where trigger hasn't fired --> no collection created 
   event.getByLabel(theCandLabel,candHandle);
   if (!candHandle.isValid()) return;
@@ -1005,7 +1023,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   //Loop on Jets
   _numberOfJets = 0;
-  if(writeJets)_numberOfJets = FillJet(jets, event);
+  if(writeJets)_numberOfJets = FillJet(jets, event,jecUnc);
 
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
@@ -1167,7 +1185,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 }
 
 //Fill jets quantities
-int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event){
+int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
   int nJets=0;
   vector <pair<float, int>> softLeptInJet; // pt, idx 
   for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
@@ -1296,6 +1314,10 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     //cout << "     --> sum pt, eta, phi: " << vSum.Pt() << " " << vSum.Eta() << " " << vSum.Phi() << endl;
     //if (abs(ijet->hadronFlavour()) == 5 ) cout << "     ------------ THIS WAS A B JET ------------" << endl;
     //cout << "RAW pt: " << jetRawPt << " | " << jetRawPt2 << " --> " << vSum.Pt() << endl;
+
+    jecUnc->setJetEta(ijet->eta());
+    jecUnc->setJetPt(ijet->pt()); // here you must use the CORRECTED jet pt
+    _jets_jecUnc.push_back(jecUnc->getUncertainty(true));
   }
 
 
