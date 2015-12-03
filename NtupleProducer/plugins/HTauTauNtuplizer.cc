@@ -388,6 +388,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_leptonPtRel; 
   std::vector<Float_t> _jets_leptonPt;    
   std::vector<Float_t> _jets_leptonDeltaR;
+  std::vector<Float_t> _jets_chEmEF;
+  std::vector<Float_t> _jets_chHEF;
+  std::vector<Float_t> _jets_nEmEF;
+  std::vector<Float_t> _jets_nHEF;
+  std::vector<Int_t> _jets_chMult;
 
   std::vector<Int_t> _jets_Flavour; // parton flavour
   std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
@@ -635,6 +640,11 @@ void HTauTauNtuplizer::Initialize(){
   _jets_leptonPtRel.clear();
   _jets_leptonPt.clear();
   _jets_leptonDeltaR.clear();
+  _jets_chEmEF.clear();
+  _jets_chHEF.clear();
+  _jets_nEmEF.clear();
+  _jets_nHEF.clear();
+  _jets_chMult.clear();
   _jets_Flavour.clear();
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
@@ -667,7 +677,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("metphi",&_metphi,"metphi/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/I"); 
-  myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/F");  
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
   myTree->Branch("rho",&_rho,"rho/F");  
   
@@ -698,6 +707,7 @@ void HTauTauNtuplizer::beginJob(){
     //myTree->Branch("genH_py",&_genH_py);
     //myTree->Branch("genH_pz",&_genH_pz);
     //myTree->Branch("genH_e",&_genH_e);
+    myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/F");  
     myTree->Branch("daughters_genindex",&_daughters_genindex);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
@@ -834,6 +844,11 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_leptonPtRel", &_jets_leptonPtRel);
   myTree->Branch("jets_leptonPt", &_jets_leptonPt);
   myTree->Branch("jets_leptonDeltaR", &_jets_leptonDeltaR);
+  myTree->Branch("jets_chEmEF" , &_jets_chEmEF);
+  myTree->Branch("jets_chHEF"  , &_jets_chHEF);
+  myTree->Branch("jets_nEmEF"  , &_jets_nEmEF);
+  myTree->Branch("jets_nHEF"   , &_jets_nHEF);
+  myTree->Branch("jets_chMult" , &_jets_chMult);
 
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -887,7 +902,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   // pile up information -- rho
   edm::Handle<double> rhoHandle;
-  event.getByLabel("fixedGridRhoFastjetAll", rhoHandle); // use instead fixedGridRhoAll?
+  event.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
   _rho = *rhoHandle;
 
 
@@ -1154,6 +1169,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 //Fill jets quantities
 int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event){
   int nJets=0;
+  vector <pair<float, int>> softLeptInJet; // pt, idx 
   for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
     nJets++;
     _jets_px.push_back( (float) ijet->px());
@@ -1180,10 +1196,17 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     float CHF = ijet->chargedHadronEnergyFraction();
     float MUF = ijet->muonEnergyFraction();
     float CEMF = ijet->chargedEmEnergyFraction();
-    float NumNeutralParticles =ijet->neutralMultiplicity();
-    float NumConst = ijet->chargedMultiplicity()+NumNeutralParticles;
+    int NumNeutralParticles =ijet->neutralMultiplicity();
+    int chargedMult = ijet->chargedMultiplicity();
+    int NumConst = ijet->chargedMultiplicity()+NumNeutralParticles;
     float CHM = ijet->chargedMultiplicity();
     float absjeta = fabs(ijet->eta());
+
+    _jets_chEmEF .push_back(CEMF);  
+    _jets_chHEF  .push_back(CHF); 
+    _jets_nEmEF  .push_back(NEMF);
+    _jets_nHEF   .push_back(NHF);
+    _jets_chMult .push_back(chargedMult);  
 
     int jetid=0; 
     //PHYS14
@@ -1225,13 +1248,16 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     // TLorentzVector vSum (0,0,0,0); 
 
     float leadTrackPt = 0.;
-    int softLeptIdx = -1;
+    softLeptInJet.clear();
     for (int iDau = 0; iDau < nDau; ++iDau)
     {
       // pdg id for packed pf candidates meaning is:
       // the particle charge and pdgId: 11, 13, 22 for ele/mu/gamma, 211 for charged hadrons, 130 for neutral hadrons, 1 and 2 for hadronic and em particles in HF. 
       const Candidate * dau = ijet->daughter(iDau);
-      if (abs(dau->pdgId()) == 11 || abs(dau->pdgId()) == 13) softLeptIdx = iDau;      
+      if (abs(dau->pdgId()) == 11 || abs(dau->pdgId()) == 13)
+      {
+          softLeptInJet.push_back( make_pair(dau->pt(), iDau) );
+      }
 
       if (dau->charge() != 0 ) // tracks -> charged
       {
@@ -1249,6 +1275,12 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     float leptonPtRel = -1.;
     float leptonPt = -1.;
     float leptonDeltaR = -1.;
+    int softLeptIdx = -1;
+    if (softLeptInJet.size() > 0)
+    {
+      sort(softLeptInJet.begin(), softLeptInJet.end());
+      softLeptIdx = softLeptInJet.back().second;
+    }
     if (softLeptIdx >= 0)
     {
       const Candidate * dau = ijet->daughter(softLeptIdx);
