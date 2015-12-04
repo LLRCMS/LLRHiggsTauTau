@@ -51,6 +51,7 @@ class TauFiller : public edm::EDProducer {
   const std::string theDiscriminatorTag;
   const StringCutObjectSelector<pat::Tau, true> cut;
   const CutSet<pat::Tau> flags;
+  const std::string NominalUpOrDown;
   //BDTId* bdt;
 };
 
@@ -60,7 +61,8 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
   theDiscriminatorTag(iConfig.getParameter<std::string>("discriminator")),
   cut(iConfig.getParameter<std::string>("cut")),
-  flags(iConfig.getParameter<ParameterSet>("flags"))//, 
+  flags(iConfig.getParameter<ParameterSet>("flags")), 
+  NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown"))//,
   //bdt(0)
 {
   //if (recomputeBDT) bdt = new BDTId;
@@ -103,6 +105,60 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned int i = 0; i< tauHandle->size(); ++i){
     //---Clone the pat::Tau
     pat::Tau l(*((*tauHandle)[i].get()));
+    
+    double Shift = 1.;
+    if(NominalUpOrDown=="Nominal") Shift = 1.;
+    if(NominalUpOrDown=="Up") Shift = 1.03;
+    if(NominalUpOrDown=="Down") Shift = 0.97;
+    // cout<<"tau #"<<i<<endl;
+    // cout<<"NominalUpOrDown = "<<NominalUpOrDown<<endl;
+    double shiftP = 1.;
+    double shiftMass = 1.;
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. ) {
+
+      // cout<<"l.decayMode() = "<< l.decayMode()<<endl;
+      // cout<<"l.signalPFChargedHadrCands().size() = "<<(l.signalPFChargedHadrCands()).size()<<endl;
+      // cout<<"l.signalPFGammaCands().size() = "<<(l.signalPFGammaCands()).size()<<endl;
+
+      if(l.decayMode()==1 || l.decayMode()==2){
+      // if((l.signalPFChargedHadrCands()).size()==1 && (l.signalPFGammaCands()).size()>0){
+	//cout<<"1-prong + pi0"<<endl;
+	shiftP = Shift;
+	shiftMass = Shift;
+      }
+
+      else if(l.decayMode()==0){
+      // else if((l.signalPFChargedHadrCands()).size()==1 && (l.signalPFGammaCands()).size()==0){
+	//cout<<"1-prong"<<endl;
+	shiftP = Shift;
+	shiftMass = 1.;
+      }
+      else if(l.decayMode()==10){
+      // else if((l.signalPFChargedHadrCands()).size()==3) {
+	//cout<<"3-prong"<<endl;
+	shiftP = Shift;
+	shiftMass = Shift;
+      }
+    }
+    
+    double pxS = l.px()*shiftP;
+    double pyS = l.py()*shiftP;
+    double pzS = l.pz()*shiftP;
+    double massS = l.mass()*shiftMass;
+    double enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
+    math::XYZTLorentzVectorD p4S( pxS, pyS, pzS, enS );
+
+    //Dump to check the T-ES
+    // if((l.decayMode()==0 || l.decayMode()==1 || l.decayMode()==2 || l.decayMode()==10) && l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && NominalUpOrDown=="Up")
+    //   {
+    // 	cout<<"NominalUpOrDown = "<<NominalUpOrDown<<endl;
+    // 	cout<<"l.decayMode() = "<<l.decayMode()<<endl;
+    // 	cout<<"pt before = "<<l.pt()<<endl;
+    // 	cout<<"pt after = "<<p4S.Pt()<<endl;
+    //   }
+    l.setP4( p4S );
+    // if((l.decayMode()==0 || l.decayMode()==1 || l.decayMode()==2 || l.decayMode()==10) && l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && NominalUpOrDown=="Up") cout<<"pt after in pat = "<<l.pt()<<endl;
+    
     
     
     //--- PF ISO

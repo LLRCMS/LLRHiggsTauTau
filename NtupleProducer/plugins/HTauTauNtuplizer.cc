@@ -267,6 +267,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
   std::vector<Float_t> _SVmass;
+  std::vector<Float_t> _SVmassTauUp;
+  std::vector<Float_t> _SVmassTauDown;
   std::vector<Float_t> _SVpt;
   std::vector<Float_t> _SVptUnc;
   std::vector<Float_t> _SVeta;
@@ -585,6 +587,8 @@ void HTauTauNtuplizer::Initialize(){
   _indexDau2.clear();
   _pdgdau.clear();
   _SVmass.clear();
+  _SVmassTauUp.clear();
+  _SVmassTauDown.clear();
   _SVpt.clear();
   _SVptUnc.clear();
   _SVeta.clear();
@@ -751,6 +755,8 @@ void HTauTauNtuplizer::beginJob(){
   }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
+  myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
+  myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
   myTree->Branch("SVfit_pt", &_SVpt);
   myTree->Branch("SVfit_ptUnc", &_SVptUnc);
   myTree->Branch("SVfit_eta", &_SVeta);
@@ -1042,6 +1048,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpy = cand.userFloat("MEt_py");
     
     _SVmass.push_back(cand.userFloat("SVfitMass"));
+    _SVmassTauUp.push_back(cand.userFloat("SVfitMassTauUp"));
+    _SVmassTauDown.push_back(cand.userFloat("SVfitMassTauDown"));
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
     _SVptUnc.push_back(cand.userFloat("SVfit_ptUnc"));
     _SVeta.push_back(cand.userFloat("SVfit_eta"));

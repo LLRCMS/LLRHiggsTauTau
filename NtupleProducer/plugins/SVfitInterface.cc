@@ -32,7 +32,8 @@
 #include <DataFormats/METReco/interface/PFMETCollection.h>
 #include <DataFormats/METReco/interface/CommonMETData.h>
 #include <TauAnalysis/SVfitStandalone/interface/SVfitStandaloneAlgorithm.h>
- #include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
+#include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
+#include <TLorentzVector.h>
 
 #include <vector>
 #include <string>
@@ -239,29 +240,121 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
     
     std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptons;
+    std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptonsTauUp;
+    std::vector<svFitStandalone::MeasuredTauLepton> measuredTauLeptonsTauDown;
+
+    Bool_t ComputeTauUp = kFALSE;
+    Bool_t ComputeTauDown = kFALSE;
     
     if (swi) // 2 first, 1 second (switch)
     {
         measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2, decay2 ));  
         measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1, decay1 ));
+
+
+	if(l1Type==svFitStandalone::kTauToHadDecay || l2Type==svFitStandalone::kTauToHadDecay)
+	  {
+	    ComputeTauUp = kTRUE;
+	    
+	    TLorentzVector l1_local_TauUp;
+	    //cout<<"Getting TauUp userFloats"<<endl;
+
+	    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"TauUpExists")) l1_local_TauUp.SetPxPyPzE(userdatahelpers::getUserFloat(l1,"px_TauUp"),userdatahelpers::getUserFloat(l1,"py_TauUp"),userdatahelpers::getUserFloat(l1,"pz_TauUp"),userdatahelpers::getUserFloat(l1,"e_TauUp"));
+	    else l1_local_TauUp.SetPtEtaPhiM(l1->pt(),l1->eta(),l1->phi(),mass1);
+
+	    TLorentzVector l2_local_TauUp;
+	    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"TauUpExists")) l2_local_TauUp.SetPxPyPzE(userdatahelpers::getUserFloat(l2,"px_TauUp"),userdatahelpers::getUserFloat(l2,"py_TauUp"),userdatahelpers::getUserFloat(l2,"pz_TauUp"),userdatahelpers::getUserFloat(l2,"e_TauUp"));
+	    else l2_local_TauUp.SetPtEtaPhiM(l2->pt(),l2->eta(),l2->phi(),mass2);
+
+	    measuredTauLeptonsTauUp.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2_local_TauUp.Pt(), l2_local_TauUp.Eta(), l2_local_TauUp.Phi(), mass2, decay2 ));  
+	    measuredTauLeptonsTauUp.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1_local_TauUp.Pt(), l1_local_TauUp.Eta(), l1_local_TauUp.Phi(), mass1, decay1 ));
+
+	    ComputeTauDown = kTRUE;
+	    
+	    TLorentzVector l1_local_TauDown;
+	    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"TauDownExists")) l1_local_TauDown.SetPxPyPzE(userdatahelpers::getUserFloat(l1,"px_TauDown"),userdatahelpers::getUserFloat(l1,"py_TauDown"),userdatahelpers::getUserFloat(l1,"pz_TauDown"),userdatahelpers::getUserFloat(l1,"e_TauDown"));
+	    else l1_local_TauDown.SetPtEtaPhiM(l1->pt(),l1->eta(),l1->phi(),mass1);
+
+	    TLorentzVector l2_local_TauDown;
+	    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"TauDownExists")) l2_local_TauDown.SetPxPyPzE(userdatahelpers::getUserFloat(l2,"px_TauDown"),userdatahelpers::getUserFloat(l2,"py_TauDown"),userdatahelpers::getUserFloat(l2,"pz_TauDown"),userdatahelpers::getUserFloat(l2,"e_TauDown"));
+	    else l2_local_TauDown.SetPtEtaPhiM(l2->pt(),l2->eta(),l2->phi(),mass2);
+
+	    measuredTauLeptonsTauDown.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2_local_TauDown.Pt(), l2_local_TauDown.Eta(), l2_local_TauDown.Phi(), mass2, decay2 ));  
+	    measuredTauLeptonsTauDown.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1_local_TauDown.Pt(), l1_local_TauDown.Eta(), l1_local_TauDown.Phi(), mass1, decay1 ));
+	  }
     }
     else // 1 first, 2 second
     {
         measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1, decay1 ));
         measuredTauLeptons.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2, decay2 ));  
+
+	if(l1Type==svFitStandalone::kTauToHadDecay || l2Type==svFitStandalone::kTauToHadDecay)
+	  {
+	    ComputeTauUp = kTRUE;
+	    
+	    TLorentzVector l1_local_TauUp;
+	    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"TauUpExists")) l1_local_TauUp.SetPxPyPzE(userdatahelpers::getUserFloat(l1,"px_TauUp"),userdatahelpers::getUserFloat(l1,"py_TauUp"),userdatahelpers::getUserFloat(l1,"pz_TauUp"),userdatahelpers::getUserFloat(l1,"e_TauUp"));
+	    else l1_local_TauUp.SetPtEtaPhiM(l1->pt(),l1->eta(),l1->phi(),mass1);
+
+	    TLorentzVector l2_local_TauUp;
+	    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"TauUpExists")) l2_local_TauUp.SetPxPyPzE(userdatahelpers::getUserFloat(l2,"px_TauUp"),userdatahelpers::getUserFloat(l2,"py_TauUp"),userdatahelpers::getUserFloat(l2,"pz_TauUp"),userdatahelpers::getUserFloat(l2,"e_TauUp"));
+	    else l2_local_TauUp.SetPtEtaPhiM(l2->pt(),l2->eta(),l2->phi(),mass2);
+
+	    measuredTauLeptonsTauUp.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1_local_TauUp.Pt(), l1_local_TauUp.Eta(), l1_local_TauUp.Phi(), mass1, decay1 ));
+	    measuredTauLeptonsTauUp.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2_local_TauUp.Pt(), l2_local_TauUp.Eta(), l2_local_TauUp.Phi(), mass2, decay2 ));  
+
+	    ComputeTauDown = kTRUE;
+	    
+	    TLorentzVector l1_local_TauDown;
+	    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"TauDownExists")) l1_local_TauDown.SetPxPyPzE(userdatahelpers::getUserFloat(l1,"px_TauDown"),userdatahelpers::getUserFloat(l1,"py_TauDown"),userdatahelpers::getUserFloat(l1,"pz_TauDown"),userdatahelpers::getUserFloat(l1,"e_TauDown"));
+	    else l1_local_TauDown.SetPtEtaPhiM(l1->pt(),l1->eta(),l1->phi(),mass1);
+
+	    TLorentzVector l2_local_TauDown;
+	    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"TauDownExists")) l2_local_TauDown.SetPxPyPzE(userdatahelpers::getUserFloat(l2,"px_TauDown"),userdatahelpers::getUserFloat(l2,"py_TauDown"),userdatahelpers::getUserFloat(l2,"pz_TauDown"),userdatahelpers::getUserFloat(l2,"e_TauDown"));
+	    else l2_local_TauDown.SetPtEtaPhiM(l2->pt(),l2->eta(),l2->phi(),mass2);
+
+	    measuredTauLeptonsTauDown.push_back(svFitStandalone::MeasuredTauLepton(l1Type, l1_local_TauDown.Pt(), l1_local_TauDown.Eta(), l1_local_TauDown.Phi(), mass1, decay1 ));
+	    measuredTauLeptonsTauDown.push_back(svFitStandalone::MeasuredTauLepton(l2Type, l2_local_TauDown.Pt(), l2_local_TauDown.Eta(), l2_local_TauDown.Phi(), mass2, decay2 ));  
+	  }
     }
          
     // define algorithm (set the debug level to 3 for testing)
     unsigned int verbosity = 0;
     double SVfitMass = -999.;
+    double SVfitMassTauUp = -999.;
+    double SVfitMassTauDown = -999.;
+
     double SVpt = -999.;
+    double SVptTauUp = -999.;
+    double SVptTauDown = -999.;
+
     double SVeta = -999.;
+    double SVetaTauUp = -999.;
+    double SVetaTauDown = -999.;
+
     double SVphi = -999.;
+    double SVphiTauUp = -999.;
+    double SVphiTauDown = -999.;
+
     double SVptUnc = -999.;
+    double SVptUncTauUp = -999.;
+    double SVptUncTauDown = -999.;
+
     double SVetaUnc = -999.;
+    double SVetaUncTauUp = -999.;
+    double SVetaUncTauDown = -999.;
+
     double SVphiUnc = -999.;
+    double SVphiUncTauUp = -999.;
+    double SVphiUncTauDown = -999.;
+
     double SVMETRho = -999.; // fitted MET
+    double SVMETRhoTauUp = -999.; // fitted MET
+    double SVMETRhoTauDown = -999.; // fitted MET
+
     double SVMETPhi = -999.;
+    double SVMETPhiTauUp = -999.;
+    double SVMETPhiTauDown = -999.;
 
     Bool_t GoodPairFlag = kTRUE;
 
@@ -339,18 +432,103 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         SVMETPhi = algo.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
         
       } // otherwise mass will be -1
+
+
+    if(ComputeTauUp)
+      {
+	SVfitStandaloneAlgorithm algoTauUp(measuredTauLeptonsTauUp, METx, METy, covMET, verbosity);
+	algoTauUp.addLogM(false); // in general, keep it false when using VEGAS integration
+
+	// only run SVfit if taus are passing OldDM discriminator, skip mumu and ee pairs
+	if (passDM && isGoodPairType && isGoodDR && GoodPairFlag)
+	  // if (passOldDM && isGoodPairType && isGoodDR)
+	  {
+	    //algoTauUp.integrateVEGAS();
+	    algoTauUp.shiftVisPt(true, inputFile_visPtResolution_);
+	    algoTauUp.integrateMarkovChain();
+      
+	    if ( algoTauUp.isValidSolution() )
+	      {    
+		SVfitMassTauUp = algoTauUp.getMass(); // return value is in units of GeV	
+		SVptTauUp = algoTauUp.pt();
+		SVetaTauUp = algoTauUp.eta();
+		SVphiTauUp = algoTauUp.phi();
+		SVptUncTauUp = algoTauUp.ptUncert();
+		SVetaUncTauUp = algoTauUp.etaUncert();
+		SVphiUncTauUp = algoTauUp.phiUncert();
+		SVMETRhoTauUp = algoTauUp.fittedMET().Rho();
+		SVMETPhiTauUp = algoTauUp.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
+	      } // otherwise mass will be -1
+	  }
+      }
+
+
+    if(ComputeTauDown)
+      {
+	SVfitStandaloneAlgorithm algoTauDown(measuredTauLeptonsTauDown, METx, METy, covMET, verbosity);
+	algoTauDown.addLogM(false); // in general, keep it false when using VEGAS integration
+
+	// only run SVfit if taus are passing OldDM discriminator, skip mumu and ee pairs
+	if (passDM && isGoodPairType && isGoodDR && GoodPairFlag)
+	  // if (passOldDM && isGoodPairType && isGoodDR)
+	  {
+	    //algoTauDown.integrateVEGAS();
+	    algoTauDown.shiftVisPt(true, inputFile_visPtResolution_);
+	    algoTauDown.integrateMarkovChain();
+      
+	    if ( algoTauDown.isValidSolution() )
+	      {    
+		SVfitMassTauDown = algoTauDown.getMass(); // return value is in units of GeV	
+		SVptTauDown = algoTauDown.pt();
+		SVetaTauDown = algoTauDown.eta();
+		SVphiTauDown = algoTauDown.phi();
+		SVptUncTauDown = algoTauDown.ptUncert();
+		SVetaUncTauDown = algoTauDown.etaUncert();
+		SVphiUncTauDown = algoTauDown.phiUncert();
+		SVMETRhoTauDown = algoTauDown.fittedMET().Rho();
+		SVMETPhiTauDown = algoTauDown.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
+	      } // otherwise mass will be -1
+	  }
+      }
     }
     
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", (float) SVfitMass);
+    pair.addUserFloat("SVfitMassTauUp", (float) SVfitMassTauUp);
+    pair.addUserFloat("SVfitMassTauDown", (float) SVfitMassTauDown);
+
     pair.addUserFloat("SVfit_pt", (float) SVpt);
+    pair.addUserFloat("SVfit_ptTauUp", (float) SVptTauUp);
+    pair.addUserFloat("SVfit_ptTauDown", (float) SVptTauDown);
+
     pair.addUserFloat("SVfit_eta", (float) SVeta);
+    pair.addUserFloat("SVfit_etaTauUp", (float) SVetaTauUp);
+    pair.addUserFloat("SVfit_etaTauDown", (float) SVetaTauDown);
+
     pair.addUserFloat("SVfit_phi", (float) SVphi);
+    pair.addUserFloat("SVfit_phiTauUp", (float) SVphiTauUp);
+    pair.addUserFloat("SVfit_phiTauDown", (float) SVphiTauDown);
+
     pair.addUserFloat("SVfit_ptUnc", (float) SVptUnc);
+    pair.addUserFloat("SVfit_ptUncTauUp", (float) SVptUncTauUp);
+    pair.addUserFloat("SVfit_ptUncTauDown", (float) SVptUncTauDown);
+
     pair.addUserFloat("SVfit_etaUnc", (float) SVetaUnc);
+    pair.addUserFloat("SVfit_etaUncTauUp", (float) SVetaUncTauUp);
+    pair.addUserFloat("SVfit_etaUncTauDown", (float) SVetaUncTauDown);
+
     pair.addUserFloat("SVfit_phiUnc", (float) SVphiUnc);
+    pair.addUserFloat("SVfit_phiUncTauUp", (float) SVphiUncTauUp);
+    pair.addUserFloat("SVfit_phiUncTauDown", (float) SVphiUncTauDown);
+
     pair.addUserFloat("SVfit_METRho", (float) SVMETRho);
+    pair.addUserFloat("SVfit_METRhoTauUp", (float) SVMETRhoTauUp);
+    pair.addUserFloat("SVfit_METRhoTauDown", (float) SVMETRhoTauDown);
+
     pair.addUserFloat("SVfit_METPhi", (float) SVMETPhi);
+    pair.addUserFloat("SVfit_METPhiTauUp", (float) SVMETPhiTauUp);
+    pair.addUserFloat("SVfit_METPhiTauDown", (float) SVMETPhiTauDown);
+
     pair.addUserFloat("MEt_px", (float) METx);
     pair.addUserFloat("MEt_py", (float) METy);
     pair.addUserFloat("MEt_cov00", (float) covMET[0][0]);

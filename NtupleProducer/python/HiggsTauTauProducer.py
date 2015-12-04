@@ -388,6 +388,29 @@ process.softTaus = cms.EDProducer("TauFiller",
    genCollection = cms.InputTag("prunedGenParticles"),
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
+   NominalUpOrDown = cms.string("Nominal"),
+   flags = cms.PSet(
+        isGood = cms.string("")
+        )
+   )
+
+process.softTausTauUp = process.softTaus.clone(
+   src = cms.InputTag("bareTaus"),
+   genCollection = cms.InputTag("prunedGenParticles"),
+   cut = cms.string(TAUCUT),
+   NominalUpOrDown = cms.string("Up"),
+   discriminator = cms.string(TAUDISCRIMINATOR),
+   flags = cms.PSet(
+        isGood = cms.string("")
+        )
+   )
+
+process.softTausTauDown = process.softTaus.clone(
+   src = cms.InputTag("bareTaus"),
+   genCollection = cms.InputTag("prunedGenParticles"),
+   cut = cms.string(TAUCUT),
+   NominalUpOrDown = cms.string("Down"),
+   discriminator = cms.string(TAUDISCRIMINATOR),
    flags = cms.PSet(
         isGood = cms.string("")
         )
@@ -406,7 +429,17 @@ process.tauMatch = cms.EDProducer("MCMatcher",
     )
 
 
-process.taus=cms.Sequence(process.bareTaus + process.softTaus)
+process.taus=cms.Sequence(process.bareTaus + process.softTaus + process.softTausTauUp + process.softTausTauDown)
+
+process.tausMerged = cms.EDProducer("MergeTauCollections",
+    src        = cms.InputTag("softTaus"),
+    srcTauUp   = cms.InputTag("softTausTauUp"),
+    srcTauDown = cms.InputTag("softTausTauDown")
+)
+
+#process.tausDummy=cms.Sequence(process.
+
+#process.tausMerged=cms.Sequence(process.softTaus + process.softTausTauUp + process.softTausTauDown + process.tausMerging)
 
 # ### ----------------------------------------------------------------------
 # ### b quarks, only from MC
@@ -449,13 +482,24 @@ if not APPLYFSR :
     process.fsrSequence = cms.Sequence()
     muString = "softMuons"
     eleString = "softElectrons"
-    tauString = "softTaus"
+    tauString = "tausMerged"
+#    tauString = "softTaus"
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
     #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
     src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
 )
 #print: "lepton collection built"
+
+#tauStringTauUp = "softTausTauUp" 
+#process.softLeptonsTauUp = cms.EDProducer("CandViewMerger",
+#    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauStringTauUp))
+#)
+
+#tauStringTauDown = "softTausTauDown" 
+#process.softLeptonsTauDown = cms.EDProducer("CandViewMerger",
+#    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauStringTauDown))
+#)
 
 #
 #Jets
@@ -478,8 +522,25 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(checkcharge)
 )
 
+#decayStringTauUp="softLeptonsTauUp softLeptonsTauUp"
+#if BUILDONLYOS:
+#    decayStringTauUp="softLeptonsTauUp@+ softLeptonsTauUp@-"
+#    checkcharge=True
+#process.barellCandTauUp = cms.EDProducer("CandViewShallowCloneCombiner",
+#                                    decay = cms.string(decayStringTauUp),
+#                                    cut = cms.string(LLCUT),
+#                                    checkCharge = cms.bool(checkcharge)
+#)
 
-
+#decayStringTauDown="softLeptonsTauDown softLeptonsTauDown"
+#if BUILDONLYOS:
+#    decayStringTauDown="softLeptonsTauDown@+ softLeptonsTauDown@-"
+#    checkcharge=True
+#process.barellCandTauDown = cms.EDProducer("CandViewShallowCloneCombiner",
+#                                    decay = cms.string(decayStringTauDown),
+#                                    cut = cms.string(LLCUT),
+#                                    checkCharge = cms.bool(checkcharge)
+#)
 
 ## ----------------------------------------------------------------------
 ## MVA MET
@@ -518,6 +579,10 @@ if USEPAIRMET:
    # template of unpacker
    UnpackerTemplate = cms.EDProducer ("PairUnpacker",
                                    src = cms.InputTag("barellCand"))
+#   UnpackerTemplateTauUp = cms.EDProducer ("PairUnpacker",
+#                                   src = cms.InputTag("barellCandTauUp"))
+#   UnpackerTemplateTauDown = cms.EDProducer ("PairUnpacker",
+#                                   src = cms.InputTag("barellCandTauDown"))
 
    process.METSequence = cms.Sequence(process.ak4PFJets + process.calibratedAK4PFJetsForPFMVAMEt + process.puJetIdForPFMVAMEt)
 
@@ -556,11 +621,24 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
                                   usePairMET = cms.bool(USEPAIRMET),
 )
 
+#process.SVllCandTauUp = cms.EDProducer("SVfitInterface",
+#                                  srcPairs   = cms.InputTag("barellCandTauUp"),
+#                                  usePairMET = cms.bool(USEPAIRMET),
+#)
+
+#process.SVllCandTauDown = cms.EDProducer("SVfitInterface",
+#                                  srcPairs   = cms.InputTag("barellCandTauDown"),
+#                                  usePairMET = cms.bool(USEPAIRMET),
+#)
+
 if USEPAIRMET:
    process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
+#   process.SVllCandTauUp.srcMET    = cms.VInputTag(MVAPairMET)
+#   process.SVllCandTauDown.srcMET    = cms.VInputTag(MVAPairMET)
 else:
    process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
-
+#   process.SVllCandTauUp.srcMET    = cms.VInputTag("slimmedMETs")
+#   process.SVllCandTauDown.srcMET    = cms.VInputTag("slimmedMETs")
 
 ## ----------------------------------------------------------------------
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass and don't get MET userfloats
@@ -570,7 +648,15 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcMET     = cms.VInputTag(PFMetName)
 )
 
+#process.SVbypassTauUp = cms.EDProducer ("SVfitBypass",
+#                                    srcPairs   = cms.InputTag("barellCandTauUp"),
+#                                    srcMET     = cms.VInputTag("slimmedMETs")
+#)
 
+#process.SVbypassTauDown = cms.EDProducer ("SVfitBypass",
+#                                    srcPairs   = cms.InputTag("barellCandTauDown"),
+#                                    srcMET     = cms.VInputTag("slimmedMETs")
+#)
 
 ## ----------------------------------------------------------------------
 ## Ntuplizer
@@ -588,10 +674,20 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       )
 if SVFITBYPASS:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")
+#    process.HTauTauTree.CandCollectionTauUp = cms.untracked.string("SVbypassTauUp")
+#    process.HTauTauTree.CandCollectionTauDown = cms.untracked.string("SVbypassTauDown")
     process.SVFit = cms.Sequence (process.SVbypass)
+#    process.SVFitTauUp = cms.Sequence (process.SVbypassTauUp)
+#    process.SVFitTauDown = cms.Sequence (process.SVbypassTauDown)
+
+
 else:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVllCand")
+#    process.HTauTauTree.CandCollectionTauUp = cms.untracked.string("SVllCandTauUp")
+#    process.HTauTauTree.CandCollectionTauDown = cms.untracked.string("SVllCandTauDown")
     process.SVFit = cms.Sequence (process.SVllCand)
+#    process.SVFitTauUp = cms.Sequence (process.SVllCandTauUp)
+#    process.SVFitTauDown = cms.Sequence (process.SVllCandTauDown)
 
 #print particles gen level - DEBUG purposes
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -616,13 +712,17 @@ process.Candidates = cms.Sequence(
     process.nEventsPassTrigger+
     process.muons             +
     process.electrons         + process.cleanSoftElectrons +
-    process.taus              +
+    process.taus              + process.tausMerged +
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
+#    process.softLeptonsTauUp  + process.barellCandTauUp +
+#    process.softLeptonsTauDown  + process.barellCandTauDown +
     process.jets              +
     process.METSequence       +
     process.geninfo           +
     process.SVFit             #+ process.HTauTauTree
+#    process.SVFitTauUp        +  #+ process.HTauTauTree
+#    process.SVFitTauDown      + process.HTauTauTree
     )
 # always run ntuplizer
-process.trees = cms.EndPath(process.HTauTauTree)
+process.trees = cms.EndPath(process.HTauTauTree)# + process.HTauTauTreeTauUp + process.HTauTauTreeTauDown)
