@@ -191,10 +191,15 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //cout << l2Type << " " << decay2 << endl;
    
     // compute SVfit only if tau(s) pass the OldDM discriminator (avoids crashes...)
-    bool passOldDM = true;
-    if (l1Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingOldDMs") != 1) passOldDM = false;
-    if (l2Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingOldDMs") != 1) passOldDM = false;
-
+    bool passDM = true;
+    //if (l1Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingOldDMs") != 1) passOldDM = false;
+    //if (l2Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingOldDMs") != 1) passOldDM = false;
+    if (l1Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs") != 1) passDM = false;
+    if (l2Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1) passDM = false;
+    // DEBUG
+    //if (l1Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs") == 1 && userdatahelpers::getUserInt(l1,"decayModeFindingOldDMs") != 1) cout << "Only new DM for tau 1!!" << endl;
+    //if (l2Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") == 1 && userdatahelpers::getUserInt(l2,"decayModeFindingOldDMs") != 1) cout << "Only new DM for tau 2!!" << endl;
+    
     // do not compute SVfit on ee or mumu pairs
     bool isGoodPairType = true;
     if (l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToElecDecay) isGoodPairType = false;
@@ -314,7 +319,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     algo.addLogM(false); // in general, keep it false when using VEGAS integration
     
     // only run SVfit if taus are passing OldDM discriminator, skip mumu and ee pairs
-    if (passOldDM && isGoodPairType && isGoodDR && GoodPairFlag)
+    if (passDM && isGoodPairType && isGoodDR && GoodPairFlag)
     // if (passOldDM && isGoodPairType && isGoodDR)
     {
       //algo.integrateVEGAS();
