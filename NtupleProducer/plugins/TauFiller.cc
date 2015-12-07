@@ -114,13 +114,16 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // cout<<"NominalUpOrDown = "<<NominalUpOrDown<<endl;
     double shiftP = 1.;
     double shiftMass = 1.;
+    int isTESShifted = 0;
     if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. ) {
 
+      // cout<<"I have pT = "<<l.pt()<<" and will be shifted"<<endl;
+      isTESShifted = 1;
       // cout<<"l.decayMode() = "<< l.decayMode()<<endl;
       // cout<<"l.signalPFChargedHadrCands().size() = "<<(l.signalPFChargedHadrCands()).size()<<endl;
       // cout<<"l.signalPFGammaCands().size() = "<<(l.signalPFGammaCands()).size()<<endl;
 
-      if(l.decayMode()==1 || l.decayMode()==2){
+      if(l.decayMode()>=1 && l.decayMode()<10){
       // if((l.signalPFChargedHadrCands()).size()==1 && (l.signalPFGammaCands()).size()>0){
 	//cout<<"1-prong + pi0"<<endl;
 	shiftP = Shift;
@@ -139,6 +142,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	shiftP = Shift;
 	shiftMass = Shift;
       }
+      else isTESShifted = 0;
     }
     
     double pxS = l.px()*shiftP;
@@ -157,6 +161,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // 	cout<<"pt after = "<<p4S.Pt()<<endl;
     //   }
     l.setP4( p4S );
+    // cout<<"after, I have pT = "<<l.pt()<<" and my decayMode is = "<<l.decayMode()<<endl;
     // if((l.decayMode()==0 || l.decayMode()==1 || l.decayMode()==2 || l.decayMode()==10) && l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && NominalUpOrDown=="Up") cout<<"pt after in pat = "<<l.pt()<<endl;
     
     
@@ -167,7 +172,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float PFPhotonIso       = l.photonIso();
 
     float combRelIsoPF = LeptonIsoHelper::combRelIsoPF(l);
-
 
     // NOTE: tauID returns a float but I checked that the returned value is always 0 or 1 for "booleans" --> safe implicit cast to an int
     //float decayModeFindingOldDMs = l.tauID ("decayModeFindingOldDMs");
@@ -242,6 +246,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } 
    
     //--- Embed user variables
+    l.addUserInt("isTESShifted",isTESShifted);
     l.addUserFloat("HPSDiscriminator",tauid);
     l.addUserFloat("decayMode",l.decayMode());
     l.addUserFloat("dxy",dxy);

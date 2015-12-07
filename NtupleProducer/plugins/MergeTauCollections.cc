@@ -83,7 +83,8 @@ void MergeTauCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	l_Nominal.addUserFloat("py_TauUp",l_TauUp.py());
 	l_Nominal.addUserFloat("pz_TauUp",l_TauUp.pz());
 	l_Nominal.addUserFloat("e_TauUp",l_TauUp.p4().T());
-	l_Nominal.addUserInt("TauUpExists",1);
+	if(l1.userInt("isTESShifted")) l_Nominal.addUserInt("TauUpExists",1);
+	else l_Nominal.addUserInt("TauUpExists",0);
       }
     else
       {
@@ -103,7 +104,8 @@ void MergeTauCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	l_Nominal.addUserFloat("py_TauDown",l_TauDown.py());
 	l_Nominal.addUserFloat("pz_TauDown",l_TauDown.pz());
 	l_Nominal.addUserFloat("e_TauDown",l_TauDown.p4().T());
-	l_Nominal.addUserInt("TauDownExists",1);
+	if(l2.userInt("isTESShifted")) l_Nominal.addUserInt("TauDownExists",1);
+	else l_Nominal.addUserInt("TauDownExists",0);
       }
     else
       {
