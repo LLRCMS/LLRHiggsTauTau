@@ -132,10 +132,14 @@ Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<str
   // return bit;
  
   for(int it=0;it<(int)triggerlist.size();it++){
-    //for(int j=0;j<(int)foundPaths.size();j++){
     for(int j=0;j<(int)foundPaths.size();j++){
-      string myString (triggerlist.at(it));
-      if(myString.compare(foundPaths.at(j))==0){
+      //string myString (triggerlist.at(it));
+      //if(myString.compare(foundPaths.at(j))==0) // full trigger name match required
+      
+      string toCheckTrigger  = triggerlist.at(it) ;
+      string elemAllTriggers = foundPaths.at(j) ;
+      if (elemAllTriggers.find(toCheckTrigger) != std::string::npos) // equivalent to wildcard at the end or beginning of triggername 
+      {
 	      if(triggerResults->accept(indexOfPaths[j]))bit |= 1 <<it;
 	      break;
       }
