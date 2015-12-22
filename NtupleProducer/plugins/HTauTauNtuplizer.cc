@@ -479,6 +479,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   //std::vector<std::string> 
 
   myTriggerHelper = new triggerhelper();// (HLTList);
+  /*
   for (std::vector<edm::ParameterSet>::const_iterator iPSet = HLTList.begin();iPSet != HLTList.end(); ++iPSet) {
     const std::string& hlt = iPSet->getParameter<std::string>("HLT");
     const std::vector<std::string>& path1 = iPSet->getParameter<std::vector<std::string>>("path1");
@@ -487,6 +488,17 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
     // Build the mape
     myTriggerHelper->addTriggerMap(hlt,path1,path2,chan);
   }
+  */
+  for (std::vector<edm::ParameterSet>::const_iterator iPSet = HLTList.begin();iPSet != HLTList.end(); ++iPSet) {
+    const std::string& hlt = iPSet->getParameter<std::string>("HLT");
+    const std::vector<std::string>& path1 = iPSet->getParameter<std::vector<std::string>>("path1");
+    const std::vector<std::string>& path2 = iPSet->getParameter<std::vector<std::string>>("path2");
+    const int& leg1 = iPSet->getParameter<int>("leg1");
+    const int& leg2 = iPSet->getParameter<int>("leg2");
+    // Build the mape
+    myTriggerHelper->addTriggerMap(hlt,path1,path2,leg1,leg2);
+  }
+
 
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
 
@@ -1734,10 +1746,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
-	  if (type==ParticleType::MUON && obj.hasFilterLabel("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09") && (obj.hasPathName("HLT_IsoMu17_eta2p1_v1", false, true ) or obj.hasPathName("HLT_IsoMu17_eta2p1_v1", true, false )))
-	     hltpt = (float) obj.pt();
+          if (type==ParticleType::MUON && obj.hasFilterLabel("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09") && (obj.hasPathName("HLT_IsoMu17_eta2p1_v1", false, true ) or obj.hasPathName("HLT_IsoMu17_eta2p1_v1", true, false )))
+            hltpt = (float) obj.pt();
           if (type==ParticleType::ELECTRON && obj.hasFilterLabel("hltSingleEle22WP75GsfTrackIsoFilter") && (obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v1", false, true ) or obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v1", true, false )))
-             hltpt = (float) obj.pt();
+            hltpt = (float) obj.pt();
           Long64_t triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
                     
           /*
@@ -1761,6 +1773,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
                 if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
               }
             }else{//muons
+              int legPosition = 
               if(map.GetTriggerChannel()==triggerMapper::kemu){
                 for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
                   if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
@@ -1777,9 +1790,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
             if(isL3)L3triggerbit |= 1 <<triggerbit;
             if (triggerType) triggertypeIsGood |= 1 << triggerbit;
           }
-        }
-      }
-    }
+        } // loop on all trigger paths
+      } // if dR < 0.25
+    } // loop on all trigger candidates
     _daughters_isGoodTriggerType.push_back(triggertypeIsGood);
     _daughters_FilterFired.push_back(filterFired);
     _daughters_L3FilterFired.push_back(LFtriggerbit);

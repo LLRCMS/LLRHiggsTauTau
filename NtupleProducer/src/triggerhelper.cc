@@ -100,11 +100,19 @@ triggerhelper::~triggerhelper(){
 
 void triggerhelper::addTriggerMap(string hlt, vector<string> path1, vector<string> path2, int channel){
   triggerlist.push_back(hlt);
-  const int n1 = path1.size();
-  const int n2 = path2.size();
-  triggerMapper map(hlt,path1,path2,n1,n2,channel);
+  //const int n1 = path1.size();
+  //const int n2 = path2.size();
+  //triggerMapper map(hlt,path1,path2,n1,n2,channel);
+  triggerMapper map(hlt,path1,path2,channel);
   triggerMap.push_back(map);
   //nTriggers++;
+}
+
+void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int leg1ID, int leg2ID)
+{
+  triggerlist.push_back(hlt);
+  triggerMapper map(hlt,path1,path2,leg1ID, leg2ID);
+  triggerMap.push_back(map);
 }
 
 Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){

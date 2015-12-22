@@ -11,20 +11,23 @@
  */
 
 
-#include "FWCore/Framework/interface/Event.h"
+//#include "FWCore/Framework/interface/Event.h"
 
 #include <TString.h>
 #include <string>
 #include <vector>
 #include <sstream>
+#include <utility>
 
 using namespace std;
 
 class triggerMapper {
  public:
   enum triggerChannel {kemu=0, ketau=1,kmutau=2,ktautau=3};
+  enum legIDtype {kele=11, kmu=13, ktau=15, kOther=999}; 
   triggerMapper();
-  triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int, int, int);
+  triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int);
+  triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int theleg1ID, int theleg2ID);
   //triggerMapper(TString, TString*,TString*,int,int);
   triggerMapper(string, string, string, int);
   
@@ -33,13 +36,16 @@ class triggerMapper {
   int GetNfiltersleg2(){return filter_leg2.size();}
   string Getfilter(bool isleg1, int iFilter);
   int GetTriggerChannel(){return channel;}
-  
+  pair <int, int> GetTriggerLegsID(){return make_pair(leg1ID, leg2ID);}
+
   ~triggerMapper();
 
  private:
   string HLT;
   std::vector<string> filter_leg1;
   std::vector<string> filter_leg2;
-  int channel;
+  int channel; // final decay channel: mu tau, ele tau, ...
+  int leg1ID; //  abs(pdgID) of leg 1
+  int leg2ID; //  abs(pdgID) of leg 2
 };
 #endif
