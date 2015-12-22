@@ -26,6 +26,7 @@ class triggerMapper {
   enum triggerChannel {kemu=0, ketau=1,kmutau=2,ktautau=3};
   enum legIDtype {kele=11, kmu=13, ktau=15, kOther=999}; 
   triggerMapper();
+  //triggerMapper(const triggerMapper& trigMap);
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int);
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int theleg1ID, int theleg2ID);
   //triggerMapper(TString, TString*,TString*,int,int);
@@ -37,6 +38,7 @@ class triggerMapper {
   string Getfilter(bool isleg1, int iFilter);
   int GetTriggerChannel(){return channel;}
   pair <int, int> GetTriggerLegsID(){return make_pair(leg1ID, leg2ID);}
+  int GetLegFromID(int ID); //0: not fourd; 1 = leg1; 2 = leg2
 
   ~triggerMapper();
 

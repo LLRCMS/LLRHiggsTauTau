@@ -1761,30 +1761,36 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           cout << " =============================== " << endl;
           */
           //int triggerbit = _triggerbit;
-          if(triggerbit>=0){ // get the number (position) of this trigger in the _triggerbit branch output (yes, names are too similar!)
+          if(triggerbit>=0)
+          { // get the number (position) of this trigger in the _triggerbit branch output (yes, names are too similar!)
             triggerMapper map = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
             bool isfilterGood = true;
-            if(type==ParticleType::TAU){
-              for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
-                if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
-              }
-            }else if(type==ParticleType::ELECTRON){
-              for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
-                if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
-              }
-            }else{//muons
-              int legPosition = 
-              if(map.GetTriggerChannel()==triggerMapper::kemu){
-                for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
-                  if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
-                }
-              }else{
-                for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
-                  if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
-                }
+            int IDsearch = 0;
+            if (type==ParticleType::ELECTRON) IDsearch = 11;
+            else if (type==ParticleType::MUON) IDsearch = 13;
+            else if(type==ParticleType::TAU) IDsearch = 15;
+            int legPosition = map.GetLegFromID(IDsearch);
+            if (legPosition == 1)
+            {
+              for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++)
+              {
+                string label = map.Getfilter(true,ifilt);
+                if (label.empty()) continue;
+                if(! obj.hasFilterLabel(label.c_str())) isfilterGood=false;
               }
             }
-          //_isFilterFiredLast;
+            else if (legPosition == 2)
+            {
+              for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++)
+              {
+                string label = map.Getfilter(false,ifilt);
+                if (label.empty()) continue;
+                if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
+              }
+            }
+            else isfilterGood = false;
+
+            //_isFilterFiredLast;
             if(isfilterGood)filterFired |= 1 <<triggerbit;
             if(isLF)LFtriggerbit |= 1 <<triggerbit;
             if(isL3)L3triggerbit |= 1 <<triggerbit;

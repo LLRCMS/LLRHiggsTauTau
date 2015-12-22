@@ -108,7 +108,7 @@ void triggerhelper::addTriggerMap(string hlt, vector<string> path1, vector<strin
   //nTriggers++;
 }
 
-void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int leg1ID, int leg2ID)
+void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int leg1ID, int leg2ID)
 {
   triggerlist.push_back(hlt);
   triggerMapper map(hlt,path1,path2,leg1ID, leg2ID);

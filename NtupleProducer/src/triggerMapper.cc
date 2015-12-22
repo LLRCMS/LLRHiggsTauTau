@@ -7,7 +7,7 @@
  *  \author G. Ortona - LLR
  */
 
-/* 
+
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <FWCore/Common/interface/TriggerNames.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -15,8 +15,6 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/TriggerNamesService.h>
 #include "LLRHiggsTauTau/NtupleProducer/interface/triggerMapper.h"
-*/
-#include "/Users/Luca/LLRFram/LLRHiggsTauTau/NtupleProducer/interface/triggerMapper.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -65,7 +63,7 @@ triggerMapper::triggerMapper(string HLTtrigger, std::vector<string> filters1, st
   }
 }
 
-triggerMapper(string HLTtrigger, std::vector<std::string> filters1, std::vector<std::string> filters2, int theleg1ID, int theleg2ID)
+triggerMapper::triggerMapper(string HLTtrigger, std::vector<std::string> filters1, std::vector<std::string> filters2, int theleg1ID, int theleg2ID)
 {
   HLT=HLTtrigger;
   int n1 = filter_leg1.size();
@@ -133,4 +131,11 @@ string triggerMapper::Getfilter(bool isleg1,int iFilter){
     else result=filter_leg2.at(iFilter);
   }
   return result;
+}
+
+int triggerMapper::GetLegFromID(int ID)
+{
+  if (ID == leg1ID) return 1;
+  if (ID == leg2ID) return 2;
+  return 0;
 }
