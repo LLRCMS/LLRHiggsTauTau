@@ -99,6 +99,13 @@ triggerhelper::~triggerhelper(){
 }
 
 void triggerhelper::addTriggerMap(string hlt, vector<string> path1, vector<string> path2, int channel){
+  
+  if (find(triggerlist.begin(), triggerlist.end(), hlt) != triggerlist.end() )
+  {
+    cout << "** triggerHelper :: Warning: path " << hlt << " already added, skipping" << endl;
+    return;
+  }
+
   triggerlist.push_back(hlt);
   //const int n1 = path1.size();
   //const int n2 = path2.size();
@@ -110,6 +117,12 @@ void triggerhelper::addTriggerMap(string hlt, vector<string> path1, vector<strin
 
 void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int leg1ID, int leg2ID)
 {
+  if (find(triggerlist.begin(), triggerlist.end(), hlt) != triggerlist.end() )
+  {
+    cout << "** triggerHelper :: Warning: path " << hlt << " already added, skipping" << endl;
+    return;
+  }
+
   triggerlist.push_back(hlt);
   triggerMapper map(hlt,path1,path2,leg1ID, leg2ID);
   triggerMap.push_back(map);
@@ -170,7 +183,8 @@ int triggerhelper::FindMETBit(const edm::Event& event){
 
 triggerMapper triggerhelper::GetTriggerMap(string path){
   for(int i=0;i<(int)triggerMap.size();i++){
-    if(triggerMap.at(i).GetHLTPath().compare(path)==0)return triggerMap.at(i);
+    //if(triggerMap.at(i).GetHLTPath().compare(path)==0)return triggerMap.at(i); // full name comparison
+    if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos) return triggerMap.at(i); // use av equivalent of "contains" for versioning wildcard
   }
   return triggerMapper();
 }
@@ -192,7 +206,8 @@ int triggerhelper::FindTriggerNumberMET (string triggername)
 int triggerhelper::FindTriggerNumberTrig (string triggername)
 {
   for(unsigned int it=0; it < triggerlist.size(); it++){   
-    if(triggerlist.at(it).compare(triggername)==0) return it;
+    //if(triggerlist.at(it).compare(triggername)==0) return it; // full nale matching
+    if (triggername.find(triggerlist.at(it)) != std::string::npos) return it; // just check that the input name contains the wanted name
   }
   return -1;
 }

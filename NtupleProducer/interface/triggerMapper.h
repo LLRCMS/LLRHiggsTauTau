@@ -26,7 +26,7 @@ class triggerMapper {
   enum triggerChannel {kemu=0, ketau=1,kmutau=2,ktautau=3};
   enum legIDtype {kele=11, kmu=13, ktau=15, kOther=999}; 
   triggerMapper();
-  //triggerMapper(const triggerMapper& trigMap);
+  triggerMapper(const triggerMapper& trigMap);
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int);
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int theleg1ID, int theleg2ID);
   //triggerMapper(TString, TString*,TString*,int,int);

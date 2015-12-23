@@ -28,6 +28,18 @@ triggerMapper::triggerMapper(){
   filter_leg2.push_back("");
 }
 
+triggerMapper::triggerMapper(const triggerMapper& trigMap)
+{
+  //cout << "EHI! sto copiando trigger mapper" << endl;
+  HLT = trigMap.HLT;
+  filter_leg1 = trigMap.filter_leg1;
+  filter_leg2 = trigMap.filter_leg2;
+  channel = trigMap.channel;
+  leg1ID = trigMap.leg1ID;
+  leg2ID = trigMap.leg2ID;
+}
+
+
 triggerMapper::triggerMapper(string HLTtrigger, std::vector<string> filters1, std::vector<string> filters2, int c){
   HLT=HLTtrigger;
   int n1 = filter_leg1.size();
