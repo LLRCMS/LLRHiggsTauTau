@@ -45,12 +45,36 @@ import re
 # tag = "MC_SVFit_MiniAODV2_22Nov2015"
 # datasetsFile = "datasets.txt"
 
-PROCESS = ["2015DATARUND27OTT"]
-tag = "Data_SVFit_MiniAODV2_22Nov2015"
+# PROCESS = ["2015DATARUND27OTT"]
+# tag = "Data_SVFit_MiniAODV2_22Nov2015_SVFix"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["MINIV2SVFITDY"]
+# tag = "MC_SVFit_MiniAODV2_22Nov2015_DYResub"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["MINIV2SVFITPLUS"]
+# tag = "MC_SVFit_MiniAODV2_22Nov2015_MoreSamples_SVFix"
+# datasetsFile = "datasets.txt"
+
+#PROCESS = ["MINIV2SVFITESSENTIAL"]
+#tag = "MC_SVFit_MiniAODV2_22Nov2015_EssentialSamples_SVFix"
+#datasetsFile = "datasets.txt"
+
+# PROCESS = ["SILVERJSONMC"]
+# tag = "MC_SilverJson_SVfit"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["SILVERJSONDATA"]
+# tag = "Data_SilverJson_SVfit"
+# datasetsFile = "datasets.txt"
+
+PROCESS = ["DYNLO"]
+tag = "DY_NLO_noSVfit"
 datasetsFile = "datasets.txt"
 
 
-isMC = False
+isMC = True
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -58,11 +82,15 @@ isMC = False
 #25ns JSON file to be used on 2015C and 2015D PDs - integrated luminosity: 2.11/fb - 13/11/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
 #lumiMaskFileName = "/home/llr/cms/cadamuro/HiggsTauTauFramework/CMSSW_7_4_7/src/LLRHiggsTauTau/NtupleProducer/test/diffLumiMasks/LumiMask_Diff_2p11fb_minus_1p56_13Nov2015.txt"
-lumiMaskFileName  = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
+#lumiMaskFileName  = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
 
-FastJobs = False # true if skipping SVfit, false if computing it (jobs will be smaller)
+#25ns SILVER JSON : 2.46/fb
+lumiMaskFileName  = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt"
+
+
+FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
-PublishDataset = True # publish dataset; set to false if producing ntuples
+PublishDataset = False # publish dataset; set to false if producing ntuples
 
 
 ###################################################################
@@ -146,9 +174,16 @@ for dtset in dtsetToLaunch:
         dtsetNames = dtset.replace('/MINIAOD', "")
     dtsetNames = dtsetNames.replace('/', "__")
     dtsetNames = dtsetNames.strip("__") # remove leading and trailing double __ 
+    shortName = dtset.split('/')[1]
+
+    if (len(shortName) > 95): # requestName not exceed 100 Characters!
+        toRemove = len (shortName) - 95
+        shortName = shortName[toRemove:]
+
     #dtSetName = dtsetNames[1]
     command = "crab submit -c crab3_template.py"
-    command += " General.requestName=%s" % (dtsetNames + "_" + tag + "_" + str(counter))
+    #command += " General.requestName=%s" % (dtsetNames + "_" + tag + "_" + str(counter))
+    command += " General.requestName=%s" % (shortName + "_" + str(counter))
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
     command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
