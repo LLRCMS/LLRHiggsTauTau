@@ -109,7 +109,7 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(15)
         ),
     cms.PSet (
-        HLT = cms.string(" HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v"),
+        HLT = cms.string("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v"),
         path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
         path2 = cms.vstring ("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
         leg1 = cms.int32(15),
