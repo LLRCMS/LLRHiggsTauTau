@@ -196,8 +196,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _aMCatNLOweight;
   Int_t _npv;
   Float_t _lheHt;
-  Int_t _npu;
-  Float_t _PUNumInteractions;
+  Float_t _npu;
+  Int_t   _PUNumInteractions;
   Float_t _PUReweight;
   Float_t _rho;
   Int_t _nup;
@@ -710,7 +710,7 @@ void HTauTauNtuplizer::Initialize(){
   _MC_weight=0.;
   _npv=0;
   _lheHt=0;
-  _npu=0;
+  _npu=0.;
   _PUNumInteractions=0;
   _PUReweight=0.;
   _rho=0;
@@ -770,7 +770,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
-  myTree->Branch("npu",&_npu,"npu/I"); 
+  myTree->Branch("npu",&_npu,"npu/F"); 
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
   myTree->Branch("rho",&_rho,"rho/F");  
   
@@ -813,7 +813,7 @@ void HTauTauNtuplizer::beginJob(){
     //myTree->Branch("genH_py",&_genH_py);
     //myTree->Branch("genH_pz",&_genH_pz);
     //myTree->Branch("genH_e",&_genH_e);
-    myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/F");  
+    myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/I");  
     myTree->Branch("daughters_genindex",&_daughters_genindex);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
@@ -1024,7 +1024,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
       if(PVI->getBunchCrossing() == 0) { 
         _PUNumInteractions  = PVI->getPU_NumInteractions();
-        int nTrueInt = PVI->getTrueNumInteractions();
+        float nTrueInt = PVI->getTrueNumInteractions();
         _npu = nTrueInt;        
         _PUReweight = reweight.weight(2012,2012,nTrueInt);
         break;
