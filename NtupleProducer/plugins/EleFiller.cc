@@ -176,9 +176,10 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   // Output collection
   auto_ptr<pat::ElectronCollection> result( new pat::ElectronCollection() );
 
-  unsigned int i=0;
+  //unsigned int i=0;
   //for (unsigned int i = 0; i< electronHandle->size(); ++i){
   for( View<pat::Electron>::const_iterator el = electrons->begin(); el != electrons->end(); el++){
+    const unsigned int i = distance (electrons->begin(), el);
     const auto ele = electrons->ptrAt(i);
 
     //---Clone the pat::Electron
@@ -317,7 +318,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     }
 
     result->push_back(l);
-    i++;
+    //i++;
   }
   iEvent.put(result);
 }
