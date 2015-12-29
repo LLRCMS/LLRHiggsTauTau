@@ -12,6 +12,7 @@
 PRINTHEADER=true
 PRINTCMSSWFORMAT=true # lines begin with 'file: ...
 PRINTMESSAGE=true
+ONLYNTUPLES=false #select only ntuples and not EMiniAOD
 
 while [[ $# > 0 ]]
 do
@@ -37,6 +38,9 @@ case $key in
     ;;
     -m|--messageoff)
     PRINTMESSAGE=false
+    ;;
+    -g|--getonlyntuples)
+    ONLYNTUPLES=true
     ;;
     *)
             # unknown option
@@ -66,7 +70,11 @@ fi
 if [ $PRINTCMSSWFORMAT = true ] ; then
     ls $FILEPATH/*.root | awk '{print "'\''file:"$1 "'\''," }' >> $OUTFILE
 else
-    ls $FILEPATH/*.root | awk '{print $1}' >> $OUTFILE   
+    if [ $ONLYNTUPLES = true ] ; then
+       ls $FILEPATH/*.root | grep HTauTauAnalysis | awk '{print $1}' >> $OUTFILE
+    else
+       ls $FILEPATH/*.root | awk '{print $1}' >> $OUTFILE   
+    fi
 fi
 
 if [ $PRINTHEADER = true ] ; then
