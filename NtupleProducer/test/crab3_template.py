@@ -15,7 +15,7 @@ config.section_("Data")
 config.Data.inputDataset = '/my/precious/dataset'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'EventAwareLumiBased'
-config.Data.unitsPerJob = 20000 #number of events per jobs
+config.Data.unitsPerJob = 10000 #number of events per jobs
 config.Data.totalUnits = -1 #number of event
 config.Data.outLFNDirBase = '/store/user/lcadamur/HHNtuples/DefaultOutLFNDirBase'
 config.Data.publication = True
