@@ -280,6 +280,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _SVmassTauUp;
   std::vector<Float_t> _SVmassTauDown;
 
+  std::vector<Float_t> _SVmassTransverse;
+  std::vector<Float_t> _SVmassTransverseTauUp;
+  std::vector<Float_t> _SVmassTransverseTauDown;
+
   std::vector<Float_t> _SVpt;
   std::vector<Float_t> _SVptTauUp;
   std::vector<Float_t> _SVptTauDown;
@@ -647,6 +651,10 @@ void HTauTauNtuplizer::Initialize(){
   _SVmassTauUp.clear();
   _SVmassTauDown.clear();
 
+  _SVmassTransverse.clear();
+  _SVmassTransverseTauUp.clear();
+  _SVmassTransverseTauDown.clear();
+
   _SVpt.clear();
   _SVptTauUp.clear();
   _SVptTauDown.clear();
@@ -851,6 +859,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("SVfitMass",&_SVmass);
   myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
   myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
+
+  myTree->Branch("SVfitTransverseMass",&_SVmassTransverse);
+  myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
+  myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
 
   myTree->Branch("SVfit_pt", &_SVpt);
   myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
@@ -1168,6 +1180,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _SVmass.push_back(cand.userFloat("SVfitMass"));
     _SVmassTauUp.push_back(cand.userFloat("SVfitMassTauUp"));
     _SVmassTauDown.push_back(cand.userFloat("SVfitMassTauDown"));
+
+    _SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
+    _SVmassTransverseTauUp.push_back(cand.userFloat("SVfitTransverseMassTauUp"));
+    _SVmassTransverseTauDown.push_back(cand.userFloat("SVfitTransverseMassTauDown"));
 
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
     _SVptTauUp.push_back(cand.userFloat("SVfit_ptTauUp"));

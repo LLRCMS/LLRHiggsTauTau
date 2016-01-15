@@ -13,7 +13,7 @@
 ** plus some userfloats containing the SVfit mass and MET px, px, pt, phi. 
 **  
 ** \date:    18 November 2014
-** \author:  L. Cadamuro (LLR)
+** \author:  L. Cadamuro, O. Davignon (LLR)
 */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -368,6 +368,10 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double SVfitMassTauUp = -999.;
     double SVfitMassTauDown = -999.;
 
+    double SVfitTransverseMass = -999.;
+    double SVfitTransverseMassTauUp = -999.;
+    double SVfitTransverseMassTauDown = -999.;
+
     double SVpt = -999.;
     double SVptTauUp = -999.;
     double SVptTauDown = -999.;
@@ -474,6 +478,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         SVphiUnc = algo.phiUncert();
         SVMETRho = algo.fittedMET().Rho();
         SVMETPhi = algo.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
+	SVfitTransverseMass = algo.transverseMass();
         
       } // otherwise mass will be -1
 
@@ -502,6 +507,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		SVphiUncTauUp = algoTauUp.phiUncert();
 		SVMETRhoTauUp = algoTauUp.fittedMET().Rho();
 		SVMETPhiTauUp = algoTauUp.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
+		SVfitTransverseMassTauUp = algoTauUp.transverseMass();
 	      } // otherwise mass will be -1
 	  }
       }
@@ -517,6 +523,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	SVphiUncTauUp = algo.phiUncert();
 	SVMETRhoTauUp = algo.fittedMET().Rho();
 	SVMETPhiTauUp = algo.fittedMET().Phi();
+	SVfitTransverseMassTauUp = algo.transverseMass();
       }
 
 
@@ -544,6 +551,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		SVphiUncTauDown = algoTauDown.phiUncert();
 		SVMETRhoTauDown = algoTauDown.fittedMET().Rho();
 		SVMETPhiTauDown = algoTauDown.fittedMET().Phi(); // this is NOT a vector in the transverse plane! It has eta != 0.
+		SVfitTransverseMassTauDown = algoTauDown.transverseMass();
 	      } // otherwise mass will be -1
 	  }
       }
@@ -559,6 +567,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	SVphiUncTauDown = algo.phiUncert();
 	SVMETRhoTauDown = algo.fittedMET().Rho();
 	SVMETPhiTauDown = algo.fittedMET().Phi();
+	SVfitTransverseMassTauDown = algo.transverseMass();
+		
       }
     }
     
@@ -566,6 +576,10 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("SVfitMass", (float) SVfitMass);
     pair.addUserFloat("SVfitMassTauUp", (float) SVfitMassTauUp);
     pair.addUserFloat("SVfitMassTauDown", (float) SVfitMassTauDown);
+
+    pair.addUserFloat("SVfitTransverseMass", (float) SVfitTransverseMass);
+    pair.addUserFloat("SVfitTransverseMassTauUp", (float) SVfitTransverseMassTauUp);
+    pair.addUserFloat("SVfitTransverseMassTauDown", (float) SVfitTransverseMassTauDown);
 
     pair.addUserFloat("SVfit_pt", (float) SVpt);
     pair.addUserFloat("SVfit_ptTauUp", (float) SVptTauUp);
