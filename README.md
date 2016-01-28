@@ -85,5 +85,5 @@ scram b -j 4
 
 ### Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
-Please note that since 7_4_7 we switched to a new eleID recipe and we are not using anymore git cms-merge-topic sregnard:Phys14ElectronMvaIdFor745
+Pleae note that since 7_4_7 we switched to a new eleID recipe and we are not using anymore git cms-merge-topic sregnard:Phys14ElectronMvaIdFor745
 
