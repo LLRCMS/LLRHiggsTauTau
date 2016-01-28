@@ -45,6 +45,33 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   
 }
 
+triggerhelper::triggerhelper(TH1F* hCounter){
+
+  for(int itr=1;itr<=hCounter->GetNbinsX();itr++){
+    TString binlabel = hCounter->GetXaxis()->GetBinLabel(itr);
+    if(binlabel.BeginsWith("HLT"))triggerlist.push_back(hCounter->GetXaxis()->GetBinLabel(itr));
+  }
+
+  string tmpMETfilters[nMETs]={
+                 "Flag_CSCTightHaloFilter",
+ "Flag_EcalDeadCellTriggerPrimitiveFilter",
+                    "Flag_HBHENoiseFilter",
+                         "Flag_METFilters",
+                "Flag_ecalLaserCorrFilter",
+                      "Flag_eeBadScFilter",
+                       "Flag_goodVertices",
+               "Flag_hcalLaserEventFilter",
+              "Flag_trackingFailureFilter",
+                      "Flag_trkPOGFilters",
+     "Flag_trkPOG_logErrorTooManyClusters",
+            "Flag_trkPOG_manystripclus53X",
+         "Flag_trkPOG_toomanystripclus53X"
+  };
+  for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
+
+
+}
+
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
@@ -72,17 +99,38 @@ triggerhelper::~triggerhelper(){
 }
 
 void triggerhelper::addTriggerMap(string hlt, vector<string> path1, vector<string> path2, int channel){
+  
+  if (find(triggerlist.begin(), triggerlist.end(), hlt) != triggerlist.end() )
+  {
+    cout << "** triggerHelper :: Warning: path " << hlt << " already added, skipping" << endl;
+    return;
+  }
+
   triggerlist.push_back(hlt);
-  const int n1 = path1.size();
-  const int n2 = path2.size();
-  triggerMapper map(hlt,path1,path2,n1,n2,channel);
+  //const int n1 = path1.size();
+  //const int n2 = path2.size();
+  //triggerMapper map(hlt,path1,path2,n1,n2,channel);
+  triggerMapper map(hlt,path1,path2,channel);
   triggerMap.push_back(map);
   //nTriggers++;
 }
 
-int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
+void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int leg1ID, int leg2ID)
+{
+  if (find(triggerlist.begin(), triggerlist.end(), hlt) != triggerlist.end() )
+  {
+    cout << "** triggerHelper :: Warning: path " << hlt << " already added, skipping" << endl;
+    return;
+  }
+
+  triggerlist.push_back(hlt);
+  triggerMapper map(hlt,path1,path2,leg1ID, leg2ID);
+  triggerMap.push_back(map);
+}
+
+Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths){
   
-  int bit =0;
+  Long64_t bit =0;
   
   edm::Handle<edm::TriggerResults> triggerResults;
   event.getByLabel(InputTag("TriggerResults","","HLT"), triggerResults);
@@ -97,10 +145,14 @@ int triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> 
   // return bit;
  
   for(int it=0;it<(int)triggerlist.size();it++){
-    //for(int j=0;j<(int)foundPaths.size();j++){
     for(int j=0;j<(int)foundPaths.size();j++){
-      string myString (triggerlist.at(it));
-      if(myString.compare(foundPaths.at(j))==0){
+      //string myString (triggerlist.at(it));
+      //if(myString.compare(foundPaths.at(j))==0) // full trigger name match required
+      
+      string toCheckTrigger  = triggerlist.at(it) ;
+      string elemAllTriggers = foundPaths.at(j) ;
+      if (elemAllTriggers.find(toCheckTrigger) != std::string::npos) // equivalent to wildcard at the end or beginning of triggername 
+      {
 	      if(triggerResults->accept(indexOfPaths[j]))bit |= 1 <<it;
 	      break;
       }
@@ -131,7 +183,8 @@ int triggerhelper::FindMETBit(const edm::Event& event){
 
 triggerMapper triggerhelper::GetTriggerMap(string path){
   for(int i=0;i<(int)triggerMap.size();i++){
-    if(triggerMap.at(i).GetHLTPath().compare(path)==0)return triggerMap.at(i);
+    //if(triggerMap.at(i).GetHLTPath().compare(path)==0)return triggerMap.at(i); // full name comparison
+    if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos) return triggerMap.at(i); // use av equivalent of "contains" for versioning wildcard
   }
   return triggerMapper();
 }
@@ -153,7 +206,8 @@ int triggerhelper::FindTriggerNumberMET (string triggername)
 int triggerhelper::FindTriggerNumberTrig (string triggername)
 {
   for(unsigned int it=0; it < triggerlist.size(); it++){   
-    if(triggerlist.at(it).compare(triggername)==0) return it;
+    //if(triggerlist.at(it).compare(triggername)==0) return it; // full nale matching
+    if (triggername.find(triggerlist.at(it)) != std::string::npos) return it; // just check that the input name contains the wanted name
   }
   return -1;
 }

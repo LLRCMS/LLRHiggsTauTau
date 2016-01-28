@@ -91,10 +91,11 @@ if __name__ == "__main__":
         return repldict[match.group(0)]
 
     #initialize t3 for submission
-    proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
-    tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
-    if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 24 : # hours
-        os.system ('source /opt/exp_soft/cms/t3/t3setup')
+    # usually I call it externally
+    # proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
+    # tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
+    # if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 24 : # hours
+    #     os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
     #loop over the required number of jobs
     for n in xrange (0, len (chunks)) :
@@ -103,14 +104,16 @@ if __name__ == "__main__":
         inCfg = open(opt.cfg).read()
         outCfg = open('%s/cmssw_%d_cfg.py'%(jobsDir,n), 'w')
         outFullLFN = outFullPath
-        outFullLFN += 'output_%d.root' % n
+        outFullLFNNtuples  = outFullLFN + 'HTauTauAnalysis_%d.root' % n
+        outFullLFNEnriched = outFullLFN + 'Enriched_miniAOD_%d.root' % n
     
         if not opt.wholefile: 
             replacements = {
                             'XXX_MAXEVENTS_XXX':str(EvPerJob),
                             'XXX_SKIPEVENTS_XXX':str(n*EvPerJob + opt.offset),
                             'XXX_SAMPLEFILENAME_XXX':opt.samplefile,
-                            'XXX_OUTPUTFILE_XXX':outFullLFN,
+                            'XXX_OUTPUTFILENTUPLE_XXX':outFullLFNNtuples,
+                            'XXX_OUTPUTFILEENRICHED_XXX':outFullLFNEnriched,
                             'XXX_ISMC_XXX':str(opt.isMC)
                            }
         else:
@@ -120,7 +123,8 @@ if __name__ == "__main__":
                             'XXX_MAXEVENTS_XXX':'-1',
                             'XXX_SKIPEVENTS_XXX':str (opt.offset),
                             'XXX_SAMPLEFILENAME_XXX':chunkfilename,
-                            'XXX_OUTPUTFILE_XXX':outFullLFN,
+                            'XXX_OUTPUTFILENTUPLE_XXX':outFullLFNNtuples,
+                            'XXX_OUTPUTFILEENRICHED_XXX':outFullLFNEnriched,
                             'XXX_ISMC_XXX':str(opt.isMC)
                            }
 

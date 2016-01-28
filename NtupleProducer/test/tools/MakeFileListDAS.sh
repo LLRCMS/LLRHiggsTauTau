@@ -11,6 +11,7 @@
 #usage: source MakeFileListDAS.sh -t "Data_MuMu" -o Data_MuMu.py -p /DoubleMuon/Run2015B-PromptReco-v1/MINIAOD
 
 PRINTHEADER=true
+PHYS03=false #instance of phys03 DBS, look here for published datasets
 
 while [[ $# > 0 ]]
 do
@@ -30,6 +31,9 @@ case $key in
     ;;
     -n|--noheader)
     PRINTHEADER=false
+    ;;
+    -d|--dbsphys3)
+    PHYS03=true
     ;;
     *)
             # unknown option
@@ -51,7 +55,11 @@ if [[ $DATASET = *"/" ]] ; then DATASET=${DATASET%?} ; fi
 
 # file list formatted using awk
 #ls $FILEPATH/*.root | awk -v pathto=$FILEPATH '{print "'\''file:" pathto "/"$1 "'\''," }' >> $OUTFILE
-python das_client.py --query="file dataset=$DATASET" --limit=0 --verbose=1 | awk '{print "'\''"$1"'\'',"}' >> $OUTFILE
+if [ $PHYS03 = true ] ; then
+    python das_client.py --query="file dataset=$DATASET instance=prod/phys03" --limit=0 --verbose=1 | awk '{print "'\''"$1"'\'',"}' >> $OUTFILE
+else
+    python das_client.py --query="file dataset=$DATASET" --limit=0 --verbose=1 | awk '{print "'\''"$1"'\'',"}' >> $OUTFILE    
+fi
 #ls $FILEPATH/*.root | awk '{print "'\''file:"$1 "'\''," }' >> $OUTFILE
 
 if [ $PRINTHEADER = true ] ; then

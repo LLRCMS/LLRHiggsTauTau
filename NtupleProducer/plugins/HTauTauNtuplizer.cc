@@ -82,9 +82,25 @@
 #include "LLRHiggsTauTau/NtupleProducer/interface/ParticleType.h"
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenFlags.h"
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenHelper.h"
+#include "Geometry/Records/interface/HcalParametersRcd.h"
+#include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/GeometryObjects/interface/HcalParameters.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-//#include "TLorentzVector.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+
+#include "TLorentzVector.h"
 
  namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
@@ -124,10 +140,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
-  int FillJet(const edm::View<pat::Jet>* jet);
+  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR);
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
+  void FillGenJetInfo(const edm::Event&);
   int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
   //int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
   static bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
@@ -144,6 +161,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   TString theFileName;
   bool theFSR;
   Bool_t theisMC;
+  Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
   vector<string> foundPaths;
@@ -156,14 +174,29 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Output Objects
   TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
+  TH1F *hTauIDs;
   triggerhelper* myTriggerHelper;
 
   PUReweight reweight;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
+  edm::EDGetTokenT<vector<Vertex>> theVtxTag;
+  edm::EDGetTokenT<double> theRhoTag;
+  edm::EDGetTokenT<vector<PileupSummaryInfo>> thePUTag;
+  edm::EDGetTokenT<edm::View<pat::CompositeCandidate>> theCandTag;
+  edm::EDGetTokenT<edm::View<pat::Jet>> theJetTag;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> theLepTag;
+  edm::EDGetTokenT<LHEEventProduct> theLHETag;
+  edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
+  edm::EDGetTokenT<pat::METCollection> theMetTag;
+  edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
+  edm::EDGetTokenT<edm::View<reco::GenJet>> theGenJetTag;
+  edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
+  edm::EDGetTokenT<edm::MergeableCounter> thePassTag;
+  edm::EDGetTokenT<LHEEventProduct> theLHEPTag;
 
   //flags
-  static const int nOutVars =14;
+  //static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
   bool applySkim;       //  "     "      "     skim
   bool skipEmptyEvents; // Skip events whith no candidate in the collection
@@ -178,14 +211,16 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _indexevents;
   Int_t _runNumber;
   Int_t _lumi;
-  Int_t _triggerbit;
+  Long64_t _triggerbit;
   Int_t _metfilterbit;
   Float_t _met;
   Float_t _metphi;
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
-  Int_t _npu;
+  Float_t _lheHt;
+  Float_t _npu;
+  Int_t   _PUNumInteractions;
   Float_t _PUReweight;
   Float_t _rho;
   Int_t _nup;
@@ -199,10 +234,22 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   
   // reco leptons
   //std::vector<TLorentzVector> _daughters;
+  std::vector<string> _trigger_name;
+  std::vector<Int_t> _trigger_accept;
   std::vector<Float_t> _daughters_px;
   std::vector<Float_t> _daughters_py;
   std::vector<Float_t> _daughters_pz;
   std::vector<Float_t> _daughters_e;
+  std::vector<Int_t> _daughters_TauUpExists;
+  std::vector<Float_t> _daughters_px_TauUp;
+  std::vector<Float_t> _daughters_py_TauUp;
+  std::vector<Float_t> _daughters_pz_TauUp;
+  std::vector<Float_t> _daughters_e_TauUp;
+  std::vector<Int_t> _daughters_TauDownExists;
+  std::vector<Float_t> _daughters_px_TauDown;
+  std::vector<Float_t> _daughters_py_TauDown;
+  std::vector<Float_t> _daughters_pz_TauDown;
+  std::vector<Float_t> _daughters_e_TauDown;
   std::vector<Int_t> _daughters_genindex;
   std::vector<Int_t> _daughters_charge;
 
@@ -223,6 +270,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _genpart_status;
   //std::vector<Int_t> _genpart_mothInd;
   std::vector<Int_t> _genpart_HMothInd;
+  std::vector<Int_t> _genpart_MSSMHMothInd;
   std::vector<Int_t> _genpart_TopMothInd;
   std::vector<Int_t> _genpart_TauMothInd;
   std::vector<Int_t> _genpart_ZMothInd;
@@ -235,22 +283,62 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   std::vector<Int_t> _genpart_flags; // vector of bit flags bout gen info
   
+  // gen jets
+  std::vector<Float_t> _genjet_px;
+  std::vector<Float_t> _genjet_py;
+  std::vector<Float_t> _genjet_pz;
+  std::vector<Float_t> _genjet_e;
+  std::vector<Int_t> _genjet_partonFlavour; // from matched pat::Jet
+  std::vector<Int_t> _genjet_hadronFlavour; // (eh yes, because it is not accessible easily from gen jets)
+
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
   //Mothers output variables
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
+  std::vector<Float_t> _daughters_HLTpt;
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
   std::vector<Float_t> _SVmass;
+  std::vector<Float_t> _SVmassTauUp;
+  std::vector<Float_t> _SVmassTauDown;
+
+  std::vector<Float_t> _SVmassTransverse;
+  std::vector<Float_t> _SVmassTransverseTauUp;
+  std::vector<Float_t> _SVmassTransverseTauDown;
+
   std::vector<Float_t> _SVpt;
+  std::vector<Float_t> _SVptTauUp;
+  std::vector<Float_t> _SVptTauDown;
+
   std::vector<Float_t> _SVptUnc;
+  std::vector<Float_t> _SVptUncTauUp;
+  std::vector<Float_t> _SVptUncTauDown;
+
   std::vector<Float_t> _SVeta;
+  std::vector<Float_t> _SVetaTauUp;
+  std::vector<Float_t> _SVetaTauDown;
+
   std::vector<Float_t> _SVetaUnc;
+  std::vector<Float_t> _SVetaUncTauUp;
+  std::vector<Float_t> _SVetaUncTauDown;
+
   std::vector<Float_t> _SVphi;
+  std::vector<Float_t> _SVphiTauUp;
+  std::vector<Float_t> _SVphiTauDown;
+
   std::vector<Float_t> _SVphiUnc;
+  std::vector<Float_t> _SVphiUncTauUp;
+  std::vector<Float_t> _SVphiUncTauDown;
+
   std::vector<Float_t> _SVMetRho;
+  std::vector<Float_t> _SVMetRhoTauUp;
+  std::vector<Float_t> _SVMetRhoTauDown;
+
   std::vector<Float_t> _SVMetPhi;
+  std::vector<Float_t> _SVMetPhiTauUp;
+  std::vector<Float_t> _SVMetPhiTauDown;
+
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
   std::vector<Float_t> _metCov00;
@@ -277,8 +365,41 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<bool> _daughters_iseleWP90; //isBDT for ele
   std::vector<Float_t> _daughters_eleMVAnt; //isBDT for ele
   std::vector<bool> _daughters_passConversionVeto; //isBDT for ele
+  std::vector<int>  _daughters_eleMissingHits;
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
+  std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
+  static const int ntauIds = 28;
+  TString tauIDStrings[ntauIds] = {
+   "byLoosePileupWeightedIsolation3Hits",
+   "byMediumPileupWeightedIsolation3Hits",
+   "byTightPileupWeightedIsolation3Hits",
+   "byLooseCombinedIsolationDeltaBetaCorr3Hits",
+   "byMediumCombinedIsolationDeltaBetaCorr3Hits",
+   "byTightCombinedIsolationDeltaBetaCorr3Hits",
+   "againstMuonLoose3",
+   "againstMuonTight3",
+   "againstElectronVLooseMVA6",
+   "againstElectronLooseMVA6",
+   "againstElectronMediumMVA6",
+   "againstElectronTightMVA6",
+   "againstElectronVTightMVA6",
+   "byLooseIsolationMVArun2v1DBoldDMwLT",
+   "byMediumIsolationMVArun2v1DBoldDMwLT",
+   "byTightIsolationMVArun2v1DBoldDMwLT",
+   "byVTightIsolationMVArun2v1DBoldDMwLT",
+   "byLooseIsolationMVArun2v1DBnewDMwLT",
+   "byMediumIsolationMVArun2v1DBnewDMwLT",
+   "byTightIsolationMVArun2v1DBnewDMwLT",
+   "byVTightIsolationMVArun2v1DBnewDMwLT",
+   "byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",
+   "byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",
+   "byTightCombinedIsolationDeltaBetaCorr3HitsdR03",
+   "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
+   "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
+   "byTightIsolationMVArun2v1DBdR03oldDMwLT",
+   "byVTightIsolationMVArun2v1DBdR03oldDMwLT"
+  };
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
   std::vector<Float_t> _daughters_SCeta;
@@ -286,10 +407,15 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
   std::vector<Int_t> _daughters_decayModeFindingOldDMs;
+
+  std::vector<Float_t> _daughters_againstElectronMVA5category;
+  std::vector<Float_t> _daughters_againstElectronMVA5raw;
+  std::vector<Float_t> _daughters_byPileupWeightedIsolationRaw3Hits;
+  std::vector<Float_t> _daughters_footprintCorrection;
+  std::vector<Float_t> _daughters_neutralIsoPtSumWeight;
+  std::vector<Float_t> _daughters_photonPtSumOutsideSignalCone;
+
   std::vector<Int_t> _daughters_decayModeFindingNewDMs;
-  std::vector<Int_t> _daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits;
-  std::vector<Int_t> _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits;
-  std::vector<Int_t> _daughters_byTightCombinedIsolationDeltaBetaCorr3Hits;
   std::vector<Float_t> _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
   std::vector<Float_t> _daughters_byIsolationMVA3oldDMwoLTraw;
   std::vector<Float_t> _daughters_byIsolationMVA3oldDMwLTraw;
@@ -298,13 +424,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
   std::vector<Float_t> _daughters_puCorrPtSum;
-  std::vector<Int_t> _daughters_againstMuonLoose3;
-  std::vector<Int_t> _daughters_againstMuonTight3;
-  std::vector<Int_t> _daughters_againstElectronVLooseMVA5;
-  std::vector<Int_t> _daughters_againstElectronLooseMVA5;
-  std::vector<Int_t> _daughters_againstElectronMediumMVA5;
-  std::vector<Int_t> _daughters_againstElectronTightMVA5;
-  std::vector<Int_t> _daughters_againstElectronVTightMVA5;
   std::vector<Int_t> _daughters_numChargedParticlesSignalCone;
   std::vector<Int_t> _daughters_numNeutralHadronsSignalCone;
   std::vector<Int_t> _daughters_numPhotonsSignalCone;
@@ -329,11 +448,31 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
+  std::vector<Float_t> _jets_rawPt;
+  std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
-  std::vector<Int_t> _jets_Flavour;
+  std::vector<Float_t> _jets_vtxPt;
+  std::vector<Float_t> _jets_vtxMass;
+  std::vector<Float_t> _jets_vtx3dL;
+  std::vector<Float_t> _jets_vtxNtrk;
+  std::vector<Float_t> _jets_vtx3deL;
+  std::vector<Float_t> _jets_leadTrackPt;
+  std::vector<Float_t> _jets_leptonPtRel; 
+  std::vector<Float_t> _jets_leptonPt;    
+  std::vector<Float_t> _jets_leptonDeltaR;
+  std::vector<Float_t> _jets_chEmEF;
+  std::vector<Float_t> _jets_chHEF;
+  std::vector<Float_t> _jets_nEmEF;
+  std::vector<Float_t> _jets_nHEF;
+  std::vector<Int_t> _jets_chMult;
+  std::vector<Float_t> _jets_jecUnc;
+
+  std::vector<Int_t> _jets_Flavour; // parton flavour
+  std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
+  std::vector<Int_t> _jets_genjetIndex; // index of matched gen jet in genjet vector
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
-  std::vector<Int_t> _jetID; //1=loose, 2=tight
+  std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
   std::vector<Float_t> _jetrawf;
 
   //genH
@@ -346,7 +485,21 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 // ----Constructor and Destructor -----
 HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   triggerObjects_(consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("triggerSet"))),
-  triggerBits_(consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerResultsLabel")))
+  triggerBits_(consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
+  theVtxTag(consumes<vector<Vertex>>(pset.getParameter<edm::InputTag>("vtxCollection"))),
+  theRhoTag(consumes<double>(pset.getParameter<edm::InputTag>("rhoCollection"))),
+  thePUTag(consumes<vector<PileupSummaryInfo>>(pset.getParameter<edm::InputTag>("puCollection"))),
+  theCandTag(consumes<edm::View<pat::CompositeCandidate>>(pset.getParameter<edm::InputTag>("candCollection"))),
+  theJetTag(consumes<edm::View<pat::Jet>>(pset.getParameter<edm::InputTag>("jetCollection"))),
+  theLepTag(consumes<edm::View<reco::Candidate>>(pset.getParameter<edm::InputTag>("lepCollection"))),
+  theLHETag(consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("lheCollection"))),
+  theGenTag(consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genCollection"))),
+  theMetTag(consumes<pat::METCollection>(pset.getParameter<edm::InputTag>("metCollection"))),
+  theGenericTag(consumes<edm::View<pat::GenericParticle>>(pset.getParameter<edm::InputTag>("genericCollection"))),
+  theGenJetTag(consumes<edm::View<reco::GenJet>>(pset.getParameter<edm::InputTag>("genjetCollection"))),
+  theTotTag(consumes<edm::MergeableCounter>(pset.getParameter<edm::InputTag>("totCollection"))),
+  thePassTag(consumes<edm::MergeableCounter>(pset.getParameter<edm::InputTag>("passCollection"))),
+  theLHEPTag(consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("lhepCollection")))
 
  {
   theCandLabel = pset.getUntrackedParameter<string>("CandCollection");
@@ -355,6 +508,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   skipEmptyEvents = pset.getParameter<bool>("skipEmptyEvents");
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
+  theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
@@ -368,6 +522,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   //std::vector<std::string> 
 
   myTriggerHelper = new triggerhelper();// (HLTList);
+  /*
   for (std::vector<edm::ParameterSet>::const_iterator iPSet = HLTList.begin();iPSet != HLTList.end(); ++iPSet) {
     const std::string& hlt = iPSet->getParameter<std::string>("HLT");
     const std::vector<std::string>& path1 = iPSet->getParameter<std::vector<std::string>>("path1");
@@ -376,6 +531,17 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
     // Build the mape
     myTriggerHelper->addTriggerMap(hlt,path1,path2,chan);
   }
+  */
+  for (std::vector<edm::ParameterSet>::const_iterator iPSet = HLTList.begin();iPSet != HLTList.end(); ++iPSet) {
+    const std::string& hlt = iPSet->getParameter<std::string>("HLT");
+    const std::vector<std::string>& path1 = iPSet->getParameter<std::vector<std::string>>("path1");
+    const std::vector<std::string>& path2 = iPSet->getParameter<std::vector<std::string>>("path2");
+    const int& leg1 = iPSet->getParameter<int>("leg1");
+    const int& leg2 = iPSet->getParameter<int>("leg2");
+    // Build the mape
+    myTriggerHelper->addTriggerMap(hlt,path1,path2,leg1,leg2);
+  }
+
 
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
 
@@ -411,10 +577,24 @@ void HTauTauNtuplizer::Initialize(){
   _mothers_e.clear();
   
   //_daughters.clear();
+  if(DEBUG){
+  _trigger_name.clear();
+  _trigger_accept.clear();
+  }
   _daughters_px.clear();
   _daughters_py.clear();
   _daughters_pz.clear();
   _daughters_e.clear();
+  _daughters_TauUpExists.clear();
+  _daughters_px_TauUp.clear();
+  _daughters_py_TauUp.clear();
+  _daughters_pz_TauUp.clear();
+  _daughters_e_TauUp.clear();
+  _daughters_TauDownExists.clear();
+  _daughters_px_TauDown.clear();
+  _daughters_py_TauDown.clear();
+  _daughters_pz_TauDown.clear();
+  _daughters_e_TauDown.clear();
   _daughters_charge.clear();
   _daughters_genindex.clear();
   _daughters_IetaIeta.clear();
@@ -425,24 +605,22 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_depositR03_hcal.clear();  
   _daughters_decayModeFindingOldDMs.clear();
   _daughters_decayModeFindingNewDMs.clear();
-  _daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits.clear();
-  _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits.clear();
-  _daughters_byTightCombinedIsolationDeltaBetaCorr3Hits.clear();
   _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits.clear();
   _daughters_byIsolationMVA3oldDMwoLTraw.clear();
   _daughters_byIsolationMVA3oldDMwLTraw.clear();
   _daughters_byIsolationMVA3newDMwoLTraw.clear();
+
+  _daughters_againstElectronMVA5category.clear();
+  _daughters_againstElectronMVA5raw.clear();
+  _daughters_byPileupWeightedIsolationRaw3Hits.clear();
+  _daughters_footprintCorrection.clear();
+  _daughters_neutralIsoPtSumWeight.clear();
+  _daughters_photonPtSumOutsideSignalCone.clear();
+
   _daughters_byIsolationMVA3newDMwLTraw.clear();
   _daughters_chargedIsoPtSum.clear();
   _daughters_neutralIsoPtSum.clear();
   _daughters_puCorrPtSum.clear();
-  _daughters_againstMuonLoose3.clear();
-  _daughters_againstMuonTight3.clear();
-  _daughters_againstElectronVLooseMVA5.clear();
-  _daughters_againstElectronLooseMVA5.clear();
-  _daughters_againstElectronMediumMVA5.clear();
-  _daughters_againstElectronTightMVA5.clear();
-  _daughters_againstElectronVTightMVA5.clear();
   _daughters_numChargedParticlesSignalCone.clear();
   _daughters_numNeutralHadronsSignalCone.clear();
   _daughters_numPhotonsSignalCone.clear();
@@ -464,6 +642,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_iseleWP90.clear();
   _daughters_eleMVAnt.clear();
   _daughters_passConversionVeto.clear();
+  _daughters_eleMissingHits.clear();
   _daughters_iseleCUT.clear();
   //_daughter2.clear();
   _softLeptons.clear();
@@ -485,6 +664,7 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_status.clear();
   //_genpart_mothInd.clear();
   _genpart_HMothInd.clear();
+  _genpart_MSSMHMothInd.clear();
   _genpart_TopMothInd.clear();
   _genpart_TauMothInd.clear();
   _genpart_ZMothInd.clear();
@@ -496,19 +676,58 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_TauGenDecayMode.clear();
   _genpart_flags.clear();
   
+  _genjet_px.clear();
+  _genjet_py.clear();
+  _genjet_pz.clear();
+  _genjet_e.clear();
+  _genjet_partonFlavour.clear();
+  _genjet_hadronFlavour.clear();
+  
   _indexDau1.clear();
   _indexDau2.clear();
   _pdgdau.clear();
   _SVmass.clear();
+  _SVmassTauUp.clear();
+  _SVmassTauDown.clear();
+
+  _SVmassTransverse.clear();
+  _SVmassTransverseTauUp.clear();
+  _SVmassTransverseTauDown.clear();
+
   _SVpt.clear();
+  _SVptTauUp.clear();
+  _SVptTauDown.clear();
+
   _SVptUnc.clear();
+  _SVptUncTauUp.clear();
+  _SVptUncTauDown.clear();
+
   _SVeta.clear();
+  _SVetaTauUp.clear();
+  _SVetaTauDown.clear();
+
   _SVetaUnc.clear();
+  _SVetaUncTauUp.clear();
+  _SVetaUncTauDown.clear();
+
   _SVphi.clear();
+  _SVphiTauUp.clear();
+  _SVphiTauDown.clear();
+
   _SVphiUnc.clear();
+  _SVphiUncTauUp.clear();
+  _SVphiUncTauDown.clear();
+
   _SVMetRho.clear();
+  _SVMetRhoTauUp.clear();
+  _SVMetRhoTauDown.clear();
+
   _SVMetPhi.clear();
+  _SVMetPhiTauUp.clear();
+  _SVMetPhiTauDown.clear();
+
   _isOSCand.clear();
+  _daughters_HLTpt.clear();
   _metx.clear();
   _mety.clear();
   _metCov00.clear();
@@ -526,6 +745,7 @@ void HTauTauNtuplizer::Initialize(){
   _dz.clear();
   _SIP.clear();
   _decayType.clear();
+  _daughters_tauID.clear();
   _combreliso.clear();
   _indexevents=0;
   _runNumber=0;
@@ -536,7 +756,9 @@ void HTauTauNtuplizer::Initialize(){
   _metphi=0.;
   _MC_weight=0.;
   _npv=0;
-  _npu=0;
+  _lheHt=0;
+  _npu=0.;
+  _PUNumInteractions=0;
   _PUReweight=0.;
   _rho=0;
   _nup=-999;
@@ -546,8 +768,27 @@ void HTauTauNtuplizer::Initialize(){
   _jets_py.clear();
   _jets_pz.clear();
   _jets_e.clear();
+  _jets_rawPt.clear();
+  _jets_mT.clear();
   _jets_PUJetID.clear();
+  _jets_vtxPt.clear();
+  _jets_vtxMass.clear();
+  _jets_vtx3dL.clear();
+  _jets_vtxNtrk.clear();
+  _jets_vtx3deL.clear();
+  _jets_leadTrackPt.clear();
+  _jets_leptonPtRel.clear();
+  _jets_leptonPt.clear();
+  _jets_leptonDeltaR.clear();
+  _jets_chEmEF.clear();
+  _jets_chHEF.clear();
+  _jets_nEmEF.clear();
+  _jets_nHEF.clear();
+  _jets_chMult.clear();
   _jets_Flavour.clear();
+  _jets_HadronFlavour.clear();
+  _jets_genjetIndex.clear();
+  _jets_jecUnc.clear();
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -565,17 +806,18 @@ void HTauTauNtuplizer::beginJob(){
   myTree = fs->make<TTree>("HTauTauTree","HTauTauTree");
   int nbins=3+(myTriggerHelper->GetNTriggers());
   hCounter = fs->make<TH1F>("Counters","Counters",nbins,0,nbins);
+  hTauIDs = fs->make<TH1F>("TauIDs","TauIDs",ntauIds,0,ntauIds);
 
   //Branches
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
-  myTree->Branch("triggerbit",&_triggerbit,"triggerbit/I");
+  myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
-  myTree->Branch("npu",&_npu,"npu/I"); 
+  myTree->Branch("npu",&_npu,"npu/F"); 
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
   myTree->Branch("rho",&_rho,"rho/F");  
   
@@ -583,12 +825,27 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("mothers_py",&_mothers_py);
   myTree->Branch("mothers_pz",&_mothers_pz);
   myTree->Branch("mothers_e",&_mothers_e);
-
+  if(DEBUG){
+  myTree->Branch("trigger_name",&_trigger_name);
+  myTree->Branch("trigger_accept",&_trigger_accept);
+  }
   myTree->Branch("daughters_px",&_daughters_px);
   myTree->Branch("daughters_py",&_daughters_py);
   myTree->Branch("daughters_pz",&_daughters_pz);
   myTree->Branch("daughters_e",&_daughters_e);
   myTree->Branch("daughters_charge",&_daughters_charge);
+
+  myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
+  myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
+  myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
+  myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
+  myTree->Branch("daughters_e_TauUp",&_daughters_e_TauUp);
+
+  myTree->Branch("daughters_TauDownExists",&_daughters_TauDownExists);
+  myTree->Branch("daughters_px_TauDown",&_daughters_px_TauDown);
+  myTree->Branch("daughters_py_TauDown",&_daughters_py_TauDown);
+  myTree->Branch("daughters_pz_TauDown",&_daughters_pz_TauDown);
+  myTree->Branch("daughters_e_TauDown",&_daughters_e_TauDown);
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
@@ -603,9 +860,10 @@ void HTauTauNtuplizer::beginJob(){
     //myTree->Branch("genH_py",&_genH_py);
     //myTree->Branch("genH_pz",&_genH_pz);
     //myTree->Branch("genH_e",&_genH_e);
-
+    myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/I");  
     myTree->Branch("daughters_genindex",&_daughters_genindex);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
+    myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("aMCatNLOweight",&_aMCatNLOweight,"aMCatNLOweight/F");    
     myTree->Branch("genpart_px", &_genpart_px);
     myTree->Branch("genpart_py", &_genpart_py);
@@ -615,6 +873,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_status", &_genpart_status);
     //myTree->Branch("genpart_mothInd", _genpart_mothInd);
     myTree->Branch("genpart_HMothInd", &_genpart_HMothInd);
+    myTree->Branch("genpart_MSSMHMothInd", &_genpart_MSSMHMothInd);
     myTree->Branch("genpart_TopMothInd", &_genpart_TopMothInd);
     myTree->Branch("genpart_TauMothInd", &_genpart_TauMothInd);
     myTree->Branch("genpart_ZMothInd", &_genpart_ZMothInd);
@@ -625,18 +884,56 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_WDecayMode", &_genpart_WDecayMode);
     myTree->Branch("genpart_TauGenDecayMode", &_genpart_TauGenDecayMode);
     myTree->Branch("genpart_flags", &_genpart_flags);
+
+    myTree->Branch("genjet_px", &_genjet_px);
+    myTree->Branch("genjet_py", &_genjet_py);
+    myTree->Branch("genjet_pz", &_genjet_pz);
+    myTree->Branch("genjet_e" , &_genjet_e);
+    myTree->Branch("genjet_partonFlavour" , &_genjet_partonFlavour);
+    myTree->Branch("genjet_hadronFlavour" , &_genjet_hadronFlavour);
+
     myTree->Branch("NUP", &_nup,"NUP/I");
   }
   //myTree->Branch("daughters2",&_daughter2);
   myTree->Branch("SVfitMass",&_SVmass);
+  myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
+  myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
+
+  myTree->Branch("SVfitTransverseMass",&_SVmassTransverse);
+  myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
+  myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
+
   myTree->Branch("SVfit_pt", &_SVpt);
+  myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
+  myTree->Branch("SVfit_ptTauDown", &_SVptTauDown);
+
   myTree->Branch("SVfit_ptUnc", &_SVptUnc);
+  myTree->Branch("SVfit_ptUncTauUp", &_SVptUncTauUp);
+  myTree->Branch("SVfit_ptUncTauDown", &_SVptUncTauDown);
+
   myTree->Branch("SVfit_eta", &_SVeta);
+  myTree->Branch("SVfit_etaTauUp", &_SVetaTauUp);
+  myTree->Branch("SVfit_etaTauDown", &_SVetaTauDown);
+
   myTree->Branch("SVfit_etaUnc", &_SVetaUnc);
+  myTree->Branch("SVfit_etaUncTauUp", &_SVetaUncTauUp);
+  myTree->Branch("SVfit_etaUncTauDown", &_SVetaUncTauDown);
+
   myTree->Branch("SVfit_phi", &_SVphi);
+  myTree->Branch("SVfit_phiTauUp", &_SVphiTauUp);
+  myTree->Branch("SVfit_phiTauDown", &_SVphiTauDown);
+
   myTree->Branch("SVfit_phiUnc", &_SVphiUnc);
+  myTree->Branch("SVfit_phiUncTauUp", &_SVphiUncTauUp);
+  myTree->Branch("SVfit_phiUncTauDown", &_SVphiUncTauDown);
+
   myTree->Branch("SVfit_fitMETRho", &_SVMetRho);
+  myTree->Branch("SVfit_fitMETRhoTauUp", &_SVMetRhoTauUp);
+  myTree->Branch("SVfit_fitMETRhoTauDown", &_SVMetRhoTauDown);
+
   myTree->Branch("SVfit_fitMETPhi", &_SVMetPhi);
+  myTree->Branch("SVfit_fitMETPhiTauUp", &_SVMetPhiTauUp);
+  myTree->Branch("SVfit_fitMETPhiTauDown", &_SVMetPhiTauDown);
 
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
@@ -663,8 +960,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_iseleWP90",&_daughters_iseleWP90);
   myTree->Branch("daughters_eleMVAnt",&_daughters_eleMVAnt);
   myTree->Branch("daughters_passConversionVeto",&_daughters_passConversionVeto);
+  myTree->Branch("daughters_eleMissingHits",&_daughters_eleMissingHits);
   myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT);
   myTree->Branch("decayMode",&_decayType);
+  myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
   myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
@@ -673,10 +972,15 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
   myTree->Branch("daughters_decayModeFindingOldDMs", &_daughters_decayModeFindingOldDMs);
+
+  myTree->Branch("againstElectronMVA5category",&_daughters_againstElectronMVA5category);
+  myTree->Branch("againstElectronMVA5raw",&_daughters_againstElectronMVA5raw);
+  myTree->Branch("byPileupWeightedIsolationRaw3Hits",&_daughters_byPileupWeightedIsolationRaw3Hits);
+  myTree->Branch("footprintCorrection",&_daughters_footprintCorrection);
+  myTree->Branch("neutralIsoPtSumWeight",&_daughters_neutralIsoPtSumWeight);
+  myTree->Branch("photonPtSumOutsideSignalCone",&_daughters_photonPtSumOutsideSignalCone);
+
   myTree->Branch("daughters_decayModeFindingNewDMs", &_daughters_decayModeFindingNewDMs);
-  myTree->Branch("daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits", &_daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits);
-  myTree->Branch("daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits", &_daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits);
-  myTree->Branch("daughters_byTightCombinedIsolationDeltaBetaCorr3Hits", &_daughters_byTightCombinedIsolationDeltaBetaCorr3Hits);
   myTree->Branch("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
   myTree->Branch("daughters_byIsolationMVA3oldDMwoLTraw",&_daughters_byIsolationMVA3oldDMwoLTraw);
   myTree->Branch("daughters_byIsolationMVA3oldDMwLTraw",&_daughters_byIsolationMVA3oldDMwLTraw);
@@ -685,13 +989,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
   myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
-  myTree->Branch("daughters_againstMuonLoose3", &_daughters_againstMuonLoose3);
-  myTree->Branch("daughters_againstMuonTight3", &_daughters_againstMuonTight3);
-  myTree->Branch("daughters_againstElectronVLooseMVA5", &_daughters_againstElectronVLooseMVA5);
-  myTree->Branch("daughters_againstElectronLooseMVA5", &_daughters_againstElectronLooseMVA5);
-  myTree->Branch("daughters_againstElectronMediumMVA5", &_daughters_againstElectronMediumMVA5);
-  myTree->Branch("daughters_againstElectronTightMVA5", &_daughters_againstElectronTightMVA5);
-  myTree->Branch("daughters_againstElectronVTightMVA5", &_daughters_againstElectronVTightMVA5);
   myTree->Branch("daughters_numChargedParticlesSignalCone", &_daughters_numChargedParticlesSignalCone);
   myTree->Branch("daughters_numNeutralHadronsSignalCone", &_daughters_numNeutralHadronsSignalCone);
   myTree->Branch("daughters_numPhotonsSignalCone", &_daughters_numPhotonsSignalCone);
@@ -708,14 +1005,35 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_isGoodTriggerType",&_daughters_isGoodTriggerType);
   myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired);
   myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
+  myTree->Branch("daughters_HLTpt",&_daughters_HLTpt);
   
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
   myTree->Branch("jets_e",&_jets_e);
+  myTree->Branch("jets_rawPt", &_jets_rawPt);
+  myTree->Branch("jets_mT", &_jets_mT);
   myTree->Branch("jets_Flavour",&_jets_Flavour);
+  myTree->Branch("jets_HadronFlavour",&_jets_HadronFlavour);
+  myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
+  myTree->Branch("jets_vtxPt", &_jets_vtxPt);
+  myTree->Branch("jets_vtxMass", &_jets_vtxMass);
+  myTree->Branch("jets_vtx3dL", &_jets_vtx3dL);
+  myTree->Branch("jets_vtxNtrk", &_jets_vtxNtrk);
+  myTree->Branch("jets_vtx3deL", &_jets_vtx3deL);
+  myTree->Branch("jets_leadTrackPt", &_jets_leadTrackPt);
+  myTree->Branch("jets_leptonPtRel", &_jets_leptonPtRel);
+  myTree->Branch("jets_leptonPt", &_jets_leptonPt);
+  myTree->Branch("jets_leptonDeltaR", &_jets_leptonDeltaR);
+  myTree->Branch("jets_chEmEF" , &_jets_chEmEF);
+  myTree->Branch("jets_chHEF"  , &_jets_chHEF);
+  myTree->Branch("jets_nEmEF"  , &_jets_nEmEF);
+  myTree->Branch("jets_nHEF"   , &_jets_nHEF);
+  myTree->Branch("jets_chMult" , &_jets_chMult);
+  myTree->Branch("jets_jecUnc" , &_jets_jecUnc);
+
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
   myTree->Branch("PFjetID",&_jetID);
@@ -740,7 +1058,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   Initialize();
 
   Handle<vector<reco::Vertex> >  vertexs;
-  event.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
+  //event.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
+  event.getByToken(theVtxTag,vertexs);
   
   //----------------------------------------------------------------------
   // Analyze MC history. THIS HAS TO BE DONE BEFORE ANY RETURN STATEMENT
@@ -748,25 +1067,69 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   //  std::vector<const reco::Candidate *> genZs;
   // std::vector<const reco::Candidate *> genZLeps;
+  
+  _npv = vertexs->size();
    if (theisMC) {
     Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-    event.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);    
+    //event.getByLabel(edm::InputTag("slimmedAddPileupInfo"), PupInfo);    
+    event.getByToken(thePUTag, PupInfo);
     std::vector<PileupSummaryInfo>::const_iterator PVI;
     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
       if(PVI->getBunchCrossing() == 0) { 
-        _npv = vertexs->size();
-        _rho  = PVI->getPU_NumInteractions();
-        int nTrueInt = PVI->getTrueNumInteractions();
-        _npu = nTrueInt;
+        _PUNumInteractions  = PVI->getPU_NumInteractions();
+        float nTrueInt = PVI->getTrueNumInteractions();
+        _npu = nTrueInt;        
         _PUReweight = reweight.weight(2012,2012,nTrueInt);
         break;
       } 
     }
   }
+
+
+  // pile up information -- rho
+  edm::Handle<double> rhoHandle;
+  //event.getByLabel("fixedGridRhoFastjetAll", rhoHandle);
+  event.getByToken(theRhoTag, rhoHandle);
+  _rho = *rhoHandle;
+
+
+  edm::Handle<edm::TriggerResults> triggerBits;
+
+  event.getByToken(triggerBits_, triggerBits);
+  const edm::TriggerNames &names = event.triggerNames(*triggerBits);
+  if(DEBUG){
+    for (unsigned int i = 0, n = triggerBits->size(); i < n; ++i) {
+          _trigger_name.push_back( (string) names.triggerName(i));
+          _trigger_accept.push_back( (int) triggerBits->accept(i));
+    }
+  } 
+  if (theisMC) {
+     Handle<LHEEventProduct> lheEventProduct;
+     
+    //try {event.getByLabel("externalLHEProducer", lheEventProduct);} catch (...) {;}
+    try {event.getByToken(theLHEPTag, lheEventProduct);} catch (...) {;}
+    if (lheEventProduct.isValid())
+    {
+      const lhef::HEPEUP& lheEvent = lheEventProduct->hepeup();
+      std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheEvent.PUP;
+      double lheHt = 0.;
+      size_t numParticles = lheParticles.size();
+      for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
+        int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
+        int status = lheEvent.ISTUP[idxParticle];
+        if ( status == 1 && ((absPdgId >= 1 &&  absPdgId<= 6) ||  absPdgId== 21) ) { // quarks and gluons
+            lheHt += TMath::Sqrt((lheParticles[idxParticle][0])*(lheParticles[idxParticle][0]) + (lheParticles[idxParticle][1])*(lheParticles[idxParticle][1])); // first entry is px, second py
+        }
+      }
+       _lheHt = lheHt;
+     //cout<<"lheHt = "<<lheHt<<endl;
+    }
+    //else cout << "LHE product not found" << endl;
+  }
   
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
   _metfilterbit = myTriggerHelper->FindMETBit(event);
-  int tbit = _triggerbit;
+  Long64_t tbit = _triggerbit;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
   }
@@ -779,26 +1142,54 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
  
+   // Accessing the JEC uncertainties 
+  //ak4  
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl); 
+  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+  JetCorrectionUncertainty *jecUnc=0;
+  jecUnc = new JetCorrectionUncertainty(JetCorPar);
+
+
   // protect in case of events where trigger hasn't fired --> no collection created 
-  event.getByLabel(theCandLabel,candHandle);
+  //event.getByLabel(theCandLabel,candHandle);
+  event.getByToken(theCandTag,candHandle);
   if (!candHandle.isValid()) return;
-  event.getByLabel(theCandLabel,candHandle);
-  event.getByLabel("jets",jetHandle);
-  event.getByLabel("softLeptons",dauHandle);
-  event.getByLabel("slimmedMETs",metHandle);
+  //event.getByLabel(theCandLabel,candHandle);
+  event.getByToken(theCandTag,candHandle);
+  //event.getByLabel("jets",jetHandle);
+  //event.getByLabel("softLeptons",dauHandle);
+  event.getByToken(theJetTag,jetHandle);
+  event.getByToken(theLepTag,dauHandle);
+  
+  event.getByToken(theMetTag,metHandle);
   if(theisMC){
-    event.getByLabel(edm::InputTag("generator","minVisPtFilter",""),embeddingWeightHandle);
-    _MC_weight = (embeddingWeightHandle.isValid() ? embeddingWeightHandle->filterEfficiency():1.0);
+    edm::Handle<LHEEventProduct> lheeventinfo;
+    event.getByToken(theLHETag,lheeventinfo);
+    if (lheeventinfo.isValid()) {
+      _nup=lheeventinfo->hepeup().NUP;
+    }
+    edm::Handle<GenEventInfoProduct> genEvt;
+    event.getByToken(theGenTag,genEvt);
+    _aMCatNLOweight=genEvt->weight();
+    _MC_weight = _aMCatNLOweight; // duplicated
+  }
+
+  /*if (theUseNoHFPFMet) event.getByLabel("slimmedMETsNoHF",metHandle);
+  else event.getByLabel("slimmedMETs",metHandle);
+  
+  if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
     event.getByLabel("LHEEventProduct",lheeventinfo);
     if (lheeventinfo.isValid()) {
       _nup=lheeventinfo->hepeup().NUP;
-     }
-     edm::Handle<GenEventInfoProduct> genEvt;
-     event.getByLabel("generator",genEvt);
-     _aMCatNLOweight=genEvt->weight();
-     std::cout<<genEvt->weight()<<std::endl;
-  }
+    }
+    edm::Handle<GenEventInfoProduct> genEvt;
+    event.getByLabel("generator",genEvt);
+    _aMCatNLOweight=genEvt->weight();
+    _MC_weight = _aMCatNLOweight; // duplicated
+  }*/
+
 
   const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
   const edm::View<reco::Candidate>* daus = dauHandle.product();
@@ -819,14 +1210,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   //Loop over generated b quarks
   //if(theisMC)FillbQuarks(event);
-  if(theisMC)FillGenInfo(event);
-
+  if(theisMC)
+  {
+    FillGenInfo(event); // gen particles
+    FillGenJetInfo(event); // gen jets
+  }
   //Loop of softleptons and fill them
   FillSoftLeptons(daus,event,theFSR);
 
   //Loop on Jets
   _numberOfJets = 0;
-  if(writeJets)_numberOfJets = FillJet(jets);
+  if(writeJets)_numberOfJets = FillJet(jets, event,jecUnc);
 
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
@@ -845,14 +1239,44 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpy = cand.userFloat("MEt_py");
     
     _SVmass.push_back(cand.userFloat("SVfitMass"));
+    //_SVmassTauUp.push_back(cand.userFloat("SVfitMassTauUp"));
+    //_SVmassTauDown.push_back(cand.userFloat("SVfitMassTauDown"));
+
+    //_SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
+    //_SVmassTransverseTauUp.push_back(cand.userFloat("SVfitTransverseMassTauUp"));
+    //_SVmassTransverseTauDown.push_back(cand.userFloat("SVfitTransverseMassTauDown"));
+
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
+    //_SVptTauUp.push_back(cand.userFloat("SVfit_ptTauUp"));
+    //_SVptTauDown.push_back(cand.userFloat("SVfit_ptTauDown"));
+
     _SVptUnc.push_back(cand.userFloat("SVfit_ptUnc"));
+    //_SVptUncTauUp.push_back(cand.userFloat("SVfit_ptUncTauUp"));
+    //_SVptUncTauDown.push_back(cand.userFloat("SVfit_ptUncTauDown"));
+
     _SVeta.push_back(cand.userFloat("SVfit_eta"));
+    //_SVetaTauUp.push_back(cand.userFloat("SVfit_etaTauUp"));
+    //_SVetaTauDown.push_back(cand.userFloat("SVfit_etaTauDown"));
+
     _SVetaUnc.push_back(cand.userFloat("SVfit_etaUnc"));
+    //_SVetaUncTauUp.push_back(cand.userFloat("SVfit_etaUncTauUp"));
+    //_SVetaUncTauDown.push_back(cand.userFloat("SVfit_etaUncTauDown"));
+
     _SVphi.push_back(cand.userFloat("SVfit_phi"));
+    //_SVphiTauUp.push_back(cand.userFloat("SVfit_phiTauUp"));
+    //_SVphiTauDown.push_back(cand.userFloat("SVfit_phiTauDown"));
+
     _SVphiUnc.push_back(cand.userFloat("SVfit_phiUnc"));
+    //_SVphiUncTauUp.push_back(cand.userFloat("SVfit_phiUncTauUp"));
+    //_SVphiUncTauDown.push_back(cand.userFloat("SVfit_phiUncTauDown"));
+
     _SVMetRho.push_back(cand.userFloat("SVfit_METRho"));
+    //_SVMetRhoTauUp.push_back(cand.userFloat("SVfit_METRhoTauUp"));
+    //_SVMetRhoTauDown.push_back(cand.userFloat("SVfit_METRhoTauDown"));
+
     _SVMetPhi.push_back(cand.userFloat("SVfit_METPhi"));
+    //_SVMetPhiTauUp.push_back(cand.userFloat("SVfit_METPhiTauUp"));
+    //_SVMetPhiTauDown.push_back(cand.userFloat("SVfit_METPhiTauDown"));
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);    
@@ -988,37 +1412,168 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 }
 
 //Fill jets quantities
-int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets){
+int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
   int nJets=0;
+  vector <pair<float, int>> softLeptInJet; // pt, idx 
   for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
     nJets++;
     _jets_px.push_back( (float) ijet->px());
     _jets_py.push_back( (float) ijet->py());
     _jets_pz.push_back( (float) ijet->pz());
-    _jets_e.push_back( (float) ijet->energy());
+    _jets_e.push_back( (float) ijet->energy());    
+    _jets_mT.push_back( (float) ijet->mt());
     _jets_Flavour.push_back(ijet->partonFlavour());
+    _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
+    float vtxPx = ijet->userFloat ("vtxPx");
+    float vtxPy = ijet->userFloat ("vtxPy");
+    _jets_vtxPt.  push_back(TMath::Sqrt(vtxPx*vtxPx + vtxPy*vtxPy));
+    _jets_vtxMass.push_back(ijet->userFloat("vtxMass"));
+    _jets_vtx3dL. push_back(ijet->userFloat("vtx3DVal"));
+    _jets_vtxNtrk.push_back(ijet->userFloat("vtxNtracks"));
+    _jets_vtx3deL.push_back(ijet->userFloat("vtx3DSig"));
+
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-
     //PF jet ID
     float NHF = ijet->neutralHadronEnergyFraction();
     float NEMF = ijet->neutralEmEnergyFraction();
     float CHF = ijet->chargedHadronEnergyFraction();
     float MUF = ijet->muonEnergyFraction();
     float CEMF = ijet->chargedEmEnergyFraction();
-    float NumConst = ijet->chargedMultiplicity()+ijet->neutralMultiplicity();
+    int NumNeutralParticles =ijet->neutralMultiplicity();
+    int chargedMult = ijet->chargedMultiplicity();
+    int NumConst = ijet->chargedMultiplicity()+NumNeutralParticles;
     float CHM = ijet->chargedMultiplicity();
     float absjeta = fabs(ijet->eta());
 
-    int jetid=0;
+    _jets_chEmEF .push_back(CEMF);  
+    _jets_chHEF  .push_back(CHF); 
+    _jets_nEmEF  .push_back(NEMF);
+    _jets_nHEF   .push_back(NHF);
+    _jets_chMult .push_back(chargedMult);  
+
+    int jetid=0; 
+    //PHYS14
+    /*
     if((NHF<0.99 && NEMF<0.99 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4)){
       jetid++;
       if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)  ) jetid++;
     }
+    */
+    //Spring15
+    if(absjeta<=3.0){
+      if((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ){
+        jetid++;
+        if( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ) {
+          jetid++;
+          if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)) jetid++;
+        }
+      }
+    }else{
+      if(NEMF<0.90 && NumNeutralParticles>10 ){
+        jetid++;
+        jetid++; //TIGHT and LOOSE are the same in this eta region
+      }
+    }    
     _jetID.push_back(jetid);
-    _jetrawf.push_back(ijet->jecFactor("Uncorrected"));
+    float jecFactor = ijet->jecFactor("Uncorrected") ;
+    float jetRawPt = jecFactor * ijet->pt();
+    //float jetRawPt2 = ijet->pt() / jecFactor; // this is wrong
+    _jets_rawPt.push_back ( jetRawPt );
+    _jetrawf.push_back(jecFactor);
+  
+    // loop on jet contituents to retrieve info for b jet regression
+    int nDau = ijet -> numberOfDaughters();
+    //cout << "JET: " << (ijet - jets->begin()) << " N daught: " << nDau << endl;
+
+    // TLorentzVector vJet (0,0,0,0);
+    // vJet.SetPxPyPzE (ijet->px(), ijet->py(), ijet->pz(), ijet->energy());
+    // TLorentzVector vDau (0,0,0,0); 
+    // TLorentzVector vSum (0,0,0,0); 
+
+    float leadTrackPt = 0.;
+    softLeptInJet.clear();
+    for (int iDau = 0; iDau < nDau; ++iDau)
+    {
+      // pdg id for packed pf candidates meaning is:
+      // the particle charge and pdgId: 11, 13, 22 for ele/mu/gamma, 211 for charged hadrons, 130 for neutral hadrons, 1 and 2 for hadronic and em particles in HF. 
+      const Candidate * dau = ijet->daughter(iDau);
+      if (abs(dau->pdgId()) == 11 || abs(dau->pdgId()) == 13)
+      {
+          softLeptInJet.push_back( make_pair(dau->pt(), iDau) );
+      }
+
+      if (dau->charge() != 0 ) // tracks -> charged
+      {
+        float ptBuf = dau->pt();
+        if (ptBuf > leadTrackPt) leadTrackPt = ptBuf;
+      }
+      // vDau.SetPxPyPzE (dau->px(), dau->py(), dau->pz(), dau->energy());
+      // vSum += vDau;
+      // cout << " - " << iDau << " pdg: " << dau->pdgId() << " pt: " << dau->pt() << " charge = " << dau->charge() << endl; 
+    }
+
+    //cout << " ## LEAD TRACK PT = " << leadTrackPt << endl;
+    //cout << " ## jet eta: " << ijet->eta() << endl;
+    _jets_leadTrackPt.push_back(leadTrackPt);
+    float leptonPtRel = -1.;
+    float leptonPt = -1.;
+    float leptonDeltaR = -1.;
+    int softLeptIdx = -1;
+    if (softLeptInJet.size() > 0)
+    {
+      sort(softLeptInJet.begin(), softLeptInJet.end());
+      softLeptIdx = softLeptInJet.back().second;
+    }
+    if (softLeptIdx >= 0)
+    {
+      const Candidate * dau = ijet->daughter(softLeptIdx);
+      leptonPtRel = dau->pt() / ijet->pt() ;
+      leptonPt = dau->pt() ;
+      leptonDeltaR = deltaR(*dau, *ijet) ;
+    }
+    _jets_leptonPtRel .push_back (leptonPtRel);
+    _jets_leptonPt    .push_back (leptonPt);
+    _jets_leptonDeltaR.push_back (leptonDeltaR);
+
+    //cout << "     --> jet pt, eta, phi: " << vJet.Pt() << " " << vJet.Eta() << " " << vJet.Phi() << endl;
+    //cout << "     --> sum pt, eta, phi: " << vSum.Pt() << " " << vSum.Eta() << " " << vSum.Phi() << endl;
+    //if (abs(ijet->hadronFlavour()) == 5 ) cout << "     ------------ THIS WAS A B JET ------------" << endl;
+    //cout << "RAW pt: " << jetRawPt << " | " << jetRawPt2 << " --> " << vSum.Pt() << endl;
+
+    jecUnc->setJetEta(ijet->eta());
+    jecUnc->setJetPt(ijet->pt()); // here you must use the CORRECTED jet pt
+    _jets_jecUnc.push_back(jecUnc->getUncertainty(true));
   }
+
+
+  if ( theisMC )
+  {
+    edm::Handle<edm::View<reco::GenJet>> genJetHandle;
+    //event.getByLabel ("slimmedGenJets", genJetHandle);
+    event.getByToken (theGenJetTag, genJetHandle);
+    std::vector <const reco::GenJet*> ptrGenJets;
+    unsigned int genJetSize = genJetHandle->size();
+    for (unsigned int igj = 0; igj < genJetSize; igj++)
+    {
+      ptrGenJets.push_back ( &((*genJetHandle)[igj]) );
+    }
+
+    // now gather associated gen jets and save their address
+    // relies on the fact that gen jets are filled in the same order as they appear in the collection
+    std::vector <const reco::GenJet*>::iterator it;
+    for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet)
+    {
+      const reco::GenJet * thisGenJet =  ijet->genJet ();
+      int genindex = -1;
+      it = std::find(ptrGenJets.begin(), ptrGenJets.end(), thisGenJet);
+      if (it != ptrGenJets.end())
+          genindex = std::distance (ptrGenJets.begin(), it);
+      _jets_genjetIndex.push_back(genindex);
+    }
+  }
+
   return nJets;
 }
 
@@ -1034,6 +1589,28 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
   for(edm::View<reco::Candidate>::const_iterator daui = daus->begin(); daui!=daus->end();++daui){
     const reco::Candidate* cand = &(*daui);
     math::XYZTLorentzVector pfour = cand->p4();
+    TLorentzVector pfourTauUp;
+    TLorentzVector pfourTauDown;
+
+    /*if(userdatahelpers::getUserInt(cand,"TauUpExists"))
+      {
+	pfourTauUp.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauUp"),userdatahelpers::getUserFloat(cand,"py_TauUp"),userdatahelpers::getUserFloat(cand,"pz_TauUp"),userdatahelpers::getUserFloat(cand,"e_TauUp"));
+      }
+    else
+      {
+	pfourTauUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
+
+      }
+    if(userdatahelpers::getUserInt(cand,"TauDownExists"))
+      {
+	pfourTauDown.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauDown"),userdatahelpers::getUserFloat(cand,"py_TauDown"),userdatahelpers::getUserFloat(cand,"pz_TauDown"),userdatahelpers::getUserFloat(cand,"e_TauDown"));
+      }
+    else
+      {
+	pfourTauDown.SetPxPyPzE(-999.,-999.,-999.,-999.);
+
+      }
+*/
     if(theFSR){
       const pat::PFParticle* fsr=0;
       double maxPT=-1;
@@ -1059,6 +1636,18 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_pz.push_back( (float) pfour.Z());
     _daughters_e.push_back( (float) pfour.T());
 
+    //_daughters_TauUpExists.push_back((int)userdatahelpers::getUserInt(cand,"TauUpExists"));
+    _daughters_px_TauUp.push_back((float)pfourTauUp.Px());
+    _daughters_py_TauUp.push_back((float)pfourTauUp.Py());
+    _daughters_pz_TauUp.push_back((float)pfourTauUp.Pz());
+    _daughters_e_TauUp.push_back((float)pfourTauUp.E());
+
+    //_daughters_TauDownExists.push_back((int)userdatahelpers::getUserInt(cand,"TauDownExists"));
+    _daughters_px_TauDown.push_back((float)pfourTauDown.Px());
+    _daughters_py_TauDown.push_back((float)pfourTauDown.Py());
+    _daughters_pz_TauDown.push_back((float)pfourTauDown.Pz());
+    _daughters_e_TauDown.push_back((float)pfourTauDown.E());
+
     // gen info
     
     if (theisMC)
@@ -1075,7 +1664,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
-    _SIP.push_back(userdatahelpers::getUserFloat(cand,"SIP"));
+    //_SIP.push_back(userdatahelpers::getUserFloat(cand,"SIP"));
     int type = ParticleType::TAU;
     if(cand->isMuon()) type = ParticleType::MUON;
     else if(cand->isElectron()) type = ParticleType::ELECTRON;
@@ -1089,17 +1678,23 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     bool isele90=false;
     float elemva=-2;
     bool isconversionveto=false;
+    int elemissinghits = 999;
     int decay=-1;
     float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
-    int byLooseCombinedIsolationDeltaBetaCorr3Hits=-1, byMediumCombinedIsolationDeltaBetaCorr3Hits=-1, byTightCombinedIsolationDeltaBetaCorr3Hits=-1; // tau 13 TeV Iso
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
-    int againstMuonLoose3=-1, againstMuonTight3=-1; // tau 13 TeV muon rejection
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
     float leadChargedParticlePt=-1., trackRefPt=-1.;
-    int againstElectronVLooseMVA5 =-1, againstElectronLooseMVA5 = -1, againstElectronMediumMVA5 = -1, againstElectronTightMVA5 = -1, againstElectronVTightMVA5 = -1; // tau 13 TeV ele rejection
     int typeOfMuon=0;
     float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1;
+    Long64_t tauIDflag = 0;
+    float   
+    againstElectronMVA5category,
+    againstElectronMVA5raw,
+    byPileupWeightedIsolationRaw3Hits,
+    footprintCorrection,
+    neutralIsoPtSumWeight,
+    photonPtSumOutsideSignalCone;
 
     if(type==ParticleType::MUON){
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
@@ -1108,7 +1703,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       if(userdatahelpers::getUserFloat(cand,"isGlobalMuon"))typeOfMuon |= 1 << 1;
       if(userdatahelpers::getUserFloat(cand,"isTrackerMuon"))typeOfMuon |= 1 << 2;
       depositTracker=userdatahelpers::getUserFloat(cand,"DepositR03TrackerOfficial");
-      depositEcal=userdatahelpers::getUserFloat(cand,"DepositR03Ecal");
+      depositEcal=userdatahelpers::getUserFloat(cand,"DepositR03ECal");
       depositHcal=userdatahelpers::getUserFloat(cand,"DepositR03Hcal");
     }else if(type==ParticleType::ELECTRON){
       discr=userdatahelpers::getUserFloat(cand,"BDT");
@@ -1120,15 +1715,27 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       if(userdatahelpers::getUserInt(cand,"isEleID90") == 1) isele90=true;
       elemva=(userdatahelpers::getUserFloat(cand,"eleMVAvalue"));
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
+      elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
     }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
       decayModeFindingOldDMs = userdatahelpers::getUserInt (cand, "decayModeFindingOldDMs");
       decayModeFindingNewDMs = userdatahelpers::getUserInt (cand, "decayModeFindingNewDMs");
-      byLooseCombinedIsolationDeltaBetaCorr3Hits = userdatahelpers::getUserInt (cand, "byLooseCombinedIsolationDeltaBetaCorr3Hits");
-      byMediumCombinedIsolationDeltaBetaCorr3Hits = userdatahelpers::getUserInt (cand, "byMediumCombinedIsolationDeltaBetaCorr3Hits");
-      byTightCombinedIsolationDeltaBetaCorr3Hits = userdatahelpers::getUserInt (cand, "byTightCombinedIsolationDeltaBetaCorr3Hits");
+      for (uint itau =0; itau<ntauIds; itau++){
+        int id = userdatahelpers::getUserInt (cand,  tauIDStrings[itau]);
+        if(id>0){
+          tauIDflag |= (1 << itau);
+          hTauIDs->Fill(id);
+        }
+      }
+      //againstElectronMVA5category = userdatahelpers::getUserFloat (cand, "againstElectronMVA5category");
+      againstElectronMVA5raw = userdatahelpers::getUserFloat (cand, "againstElectronMVA5raw");
+      byPileupWeightedIsolationRaw3Hits = userdatahelpers::getUserFloat (cand, "byPileupWeightedIsolationRaw3Hits");
+      footprintCorrection = userdatahelpers::getUserFloat (cand, "footprintCorrection");
+      neutralIsoPtSumWeight = userdatahelpers::getUserFloat (cand, "neutralIsoPtSumWeight");
+      photonPtSumOutsideSignalCone = userdatahelpers::getUserFloat (cand, "photonPtSumOutsideSignalCone");
+
       byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
       byIsolationMVA3oldDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwoLTraw");
       byIsolationMVA3oldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwLTraw");
@@ -1137,13 +1744,6 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
-      againstMuonLoose3 = userdatahelpers::getUserInt (cand, "againstMuonLoose3");
-      againstMuonTight3 = userdatahelpers::getUserInt (cand, "againstMuonTight3");
-      againstElectronVLooseMVA5 = userdatahelpers::getUserInt (cand, "againstElectronVLooseMVA5");
-      againstElectronLooseMVA5 = userdatahelpers::getUserInt (cand, "againstElectronLooseMVA5");
-      againstElectronMediumMVA5 = userdatahelpers::getUserInt (cand, "againstElectronMediumMVA5");
-      againstElectronTightMVA5 = userdatahelpers::getUserInt (cand, "againstElectronTightMVA5");
-      againstElectronVTightMVA5 = userdatahelpers::getUserInt (cand, "againstElectronVTightMVA5");
       numChargedParticlesSignalCone = userdatahelpers::getUserInt (cand, "numChargedParticlesSignalCone");
       numNeutralHadronsSignalCone = userdatahelpers::getUserInt (cand, "numNeutralHadronsSignalCone");
       numPhotonsSignalCone = userdatahelpers::getUserInt (cand, "numPhotonsSignalCone");
@@ -1154,17 +1754,27 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       numParticlesIsoCone = userdatahelpers::getUserInt (cand, "numParticlesIsoCone");
       leadChargedParticlePt = userdatahelpers::getUserFloat (cand, "leadChargedParticlePt");
       trackRefPt = userdatahelpers::getUserFloat (cand, "trackRefPt");
+
     }
     _discriminator.push_back(discr);
     _daughters_typeOfMuon.push_back(typeOfMuon);
     _daughters_muonID.push_back(muIDflag);
+    _daughters_tauID.push_back(tauIDflag);
+    _daughters_againstElectronMVA5category.push_back(againstElectronMVA5category);
+    _daughters_againstElectronMVA5raw.push_back(againstElectronMVA5raw);
+    _daughters_byPileupWeightedIsolationRaw3Hits.push_back(byPileupWeightedIsolationRaw3Hits);
+    _daughters_footprintCorrection.push_back(footprintCorrection);
+    _daughters_neutralIsoPtSumWeight.push_back(neutralIsoPtSumWeight);
+    _daughters_photonPtSumOutsideSignalCone.push_back(photonPtSumOutsideSignalCone);
+
     _daughters_charge.push_back(cand->charge());
     _daughters_iseleBDT.push_back(isgood);
     _daughters_iseleWP80.push_back(isele80);
     _daughters_iseleWP90.push_back(isele90);
     _daughters_eleMVAnt.push_back(elemva);
     _daughters_passConversionVeto.push_back(isconversionveto);
-    _daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
+    _daughters_eleMissingHits.push_back(elemissinghits);
+    //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
     _decayType.push_back(decay);
     _daughters_IetaIeta.push_back(ieta);
     _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(superatvtx);
@@ -1174,20 +1784,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_depositR03_hcal.push_back(depositHcal);
     _daughters_decayModeFindingOldDMs.push_back(decayModeFindingOldDMs);
     _daughters_decayModeFindingNewDMs.push_back(decayModeFindingNewDMs);
-    _daughters_byLooseCombinedIsolationDeltaBetaCorr3Hits.push_back(byLooseCombinedIsolationDeltaBetaCorr3Hits);
-    _daughters_byMediumCombinedIsolationDeltaBetaCorr3Hits.push_back(byMediumCombinedIsolationDeltaBetaCorr3Hits);
-    _daughters_byTightCombinedIsolationDeltaBetaCorr3Hits.push_back(byTightCombinedIsolationDeltaBetaCorr3Hits);
     _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits.push_back(byCombinedIsolationDeltaBetaCorrRaw3Hits);
     _daughters_chargedIsoPtSum.push_back(chargedIsoPtSum);
     _daughters_neutralIsoPtSum.push_back(neutralIsoPtSum);
     _daughters_puCorrPtSum.push_back(puCorrPtSum);
-    _daughters_againstMuonLoose3.push_back(againstMuonLoose3);
-    _daughters_againstMuonTight3.push_back(againstMuonTight3);
-    _daughters_againstElectronVLooseMVA5.push_back(againstElectronVLooseMVA5);
-    _daughters_againstElectronLooseMVA5.push_back(againstElectronLooseMVA5);
-    _daughters_againstElectronMediumMVA5.push_back(againstElectronMediumMVA5);
-    _daughters_againstElectronTightMVA5.push_back(againstElectronTightMVA5);
-    _daughters_againstElectronVTightMVA5.push_back(againstElectronVTightMVA5);
     _daughters_byIsolationMVA3oldDMwoLTraw.push_back(byIsolationMVA3oldDMwoLTraw);
     _daughters_byIsolationMVA3oldDMwLTraw.push_back(byIsolationMVA3oldDMwLTraw);
     _daughters_byIsolationMVA3newDMwoLTraw.push_back(byIsolationMVA3newDMwoLTraw);
@@ -1206,6 +1806,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     //TRIGGER MATCHING
     int LFtriggerbit=0,L3triggerbit=0,filterFired=0;
     int triggertypeIsGood = 0;
+    float hltpt=0;
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
       //check if the trigger object matches cand
       //bool matchCand = false;
@@ -1223,8 +1824,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
-          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
-          
+          if (type==ParticleType::MUON && obj.hasFilterLabel("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09") && (obj.hasPathName("HLT_IsoMu17_eta2p1_v3", false, true ) or obj.hasPathName("HLT_IsoMu17_eta2p1_v3", true, false )))
+            hltpt = (float) obj.pt();
+          if (type==ParticleType::ELECTRON && obj.hasFilterLabel("hltSingleEle22WP75GsfTrackIsoFilter") && (obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", false, true ) or obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", true, false )))
+            hltpt = (float) obj.pt();
+          Long64_t triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+                    
           /*
           for (int i = 0; i < myTriggerHelper->GetNTriggers(); i++)
           {
@@ -1234,41 +1839,49 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           cout << " =============================== " << endl;
           */
           //int triggerbit = _triggerbit;
-          if(triggerbit>=0){ // get the number (position) of this trigger in the _triggerbit branch output (yes, names are too similar!)
+          if(triggerbit>=0)
+          { // get the number (position) of this trigger in the _triggerbit branch output (yes, names are too similar!)
             triggerMapper map = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
             bool isfilterGood = true;
-            if(type==ParticleType::TAU){
-              for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
-                if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
-              }
-            }else if(type==ParticleType::ELECTRON){
-              for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
-                if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
-              }
-            }else{//muons
-              if(map.GetTriggerChannel()==triggerMapper::kemu){
-                for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++){
-                  if(! obj.hasFilterLabel(map.Getfilter(true,ifilt).c_str()))isfilterGood=false;
-                }
-              }else{
-                for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++){
-                  if(! obj.hasFilterLabel(map.Getfilter(false,ifilt).c_str()))isfilterGood=false;
-                }
+            int IDsearch = 0;
+            if (type==ParticleType::ELECTRON) IDsearch = 11;
+            else if (type==ParticleType::MUON) IDsearch = 13;
+            else if(type==ParticleType::TAU) IDsearch = 15;
+            int legPosition = map.GetLegFromID(IDsearch);
+            if (legPosition == 1)
+            {
+              for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++)
+              {
+                string label = map.Getfilter(true,ifilt);
+                if (label.empty()) continue;
+                if(! obj.hasFilterLabel(label.c_str())) isfilterGood=false;
               }
             }
-          //_isFilterFiredLast;
+            else if (legPosition == 2)
+            {
+              for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++)
+              {
+                string label = map.Getfilter(false,ifilt);
+                if (label.empty()) continue;
+                if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
+              }
+            }
+            else isfilterGood = false;
+
+            //_isFilterFiredLast;
             if(isfilterGood)filterFired |= 1 <<triggerbit;
             if(isLF)LFtriggerbit |= 1 <<triggerbit;
             if(isL3)L3triggerbit |= 1 <<triggerbit;
             if (triggerType) triggertypeIsGood |= 1 << triggerbit;
           }
-        }
-      }
-    }
+        } // loop on all trigger paths
+      } // if dR < 0.25
+    } // loop on all trigger candidates
     _daughters_isGoodTriggerType.push_back(triggertypeIsGood);
     _daughters_FilterFired.push_back(filterFired);
     _daughters_L3FilterFired.push_back(LFtriggerbit);
     _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
+    _daughters_HLTpt.push_back(hltpt);
   }
 }
 
@@ -1321,7 +1934,8 @@ void HTauTauNtuplizer::FillbQuarks(const edm::Event& event){
 void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
 {
     edm::Handle<edm::View<pat::GenericParticle>>candHandle;
-    event.getByLabel ("genInfo", candHandle);
+    //event.getByLabel ("genInfo", candHandle);
+    event.getByToken (theGenericTag, candHandle);
     const edm::View<pat::GenericParticle>* gens = candHandle.product();
     for(edm::View<pat::GenericParticle>::const_iterator igen = gens->begin(); igen!=gens->end(); ++igen)
     {
@@ -1334,35 +1948,38 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         _genpart_status.push_back(igen->status());
         
         int HMIndex = -1;
+        int MSSMHMIndex = -1;
         int TopMIndex = -1;
         int TauMIndex = -1;
         int ZMIndex = -1;
-	int WMIndex = -1;
+        int WMIndex = -1;
         int bMIndex = -1;
         int HZDecayMode = -1;
-	int TopDecayMode = -1;
-	int WDecayMode = -1;
+        int TopDecayMode = -1;
+        int WDecayMode = -1;
         int TauGenDecayMode = -1;
         
         if (igen->hasUserInt("HMothIndex"))   HMIndex = igen->userInt("HMothIndex");
+        if (igen->hasUserInt("MSSMHMothIndex"))   MSSMHMIndex = igen->userInt("MSSMHMothIndex");
         if (igen->hasUserInt("TopMothIndex")) TopMIndex = igen->userInt("TopMothIndex");
         if (igen->hasUserInt("TauMothIndex")) TauMIndex = igen->userInt("TauMothIndex");
         if (igen->hasUserInt("ZMothIndex"))   ZMIndex = igen->userInt("ZMothIndex");
-	if (igen->hasUserInt("WMothIndex")) WMIndex = igen->userInt("WMothIndex");
+        if (igen->hasUserInt("WMothIndex")) WMIndex = igen->userInt("WMothIndex");
         if (igen->hasUserInt("bMothIndex")) bMIndex = igen->userInt("bMothIndex");
         if (igen->hasUserInt("HZDecayMode"))   HZDecayMode = igen->userInt("HZDecayMode");
-	if (igen->hasUserInt("TopDecayMode"))   TopDecayMode = igen->userInt("TopDecayMode");
-	if (igen->hasUserInt("WDecayMode"))   WDecayMode = igen->userInt("WDecayMode");
+        if (igen->hasUserInt("TopDecayMode"))   TopDecayMode = igen->userInt("TopDecayMode");
+        if (igen->hasUserInt("WDecayMode"))   WDecayMode = igen->userInt("WDecayMode");
         if (igen->hasUserInt("tauGenDecayMode"))   TauGenDecayMode = igen->userInt("tauGenDecayMode");
         
         _genpart_HMothInd.push_back(HMIndex);
+        _genpart_MSSMHMothInd.push_back(MSSMHMIndex);
         _genpart_TopMothInd.push_back(TopMIndex);
         _genpart_TauMothInd.push_back(TauMIndex);
         _genpart_ZMothInd.push_back(ZMIndex);
-	_genpart_WMothInd.push_back(WMIndex);
+        _genpart_WMothInd.push_back(WMIndex);
         _genpart_bMothInd.push_back(bMIndex);
         _genpart_HZDecayMode.push_back(HZDecayMode);
-	_genpart_TopDecayMode.push_back(TopDecayMode);
+        _genpart_TopDecayMode.push_back(TopDecayMode);
         _genpart_WDecayMode.push_back(WDecayMode);
         _genpart_TauGenDecayMode.push_back(TauGenDecayMode);
         
@@ -1373,13 +1990,64 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
     }
 }
 
+
+void HTauTauNtuplizer::FillGenJetInfo(const edm::Event& event)
+{
+    edm::Handle<edm::View<reco::GenJet>> genJetHandle;
+    //event.getByLabel ("slimmedGenJets", genJetHandle);
+    event.getByToken (theGenJetTag, genJetHandle);
+    unsigned int genJetSize = genJetHandle->size();
+
+    // to retrieve gen jet flavour from matched gen jet
+    edm::Handle<edm::View<pat::Jet>> patjetHandle;
+    //event.getByLabel("jets", patjetHandle);
+    event.getByToken(theJetTag, patjetHandle);
+    unsigned int jetSize = patjetHandle->size();
+
+    for (unsigned int igj = 0; igj < genJetSize; igj++)
+    {
+      const reco::GenJet& genJet = (*genJetHandle)[igj];
+      _genjet_px.push_back ( genJet.px() );
+      _genjet_py.push_back ( genJet.py() );
+      _genjet_pz.push_back ( genJet.pz() );
+      _genjet_e .push_back ( genJet.energy() );
+
+      // jet flavour
+      int partFlav = -999;
+      int hadrFlav = -999;
+
+      for (unsigned int ijet = 0; ijet < jetSize; ijet++)
+      {
+        const pat::Jet& patjet = (*patjetHandle)[ijet];
+        const reco::GenJet * thismatchedGenJet =  patjet.genJet();
+
+        if (thismatchedGenJet == &genJet)
+        {
+          // no error, checked :-)
+          //if (partFlav != -999 && patjet.partonFlavour() != partFlav) cout << igj << " MISMATCH! Part flav: " << partFlav << " " << patjet.partonFlavour() << endl;
+          //if (hadrFlav != -999 && patjet.hadronFlavour() != hadrFlav) cout << igj << " MISMATCH! Hadr flav: " << hadrFlav << " " << patjet.hadronFlavour() << endl;
+          partFlav = patjet.partonFlavour();
+          hadrFlav = patjet.hadronFlavour();
+          break;
+        }      
+      }
+
+      _genjet_partonFlavour.push_back(partFlav);
+      _genjet_hadronFlavour.push_back(hadrFlav);
+    }
+
+    return;
+
+}
+
 // return index of gen matched to reco lepton, and -1 if not existing or not found
 int HTauTauNtuplizer::GetMatchedGen (const reco::Candidate* genL, const edm::Event& event)
 {
     //cout.precision(15); // just to check real precision
     
     edm::Handle<edm::View<pat::GenericParticle>>candHandle;
-    event.getByLabel ("genInfo", candHandle);
+    //event.getByLabel ("genInfo", candHandle);
+    event.getByToken (theGenericTag, candHandle);
         
     int index = -1;
     int status = userdatahelpers::getUserInt(genL,"status");
@@ -1449,6 +2117,10 @@ void HTauTauNtuplizer::endJob(){
   for(int i=0;i<myTriggerHelper->GetNTriggers();i++){
     hCounter->GetXaxis()->SetBinLabel(i+4,(myTriggerHelper->printTriggerName(i)).c_str());
   }
+    for(int i=1;i<=ntauIds;i++){
+    hTauIDs->GetXaxis()->SetBinLabel(i,tauIDStrings[i-1].Data());
+  }
+
 }
 
 
@@ -1477,7 +2149,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       indexOfPath.push_back(j);
       foundPaths.push_back(pathName);
 
-      //cout << j << " - TTT: " << pathName << endl;
+      cout << j << " - TTT: " << pathName << endl;
 	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
     } 
   }
@@ -1492,24 +2164,26 @@ void HTauTauNtuplizer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup)
 {
   // Total number of events is the sum of the events in each of these luminosity blocks
-  edm::Handle<edm::MergeableCounter> nEventsTotalCounter;
-  iLumi.getByLabel("nEventsTotal", nEventsTotalCounter);
-  Nevt_Gen += nEventsTotalCounter->value;
+  //edm::Handle<edm::MergeableCounter> nEventsTotalCounter;
+  //iLumi.getByLabel("nEventsTotal", nEventsTotalCounter);
+  //iLumi.getByToken(theTotTag, nEventsTotalCounter);
+  //Nevt_Gen += nEventsTotalCounter->value;
 
-  edm::Handle<edm::MergeableCounter> nEventsPassTrigCounter;
-  iLumi.getByLabel("nEventsPassTrigger", nEventsPassTrigCounter);
-  Nevt_PassTrigger += nEventsPassTrigCounter->value;
+  //edm::Handle<edm::MergeableCounter> nEventsPassTrigCounter;
+  //iLumi.getByLabel("nEventsPassTrigger", nEventsPassTrigCounter);
+  //iLumi.getByToken(thePassTag, nEventsPassTrigCounter);
+  //Nevt_PassTrigger += nEventsPassTrigCounter->value;
 }
 
 
 bool HTauTauNtuplizer::CompareLegs(const reco::Candidate *i, const reco::Candidate *j){
   int iType=2,jType=2;
   
-  if(i->isElectron())iType=0;
-  else if(i->isMuon())iType=1;
+  if(i->isElectron())iType=1;
+  else if(i->isMuon())iType=0;
   
-  if(j->isElectron())jType=0;
-  else if(j->isMuon())jType=1;
+  if(j->isElectron())jType=1;
+  else if(j->isMuon())jType=0;
   
   if(iType>jType) return false;
   else if(iType==jType && i->pt()<j->pt()) return false;
@@ -1533,8 +2207,11 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   else cand1j=1;
 
   //step 1, l;eg 1 ISO
+  //byCombinedIsolationDeltaBetaCorrRaw3Hits
   isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"combRelIsoPF");
+  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"byCombinedIsolationDeltaBetaCorrRaw3Hits");
+  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"byCombinedIsolationDeltaBetaCorrRaw3Hits");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
@@ -1546,6 +2223,8 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   //step 3, leg 2 ISO
   isoi=userdatahelpers::getUserFloat(i.daughter(1-cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"combRelIsoPF");
+  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi=userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byCombinedIsolationDeltaBetaCorrRaw3Hits");
+  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byCombinedIsolationDeltaBetaCorrRaw3Hits");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;

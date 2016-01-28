@@ -19,16 +19,19 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <TH1F.h>
 
 using namespace std;
 
 class triggerhelper {
  public:
   triggerhelper(vector<string> HLTPaths);
+  triggerhelper(TH1F* hCounter);
   triggerhelper();
 
   void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int channel);
-  int FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
+  void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int leg1ID, int leg2ID);
+  Long64_t FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>);
   int FindMETBit(const edm::Event&);
   
   int FindTriggerNumber(string triggername,bool istrigger=true); // calls the following according to istrigger

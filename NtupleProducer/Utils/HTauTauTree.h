@@ -37,6 +37,7 @@ public :
    Float_t         met;
    Float_t         metphi;
    Int_t           npv;
+   Float_t         lheHt;
    Int_t           npu;
    Float_t         PUReweight;
    Float_t         rho;
@@ -146,6 +147,7 @@ public :
    TBranch        *b_met;   //!
    TBranch        *b_metphi;   //!
    TBranch        *b_npv;   //!
+   TBranch        *b_lheHt;   //!
    TBranch        *b_npu;   //!
    TBranch        *b_PUReweight;   //!
    TBranch        *b_rho;   //!
@@ -372,6 +374,7 @@ void HTauTauTree::Init(TTree* tree)
    _tree->SetBranchAddress("met", &met, &b_met);
    _tree->SetBranchAddress("metphi", &metphi, &b_metphi);
    _tree->SetBranchAddress("npv", &npv, &b_npv);
+   _tree->SetBranchAddress("lheHt", &lheHt, &b_lheHt);
    _tree->SetBranchAddress("npu", &npu, &b_npu);
    _tree->SetBranchAddress("PUReweight", &PUReweight, &b_PUReweight);
    _tree->SetBranchAddress("rho", &rho, &b_rho);
