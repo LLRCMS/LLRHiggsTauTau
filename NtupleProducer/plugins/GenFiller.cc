@@ -44,7 +44,8 @@ class GenFiller : public edm::EDProducer {
   int makeFlagVector (const GenParticle* p); // put all gen flags in a single int word
   bool isVBFParton(const GenParticle& p);
 
-  edm::InputTag src_;
+  //edm::InputTag src_;
+  edm::EDGetTokenT<edm::View<reco::GenParticle> > src_;
   std::vector<const reco::Candidate *> cands_;
   //std::vector<reco::GenParticle> tauHadcands_; // gen H tau build in this class
   std::vector<int> tauHadcandsMothers_; // contains the index in the cands_ vector of the tauh mother
@@ -52,16 +53,17 @@ class GenFiller : public edm::EDProducer {
 
 // ------------------------------------------------------------------
 
-GenFiller::GenFiller(const edm::ParameterSet& iConfig)
+GenFiller::GenFiller(const edm::ParameterSet& iConfig):
+src_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("src")))
 {
-    src_ = iConfig.getParameter<InputTag>("src");
+    //src_ = iConfig.getParameter<InputTag>("src");
     produces<pat::GenericParticleCollection>();
 }
 
 void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     Handle <edm::View<reco::GenParticle> > genHandle;
-    iEvent.getByLabel (src_, genHandle);
+    iEvent.getByToken (src_, genHandle);
     cands_.clear();
     //tauHadcands_.clear();
     tauHadcandsMothers_.clear();

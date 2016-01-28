@@ -66,6 +66,8 @@ class EleFiller : public edm::EDProducer {
 
   //const edm::InputTag theCandidateTag;
   edm::EDGetTokenT<edm::View<reco::GenParticle> > theGenTag ;
+  edm::EDGetTokenT<double> theRhoTag ;
+  edm::EDGetTokenT<vector<Vertex>> theVtxTag ;
   int sampleType;
   int setup;
   const StringCutObjectSelector<pat::Electron, true> cut;
@@ -90,6 +92,8 @@ class EleFiller : public edm::EDProducer {
 EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   //theCandidateTag(iConfig.getParameter<InputTag>("src")),
   theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
+  theRhoTag(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoCollection"))),
+  theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
   sampleType(iConfig.getParameter<int>("sampleType")),
   setup(iConfig.getParameter<int>("setup")),
   cut(iConfig.getParameter<std::string>("cut")),
@@ -142,13 +146,14 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   //edm::Handle<edm::View<reco::GsfElectron> > electrons;
   iEvent.getByToken(electronCollectionToken_, electrons);
 
-  InputTag theRhoTag = LeptonIsoHelper::getEleRhoTag(sampleType,setup);
+  //InputTag theRhoTag = LeptonIsoHelper::getEleRhoTag(sampleType,setup);
   edm::Handle<double> rhoHandle;
-  iEvent.getByLabel(theRhoTag, rhoHandle); 
+  iEvent.getByToken(theRhoTag, rhoHandle); 
   double rho = *rhoHandle;
 
   edm::Handle<vector<Vertex> >  vertexs;
-  iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
+  //iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
+  iEvent.getByToken(theVtxTag,vertexs);
     
   edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
   edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
@@ -214,7 +219,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 	bool isconversionveto=l.passConversionVeto();
 
 	//-- Missing hit  
-	int missingHit = l.gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
+	int missinghit = l.gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
 
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
@@ -227,7 +232,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("dz",dz);
     l.addUserInt("isConversionVeto",(isconversionveto ? 1 : 0));
     //l.addUserFloat("HLTMatch", HLTMatch);
-    l.addUserInt("missingHit", missingHit);
+    l.addUserInt("missingHit", missinghit);
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
     l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
     l.addUserFloat("SCeta", fSCeta);
@@ -247,7 +252,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserInt("isEleID90",isEleID90);
     l.addUserFloat("eleMVAvalue",eleMVAvalue);
     l.addUserFloat("BDT",eleMVAvalue); //I know, it's duplicated, but I don't want to change to change all the downstream code...
-    bool isBDT = false;
+    int isBDT = false;
     if(fSCeta < 2.4){
       if (fSCeta <0.8){
         if (l.pt()>10) isBDT = (eleMVAvalue>0.913286);

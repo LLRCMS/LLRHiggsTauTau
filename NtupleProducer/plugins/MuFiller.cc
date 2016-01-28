@@ -46,8 +46,12 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
 
-  const edm::InputTag theCandidateTag;
+  //const edm::InputTag theCandidateTag;
+  //edm::EDGetTokenT<edm::View<pat::Muon> > theCandidateTag;
+  edm::EDGetTokenT<pat::MuonRefVector> theCandidateTag;
   edm::EDGetTokenT<edm::View<reco::GenParticle> > theGenTag ;
+  edm::EDGetTokenT<double> theRhoTag ;
+  edm::EDGetTokenT<vector<Vertex>> theVtxTag ;
   int sampleType;
   int setup;
   const StringCutObjectSelector<pat::Muon, true> cut;
@@ -58,8 +62,12 @@ private:
 
 
 MuFiller::MuFiller(const edm::ParameterSet& iConfig) :
-theCandidateTag(iConfig.getParameter<InputTag>("src")),
+//theCandidateTag(iConfig.getParameter<InputTag>("src")),
+//theCandidateTag(consumes<edm::View<pat::Muon> >(iConfig.getParameter<InputTag>("src"))),
+theCandidateTag(consumes<pat::MuonRefVector>(iConfig.getParameter<InputTag>("src"))),
 theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
+theRhoTag(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoCollection"))),
+theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
 sampleType(iConfig.getParameter<int>("sampleType")),
 setup(iConfig.getParameter<int>("setup")),
 cut(iConfig.getParameter<std::string>("cut")),
@@ -79,16 +87,20 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //--- Get leptons and rho
   edm::Handle<pat::MuonRefVector> muonHandle;
-  iEvent.getByLabel(theCandidateTag, muonHandle);
+  //Handle<edm::View<reco::GenParticle> > genHandle;
+  //iEvent.getByLabel(theCandidateTag, muonHandle);
+  iEvent.getByToken(theCandidateTag, muonHandle);
 
-  InputTag theRhoTag = LeptonIsoHelper::getMuRhoTag(sampleType, setup);
+  //InputTag theRhoTag = LeptonIsoHelper::getMuRhoTag(sampleType, setup);
   edm::Handle<double> rhoHandle;
-  iEvent.getByLabel(theRhoTag, rhoHandle);//RH;
+  //iEvent.getByLabel(theRhoTag, rhoHandle);//RH;
+  iEvent.getByToken(theRhoTag, rhoHandle);
   double rho = *rhoHandle;//RH
   //double rho = 1.;
 
   edm::Handle<vector<Vertex> >  vertexs;
-  iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
+  iEvent.getByToken(theVtxTag,vertexs);
+  //iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
 
   // Output collection
   auto_ptr<pat::MuonCollection> result( new pat::MuonCollection() );

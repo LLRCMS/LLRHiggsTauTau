@@ -45,27 +45,25 @@ class TauFiller : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
 
-  const edm::InputTag theCandidateTag;
+  edm::EDGetTokenT<pat::TauRefVector> theCandidateTag;
   edm::EDGetTokenT<edm::View<reco::GenParticle> > theGenTag ;
-  //const edm::InputTag theDiscriminatorTag;
+  edm::EDGetTokenT<vector<Vertex> > theVtxTag ;
   const std::string theDiscriminatorTag;
   const StringCutObjectSelector<pat::Tau, true> cut;
   const CutSet<pat::Tau> flags;
   const std::string NominalUpOrDown;
-  //BDTId* bdt;
 };
 
 
 TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
-  theCandidateTag(iConfig.getParameter<InputTag>("src")),
+  theCandidateTag(consumes<pat::TauRefVector>(iConfig.getParameter<InputTag>("src"))),
   theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
+  theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
   theDiscriminatorTag(iConfig.getParameter<std::string>("discriminator")),
   cut(iConfig.getParameter<std::string>("cut")),
   flags(iConfig.getParameter<ParameterSet>("flags")), 
   NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown"))//,
-  //bdt(0)
 {
-  //if (recomputeBDT) bdt = new BDTId;
   produces<pat::TauCollection>();
 }
 
@@ -89,7 +87,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Get leptons and discriminators
   //edm::Handle<pat::PFTauCollection> tauHandle;
   edm::Handle<pat::TauRefVector> tauHandle;
-  iEvent.getByLabel(theCandidateTag, tauHandle);
+  iEvent.getByToken(theCandidateTag, tauHandle);
   
   //edm::Handle<reco::PFTauDiscriminator> discriminator;
   //iEvent.getByLabel(theDiscriminatorTag, discriminator);
@@ -97,7 +95,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //hpsPFTauDiscrimination
   
   edm::Handle<vector<Vertex> >  vertexs;
-  iEvent.getByLabel("goodPrimaryVertices",vertexs);
+  //iEvent.getByLabel("goodPrimaryVertices",vertexs);
+  iEvent.getByToken(theVtxTag, vertexs);
 
   // Output collection
   auto_ptr<pat::TauCollection> result( new pat::TauCollection() );
@@ -181,7 +180,23 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int byLooseCombinedIsolationDeltaBetaCorr3Hits = l.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits");
     int byMediumCombinedIsolationDeltaBetaCorr3Hits = l.tauID ("byMediumCombinedIsolationDeltaBetaCorr3Hits");
     int byTightCombinedIsolationDeltaBetaCorr3Hits = l.tauID ("byTightCombinedIsolationDeltaBetaCorr3Hits");
-    
+
+    int byLooseIsolationMVArun2v1DBoldDMwLT = l.tauID("byLooseIsolationMVArun2v1DBoldDMwLT");
+    int byMediumIsolationMVArun2v1DBoldDMwLT = l.tauID("byMediumIsolationMVArun2v1DBoldDMwLT");
+    int byTightIsolationMVArun2v1DBoldDMwLT = l.tauID("byTightIsolationMVArun2v1DBoldDMwLT");
+    int byVTightIsolationMVArun2v1DBoldDMwLT = l.tauID("byVTightIsolationMVArun2v1DBoldDMwLT");
+    int byLooseIsolationMVArun2v1DBnewDMwLT = l.tauID("byLooseIsolationMVArun2v1DBnewDMwLT");
+    int byMediumIsolationMVArun2v1DBnewDMwLT = l.tauID("byMediumIsolationMVArun2v1DBnewDMwLT");
+    int byTightIsolationMVArun2v1DBnewDMwLT = l.tauID("byTightIsolationMVArun2v1DBnewDMwLT");
+    int byVTightIsolationMVArun2v1DBnewDMwLT = l.tauID("byVTightIsolationMVArun2v1DBnewDMwLT");
+    int byLooseCombinedIsolationDeltaBetaCorr3HitsdR03 = l.tauID("byLooseCombinedIsolationDeltaBetaCorr3HitsdR03");
+    int byMediumCombinedIsolationDeltaBetaCorr3HitsdR03 = l.tauID("byMediumCombinedIsolationDeltaBetaCorr3HitsdR03");
+    int byTightCombinedIsolationDeltaBetaCorr3HitsdR03 = l.tauID("byTightCombinedIsolationDeltaBetaCorr3HitsdR03");
+    int byLooseIsolationMVArun2v1DBdR03oldDMwLT = l.tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT");
+    int byMediumIsolationMVArun2v1DBdR03oldDMwLT = l.tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT");
+    int byTightIsolationMVArun2v1DBdR03oldDMwLT = l.tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT");
+    int byVTightIsolationMVArun2v1DBdR03oldDMwLT = l.tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT");
+
     float byCombinedIsolationDeltaBetaCorrRaw3Hits = l.tauID ("byCombinedIsolationDeltaBetaCorrRaw3Hits");
     float chargedIsoPtSum = l.tauID ("chargedIsoPtSum");
     float neutralIsoPtSum = l.tauID ("neutralIsoPtSum");
@@ -190,11 +205,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int againstMuonLoose3 = l.tauID ("againstMuonLoose3");
     int againstMuonTight3 = l.tauID ("againstMuonTight3");
     
-    int againstElectronVLooseMVA5 = l.tauID ("againstElectronVLooseMVA5");
-    int againstElectronLooseMVA5 = l.tauID ("againstElectronLooseMVA5");
-    int againstElectronMediumMVA5 = l.tauID ("againstElectronMediumMVA5");
-    int againstElectronTightMVA5 = l.tauID ("againstElectronTightMVA5");
-    int againstElectronVTightMVA5 = l.tauID ("againstElectronVTightMVA5");
+    int againstElectronVLooseMVA6 = l.tauID ("againstElectronVLooseMVA6");
+    int againstElectronLooseMVA6 = l.tauID ("againstElectronLooseMVA6");
+    int againstElectronMediumMVA6 = l.tauID ("againstElectronMediumMVA6");
+    int againstElectronTightMVA6 = l.tauID ("againstElectronTightMVA6");
+    int againstElectronVTightMVA6 = l.tauID ("againstElectronVTightMVA6");
 
     int numChargedParticlesSignalCone = l.signalChargedHadrCands().size();
     int numNeutralHadronsSignalCone = l.signalNeutrHadrCands().size();
@@ -260,6 +275,23 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserInt("byLooseCombinedIsolationDeltaBetaCorr3Hits", byLooseCombinedIsolationDeltaBetaCorr3Hits);
     l.addUserInt("byMediumCombinedIsolationDeltaBetaCorr3Hits", byMediumCombinedIsolationDeltaBetaCorr3Hits);
     l.addUserInt("byTightCombinedIsolationDeltaBetaCorr3Hits", byTightCombinedIsolationDeltaBetaCorr3Hits);
+
+    l.addUserInt("byLooseIsolationMVArun2v1DBoldDMwLT",byLooseIsolationMVArun2v1DBoldDMwLT);
+    l.addUserInt("byMediumIsolationMVArun2v1DBoldDMwLT",byMediumIsolationMVArun2v1DBoldDMwLT);
+    l.addUserInt("byTightIsolationMVArun2v1DBoldDMwLT",byTightIsolationMVArun2v1DBoldDMwLT);
+    l.addUserInt("byVTightIsolationMVArun2v1DBoldDMwLT",byVTightIsolationMVArun2v1DBoldDMwLT);
+    l.addUserInt("byLooseIsolationMVArun2v1DBnewDMwLT",byLooseIsolationMVArun2v1DBnewDMwLT);
+    l.addUserInt("byMediumIsolationMVArun2v1DBnewDMwLT",byMediumIsolationMVArun2v1DBnewDMwLT);
+    l.addUserInt("byTightIsolationMVArun2v1DBnewDMwLT",byTightIsolationMVArun2v1DBnewDMwLT);
+    l.addUserInt("byVTightIsolationMVArun2v1DBnewDMwLT",byVTightIsolationMVArun2v1DBnewDMwLT);
+    l.addUserInt("byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",byLooseCombinedIsolationDeltaBetaCorr3HitsdR03);
+    l.addUserInt("byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",byMediumCombinedIsolationDeltaBetaCorr3HitsdR03);
+    l.addUserInt("byTightCombinedIsolationDeltaBetaCorr3HitsdR03",byTightCombinedIsolationDeltaBetaCorr3HitsdR03);
+    l.addUserInt("byLooseIsolationMVArun2v1DBdR03oldDMwLT",byLooseIsolationMVArun2v1DBdR03oldDMwLT);
+    l.addUserInt("byMediumIsolationMVArun2v1DBdR03oldDMwLT",byMediumIsolationMVArun2v1DBdR03oldDMwLT);
+    l.addUserInt("byTightIsolationMVArun2v1DBdR03oldDMwLT",byTightIsolationMVArun2v1DBdR03oldDMwLT);
+    l.addUserInt("byVTightIsolationMVArun2v1DBdR03oldDMwLT",byVTightIsolationMVArun2v1DBdR03oldDMwLT);
+
     l.addUserFloat("byCombinedIsolationDeltaBetaCorrRaw3Hits", byCombinedIsolationDeltaBetaCorrRaw3Hits);
     if (l.isTauIDAvailable("byIsolationMVA3oldDMwoLTraw")) l.addUserFloat("byIsolationMVA3oldDMwoLTraw",l.tauID("byIsolationMVA3oldDMwoLTraw"));
     else                                                   l.addUserFloat("byIsolationMVA3oldDMwoLTraw",-999.);    
@@ -318,11 +350,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("puCorrPtSum", puCorrPtSum);
     l.addUserInt("againstMuonLoose3", againstMuonLoose3);
     l.addUserInt("againstMuonTight3", againstMuonTight3);
-    l.addUserInt("againstElectronVLooseMVA5", againstElectronVLooseMVA5);
-    l.addUserInt("againstElectronLooseMVA5", againstElectronLooseMVA5);
-    l.addUserInt("againstElectronMediumMVA5", againstElectronMediumMVA5);
-    l.addUserInt("againstElectronTightMVA5", againstElectronTightMVA5);
-    l.addUserInt("againstElectronVTightMVA5", againstElectronVTightMVA5);
+    l.addUserInt("againstElectronVLooseMVA6", againstElectronVLooseMVA6);
+    l.addUserInt("againstElectronLooseMVA6", againstElectronLooseMVA6);
+    l.addUserInt("againstElectronMediumMVA6", againstElectronMediumMVA6);
+    l.addUserInt("againstElectronTightMVA6", againstElectronTightMVA6);
+    l.addUserInt("againstElectronVTightMVA6", againstElectronVTightMVA6);
     l.addUserInt("numChargedParticlesSignalCone",numChargedParticlesSignalCone);
     l.addUserInt("numNeutralHadronsSignalCone",numNeutralHadronsSignalCone);
     l.addUserInt("numPhotonsSignalCone",numPhotonsSignalCone);
