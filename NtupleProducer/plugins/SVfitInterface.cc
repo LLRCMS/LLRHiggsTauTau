@@ -61,8 +61,13 @@ class SVfitInterface : public edm::EDProducer {
   bool Switch (svFitStandalone::kDecayType type1, double pt1, svFitStandalone::kDecayType type2, double pt2);
   double GetMass (svFitStandalone::kDecayType type, double candMass);
 
-  edm::InputTag theCandidateTag;
-  std::vector<edm::InputTag> vtheMETTag;
+  //edm::InputTag theCandidateTag;
+  edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
+  //std::vector<edm::InputTag> vtheMETTag;
+  //std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag;
+  edm::EDGetTokenT<View<pat::MET> > vtheMETTag;
+  edm::EDGetTokenT<double> theSigTag;
+  edm::EDGetTokenT<math::Error<2>::type> theCovTag;
   //int sampleType;
   bool _usePairMET;
   //bool _useMVAMET;
@@ -73,15 +78,20 @@ class SVfitInterface : public edm::EDProducer {
 // ------------------------------------------------------------------
 
 
-SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig)
+SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig):
+theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
+vtheMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
+theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
+theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov")))
 {
-  theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
+  //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   _usePairMET = iConfig.getParameter<bool>("usePairMET");
   //if (_usePairMET) _useMVAMET = true;
   //else _useMVAMET = false; // TO FIX! NO need for it
   //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
 
-  vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
+  //vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
+  //vtheMETTag=(consumes<View<pat::MET> >(iConfig.getParameter<edm::InputTag>("srcMET")));
 
   edm::FileInPath inputFileName_visPtResolution("TauAnalysis/SVfitStandalone/data/svFitVisMassAndPtResolutionPDF.root");
   TH1::AddDirectory(false);  
@@ -101,7 +111,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get lepton pairs
   Handle<View<reco::CompositeCandidate> > pairHandle;
-  iEvent.getByLabel(theCandidateTag, pairHandle);
+  iEvent.getByToken(theCandidateTag, pairHandle);
   
   unsigned int elNumber = pairHandle->size();
   unsigned int metNumber = 0;
@@ -134,7 +144,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // initialize MET once if not using PairMET
   if (!_usePairMET)
   {   
-     iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
+     //iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
+     iEvent.getByToken(vtheMETTag, METHandle_PatMET);
      metNumber = METHandle_PatMET->size();
      if (metNumber != 1)     
         edm::LogWarning("pfMetHasNotSizeOne") << "(SVfitInterface) Warning! Using single pf MEt, but input MEt collection size is different from 1"
@@ -146,8 +157,10 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      Handle<double> significanceHandle;
      Handle<math::Error<2>::type> covHandle;
      
-     iEvent.getByLabel ("METSignificance", "METSignificance", significanceHandle);
-     iEvent.getByLabel ("METSignificance", "METCovariance", covHandle);
+     //iEvent.getByLabel ("METSignificance", "METSignificance", significanceHandle);
+     //iEvent.getByLabel ("METSignificance", "METCovariance", covHandle);
+     iEvent.getByToken (theSigTag, significanceHandle);
+     iEvent.getByToken (theCovTag, covHandle);
      
      //cout << *significanceHandle << " " << *sig00Handle << " " << *sig01Handle << " " << *sig10Handle << " " << *sig11Handle << endl;
      covMET[0][0] = (*covHandle)(0,0);
@@ -212,7 +225,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
   
-    if (_usePairMET)
+    /*if (_usePairMET)
     {
       iEvent.getByLabel(vtheMETTag.at(i), METHandle_PfMET);
       metNumber = METHandle_PfMET->size();
@@ -235,7 +248,7 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
                                                     << "   --> SVfit algorithm will probably crash...";
       }
-    } 
+    }*/ 
      
     //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
     

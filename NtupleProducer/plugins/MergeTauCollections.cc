@@ -36,17 +36,21 @@ class MergeTauCollections : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
 
-  const edm::InputTag theCandidateTag;
-  const edm::InputTag theCandidateTagTauUp;
-  const edm::InputTag theCandidateTagTauDown;
+  //const edm::InputTag theCandidateTag;
+  //const edm::InputTag theCandidateTagTauUp;
+  //const edm::InputTag theCandidateTagTauDown;
+  edm::EDGetTokenT<pat::TauCollection> theCandidateTag;
+  edm::EDGetTokenT<pat::TauCollection> theCandidateTagTauUp;
+  edm::EDGetTokenT<pat::TauCollection> theCandidateTagTauDown;
+
   
 
 };
 
 MergeTauCollections::MergeTauCollections(const edm::ParameterSet& iConfig) :
-  theCandidateTag(iConfig.getParameter<InputTag>("src")),
-  theCandidateTagTauUp(iConfig.getParameter<InputTag>("srcTauUp")),
-  theCandidateTagTauDown(iConfig.getParameter<InputTag>("srcTauDown"))
+  theCandidateTag(consumes<pat::TauCollection>(iConfig.getParameter<InputTag>("src"))),
+  theCandidateTagTauUp(consumes<pat::TauCollection>(iConfig.getParameter<InputTag>("srcTauUp"))),
+  theCandidateTagTauDown(consumes<pat::TauCollection>(iConfig.getParameter<InputTag>("srcTauDown")))
 {
   produces<pat::TauCollection>();
 }
@@ -55,16 +59,16 @@ MergeTauCollections::MergeTauCollections(const edm::ParameterSet& iConfig) :
 void MergeTauCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
   edm::Handle<pat::TauCollection> tauHandle;
-  iEvent.getByLabel(theCandidateTag, tauHandle);
+  iEvent.getByToken(theCandidateTag, tauHandle);
 
   // Output collection
   auto_ptr<pat::TauCollection> result( new pat::TauCollection() );
 
   edm::Handle<pat::TauCollection> tauHandleTauUp;
-  iEvent.getByLabel(theCandidateTagTauUp, tauHandleTauUp);
+  iEvent.getByToken(theCandidateTagTauUp, tauHandleTauUp);
 
   edm::Handle<pat::TauCollection> tauHandleTauDown;
-  iEvent.getByLabel(theCandidateTagTauDown, tauHandleTauDown);
+  iEvent.getByToken(theCandidateTagTauDown, tauHandleTauDown);
 
   //cout<<"trying to merge..."<<endl;
 

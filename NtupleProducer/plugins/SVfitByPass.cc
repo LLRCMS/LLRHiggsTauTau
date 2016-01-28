@@ -39,8 +39,13 @@ class SVfitBypass : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
   
-  edm::InputTag theCandidateTag;
-  std::vector<edm::InputTag> vtheMETTag;
+  //edm::InputTag theCandidateTag;
+  //std::vector<edm::InputTag> vtheMETTag;
+  edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
+  edm::EDGetTokenT<View<pat::MET> > vtheMETTag;
+  edm::EDGetTokenT<double> theSigTag;
+  edm::EDGetTokenT<math::Error<2>::type> theCovTag;
+
   //int sampleType;
   //bool _usePairMET;
   //bool _useMVAMET;
@@ -50,13 +55,17 @@ class SVfitBypass : public edm::EDProducer {
 
 
 
-SVfitBypass::SVfitBypass(const edm::ParameterSet& iConfig)
+SVfitBypass::SVfitBypass(const edm::ParameterSet& iConfig):
+theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
+vtheMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
+theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
+theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov")))
 {
-  theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
+  //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   //_usePairMET = iConfig.getUntrackedParameter<bool>("usePairMET");
   //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
 
-  vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
+  //vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
 
   produces<pat::CompositeCandidateCollection>();
 }  
@@ -68,7 +77,7 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get lepton pairs
   Handle<View<reco::CompositeCandidate> > pairHandle;
-  iEvent.getByLabel(theCandidateTag, pairHandle);
+  iEvent.getByToken(theCandidateTag, pairHandle);
   
   unsigned int elNumber = pairHandle->size();
   
@@ -77,7 +86,7 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get event pat MET to be saved in output
   Handle<View<pat::MET> > METHandle_PatMET;
-  iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
+  iEvent.getByToken(vtheMETTag, METHandle_PatMET);
   double METx = 0.;
   double METy = 0.; 
   TMatrixD covMET(2, 2);
@@ -87,8 +96,8 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   METy = patMET.py();
   Handle<double> significanceHandle;
   Handle<math::Error<2>::type> covHandle;
-  iEvent.getByLabel ("METSignificance", "METSignificance", significanceHandle);
-  iEvent.getByLabel ("METSignificance", "METCovariance", covHandle);
+  iEvent.getByToken (theSigTag, significanceHandle);
+  iEvent.getByToken (theCovTag, covHandle);
   covMET[0][0] = (*covHandle)(0,0);
   covMET[1][0] = (*covHandle)(1,0);
   covMET[0][1] = covMET[1][0]; // (1,0) is the only one saved

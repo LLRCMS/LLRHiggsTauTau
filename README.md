@@ -81,9 +81,30 @@ git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalon
 scram b -j 4
 ```
 
+### Instructions for 7_6_3 (miniAODv2)
+
+```
+cmsrel CMSSW_7_6_3
+cd CMSSW_7_6_3/src
+git clone https://github.com/LLRCMS/LLRHiggsTauTau
+cd LLRHiggsTauTau; git checkout master
+cd -
+git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
+cd Muon/MuonAnalysisTools ; git checkout master -- interface/MuonEffectiveArea.h
+cd -
+git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
+cd EGamma/EGammaAnalysisTools; git checkout c0db796 -- interface/ElectronEffectiveArea.h
+cd -
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons
+cd -
+git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+scram b -j 4
+```
+
 
 
 ### Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
-Pleae note that since 7_4_7 we switched to a new eleID recipe and we are not using anymore git cms-merge-topic sregnard:Phys14ElectronMvaIdFor745
+Please note that since 7_4_7 we switched to a new eleID recipe and we are not using anymore git cms-merge-topic sregnard:Phys14ElectronMvaIdFor745
 
