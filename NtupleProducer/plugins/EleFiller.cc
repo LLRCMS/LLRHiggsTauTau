@@ -252,7 +252,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserInt("isEleID90",isEleID90);
     l.addUserFloat("eleMVAvalue",eleMVAvalue);
     l.addUserFloat("BDT",eleMVAvalue); //I know, it's duplicated, but I don't want to change to change all the downstream code...
-    int isBDT = false;
+    bool isBDT = false;
     if(fSCeta < 2.4){
       if (fSCeta <0.8){
         if (l.pt()>10) isBDT = (eleMVAvalue>0.913286);
