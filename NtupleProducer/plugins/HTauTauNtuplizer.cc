@@ -1238,45 +1238,48 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpx = cand.userFloat("MEt_px");
     float thisMETpy = cand.userFloat("MEt_py");
     
+    bool hasUp   = cand.hasUserFloat ("SVfitMassUp");
+    bool hasDown = cand.hasUserFloat ("SVfitMassDown");
+
     _SVmass.push_back(cand.userFloat("SVfitMass"));
-    _SVmassTauUp.push_back(cand.userFloat("SVfitMassTauUp"));
-    _SVmassTauDown.push_back(cand.userFloat("SVfitMassTauDown"));
+    _SVmassTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
+    _SVmassTauDown.push_back( (hasDown ? cand.userFloat("SVfitMassTauDown") : -999. ));
 
     _SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
-    _SVmassTransverseTauUp.push_back(cand.userFloat("SVfitTransverseMassTauUp"));
-    _SVmassTransverseTauDown.push_back(cand.userFloat("SVfitTransverseMassTauDown"));
+    _SVmassTransverseTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitTransverseMassTauUp")  : -999. ));
+    _SVmassTransverseTauDown.push_back( (hasDown ? cand.userFloat("SVfitTransverseMassTauDown"): -999. ));
 
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
-    _SVptTauUp.push_back(cand.userFloat("SVfit_ptTauUp"));
-    _SVptTauDown.push_back(cand.userFloat("SVfit_ptTauDown"));
+    _SVptTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_ptTauUp")  : -999. ));
+    _SVptTauDown.push_back( (hasDown ? cand.userFloat("SVfit_ptTauDown"): -999. ));
 
     _SVptUnc.push_back(cand.userFloat("SVfit_ptUnc"));
-    _SVptUncTauUp.push_back(cand.userFloat("SVfit_ptUncTauUp"));
-    _SVptUncTauDown.push_back(cand.userFloat("SVfit_ptUncTauDown"));
+    _SVptUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_ptUncTauUp")  : -999. ));
+    _SVptUncTauDown.push_back( (hasDown ? cand.userFloat("SVfit_ptUncTauDown"): -999. ));
 
     _SVeta.push_back(cand.userFloat("SVfit_eta"));
-    _SVetaTauUp.push_back(cand.userFloat("SVfit_etaTauUp"));
-    _SVetaTauDown.push_back(cand.userFloat("SVfit_etaTauDown"));
+    _SVetaTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_etaTauUp")  : -999. ));
+    _SVetaTauDown.push_back( (hasDown ? cand.userFloat("SVfit_etaTauDown"): -999. ));
 
     _SVetaUnc.push_back(cand.userFloat("SVfit_etaUnc"));
-    _SVetaUncTauUp.push_back(cand.userFloat("SVfit_etaUncTauUp"));
-    _SVetaUncTauDown.push_back(cand.userFloat("SVfit_etaUncTauDown"));
+    _SVetaUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_etaUncTauUp")  : -999. ));
+    _SVetaUncTauDown.push_back( (hasDown ? cand.userFloat("SVfit_etaUncTauDown"): -999. ));
 
     _SVphi.push_back(cand.userFloat("SVfit_phi"));
-    _SVphiTauUp.push_back(cand.userFloat("SVfit_phiTauUp"));
-    _SVphiTauDown.push_back(cand.userFloat("SVfit_phiTauDown"));
+    _SVphiTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_phiTauUp")  : -999. ));
+    _SVphiTauDown.push_back( (hasDown ? cand.userFloat("SVfit_phiTauDown"): -999. ));
 
     _SVphiUnc.push_back(cand.userFloat("SVfit_phiUnc"));
-    _SVphiUncTauUp.push_back(cand.userFloat("SVfit_phiUncTauUp"));
-    _SVphiUncTauDown.push_back(cand.userFloat("SVfit_phiUncTauDown"));
+    _SVphiUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_phiUncTauUp")  : -999. ));
+    _SVphiUncTauDown.push_back( (hasDown ? cand.userFloat("SVfit_phiUncTauDown"): -999. ));
 
     _SVMetRho.push_back(cand.userFloat("SVfit_METRho"));
-    _SVMetRhoTauUp.push_back(cand.userFloat("SVfit_METRhoTauUp"));
-    _SVMetRhoTauDown.push_back(cand.userFloat("SVfit_METRhoTauDown"));
+    _SVMetRhoTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_METRhoTauUp")  : -999. ));
+    _SVMetRhoTauDown.push_back( (hasDown ? cand.userFloat("SVfit_METRhoTauDown"): -999. ));
 
     _SVMetPhi.push_back(cand.userFloat("SVfit_METPhi"));
-    _SVMetPhiTauUp.push_back(cand.userFloat("SVfit_METPhiTauUp"));
-    _SVMetPhiTauDown.push_back(cand.userFloat("SVfit_METPhiTauDown"));
+    _SVMetPhiTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_METPhiTauUp")  : -999. ));
+    _SVMetPhiTauDown.push_back( (hasDown ? cand.userFloat("SVfit_METPhiTauDown"): -999. ));
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);    
@@ -1592,25 +1595,30 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     TLorentzVector pfourTauUp;
     TLorentzVector pfourTauDown;
 
-    /*if(userdatahelpers::getUserInt(cand,"TauUpExists"))
-      {
-	pfourTauUp.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauUp"),userdatahelpers::getUserFloat(cand,"py_TauUp"),userdatahelpers::getUserFloat(cand,"pz_TauUp"),userdatahelpers::getUserFloat(cand,"e_TauUp"));
-      }
-    else
-      {
-	pfourTauUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
+    bool existUp   = userdatahelpers::hasUserInt(cand,"TauUpExists"); // simply to check if the userfloat exists, i.e. if it is a tau
+    bool existDown = userdatahelpers::hasUserInt(cand,"TauDownExists"); // simply to check if the userfloat exists, i.e. if it is a tau
 
-      }
-    if(userdatahelpers::getUserInt(cand,"TauDownExists"))
-      {
-	pfourTauDown.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauDown"),userdatahelpers::getUserFloat(cand,"py_TauDown"),userdatahelpers::getUserFloat(cand,"pz_TauDown"),userdatahelpers::getUserFloat(cand,"e_TauDown"));
-      }
+    int hasUp   = ( existUp   ? userdatahelpers::getUserInt(cand,"TauUpExists")   : false) ;   // actual check of the value of the userfloat
+    int hasDown = ( existDown ? userdatahelpers::getUserInt(cand,"TauDownExists") : false) ; // actual check of the value of the userfloat
+   
+    
+    if(hasUp)
+    {
+      pfourTauUp.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauUp"),userdatahelpers::getUserFloat(cand,"py_TauUp"),userdatahelpers::getUserFloat(cand,"pz_TauUp"),userdatahelpers::getUserFloat(cand,"e_TauUp"));
+    }
     else
-      {
-	pfourTauDown.SetPxPyPzE(-999.,-999.,-999.,-999.);
-
-      }
-*/
+    {
+      pfourTauUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
+    }
+    if(hasDown)
+    {
+      pfourTauDown.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauDown"),userdatahelpers::getUserFloat(cand,"py_TauDown"),userdatahelpers::getUserFloat(cand,"pz_TauDown"),userdatahelpers::getUserFloat(cand,"e_TauDown"));
+    }
+    else
+    {
+      pfourTauDown.SetPxPyPzE(-999.,-999.,-999.,-999.);
+    }
+    
     if(theFSR){
       const pat::PFParticle* fsr=0;
       double maxPT=-1;
@@ -1636,13 +1644,13 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_pz.push_back( (float) pfour.Z());
     _daughters_e.push_back( (float) pfour.T());
 
-    //_daughters_TauUpExists.push_back((int)userdatahelpers::getUserInt(cand,"TauUpExists"));
+    _daughters_TauUpExists.push_back( (existUp ? hasUp : 0) );
     _daughters_px_TauUp.push_back((float)pfourTauUp.Px());
     _daughters_py_TauUp.push_back((float)pfourTauUp.Py());
     _daughters_pz_TauUp.push_back((float)pfourTauUp.Pz());
     _daughters_e_TauUp.push_back((float)pfourTauUp.E());
 
-    //_daughters_TauDownExists.push_back((int)userdatahelpers::getUserInt(cand,"TauDownExists"));
+    _daughters_TauDownExists.push_back( (existDown ? hasDown : 0) );
     _daughters_px_TauDown.push_back((float)pfourTauDown.Px());
     _daughters_py_TauDown.push_back((float)pfourTauDown.Py());
     _daughters_pz_TauDown.push_back((float)pfourTauDown.Pz());
