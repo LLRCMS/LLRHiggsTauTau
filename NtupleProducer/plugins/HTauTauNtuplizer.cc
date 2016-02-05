@@ -1239,44 +1239,44 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpy = cand.userFloat("MEt_py");
     
     _SVmass.push_back(cand.userFloat("SVfitMass"));
-    //_SVmassTauUp.push_back(cand.userFloat("SVfitMassTauUp"));
-    //_SVmassTauDown.push_back(cand.userFloat("SVfitMassTauDown"));
+    _SVmassTauUp.push_back(cand.userFloat("SVfitMassTauUp"));
+    _SVmassTauDown.push_back(cand.userFloat("SVfitMassTauDown"));
 
-    //_SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
-    //_SVmassTransverseTauUp.push_back(cand.userFloat("SVfitTransverseMassTauUp"));
-    //_SVmassTransverseTauDown.push_back(cand.userFloat("SVfitTransverseMassTauDown"));
+    _SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
+    _SVmassTransverseTauUp.push_back(cand.userFloat("SVfitTransverseMassTauUp"));
+    _SVmassTransverseTauDown.push_back(cand.userFloat("SVfitTransverseMassTauDown"));
 
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
-    //_SVptTauUp.push_back(cand.userFloat("SVfit_ptTauUp"));
-    //_SVptTauDown.push_back(cand.userFloat("SVfit_ptTauDown"));
+    _SVptTauUp.push_back(cand.userFloat("SVfit_ptTauUp"));
+    _SVptTauDown.push_back(cand.userFloat("SVfit_ptTauDown"));
 
     _SVptUnc.push_back(cand.userFloat("SVfit_ptUnc"));
-    //_SVptUncTauUp.push_back(cand.userFloat("SVfit_ptUncTauUp"));
-    //_SVptUncTauDown.push_back(cand.userFloat("SVfit_ptUncTauDown"));
+    _SVptUncTauUp.push_back(cand.userFloat("SVfit_ptUncTauUp"));
+    _SVptUncTauDown.push_back(cand.userFloat("SVfit_ptUncTauDown"));
 
     _SVeta.push_back(cand.userFloat("SVfit_eta"));
-    //_SVetaTauUp.push_back(cand.userFloat("SVfit_etaTauUp"));
-    //_SVetaTauDown.push_back(cand.userFloat("SVfit_etaTauDown"));
+    _SVetaTauUp.push_back(cand.userFloat("SVfit_etaTauUp"));
+    _SVetaTauDown.push_back(cand.userFloat("SVfit_etaTauDown"));
 
     _SVetaUnc.push_back(cand.userFloat("SVfit_etaUnc"));
-    //_SVetaUncTauUp.push_back(cand.userFloat("SVfit_etaUncTauUp"));
-    //_SVetaUncTauDown.push_back(cand.userFloat("SVfit_etaUncTauDown"));
+    _SVetaUncTauUp.push_back(cand.userFloat("SVfit_etaUncTauUp"));
+    _SVetaUncTauDown.push_back(cand.userFloat("SVfit_etaUncTauDown"));
 
     _SVphi.push_back(cand.userFloat("SVfit_phi"));
-    //_SVphiTauUp.push_back(cand.userFloat("SVfit_phiTauUp"));
-    //_SVphiTauDown.push_back(cand.userFloat("SVfit_phiTauDown"));
+    _SVphiTauUp.push_back(cand.userFloat("SVfit_phiTauUp"));
+    _SVphiTauDown.push_back(cand.userFloat("SVfit_phiTauDown"));
 
     _SVphiUnc.push_back(cand.userFloat("SVfit_phiUnc"));
-    //_SVphiUncTauUp.push_back(cand.userFloat("SVfit_phiUncTauUp"));
-    //_SVphiUncTauDown.push_back(cand.userFloat("SVfit_phiUncTauDown"));
+    _SVphiUncTauUp.push_back(cand.userFloat("SVfit_phiUncTauUp"));
+    _SVphiUncTauDown.push_back(cand.userFloat("SVfit_phiUncTauDown"));
 
     _SVMetRho.push_back(cand.userFloat("SVfit_METRho"));
-    //_SVMetRhoTauUp.push_back(cand.userFloat("SVfit_METRhoTauUp"));
-    //_SVMetRhoTauDown.push_back(cand.userFloat("SVfit_METRhoTauDown"));
+    _SVMetRhoTauUp.push_back(cand.userFloat("SVfit_METRhoTauUp"));
+    _SVMetRhoTauDown.push_back(cand.userFloat("SVfit_METRhoTauDown"));
 
     _SVMetPhi.push_back(cand.userFloat("SVfit_METPhi"));
-    //_SVMetPhiTauUp.push_back(cand.userFloat("SVfit_METPhiTauUp"));
-    //_SVMetPhiTauDown.push_back(cand.userFloat("SVfit_METPhiTauDown"));
+    _SVMetPhiTauUp.push_back(cand.userFloat("SVfit_METPhiTauUp"));
+    _SVMetPhiTauDown.push_back(cand.userFloat("SVfit_METPhiTauDown"));
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);    
