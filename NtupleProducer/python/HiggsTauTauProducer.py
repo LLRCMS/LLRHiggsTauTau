@@ -639,44 +639,22 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
 
 )
 
-#process.SVllCandTauUp = cms.EDProducer("SVfitInterface",
-#                                  srcPairs   = cms.InputTag("barellCandTauUp"),
-#                                  usePairMET = cms.bool(USEPAIRMET),
-#)
-
-#process.SVllCandTauDown = cms.EDProducer("SVfitInterface",
-#                                  srcPairs   = cms.InputTag("barellCandTauDown"),
-#                                  usePairMET = cms.bool(USEPAIRMET),
-#)
-
 if USEPAIRMET:
    process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
-#   process.SVllCandTauUp.srcMET    = cms.VInputTag(MVAPairMET)
-#   process.SVllCandTauDown.srcMET    = cms.VInputTag(MVAPairMET)
 else:
-   process.SVllCand.srcMET    = cms.InputTag(PFMetName)
-#   process.SVllCandTauUp.srcMET    = cms.VInputTag("slimmedMETs")
-#   process.SVllCandTauDown.srcMET    = cms.VInputTag("slimmedMETs")
+   process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
 
 ## ----------------------------------------------------------------------
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass and don't get MET userfloats
 ## ----------------------------------------------------------------------
 process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcPairs   = cms.InputTag("barellCand"),
-                                    srcMET     = cms.InputTag(PFMetName),
+                                    usePairMET = cms.bool(USEPAIRMET),
+                                    srcMET     = cms.VInputTag(PFMetName),
                                     srcSig     = cms.InputTag("METSignificance", "METSignificance"),
                                     srcCov     = cms.InputTag("METSignificance", "METCovariance")
 )
 
-#process.SVbypassTauUp = cms.EDProducer ("SVfitBypass",
-#                                    srcPairs   = cms.InputTag("barellCandTauUp"),
-#                                    srcMET     = cms.VInputTag("slimmedMETs")
-#)
-
-#process.SVbypassTauDown = cms.EDProducer ("SVfitBypass",
-#                                    srcPairs   = cms.InputTag("barellCandTauDown"),
-#                                    srcMET     = cms.VInputTag("slimmedMETs")
-#)
 
 ## ----------------------------------------------------------------------
 ## Ntuplizer
@@ -712,21 +690,13 @@ else:
 if SVFITBYPASS:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
-#    process.HTauTauTree.CandCollectionTauUp = cms.untracked.string("SVbypassTauUp")
-#    process.HTauTauTree.CandCollectionTauDown = cms.untracked.string("SVbypassTauDown")
     process.SVFit = cms.Sequence (process.SVbypass)
-#    process.SVFitTauUp = cms.Sequence (process.SVbypassTauUp)
-#    process.SVFitTauDown = cms.Sequence (process.SVbypassTauDown)
 
 
 else:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVllCand")
     process.HTauTauTree.candCollection = cms.InputTag("SVllCand")
-#    process.HTauTauTree.CandCollectionTauUp = cms.untracked.string("SVllCandTauUp")
-#    process.HTauTauTree.CandCollectionTauDown = cms.untracked.string("SVllCandTauDown")
     process.SVFit = cms.Sequence (process.SVllCand)
-#    process.SVFitTauUp = cms.Sequence (process.SVllCandTauUp)
-#    process.SVFitTauDown = cms.Sequence (process.SVllCandTauDown)
 
 #print particles gen level - DEBUG purposes
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -754,14 +724,10 @@ process.Candidates = cms.Sequence(
     process.taus              + process.tausMerged +
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-#    process.softLeptonsTauUp  + process.barellCandTauUp +
-#    process.softLeptonsTauDown  + process.barellCandTauDown +
     process.jets              +
     process.METSequence       +
     process.geninfo           +
-    process.SVFit             #+ process.HTauTauTree
-#    process.SVFitTauUp        +  #+ process.HTauTauTree
-#    process.SVFitTauDown      + process.HTauTauTree
+    process.SVFit             
     )
 # always run ntuplizer
 process.trees = cms.EndPath(process.HTauTauTree)# + process.HTauTauTreeTauUp + process.HTauTauTreeTauDown)

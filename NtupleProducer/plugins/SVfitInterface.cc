@@ -64,8 +64,8 @@ class SVfitInterface : public edm::EDProducer {
   //edm::InputTag theCandidateTag;
   edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
   //std::vector<edm::InputTag> vtheMETTag;
-  //std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag;
-  edm::EDGetTokenT<View<pat::MET> > vtheMETTag;
+  std::vector <edm::EDGetTokenT<View<reco::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
+  //edm::EDGetTokenT<View<pat::MET> > vtheMETTag;
   edm::EDGetTokenT<double> theSigTag;
   edm::EDGetTokenT<math::Error<2>::type> theCovTag;
   //int sampleType;
@@ -80,12 +80,19 @@ class SVfitInterface : public edm::EDProducer {
 
 SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig):
 theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
-vtheMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
+//vtheMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
 theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
 theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov")))
 {
   //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   _usePairMET = iConfig.getParameter<bool>("usePairMET");
+  
+  const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
+  for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
+  {      
+    vtheMETTag.emplace_back(consumes<edm::View<reco::MET> >(*it) );
+  }
+
   //if (_usePairMET) _useMVAMET = true;
   //else _useMVAMET = false; // TO FIX! NO need for it
   //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
@@ -131,9 +138,11 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // MET class type changes if using MVA MEt or 'ordinary' MEt
   
-  // create two handles for two types
-  Handle<View<reco::PFMET> > METHandle_PfMET;
-  Handle<View<pat::MET> >    METHandle_PatMET;
+  // create handle -- view makes possible to use base class type reco::MET
+  Handle<View<reco::MET> > METHandle;
+
+  // Handle<View<reco::PFMET> > METHandle_PfMET;
+  // Handle<View<pat::MET> >    METHandle_PatMET;
   
   // intialize MET
   double METx = 0.;
@@ -144,21 +153,18 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // initialize MET once if not using PairMET
   if (!_usePairMET)
   {   
-     //iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
-     iEvent.getByToken(vtheMETTag, METHandle_PatMET);
-     metNumber = METHandle_PatMET->size();
+     iEvent.getByToken(vtheMETTag.at(0), METHandle);
+     metNumber = METHandle->size();
      if (metNumber != 1)     
         edm::LogWarning("pfMetHasNotSizeOne") << "(SVfitInterface) Warning! Using single pf MEt, but input MEt collection size is different from 1"
                                                            << "   --> using MET entry num. 0";
-     const pat::MET& patMET = (*METHandle_PatMET)[0];
+     const pat::MET& patMET = (*METHandle)[0];
      METx = patMET.px();
      METy = patMET.py();
      
      Handle<double> significanceHandle;
      Handle<math::Error<2>::type> covHandle;
      
-     //iEvent.getByLabel ("METSignificance", "METSignificance", significanceHandle);
-     //iEvent.getByLabel ("METSignificance", "METCovariance", covHandle);
      iEvent.getByToken (theSigTag, significanceHandle);
      iEvent.getByToken (theCovTag, covHandle);
      
@@ -206,8 +212,6 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
     // compute SVfit only if tau(s) pass the OldDM discriminator (avoids crashes...)
     bool passDM = true;
-    //if (l1Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingOldDMs") != 1) passOldDM = false;
-    //if (l2Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingOldDMs") != 1) passOldDM = false;
     if (l1Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs") != 1) passDM = false;
     if (l2Type == svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1) passDM = false;
     // DEBUG
@@ -225,30 +229,31 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
   
-    /*if (_usePairMET)
-    {
-      iEvent.getByLabel(vtheMETTag.at(i), METHandle_PfMET);
-      metNumber = METHandle_PfMET->size();
+    // FIXME: put back in place; cannot do const PFMET& pfMET = (*METHandle)[0]; even with the template view
+    // if (_usePairMET)
+    // {
+    //   iEvent.getByToken(vtheMETTag.at(i), METHandle);
+    //   metNumber = METHandle->size();
              
-      const PFMET& pfMET = (*METHandle_PfMET)[0];
-      const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
-      significance = (float) pfMET.significance();
+    //   const PFMET& pfMET = (*METHandle)[0];
+    //   const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
+    //   significance = (float) pfMET.significance();
 
-      METx = pfMET.px();
-      METy = pfMET.py();
+    //   METx = pfMET.px();
+    //   METy = pfMET.py();
 
-      covMET[0][0] = covMETbuf(0,0);
-      covMET[1][0] = covMETbuf(1,0);
-      covMET[0][1] = covMETbuf(0,1);
-      covMET[1][1] = covMETbuf(1,1);
+    //   covMET[0][0] = covMETbuf(0,0);
+    //   covMET[1][0] = covMETbuf(1,0);
+    //   covMET[0][1] = covMETbuf(0,1);
+    //   covMET[1][1] = covMETbuf(1,1);
 
-      // protection against singular matrices
-      if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
-      {
-          edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
-                                                    << "   --> SVfit algorithm will probably crash...";
-      }
-    }*/ 
+    //   // protection against singular matrices
+    //   if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
+    //   {
+    //       edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
+    //                                                 << "   --> SVfit algorithm will probably crash...";
+    //   }
+    // } 
      
     //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
     
