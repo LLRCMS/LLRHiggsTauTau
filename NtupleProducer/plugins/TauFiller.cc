@@ -335,7 +335,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (l.isTauIDAvailable("byVVTightIsolationMVA3newDMwLT")) l.addUserInt("byVVTightIsolationMVA3newDMwLT",l.tauID("byVVTightIsolationMVA3newDMwLT"));
     else l.addUserInt("byVVTightIsolationMVA3newDMwLT",0);
     if (l.isTauIDAvailable("byVVTightIsolationMVA3oldDMwLT")) l.addUserInt("byVVTightIsolationMVA3oldDMwLT",l.tauID("byVVTightIsolationMVA3oldDMwLT"));
-    else l.addUserFloat("byVVTightIsolationMVA3oldDMwLT",0);
+    else l.addUserInt("byVVTightIsolationMVA3oldDMwLT",0);
     if (l.isTauIDAvailable("footprintCorrection")) l.addUserFloat("footprintCorrection",l.tauID("footprintCorrection"));
     else l.addUserFloat("footprintCorrection",-999);
     if (l.isTauIDAvailable("neutralIsoPtSumWeight")) l.addUserFloat("neutralIsoPtSumWeight",l.tauID("neutralIsoPtSumWeight"));
