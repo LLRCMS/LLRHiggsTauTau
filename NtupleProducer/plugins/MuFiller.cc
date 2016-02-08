@@ -122,11 +122,15 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     float dxy = 999.;
     float dz  = 999.;
+    float dxy_innerTrack = 999.;
+    float dz_innerTrack  = 999.;
     const Vertex* vertex = 0;
     if (vertexs->size()>0) {
       vertex = &(vertexs->front());
       dxy = (l.muonBestTrack()->dxy(vertex->position()));
       dz  = (l.muonBestTrack()->dz(vertex->position()));
+      dxy_innerTrack = (l.innerTrack()->dxy(vertex->position()));
+      dz_innerTrack  = (l.innerTrack()->dz(vertex->position()));
     }
 /*
     //--- Trigger matching
@@ -152,9 +156,12 @@ l.addUserFloat("DepositR03Hcal",l.isolationR03().hadEt);
     //      SIP=sipCalculator_->calculate(l,vertexs->front());
     //    }
 l.addUserFloat("SIP",SIP);
+l.addUserFloat("segmentCompatibility",l.segmentCompatibility());
 
 l.addUserFloat("dxy",dxy);
 l.addUserFloat("dz",dz);
+l.addUserFloat("dxy_innerTrack",dxy_innerTrack);
+l.addUserFloat("dz_innerTrack",dz_innerTrack);
     //l.addUserFloat("HLTMatch", HLTMatch);
     // l.addUserCand("MCMatch",genMatch); // FIXME
 int idbit=0;

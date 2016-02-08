@@ -10,12 +10,38 @@
 //#include <EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/CustomElectronEffectiveArea.h>
 
+#include <DataFormats/PatCandidates/interface/PackedCandidate.h>
+#include "DataFormats/Math/interface/Point3D.h"
+
+#include <TLorentzVector.h>
+
 #include <iostream>
 
 using namespace std;
 using namespace edm;
 using namespace pat;
 using namespace reco;
+
+
+namespace
+{
+  struct ByEta
+  {
+    bool operator()(const pat::PackedCandidate * c1, const pat::PackedCandidate * c2) const
+    {
+      return c1->eta() < c2->eta();
+    }
+    bool operator()(float c1eta, const pat::PackedCandidate *c2) const
+    {
+      return c1eta < c2->eta();
+    }
+    bool operator()(const pat::PackedCandidate *c1, float c2eta) const
+    {
+      return c1->eta() < c2eta;
+    }
+  };
+}
+
 
 
 int correctionType = 2; //1 = rho; 2 = dbeta;
@@ -138,3 +164,274 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
   return 0;
 }
 
+
+
+
+
+int LeptonIsoHelper::jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet jet){
+
+  int jetNDauCharged = 0;
+
+  for (unsigned int i = 0, n = jet.numberOfSourceCandidatePtrs(); i < n; ++i) {
+      
+    const pat::PackedCandidate &dau_jet = dynamic_cast<const pat::PackedCandidate &>(*(jet.sourceCandidatePtr(i)));
+    float dR = deltaR(jet,dau_jet);
+    
+    bool isgoodtrk = false;
+    const reco::Track trk = dau_jet.pseudoTrack();
+    const math::XYZPoint vtx_position = cand->vertex();
+    
+    if(trk.pt()>1 &&
+       trk.hitPattern().numberOfValidHits()>=8 &&
+       trk.hitPattern().numberOfValidPixelHits()>=2 &&
+       trk.normalizedChi2()<5 &&
+       std::fabs(trk.dxy(vtx_position))<0.2 &&
+       std::fabs(trk.dz(vtx_position))<17
+       ) isgoodtrk = true;
+    
+    
+    if( dR<=0.4 && dau_jet.charge()!=0 && dau_jet.fromPV()>1 && isgoodtrk)
+      jetNDauCharged++;
+    
+  }
+  
+  return jetNDauCharged;
+
+}
+
+
+
+
+void LeptonIsoHelper::PFIso_particles(const edm::View<pat::PackedCandidate>* pfCands, std::vector<const pat::PackedCandidate *> & pfCands_charged, std::vector<const pat::PackedCandidate *> & pfCands_neutral){
+
+  pfCands_charged.clear(); pfCands_neutral.clear();
+
+  for(edm::View<pat::PackedCandidate>::const_iterator pfCandi = pfCands->begin(); pfCandi!=pfCands->end(); ++pfCandi){
+
+    const pat::PackedCandidate* p = &(*pfCandi);
+
+    if (p->charge() == 0) {
+      pfCands_neutral.push_back(p);
+    } 
+
+    else{
+      if( fabs(p->pdgId()) == 211 ){
+	if (p->fromPV() > 1 && fabs(p->dz()) < 9999. ){
+	  pfCands_charged.push_back(p);
+	}
+      }
+    }
+
+  }
+
+  std::sort(pfCands_charged.begin(), pfCands_charged.end(), ByEta());
+  std::sort(pfCands_neutral.begin(), pfCands_neutral.end(), ByEta());
+
+  return;
+
+}
+
+
+float LeptonIsoHelper::isoSumRaw(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_Iso, float dR, float innerR, float threshold, SelfVetoPolicy::SelfVetoPolicy selfVeto, int pdgId){
+
+
+  std::vector<const reco::Candidate *> vetos;
+   for( unsigned int i=0,n=cand->numberOfSourceCandidatePtrs();i<n;++i )
+     {
+        if(selfVeto == SelfVetoPolicy::selfVetoNone) break;
+        const reco::CandidatePtr &cp = cand->sourceCandidatePtr(i);
+        if( cp.isNonnull() && cp.isAvailable() )
+	  {
+	     vetos.push_back(&*cp);
+	     if (selfVeto == SelfVetoPolicy::selfVetoFirst) break;
+        }
+    }
+
+   typedef std::vector<const pat::PackedCandidate *>::const_iterator IT;
+   IT candsbegin = std::lower_bound(pfCands_Iso.begin(), pfCands_Iso.end(), cand->eta() - dR, ByEta());
+   IT candsend = std::upper_bound(candsbegin, pfCands_Iso.end(), cand->eta() + dR, ByEta());
+
+   double isosum = 0;
+   for( IT icand=candsbegin;icand<candsend;++icand )
+     {
+        // pdgId
+        if( pdgId > 0 && abs((*icand)->pdgId()) != pdgId ) continue;
+        // threshold
+        if( threshold > 0 && (*icand)->pt() < threshold ) continue;
+        // cone
+	float current_dR = deltaR((*icand)->eta(),(*icand)->phi(),cand->eta(),cand->phi());
+        if( current_dR >= dR || current_dR < innerR ) continue;
+        // veto
+        if( std::find(vetos.begin(), vetos.end(), *icand) != vetos.end() )
+	  {
+	     continue;
+        }
+        // add to sum
+        isosum += (*icand)->pt();
+    }
+   return isosum;
+
+
+}
+
+
+
+
+
+float LeptonIsoHelper::PfIsoCharged(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, float miniIsoR){
+
+  float result = -1.;
+
+  if(cand->isElectron()){
+
+    float innerR_Ch = .0;
+    if ( fabs(cand->eta()) < 1.479 ) { innerR_Ch = 0.0; }
+    else { innerR_Ch = 0.015; }
+    
+    result = isoSumRaw(cand,pfCands_charged,miniIsoR,innerR_Ch,0.0,SelfVetoPolicy::selfVetoNone);
+
+  }
+
+  else if(cand->isMuon()){
+
+    result = isoSumRaw(cand,pfCands_charged,miniIsoR,0.0001,0.0,SelfVetoPolicy::selfVetoAll);;
+
+  }
+  
+  return result;
+
+}
+
+
+
+float LeptonIsoHelper::PfIsoNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float miniIsoR)
+{
+
+  float result = -1.;
+
+  if(cand->isElectron()){
+
+    float innerR_N = .0;
+    if ( fabs(cand->eta()) < 1.479 ) { innerR_N = 0.0; }
+    else { innerR_N = 0.08; }
+    
+    float result1 = isoSumRaw(cand,pfCands_neutral,miniIsoR,innerR_N,0.0,SelfVetoPolicy::selfVetoNone,22 );
+    float result2 = isoSumRaw(cand,pfCands_neutral,miniIsoR,0.0     ,0.0,SelfVetoPolicy::selfVetoNone,130);
+    result = result1 + result2;
+
+  }
+
+  else if(cand->isMuon()){
+
+    result = isoSumRaw(cand,pfCands_neutral,miniIsoR,0.01,0.5,SelfVetoPolicy::selfVetoAll);
+
+  }
+
+  return result;
+}
+
+
+
+std::pair<float,float> LeptonIsoHelper::miniRelIso_ChargedNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float rho){
+
+
+  float miniIsoR = 10.0/std::min(std::max(float(cand->pt()),float(50.)),float(200.));
+  float EffArea = 0.;
+  float eta = cand->eta();
+
+  if(cand->isElectron()){
+        
+    if(      fabs(eta) > 0      && fabs(eta) < 1.0 )   EffArea = 0.1752;
+    else if( fabs(eta) >= 1.0   && fabs(eta) < 1.479 ) EffArea = 0.1862;
+    else if( fabs(eta) >= 1.479 && fabs(eta) < 2.0 )   EffArea = 0.1411;
+    else if( fabs(eta) >= 2.0   && fabs(eta) < 2.2 )   EffArea = 0.1534;
+    else if( fabs(eta) >= 2.2   && fabs(eta) < 2.3 )   EffArea = 0.1903;
+    else if( fabs(eta) >= 2.3   && fabs(eta) < 2.4 )   EffArea = 0.2243;
+    else if( fabs(eta) >= 2.4   && fabs(eta) < 2.5 )   EffArea = 0.2687;
+
+  }
+
+  else if(cand->isMuon()){
+
+    if(      fabs(eta) > 0    && fabs(eta) < 0.8 ) EffArea = 0.0735;
+    else if( fabs(eta) >= 0.8 && fabs(eta) < 1.3 ) EffArea = 0.0619;
+    else if( fabs(eta) >= 1.3 && fabs(eta) < 2.0 ) EffArea = 0.0465;
+    else if( fabs(eta) >= 2.0 && fabs(eta) < 2.2 ) EffArea = 0.0433;
+    else if( fabs(eta) >= 2.2 && fabs(eta) < 2.5 ) EffArea = 0.0577;
+    
+  }
+
+  float correction = rho*EffArea*(miniIsoR/0.3)*(miniIsoR/0.3);
+    
+  float pfIsoCharged = PfIsoCharged(cand,pfCands_charged,miniIsoR);
+  float pfIsoNeutral = PfIsoNeutral(cand,pfCands_neutral,miniIsoR);
+  float pfIsoPUSubtracted = std::max(float(0.0),float(pfIsoNeutral-correction));
+  
+  float miniRelIsoCharged = pfIsoCharged/cand->pt();
+  float miniRelIsoNeutral = pfIsoPUSubtracted/cand->pt();
+
+  pair<float,float> miniRelIso = make_pair( miniRelIsoCharged, miniRelIsoNeutral );
+  return miniRelIso;
+  
+
+}
+
+
+
+
+
+float LeptonIsoHelper::jetPtRel(const reco::Candidate& cand, const pat::Jet& jet)
+{
+
+  float PtRel = 0;
+
+  if(jet.numberOfDaughters()>1){
+
+    pat::Jet myUncJet;
+    pat::Jet myCorJet;
+    
+    //myUncJet.setP4(jet.correctedJet("Uncorrected").p4());
+    myCorJet.setP4(jet.correctedJet("L1FastJet").p4());
+    
+    //float          SF          = myUncJet.p4().E() / myCorJet.p4().E();
+    float          SF          = jet.p4().E() / myCorJet.p4().E();
+    
+   auto lepAwareJetp4 = ( myCorJet.p4() - cand.p4() ) * SF + cand.p4();
+   
+   TLorentzVector candV = TLorentzVector(cand.px(),cand.py(),cand.pz(),cand.p4().E());
+   TLorentzVector jetV = TLorentzVector(lepAwareJetp4.px(),lepAwareJetp4.py(),lepAwareJetp4.pz(),lepAwareJetp4.E());
+   
+   PtRel = candV.Perp( (jetV - candV).Vect() );
+   
+  }
+
+  return (PtRel > 0) ? PtRel : 0.0;
+}
+
+
+
+
+float LeptonIsoHelper::jetPtRatio(const reco::Candidate& cand, const pat::Jet& jet)
+{
+
+  float PtRatio = 1.;
+
+  if(jet.numberOfDaughters()>1){
+
+    //pat::Jet myUncJet;
+    pat::Jet myCorJet;
+    
+    //myUncJet.setP4(jet.correctedJet("Uncorrected").p4());
+    myCorJet.setP4(jet.correctedJet("L1FastJet").p4());
+    
+    //float          SF          = myUncJet.p4().E() / myCorJet.p4().E();
+    float          SF          = jet.p4().E() / myCorJet.p4().E();
+    
+    auto lepAwareJetp4 = ( myCorJet.p4() - cand.p4() ) * SF + cand.p4();
+    
+    PtRatio = cand.pt() / lepAwareJetp4.pt();
+    
+  }
+
+  return (PtRatio > 0) ? PtRatio : 0.0;
+}

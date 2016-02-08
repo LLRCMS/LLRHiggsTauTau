@@ -46,6 +46,8 @@
 #include <DataFormats/METReco/interface/PFMETCollection.h>
 #include <DataFormats/JetReco/interface/PFJet.h>
 #include <DataFormats/JetReco/interface/PFJetCollection.h>
+#include <DataFormats/PatCandidates/interface/PackedCandidate.h>
+
 #include <DataFormats/Math/interface/LorentzVector.h>
 #include <DataFormats/VertexReco/interface/Vertex.h>
 #include <DataFormats/Common/interface/MergeableCounter.h>
@@ -141,7 +143,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
   int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
-  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR);
+  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR, const edm::View<pat::Jet>* jets);
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
@@ -182,7 +184,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<vector<Vertex>> theVtxTag;
   edm::EDGetTokenT<double> theRhoTag;
+  edm::EDGetTokenT<double> theRhoMiniRelIsoTag;
   edm::EDGetTokenT<vector<PileupSummaryInfo>> thePUTag;
+  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> thePFCandTag;
   edm::EDGetTokenT<edm::View<pat::CompositeCandidate>> theCandTag;
   edm::EDGetTokenT<edm::View<pat::Jet>> theJetTag;
   edm::EDGetTokenT<edm::View<reco::Candidate>> theLepTag;
@@ -194,6 +198,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
   edm::EDGetTokenT<edm::MergeableCounter> thePassTag;
   edm::EDGetTokenT<LHEEventProduct> theLHEPTag;
+
 
   //flags
   //static const int nOutVars =14;
@@ -359,6 +364,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_typeOfMuon; //bitwise, 0=PF, 1=Global, 2=Tracker
   std::vector<Float_t> _dxy;
   std::vector<Float_t> _dz;
+  std::vector<Float_t> _dxy_innerTrack;
+  std::vector<Float_t> _dz_innerTrack;
   std::vector<Float_t> _SIP;
   std::vector<bool> _daughters_iseleBDT; //isBDT for ele
   std::vector<bool> _daughters_iseleWP80; //isBDT for ele
@@ -441,6 +448,14 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_L3FilterFired;
   std::vector<Int_t> _daughters_L3FilterFiredLast;
 
+  std::vector<Int_t> _daughters_jetNDauChargedMVASel;
+  std::vector<Float_t> _daughters_miniRelIsoCharged;
+  std::vector<Float_t> _daughters_miniRelIsoNeutral;
+  std::vector<Float_t> _daughters_jetPtRel;
+  std::vector<Float_t> _daughters_jetPtRatio;
+  std::vector<Float_t> _daughters_jetBTagCSV;
+  std::vector<Float_t> _daughters_lepMVA_mvaId;
+
   //Jets variables
   Int_t _numberOfJets;
   //std::vector<TLorentzVector> _jets;
@@ -488,7 +503,10 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   triggerBits_(consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
   theVtxTag(consumes<vector<Vertex>>(pset.getParameter<edm::InputTag>("vtxCollection"))),
   theRhoTag(consumes<double>(pset.getParameter<edm::InputTag>("rhoCollection"))),
+  theRhoMiniRelIsoTag(consumes<double>(pset.getParameter<edm::InputTag>("rhoMiniRelIsoCollection"))),
+
   thePUTag(consumes<vector<PileupSummaryInfo>>(pset.getParameter<edm::InputTag>("puCollection"))),
+  thePFCandTag(consumes<edm::View<pat::PackedCandidate>>(pset.getParameter<edm::InputTag>("PFCandCollection"))),
   theCandTag(consumes<edm::View<pat::CompositeCandidate>>(pset.getParameter<edm::InputTag>("candCollection"))),
   theJetTag(consumes<edm::View<pat::Jet>>(pset.getParameter<edm::InputTag>("jetCollection"))),
   theLepTag(consumes<edm::View<reco::Candidate>>(pset.getParameter<edm::InputTag>("lepCollection"))),
@@ -637,6 +655,15 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_isGoodTriggerType.clear();
   _daughters_L3FilterFired.clear();
   _daughters_L3FilterFiredLast.clear();
+
+  _daughters_jetNDauChargedMVASel.clear();
+  _daughters_miniRelIsoCharged.clear();
+  _daughters_miniRelIsoNeutral.clear();
+  _daughters_jetPtRel.clear();
+  _daughters_jetPtRatio.clear();
+  _daughters_jetBTagCSV.clear();
+  _daughters_lepMVA_mvaId.clear();
+
   _daughters_iseleBDT.clear();
   _daughters_iseleWP80.clear();
   _daughters_iseleWP90.clear();
@@ -743,6 +770,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_muonID.clear();
   _dxy.clear();
   _dz.clear();
+  _dxy_innerTrack.clear();
+  _dz_innerTrack.clear();
   _SIP.clear();
   _decayType.clear();
   _daughters_tauID.clear();
@@ -954,6 +983,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_typeOfMuon",&_daughters_typeOfMuon);
   myTree->Branch("dxy",&_dxy);
   myTree->Branch("dz",&_dz);
+  myTree->Branch("dxy_innerTrack",&_dxy_innerTrack);
+  myTree->Branch("dz_innerTrack",&_dz_innerTrack);
   myTree->Branch("SIP",&_SIP);
   myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
   myTree->Branch("daughters_iseleWP80",&_daughters_iseleWP80);
@@ -1006,6 +1037,14 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired);
   myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
   myTree->Branch("daughters_HLTpt",&_daughters_HLTpt);
+
+  myTree->Branch("daughters_jetNDauChargedMVASel",&_daughters_jetNDauChargedMVASel);
+  myTree->Branch("daughters_miniRelIsoCharged",&_daughters_miniRelIsoCharged);
+  myTree->Branch("daughters_miniRelIsoNeutral",&_daughters_miniRelIsoNeutral);
+  myTree->Branch("daughters_jetPtRel",&_daughters_jetPtRel);
+  myTree->Branch("daughters_jetPtRatio",&_daughters_jetPtRatio);
+  myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
+  myTree->Branch("daughters_lepMVA_mvaId",&_daughters_lepMVA_mvaId);
   
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
@@ -1216,7 +1255,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     FillGenJetInfo(event); // gen jets
   }
   //Loop of softleptons and fill them
-  FillSoftLeptons(daus,event,theFSR);
+  FillSoftLeptons(daus,event,theFSR,jets);
 
   //Loop on Jets
   _numberOfJets = 0;
@@ -1581,7 +1620,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 }
 
 //Fill all leptons (we keep them all for veto purposes
-void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, const edm::Event& event,bool theFSR){
+void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, const edm::Event& event,bool theFSR, const edm::View<pat::Jet> *jets){
   edm::Handle<edm::TriggerResults> triggerBits;
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
 
@@ -1589,6 +1628,18 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
   event.getByToken(triggerBits_, triggerBits);
   const edm::TriggerNames &names = event.triggerNames(*triggerBits);
   
+  edm::Handle<edm::View<pat::PackedCandidate> >pfCandHandle;
+  event.getByToken(thePFCandTag,pfCandHandle);
+  const edm::View<pat::PackedCandidate>* pfCands = pfCandHandle.product();
+
+  std::vector<const pat::PackedCandidate *> pfCands_charged;
+  std::vector<const pat::PackedCandidate *> pfCands_neutral;
+  LeptonIsoHelper::PFIso_particles(pfCands, pfCands_charged, pfCands_neutral);
+
+  edm::Handle<double> rhoHandle_miniRelIso;
+  event.getByToken(theRhoMiniRelIsoTag, rhoHandle_miniRelIso);
+  float rho_miniRelIso = *rhoHandle_miniRelIso;
+
   for(edm::View<reco::Candidate>::const_iterator daui = daus->begin(); daui!=daus->end();++daui){
     const reco::Candidate* cand = &(*daui);
     math::XYZTLorentzVector pfour = cand->p4();
@@ -1678,6 +1729,22 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     else if(cand->isElectron()) type = ParticleType::ELECTRON;
     _particleType.push_back(type);
     
+
+    //Find closest jet for lepton MVA
+    float dRmin_cand_jet = 0.4;
+    pat::Jet closest_jet;
+
+    for(edm::View<pat::Jet>::const_iterator jeti = jets->begin(); jeti!=jets->end();++jeti){
+
+      float dR_cand_jet = deltaR(*cand,*jeti);
+      if(dR_cand_jet<dRmin_cand_jet){
+	closest_jet = (*jeti);
+	dRmin_cand_jet = dR_cand_jet;
+      }
+
+    }
+
+
     // variables
     float discr=-1.;
     int muIDflag = 0;
@@ -1704,6 +1771,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     neutralIsoPtSumWeight,
     photonPtSumOutsideSignalCone;
 
+    float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1.;
+    int jetNDauChargedMVASel = -1;
+    float miniRelIsoCharged = -1., miniRelIsoNeutral = -1.;
+    float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1.;
+    float lepMVA_mvaId = -1.;
+
     if(type==ParticleType::MUON){
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
       discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
@@ -1713,6 +1786,22 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       depositTracker=userdatahelpers::getUserFloat(cand,"DepositR03TrackerOfficial");
       depositEcal=userdatahelpers::getUserFloat(cand,"DepositR03ECal");
       depositHcal=userdatahelpers::getUserFloat(cand,"DepositR03Hcal");
+
+      dxy_innerTrack = userdatahelpers::getUserFloat(cand,"dxy_innerTrack");
+      dz_innerTrack = userdatahelpers::getUserFloat(cand,"dz_innerTrack");
+      sip = userdatahelpers::getUserFloat(cand,"SIP");
+
+      jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
+      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso);
+      miniRelIsoCharged = miniRelIso.first;
+      miniRelIsoNeutral = miniRelIso.second;
+
+      jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet);
+      jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet);
+      jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+
+      lepMVA_mvaId  = userdatahelpers::getUserFloat(cand,"segmentCompatibility");
+
     }else if(type==ParticleType::ELECTRON){
       discr=userdatahelpers::getUserFloat(cand,"BDT");
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
@@ -1725,6 +1814,19 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
       elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
+
+      sip = userdatahelpers::getUserFloat(cand,"SIP");
+      jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
+      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso);
+      miniRelIsoCharged = miniRelIso.first;
+      miniRelIsoNeutral = miniRelIso.second;
+      
+      jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet);
+      jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet);
+      jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");      
+
+      lepMVA_mvaId = elemva;
+
     }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
@@ -1810,6 +1912,18 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_numParticlesIsoCone.push_back(numParticlesIsoCone);
     _daughters_leadChargedParticlePt.push_back(leadChargedParticlePt);
     _daughters_trackRefPt.push_back(trackRefPt);
+
+    _dxy_innerTrack.push_back(dxy_innerTrack);
+    _dz_innerTrack.push_back(dz_innerTrack);
+    _SIP.push_back(sip);
+
+    _daughters_jetNDauChargedMVASel.push_back(jetNDauChargedMVASel);
+    _daughters_miniRelIsoCharged.push_back(miniRelIsoCharged);
+    _daughters_miniRelIsoNeutral.push_back(miniRelIsoNeutral);
+    _daughters_jetPtRel.push_back(jetPtRel);
+    _daughters_jetPtRatio.push_back(jetPtRatio);
+    _daughters_jetBTagCSV.push_back(jetBTagCSV);
+    _daughters_lepMVA_mvaId.push_back(lepMVA_mvaId);
 
     //TRIGGER MATCHING
     int LFtriggerbit=0,L3triggerbit=0,filterFired=0;
