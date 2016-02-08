@@ -86,6 +86,10 @@ scram b -j 4
 ```
 cmsrel CMSSW_7_6_3
 cd CMSSW_7_6_3/src
+git cms-addpkg RecoMET/METPUSubtraction/
+cd RecoMET/METPUSubtraction/
+git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
+cd -
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau; git checkout master
 cd -
