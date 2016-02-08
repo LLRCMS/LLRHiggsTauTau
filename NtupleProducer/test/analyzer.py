@@ -22,7 +22,7 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 USEPAIRMET=False # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusion set using USE_NOHFMET)
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
-SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
 IsMC=True
@@ -81,7 +81,7 @@ process.source = cms.Source("PoolSource",
 )
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = -1
+process.maxEvents.input = 5000
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
