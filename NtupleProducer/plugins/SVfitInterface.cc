@@ -229,31 +229,30 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
   
-    // FIXME: put back in place; cannot do const PFMET& pfMET = (*METHandle)[0]; even with the template view
-    // if (_usePairMET)
-    // {
-    //   iEvent.getByToken(vtheMETTag.at(i), METHandle);
-    //   metNumber = METHandle->size();
-             
-    //   const PFMET& pfMET = (*METHandle)[0];
-    //   const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
-    //   significance = (float) pfMET.significance();
+    if (_usePairMET)
+    {
+      iEvent.getByToken(vtheMETTag.at(i), METHandle);
+      metNumber = METHandle->size();
 
-    //   METx = pfMET.px();
-    //   METy = pfMET.py();
+      const PFMET* pfMET = (PFMET*) &((*METHandle)[0]) ; // all this to transform the type of the pointer!
+      const reco::METCovMatrix& covMETbuf = pfMET->getSignificanceMatrix();
+      significance = (float) pfMET->significance();
 
-    //   covMET[0][0] = covMETbuf(0,0);
-    //   covMET[1][0] = covMETbuf(1,0);
-    //   covMET[0][1] = covMETbuf(0,1);
-    //   covMET[1][1] = covMETbuf(1,1);
+      METx = pfMET->px();
+      METy = pfMET->py();
 
-    //   // protection against singular matrices
-    //   if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
-    //   {
-    //       edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
-    //                                                 << "   --> SVfit algorithm will probably crash...";
-    //   }
-    // } 
+      covMET[0][0] = covMETbuf(0,0);
+      covMET[1][0] = covMETbuf(1,0);
+      covMET[0][1] = covMETbuf(0,1);
+      covMET[1][1] = covMETbuf(1,1);
+
+      // protection against singular matrices
+      if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
+      {
+          edm::LogWarning("SingularCovarianceMatrix") << "(SVfitInterface) Warning! Input covariance matrix is singular" 
+                                                    << "   --> SVfit algorithm will probably crash...";
+      }
+    } 
      
     //cout << "l1, l2 pdgId: " << l1->pdgId() << " " << l2->pdgId() << endl;
     

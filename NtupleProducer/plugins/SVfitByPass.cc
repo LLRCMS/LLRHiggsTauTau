@@ -117,23 +117,23 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // loop on all the pairs
   for (unsigned int i = 0; i < elNumber; ++i)
   {
-    // if (_usePairMET)
-    // {
-    //   iEvent.getByToken(vtheMETTag.at(i), METHandle);
-    //   //metNumber = METHandle->size();
+    if (_usePairMET)
+    {
+      iEvent.getByToken(vtheMETTag.at(i), METHandle);
+      //metNumber = METHandle->size();
 
-    //   const PFMET& pfMET = (*METHandle)[0];
-    //   const reco::METCovMatrix& covMETbuf = pfMET.getSignificanceMatrix();
-    //   significance = (float) pfMET.significance();
+      const PFMET* pfMET = (PFMET*) &((*METHandle)[0]) ; // all this to transform the type of the pointer!
+      const reco::METCovMatrix& covMETbuf = pfMET->getSignificanceMatrix();
+      significance = (float) pfMET->significance();
 
-    //   METx = pfMET.px();
-    //   METy = pfMET.py();
+      METx = pfMET->px();
+      METy = pfMET->py();
 
-    //   covMET[0][0] = covMETbuf(0,0);
-    //   covMET[1][0] = covMETbuf(1,0);
-    //   covMET[0][1] = covMETbuf(0,1);
-    //   covMET[1][1] = covMETbuf(1,1);
-    // }
+      covMET[0][0] = covMETbuf(0,0);
+      covMET[1][0] = covMETbuf(1,0);
+      covMET[0][1] = covMETbuf(0,1);
+      covMET[1][1] = covMETbuf(1,1);
+    }
 
     // Get the pair and the two leptons composing it
     const CompositeCandidate& pairBuf = (*pairHandle)[i];
