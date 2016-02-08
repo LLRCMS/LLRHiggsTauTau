@@ -86,6 +86,12 @@ scram b -j 4
 ```
 cmsrel CMSSW_7_6_3
 cd CMSSW_7_6_3/src
+# the following is for the MET, but 1) need to pick additional commits 2) crashes with CRAB Input sanbox size is 120MB --> .git folder removed in /data
+#git cms-addpkg RecoMET/METPUSubtraction/
+#cd RecoMET/METPUSubtraction/
+#git clone --depth=1 https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
+#rm -rf data/.git/
+#cd -
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau; git checkout master
 cd -
