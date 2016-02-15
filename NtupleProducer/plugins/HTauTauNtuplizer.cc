@@ -181,6 +181,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   PUReweight reweight;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+  edm::EDGetTokenT<vector<l1extra::L1JetParticle>> l1ExtraIsoTau_;
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<vector<Vertex>> theVtxTag;
   edm::EDGetTokenT<double> theRhoTag;
@@ -303,6 +304,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
   std::vector<Float_t> _daughters_HLTpt;
+  std::vector<Bool_t>  _daughters_isL1IsoTau28Matched;
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
   std::vector<Float_t> _SVmass;
@@ -500,25 +502,25 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
 // ----Constructor and Destructor -----
 HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
-  triggerObjects_(consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("triggerSet"))),
-  triggerBits_(consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
-  theVtxTag(consumes<vector<Vertex>>(pset.getParameter<edm::InputTag>("vtxCollection"))),
-  theRhoTag(consumes<double>(pset.getParameter<edm::InputTag>("rhoCollection"))),
-  theRhoMiniRelIsoTag(consumes<double>(pset.getParameter<edm::InputTag>("rhoMiniRelIsoCollection"))),
-
-  thePUTag(consumes<vector<PileupSummaryInfo>>(pset.getParameter<edm::InputTag>("puCollection"))),
-  thePFCandTag(consumes<edm::View<pat::PackedCandidate>>(pset.getParameter<edm::InputTag>("PFCandCollection"))),
-  theCandTag(consumes<edm::View<pat::CompositeCandidate>>(pset.getParameter<edm::InputTag>("candCollection"))),
-  theJetTag(consumes<edm::View<pat::Jet>>(pset.getParameter<edm::InputTag>("jetCollection"))),
-  theLepTag(consumes<edm::View<reco::Candidate>>(pset.getParameter<edm::InputTag>("lepCollection"))),
-  theLHETag(consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("lheCollection"))),
-  theGenTag(consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genCollection"))),
-  theMetTag(consumes<pat::METCollection>(pset.getParameter<edm::InputTag>("metCollection"))),
-  theGenericTag(consumes<edm::View<pat::GenericParticle>>(pset.getParameter<edm::InputTag>("genericCollection"))),
-  theGenJetTag(consumes<edm::View<reco::GenJet>>(pset.getParameter<edm::InputTag>("genjetCollection"))),
-  theTotTag(consumes<edm::MergeableCounter>(pset.getParameter<edm::InputTag>("totCollection"))),
-  thePassTag(consumes<edm::MergeableCounter>(pset.getParameter<edm::InputTag>("passCollection"))),
-  theLHEPTag(consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("lhepCollection")))
+  triggerObjects_      (consumes<pat::TriggerObjectStandAloneCollection> (pset.getParameter<edm::InputTag>("triggerSet"))),
+  l1ExtraIsoTau_       (consumes<vector<l1extra::L1JetParticle>>         (pset.getParameter<edm::InputTag>("l1extraIsoTau"))) ,
+  triggerBits_         (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
+  theVtxTag            (consumes<vector<Vertex>>                         (pset.getParameter<edm::InputTag>("vtxCollection"))),
+  theRhoTag            (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoCollection"))),
+  theRhoMiniRelIsoTag  (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoMiniRelIsoCollection"))),
+  thePUTag             (consumes<vector<PileupSummaryInfo>>              (pset.getParameter<edm::InputTag>("puCollection"))),
+  thePFCandTag         (consumes<edm::View<pat::PackedCandidate>>        (pset.getParameter<edm::InputTag>("PFCandCollection"))),
+  theCandTag           (consumes<edm::View<pat::CompositeCandidate>>     (pset.getParameter<edm::InputTag>("candCollection"))),
+  theJetTag            (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("jetCollection"))),
+  theLepTag            (consumes<edm::View<reco::Candidate>>             (pset.getParameter<edm::InputTag>("lepCollection"))),
+  theLHETag            (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lheCollection"))),
+  theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
+  theMetTag            (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metCollection"))),
+  theGenericTag        (consumes<edm::View<pat::GenericParticle>>        (pset.getParameter<edm::InputTag>("genericCollection"))),
+  theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
+  theTotTag            (consumes<edm::MergeableCounter>                  (pset.getParameter<edm::InputTag>("totCollection"))),
+  thePassTag           (consumes<edm::MergeableCounter>                  (pset.getParameter<edm::InputTag>("passCollection"))),
+  theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection")))
 
  {
   theCandLabel = pset.getUntrackedParameter<string>("CandCollection");
@@ -756,6 +758,7 @@ void HTauTauNtuplizer::Initialize(){
 
   _isOSCand.clear();
   _daughters_HLTpt.clear();
+  _daughters_isL1IsoTau28Matched.clear();
   _metx.clear();
   _mety.clear();
   _metCov00.clear();
@@ -1040,6 +1043,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired);
   myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
   myTree->Branch("daughters_HLTpt",&_daughters_HLTpt);
+  myTree->Branch("daughters_isL1IsoTau28Matched", &_daughters_isL1IsoTau28Matched);
 
   myTree->Branch("daughters_jetNDauChargedMVASel",&_daughters_jetNDauChargedMVASel);
   myTree->Branch("daughters_miniRelIsoCharged",&_daughters_miniRelIsoCharged);
@@ -1634,6 +1638,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
   event.getByToken(triggerBits_, triggerBits);
   const edm::TriggerNames &names = event.triggerNames(*triggerBits);
   
+  edm::Handle<vector<l1extra::L1JetParticle>> L1ExtraIsoTau;
+  event.getByToken(l1ExtraIsoTau_, L1ExtraIsoTau);
+
   edm::Handle<edm::View<pat::PackedCandidate> >pfCandHandle;
   event.getByToken(thePFCandTag,pfCandHandle);
   const edm::View<pat::PackedCandidate>* pfCands = pfCandHandle.product();
@@ -1782,6 +1789,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     float miniRelIsoCharged = -1., miniRelIsoNeutral = -1.;
     float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1.;
     float lepMVA_mvaId = -1.;
+
+    //
 
     if(type==ParticleType::MUON){
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
@@ -2010,6 +2019,23 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_L3FilterFired.push_back(LFtriggerbit);
     _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
     _daughters_HLTpt.push_back(hltpt);
+
+
+    // L1 candidate matching -- to correct for the missing seed
+    bool isL1IsoTauMatched = false;
+    for (unsigned int iL1IsoTau = 0; iL1IsoTau < L1ExtraIsoTau->size(); iL1IsoTau++)
+    {
+      const l1extra::L1JetParticle& L1IsoTau = (*L1ExtraIsoTau).at(iL1IsoTau);
+      //cout << "IL1TauL: " << iL1IsoTau << " - " << L1IsoTau.pt() << " " << L1IsoTau.eta() << " " << L1IsoTau.phi() << " " << isL1IsoTauMatched << endl;
+      // 0.5 cone match + pT requirement as in data taking
+      if(L1IsoTau.pt() > 28 && deltaR2(L1IsoTau,*cand)<0.25)
+      {
+        isL1IsoTauMatched = true;
+        break;
+      }
+    }
+    _daughters_isL1IsoTau28Matched.push_back(isL1IsoTauMatched) ;
+
   }
 }
 
