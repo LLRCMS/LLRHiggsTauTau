@@ -518,8 +518,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theMetTag            (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metCollection"))),
   theGenericTag        (consumes<edm::View<pat::GenericParticle>>        (pset.getParameter<edm::InputTag>("genericCollection"))),
   theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
-  theTotTag            (consumes<edm::MergeableCounter>                  (pset.getParameter<edm::InputTag>("totCollection"))),
-  thePassTag           (consumes<edm::MergeableCounter>                  (pset.getParameter<edm::InputTag>("passCollection"))),
+  theTotTag            (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("totCollection"))),
+  thePassTag           (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("passCollection"))),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection")))
 
  {
@@ -2318,15 +2318,13 @@ void HTauTauNtuplizer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup)
 {
   // Total number of events is the sum of the events in each of these luminosity blocks
-  //edm::Handle<edm::MergeableCounter> nEventsTotalCounter;
-  //iLumi.getByLabel("nEventsTotal", nEventsTotalCounter);
-  //iLumi.getByToken(theTotTag, nEventsTotalCounter);
-  //Nevt_Gen += nEventsTotalCounter->value;
+  edm::Handle<edm::MergeableCounter> nEventsTotalCounter;
+  iLumi.getByToken(theTotTag, nEventsTotalCounter);
+  Nevt_Gen += nEventsTotalCounter->value;
 
-  //edm::Handle<edm::MergeableCounter> nEventsPassTrigCounter;
-  //iLumi.getByLabel("nEventsPassTrigger", nEventsPassTrigCounter);
-  //iLumi.getByToken(thePassTag, nEventsPassTrigCounter);
-  //Nevt_PassTrigger += nEventsPassTrigCounter->value;
+  edm::Handle<edm::MergeableCounter> nEventsPassTrigCounter;
+  iLumi.getByToken(thePassTag, nEventsPassTrigCounter);
+  Nevt_PassTrigger += nEventsPassTrigCounter->value;
 }
 
 
