@@ -69,12 +69,19 @@ import re
 # tag = "Data_SilverJson_SVfit"
 # datasetsFile = "datasets.txt"
 
-PROCESS = ["DYNLO"]
-tag = "DY_NLO_noSVfit"
+# PROCESS = ["DYNLO"]
+# tag = "DY_NLO_noSVfit"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["MC76X"]
+# tag = "MC_76X_15Feb2016"
+# datasetsFile = "datasets.txt"
+
+PROCESS = ["DATA76X"]
+tag = "Data_76X_15Feb2016"
 datasetsFile = "datasets.txt"
 
-
-isMC = True
+isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -85,10 +92,14 @@ isMC = True
 #lumiMaskFileName  = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON.txt"
 
 #25ns SILVER JSON : 2.46/fb
-lumiMaskFileName  = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt"
+# lumiMaskFileName  = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt"
+
+#25ns SILVER JSON : 2.63/fb - dec2016 re-reco
+lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Reprocessing/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver.txt"
 
 
-FastJobs = True # true if skipping SVfit, false if computing it (jobs will be smaller)
+FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
+VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
 
@@ -192,6 +203,7 @@ for dtset in dtsetToLaunch:
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
     if (FastJobs)         : command += " Data.unitsPerJob=100000" # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
+    if VeryLong           : command += " JobType.maxJobRuntimeMin=2500" # 32 hours, default is 22 hours -- can do up to 2800 hrs
     if not isMC           : command += " Data.lumiMask=%s" % lumiMaskFileName
     print command ,  "\n"
     os.system (command)
