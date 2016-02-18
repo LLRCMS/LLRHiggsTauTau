@@ -86,6 +86,7 @@ scram b -j 4
 ```
 cmsrel CMSSW_7_6_3
 cd CMSSW_7_6_3/src
+cmsenv
 # the following is for the MET, but 1) need to pick additional commits 2) crashes with CRAB Input sanbox size is 120MB --> .git folder removed in /data
 #git cms-addpkg RecoMET/METPUSubtraction/
 #cd RecoMET/METPUSubtraction/
