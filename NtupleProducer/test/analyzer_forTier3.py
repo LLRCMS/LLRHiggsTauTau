@@ -19,26 +19,27 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #TAUCUT="pt>15"
 #JETCUT="pt>15"
 
-USEPAIRMET=False
-SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+USEPAIRMET=False # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusion set using USE_NOHFMET)
+USE_NOHFMET=False # True to exclude HF and run on silver json
+
+SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
-#Samples:
 IsMC=XXX_ISMC_XXX
 Is25ns=True
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
-MUCUT="isLooseMuon && pt>8"
-ELECUT="userFloat('missingHit')<=1 && pt>10"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
+MUCUT="isLooseMuon && pt>5"
+ELECUT="pt>7"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
 TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
-JETCUT="pt>15"
+JETCUT="pt>10"
 LLCUT="mass>0"
 BCUT="pt>5"
 
 # ------------------------
-DO_ENRICHED=True # do True by default, both ntuples and enriched outputs are saved!
+DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are saved!
 # ------------------------
 
 ##
