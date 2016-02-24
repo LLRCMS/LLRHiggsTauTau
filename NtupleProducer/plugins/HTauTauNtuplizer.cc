@@ -214,7 +214,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t Npairs;
 
   //Event Output variables
-  Int_t _indexevents;
+  ULong64_t _indexevents;
   Int_t _runNumber;
   Int_t _lumi;
   Long64_t _triggerbit;
@@ -843,7 +843,7 @@ void HTauTauNtuplizer::beginJob(){
   hTauIDs = fs->make<TH1F>("TauIDs","TauIDs",ntauIds,0,ntauIds);
 
   //Branches
-  myTree->Branch("EventNumber",&_indexevents,"EventNumber/I");
+  myTree->Branch("EventNumber",&_indexevents,"EventNumber/l");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
