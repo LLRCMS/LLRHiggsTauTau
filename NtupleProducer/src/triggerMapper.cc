@@ -68,6 +68,16 @@ triggerMapper::triggerMapper(string HLTtrigger, std::vector<string> filters1, st
     leg1ID = (int) ktau;
     leg2ID = (int) ktau;
   }
+  else if (channel == (int) kmumu)
+  {
+    leg1ID = (int) kmu;
+    leg2ID = (int) kmu;
+  }
+  else if (channel == (int) kee)
+  {
+    leg1ID = (int) kele;
+    leg2ID = (int) kele;
+  }
   else
   {
     leg1ID = (int) kOther;
@@ -90,6 +100,8 @@ triggerMapper::triggerMapper(string HLTtrigger, std::vector<std::string> filters
   else if (leg1ID == (int) kele && leg2ID == (int) ktau) channel = (int) ketau;
   else if (leg1ID == (int) kmu  && leg2ID == (int) ktau) channel = (int) kmutau;
   else if (leg1ID == (int) ktau && leg2ID == (int) ktau) channel = (int) ktautau;
+  else if (leg1ID == (int) kmu && leg2ID == (int) kmu) channel = (int) kmumu;
+  else if (leg1ID == (int) kele && leg2ID == (int) kele) channel = (int) kee;
   else channel = 999;
 
 }
@@ -119,6 +131,16 @@ triggerMapper::triggerMapper(string HLTtrigger, string filter1, string filter2, 
   {
     leg1ID = (int) ktau;
     leg2ID = (int) ktau;
+  }
+  else if (channel == (int) kmumu)
+  {
+    leg1ID = (int) kmu;
+    leg2ID = (int) kmu;
+  }
+  else if (channel == (int) kee)
+  {
+    leg1ID = (int) kele;
+    leg2ID = (int) kele;
   }
   else
   {
