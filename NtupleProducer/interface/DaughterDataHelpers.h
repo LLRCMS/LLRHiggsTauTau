@@ -24,6 +24,9 @@ namespace userdatahelpers {
   /// Retrieve the userFloat "name" from a reco::Candidate c
   float getUserFloat(const reco::Candidate* c, const char* name);
   int   getUserInt  (const reco::Candidate* c, const char* name);
+
+  bool  hasUserInt  (const reco::Candidate* c, const char* name);
+  bool  hasUserFloat  (const reco::Candidate* c, const char* name);
   
   /// Retrieve matched photons stored as userData
   const PhotonPtrVector* getUserPhotons(const reco::Candidate* c);

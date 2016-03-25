@@ -61,6 +61,40 @@ int userdatahelpers::getUserInt(const reco::Candidate* c, const char* name){
   return 0;
 }
 
+bool  userdatahelpers::hasUserInt  (const reco::Candidate* c, const char* name)
+{
+  const reco::Candidate* d;
+  if(c->hasMasterClone()) d = c->masterClone().get();
+  else d = c;
+  if (const pat::Muon* mu = dynamic_cast<const pat::Muon*>(d)) {
+    return mu->hasUserInt(name);
+  } else if (const pat::Electron* ele = dynamic_cast<const pat::Electron*>(d)) {
+    return ele->hasUserInt(name);
+  } else if (const pat::Tau* tau = dynamic_cast<const pat::Tau*>(d)) {
+    return tau->hasUserInt(name);
+  }else if (const pat::CompositeCandidate* cc = dynamic_cast<const pat::CompositeCandidate*>(d)) {
+    return cc->hasUserInt(name);
+  }
+  return false;  
+}
+
+bool  userdatahelpers::hasUserFloat  (const reco::Candidate* c, const char* name)
+{
+  const reco::Candidate* d;
+  if(c->hasMasterClone()) d = c->masterClone().get();
+  else d = c;
+  if (const pat::Muon* mu = dynamic_cast<const pat::Muon*>(d)) {
+    return mu->hasUserFloat(name);
+  } else if (const pat::Electron* ele = dynamic_cast<const pat::Electron*>(d)) {
+    return ele->hasUserFloat(name);
+  } else if (const pat::Tau* tau = dynamic_cast<const pat::Tau*>(d)) {
+    return tau->hasUserFloat(name);
+  }else if (const pat::CompositeCandidate* cc = dynamic_cast<const pat::CompositeCandidate*>(d)) {
+    return cc->hasUserFloat(name);
+  }
+  return false;  
+}
+
 const PhotonPtrVector* userdatahelpers::getUserPhotons(const reco::Candidate* c){
   const reco::Candidate* d = c->masterClone().get();
   if (abs(c->pdgId())==13) {

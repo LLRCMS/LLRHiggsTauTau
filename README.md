@@ -81,6 +81,34 @@ git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalon
 scram b -j 4
 ```
 
+### Instructions for 7_6_3 (miniAODv2)
+
+```
+cmsrel CMSSW_7_6_3
+cd CMSSW_7_6_3/src
+cmsenv
+# the following is for the MET, but 1) need to pick additional commits 2) crashes with CRAB Input sanbox size is 120MB --> .git folder removed in /data
+#git cms-addpkg RecoMET/METPUSubtraction/
+#cd RecoMET/METPUSubtraction/
+#git clone --depth=1 https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
+#rm -rf data/.git/
+#cd -
+git clone https://github.com/LLRCMS/LLRHiggsTauTau
+cd LLRHiggsTauTau; git checkout master
+cd -
+git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
+cd Muon/MuonAnalysisTools ; git checkout master -- interface/MuonEffectiveArea.h
+cd -
+git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
+cd EGamma/EGammaAnalysisTools; git checkout c0db796 -- interface/ElectronEffectiveArea.h
+cd -
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons
+cd -
+git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+scram b -j 4
+```
+
 
 
 ### Quick usage:

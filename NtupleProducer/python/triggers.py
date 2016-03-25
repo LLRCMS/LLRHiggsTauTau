@@ -143,7 +143,44 @@ HLTLIST = cms.VPSet(
         path2 = cms.vstring ("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
         leg1 = cms.int32(11),
         leg2 = cms.int32(13)
-        )
+        ),
+### === mu mu triggers 
+#    cms.PSet (
+#        HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"),
+#        path1 = cms.vstring (""),
+#        path2 = cms.vstring (""),
+#        leg1 = cms.int32(13),
+#        leg2 = cms.int32(13)
+#        ),
+#    cms.PSet (
+#        HLT = cms.string("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"),
+#        path1 = cms.vstring (""),
+#        path2 = cms.vstring (""),
+#        leg1 = cms.int32(13),
+#        leg2 = cms.int32(13)
+#        ),
+#    cms.PSet (
+#        HLT = cms.string("HLT_TripleMu_12_10_5_v"),
+#        path1 = cms.vstring (""),
+#        path2 = cms.vstring (""),
+#        leg1 = cms.int32(13),
+#        leg2 = cms.int32(13)
+#        ),
+### === ele ele triggers 
+#    cms.PSet (
+#        HLT = cms.string("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"),
+#        path1 = cms.vstring (""),
+#        path2 = cms.vstring (""),
+#        leg1 = cms.int32(13),
+#        leg2 = cms.int32(13)
+#        ),
+#    cms.PSet (
+#        HLT = cms.string("HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v"),
+#        path1 = cms.vstring (""),
+#        path2 = cms.vstring (""),
+#        leg1 = cms.int32(13),
+#        leg2 = cms.int32(13)
+#        )
     )
 
 

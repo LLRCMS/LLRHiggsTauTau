@@ -14,6 +14,20 @@
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include <DataFormats/PatCandidates/interface/Electron.h>
 #include <DataFormats/PatCandidates/interface/Tau.h>
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include <algorithm>
+
+
+
+namespace SelfVetoPolicy
+{
+   enum SelfVetoPolicy
+     {
+	selfVetoNone=0, selfVetoAll=1, selfVetoFirst=2
+     };
+}
+
+
 
 namespace LeptonIsoHelper {
 
@@ -33,6 +47,21 @@ namespace LeptonIsoHelper {
   
   /// Generic version, assuming that Lep is a PATObject; calls one of the above
   float combRelIsoPF(int sampleType, int setup, double rho, const reco::Candidate* lep, float fsr=0);
+
+
+  
+  //MiniRel isolation
+  void PFIso_particles(const edm::View<pat::PackedCandidate>* pfCands, std::vector<const pat::PackedCandidate *> & PFIso_charged, std::vector<const pat::PackedCandidate *> & PFIso_neutral);
+  float isoSumRaw(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_Iso, float dR, float innerR, float threshold, SelfVetoPolicy::SelfVetoPolicy selfVeto, int pdgId=-1);
+  float PfIsoCharged(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, float miniIsoR);
+  float PfIsoNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float miniIsoR);
+  std::pair<float,float> miniRelIso_ChargedNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float rho);
+
+  //Used for lepton MVA
+  int jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet jet);
+  float jetPtRel(const reco::Candidate& cand, const pat::Jet& jet);
+  float jetPtRatio(const reco::Candidate& cand, const pat::Jet& jet);
+
 }
 #endif
 

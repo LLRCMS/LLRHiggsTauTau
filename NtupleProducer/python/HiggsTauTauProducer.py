@@ -33,18 +33,14 @@ if USE_NOHFMET: PFMetName = "slimmedMETsNoHF"
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")    
+from Configuration.AlCa.autoCond import autoCond
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    #process.GlobalTag.globaltag = 'PLS170_V6AN1::All'#'GR_70_V2_AN1::All'   #MC in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
-    #process.GlobalTag.globaltag = 'PHYS14_25_V1::All' #MC in PHYS14
-    #process.GlobalTag.globaltag = 'MCRUN2_74_V9::All' #MC Spring 2015
-    process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2' #MC 25 ns miniAODv2    
-    #process.GlobalTag.globaltag = 'PHYS14_ST_V1::All'
+    #process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2' #MC 25 ns miniAODv2    
+    process.GlobalTag.globaltag = cms.string(autoCond['run2_mc'])
 else :
-    # New Tag format for 2015, also ::All no longer required 
-    process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
-    #process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
+    process.GlobalTag.globaltag = '76X_dataRun2_v15'
 print process.GlobalTag.globaltag
 
 nanosec="25"
@@ -54,15 +50,15 @@ if not Is25ns: nanosec="50"
 ### Standard stuff
 ### ----------------------------------------------------------------------
 process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-
 
 ### ----------------------------------------------------------------------
 ### Counters 
@@ -110,18 +106,10 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 
 
 process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
-  #src = cms.InputTag("offlinePrimaryVertices"),
   src = cms.InputTag("offlineSlimmedPrimaryVertices"),
   cut = cms.string(PVERTEXCUT),
   filter = cms.bool(True),
 )
-
-#process.HT = cms.EDFilter("HT",
-#  #src = cms.InputTag("offlinePrimaryVertices"),
-#  src = cms.InputTag("externalLHEProducer"),
-#  filter = cms.bool(True),
-#)
-
 
 ### Mu Ghost cleaning
 process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
@@ -156,6 +144,8 @@ process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pic
 process.softMuons = cms.EDProducer("MuFiller",
     src = cms.InputTag("bareSoftMuons"),
     genCollection = cms.InputTag("prunedGenParticles"),
+    rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
+    vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
     sampleType = cms.int32(LEPTON_SETUP),                     
     setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
 #    cut = cms.string("userFloat('SIP')<100"),
@@ -209,24 +199,35 @@ process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process
 # Load tools and function definitions
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
+process.load("RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi")
+#process.load("RecoEgamma.ElectronIdentification.ElectronRegressionValueMapProducer_cfi")
+
 #**********************
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
-#process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
+process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
 # overwrite a default parameter: for miniAOD, the collection name is a slimmed one
-#process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
+process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
 
-#from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-#process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
 
 # Define which IDs we want to produce
 # Each of these two example IDs contains all four standard 
 # cut-based ID working points (only two WP of the PU20bx25 are actually used here).
 #my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_miniAOD_cff']
 #my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
-my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_'+nanosec+'ns_V1_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff']
+my_id_modules =[
+'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',    # both 25 and 50 ns cutbased ids produced
+'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_50ns_V1_cff',
+'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',                 # recommended for both 50 and 25 ns
+'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff', # will not be produced for 50 ns, triggering still to come
+'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',    # 25 ns trig
+'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_50ns_Trig_V1_cff',    # 50 ns trig
+] 
+#['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_'+nanosec+'ns_V1_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff']
 #Add them to the VID producer
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
@@ -240,6 +241,8 @@ for idmod in my_id_modules:
 
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
+   rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
+   vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
    genCollection = cms.InputTag("prunedGenParticles"),
    sampleType = cms.int32(LEPTON_SETUP),          
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
@@ -272,13 +275,22 @@ process.softElectrons = cms.EDProducer("EleFiller",
 #   cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
    cut = cms.string(ELECUT),
    flags = cms.PSet(
-        ID = cms.string("userFloat('isBDT')"), # BDT MVA ID
+        ID = cms.string("userInt('isBDT')"), # BDT MVA ID
         isGood = cms.string("")
         )
    )
 
-#process.electrons = cms.Sequence(process.eleRegressionEnergy + process.calibratedPatElectrons + process.bareSoftElectrons) #+ process.softElectrons)
-process.electrons = cms.Sequence(process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
+#process.electrons = cms.Sequence(process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
+
+egmMod = 'egmGsfElectronIDs'
+mvaMod = 'electronMVAValueMapProducer'
+regMod = 'electronRegressionValueMapProducer'
+egmSeq = 'egmGsfElectronIDSequence'
+setattr(process,egmMod,process.egmGsfElectronIDs.clone())
+setattr(process,mvaMod,process.electronMVAValueMapProducer.clone())
+setattr(process,regMod,process.electronRegressionValueMapProducer.clone())
+setattr(process,egmSeq,cms.Sequence(getattr(process,mvaMod)*getattr(process,egmMod)*getattr(process,regMod)))
+process.electrons = cms.Sequence(getattr(process,mvaMod)*getattr(process,egmMod)*getattr(process,regMod) * process.softElectrons)#process.bareSoftElectrons
 
 # Handle special cases
 #if ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
@@ -386,6 +398,7 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
    genCollection = cms.InputTag("prunedGenParticles"),
+   vtxCollection = cms.InputTag("goodPrimaryVertices"),
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
    NominalUpOrDown = cms.string("Nominal"),
@@ -397,6 +410,7 @@ process.softTaus = cms.EDProducer("TauFiller",
 process.softTausTauUp = process.softTaus.clone(
    src = cms.InputTag("bareTaus"),
    genCollection = cms.InputTag("prunedGenParticles"),
+   vtxCollection = cms.InputTag("goodPrimaryVertices"),
    cut = cms.string(TAUCUT),
    NominalUpOrDown = cms.string("Up"),
    discriminator = cms.string(TAUDISCRIMINATOR),
@@ -408,6 +422,7 @@ process.softTausTauUp = process.softTaus.clone(
 process.softTausTauDown = process.softTaus.clone(
    src = cms.InputTag("bareTaus"),
    genCollection = cms.InputTag("prunedGenParticles"),
+   vtxCollection = cms.InputTag("goodPrimaryVertices"),
    cut = cms.string(TAUCUT),
    NominalUpOrDown = cms.string("Down"),
    discriminator = cms.string(TAUDISCRIMINATOR),
@@ -570,6 +585,13 @@ if USEPAIRMET:
    process.pfMVAMEt.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
    process.pfMVAMEt.minNumLeptons = cms.int32(2) # this is important to skip void collections in the loop on pairs
 
+   process.pfMVAMEt.inputFileNames = cms.PSet(
+        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru_7_4_X_miniAOD_25NS_July2015.root'),
+        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_4_X_miniAOD_25NS_July2015.root'),
+        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_4_X_miniAOD_25NS_July2015.root'),
+        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_4_X_miniAOD_25NS_July2015.root')
+   )
+
    process.puJetIdForPFMVAMEt.jec = cms.string('AK4PF')
    #process.puJetIdForPFMVAMEt.jets = cms.InputTag("ak4PFJets")
    process.puJetIdForPFMVAMEt.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
@@ -619,44 +641,27 @@ else:
 process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcPairs   = cms.InputTag("barellCand"),
                                   usePairMET = cms.bool(USEPAIRMET),
+                                  srcSig     = cms.InputTag("METSignificance", "METSignificance"),
+                                  srcCov     = cms.InputTag("METSignificance", "METCovariance")
+
 )
-
-#process.SVllCandTauUp = cms.EDProducer("SVfitInterface",
-#                                  srcPairs   = cms.InputTag("barellCandTauUp"),
-#                                  usePairMET = cms.bool(USEPAIRMET),
-#)
-
-#process.SVllCandTauDown = cms.EDProducer("SVfitInterface",
-#                                  srcPairs   = cms.InputTag("barellCandTauDown"),
-#                                  usePairMET = cms.bool(USEPAIRMET),
-#)
 
 if USEPAIRMET:
    process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
-#   process.SVllCandTauUp.srcMET    = cms.VInputTag(MVAPairMET)
-#   process.SVllCandTauDown.srcMET    = cms.VInputTag(MVAPairMET)
 else:
    process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
-#   process.SVllCandTauUp.srcMET    = cms.VInputTag("slimmedMETs")
-#   process.SVllCandTauDown.srcMET    = cms.VInputTag("slimmedMETs")
 
 ## ----------------------------------------------------------------------
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass and don't get MET userfloats
 ## ----------------------------------------------------------------------
 process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcPairs   = cms.InputTag("barellCand"),
-                                    srcMET     = cms.VInputTag(PFMetName)
+                                    usePairMET = cms.bool(USEPAIRMET),
+                                    srcMET     = cms.VInputTag(PFMetName),
+                                    srcSig     = cms.InputTag("METSignificance", "METSignificance"),
+                                    srcCov     = cms.InputTag("METSignificance", "METCovariance")
 )
 
-#process.SVbypassTauUp = cms.EDProducer ("SVfitBypass",
-#                                    srcPairs   = cms.InputTag("barellCandTauUp"),
-#                                    srcMET     = cms.VInputTag("slimmedMETs")
-#)
-
-#process.SVbypassTauDown = cms.EDProducer ("SVfitBypass",
-#                                    srcPairs   = cms.InputTag("barellCandTauDown"),
-#                                    srcMET     = cms.VInputTag("slimmedMETs")
-#)
 
 ## ----------------------------------------------------------------------
 ## Ntuplizer
@@ -666,28 +671,42 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
+                      vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                      puCollection = cms.InputTag("slimmedAddPileupInfo"),
+                      rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
+                      rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
+                      PFCandCollection = cms.InputTag("packedPFCandidates"),
+                      jetCollection = cms.InputTag("jets"),
+                      lepCollection = cms.InputTag("softLeptons"),
+                      lheCollection = cms.InputTag("LHEEventProduct"),
+                      genCollection = cms.InputTag("generator"),
+                      genericCollection = cms.InputTag("genInfo"),
+                      genjetCollection = cms.InputTag("slimmedGenJets"),
+                      totCollection = cms.InputTag("nEventsTotal"),
+                      passCollection = cms.InputTag("nEventsPassTrigger"),
+                      lhepCollection = cms.InputTag("externalLHEProducer"),
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
                       triggerSet = cms.InputTag("selectedPatTrigger"),
                       triggerList = HLTLIST,
+                      l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer"),
                       useNOHFMet = cms.bool(USE_NOHFMET) # true to run on silver json, false to use ful MET including HF
                       )
+if USE_NOHFMET:
+    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
+else: 
+    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs")
+
 if SVFITBYPASS:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")
-#    process.HTauTauTree.CandCollectionTauUp = cms.untracked.string("SVbypassTauUp")
-#    process.HTauTauTree.CandCollectionTauDown = cms.untracked.string("SVbypassTauDown")
+    process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
     process.SVFit = cms.Sequence (process.SVbypass)
-#    process.SVFitTauUp = cms.Sequence (process.SVbypassTauUp)
-#    process.SVFitTauDown = cms.Sequence (process.SVbypassTauDown)
 
 
 else:
     process.HTauTauTree.CandCollection = cms.untracked.string("SVllCand")
-#    process.HTauTauTree.CandCollectionTauUp = cms.untracked.string("SVllCandTauUp")
-#    process.HTauTauTree.CandCollectionTauDown = cms.untracked.string("SVllCandTauDown")
+    process.HTauTauTree.candCollection = cms.InputTag("SVllCand")
     process.SVFit = cms.Sequence (process.SVllCand)
-#    process.SVFitTauUp = cms.Sequence (process.SVllCandTauUp)
-#    process.SVFitTauDown = cms.Sequence (process.SVllCandTauDown)
 
 #print particles gen level - DEBUG purposes
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -715,14 +734,10 @@ process.Candidates = cms.Sequence(
     process.taus              + process.tausMerged +
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-#    process.softLeptonsTauUp  + process.barellCandTauUp +
-#    process.softLeptonsTauDown  + process.barellCandTauDown +
     process.jets              +
     process.METSequence       +
     process.geninfo           +
-    process.SVFit             #+ process.HTauTauTree
-#    process.SVFitTauUp        +  #+ process.HTauTauTree
-#    process.SVFitTauDown      + process.HTauTauTree
+    process.SVFit             
     )
 # always run ntuplizer
 process.trees = cms.EndPath(process.HTauTauTree)# + process.HTauTauTreeTauUp + process.HTauTauTreeTauDown)

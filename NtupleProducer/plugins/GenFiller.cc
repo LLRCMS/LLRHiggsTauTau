@@ -44,7 +44,8 @@ class GenFiller : public edm::EDProducer {
   int makeFlagVector (const GenParticle* p); // put all gen flags in a single int word
   bool isVBFParton(const GenParticle& p);
 
-  edm::InputTag src_;
+  //edm::InputTag src_;
+  edm::EDGetTokenT<edm::View<reco::GenParticle> > src_;
   std::vector<const reco::Candidate *> cands_;
   //std::vector<reco::GenParticle> tauHadcands_; // gen H tau build in this class
   std::vector<int> tauHadcandsMothers_; // contains the index in the cands_ vector of the tauh mother
@@ -52,16 +53,17 @@ class GenFiller : public edm::EDProducer {
 
 // ------------------------------------------------------------------
 
-GenFiller::GenFiller(const edm::ParameterSet& iConfig)
+GenFiller::GenFiller(const edm::ParameterSet& iConfig):
+src_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("src")))
 {
-    src_ = iConfig.getParameter<InputTag>("src");
+    //src_ = iConfig.getParameter<InputTag>("src");
     produces<pat::GenericParticleCollection>();
 }
 
 void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     Handle <edm::View<reco::GenParticle> > genHandle;
-    iEvent.getByLabel (src_, genHandle);
+    iEvent.getByToken (src_, genHandle);
     cands_.clear();
     //tauHadcands_.clear();
     tauHadcandsMothers_.clear();
@@ -116,7 +118,7 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> H/Z decay: " << decay << endl;
         }
 
-	// -------------------- W decay mode: set final state and is is prompt
+        // -------------------- W decay mode: set final state and is is prompt
         if (APdgId == 24)
         {
             genhelper::WDecay decay = genhelper::GetWDecay (genP);
@@ -124,7 +126,7 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> W decay: " << decay << endl;
         }
 
-	// -------------------- top decay mode: set final state and is is prompt
+        // -------------------- top decay mode: set final state and is is prompt
         if (APdgId == 6)
         {
             genhelper::WDecay decay = genhelper::GetTopDecay (genP);
@@ -160,11 +162,11 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         // H MSSM
         MothPtr = genhelper::IsFromID (genP, 36);
         if (MothPtr != NULL) // save space, only add userfloats when valid
-	  {
+        {
             //filtGenP.addUserInt ("fromH", 1);
             filtGenP.addUserInt ("MSSMHMothIndex", genhelper::GetIndexInOutput(MothPtr, cands_));       
             if (DEBUG) cout << "   --> fromH(MSSM): 1, indexH: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
-	  }
+        }
 	
         // Z        
         MothPtr = genhelper::IsFromID (genP, 23);
@@ -184,7 +186,7 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> fromTop: 1, indexTop: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
         }
 
-	// W        
+        // W        
         MothPtr = genhelper::IsFromID (genP, 24);
         if (MothPtr != NULL) // save space, only add userfloats when valid
         {
@@ -193,7 +195,7 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> fromW: 1, indexW: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
         }
 
-	// b
+        // b
         MothPtr = genhelper::IsFromID (genP, 5);
         if (MothPtr != NULL)
         {
@@ -258,7 +260,7 @@ bool GenFiller::IsInteresting (const GenParticle& p)
     
     // case of b quarks, just save first one (too many showering products)
     bool IsFirst = genhelper::IsFirstCopy(p, true);
-    if ((APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21) && IsFirst) return true; // for b, save also the first copy in the list
+    if ((APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21 || APdgId==25) && IsFirst) return true; // for b, save also the first copy in the list
     // if (APdgId == 5 && IsFirst) return true; // for b, save also the first copy in the list
                                              // check abs id to avoid problems if b -> (b bar) b as the bbar woudl result as first
 

@@ -23,7 +23,7 @@ using namespace std;
 
 class triggerMapper {
  public:
-  enum triggerChannel {kemu=0, ketau=1,kmutau=2,ktautau=3};
+  enum triggerChannel {kemu=0, ketau=1,kmutau=2,ktautau=3, kmumu=4, kee=5};
   enum legIDtype {kele=11, kmu=13, ktau=15, kOther=999}; 
   triggerMapper();
   triggerMapper(const triggerMapper& trigMap);

@@ -39,10 +39,16 @@ class SVfitBypass : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
   
-  edm::InputTag theCandidateTag;
-  std::vector<edm::InputTag> vtheMETTag;
+  //edm::InputTag theCandidateTag;
+  //std::vector<edm::InputTag> vtheMETTag;
+  edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
+  //edm::EDGetTokenT<View<pat::MET> > vtheMETTag;
+  std::vector <edm::EDGetTokenT<View<reco::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
+  edm::EDGetTokenT<double> theSigTag;
+  edm::EDGetTokenT<math::Error<2>::type> theCovTag;
+
   //int sampleType;
-  //bool _usePairMET;
+  bool _usePairMET;
   //bool _useMVAMET;
 };
 
@@ -50,13 +56,22 @@ class SVfitBypass : public edm::EDProducer {
 
 
 
-SVfitBypass::SVfitBypass(const edm::ParameterSet& iConfig)
+SVfitBypass::SVfitBypass(const edm::ParameterSet& iConfig):
+theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
+//vtheMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
+theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
+theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov")))
 {
-  theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
-  //_usePairMET = iConfig.getUntrackedParameter<bool>("usePairMET");
+  //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
 
-  vtheMETTag = iConfig.getParameter<std::vector<edm::InputTag>>("srcMET");
+  _usePairMET = iConfig.getParameter<bool>("usePairMET");
+
+  const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
+  for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
+  {      
+    vtheMETTag.emplace_back(consumes<edm::View<reco::MET> >(*it) );
+  }
 
   produces<pat::CompositeCandidateCollection>();
 }  
@@ -68,7 +83,7 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get lepton pairs
   Handle<View<reco::CompositeCandidate> > pairHandle;
-  iEvent.getByLabel(theCandidateTag, pairHandle);
+  iEvent.getByToken(theCandidateTag, pairHandle);
   
   unsigned int elNumber = pairHandle->size();
   
@@ -76,28 +91,50 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   auto_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
 
   // get event pat MET to be saved in output
-  Handle<View<pat::MET> > METHandle_PatMET;
-  iEvent.getByLabel(vtheMETTag.at(0), METHandle_PatMET);
   double METx = 0.;
   double METy = 0.; 
   TMatrixD covMET(2, 2);
   float significance = -999.;
-  const pat::MET& patMET = (*METHandle_PatMET)[0];
-  METx = patMET.px();
-  METy = patMET.py();
-  Handle<double> significanceHandle;
-  Handle<math::Error<2>::type> covHandle;
-  iEvent.getByLabel ("METSignificance", "METSignificance", significanceHandle);
-  iEvent.getByLabel ("METSignificance", "METCovariance", covHandle);
-  covMET[0][0] = (*covHandle)(0,0);
-  covMET[1][0] = (*covHandle)(1,0);
-  covMET[0][1] = covMET[1][0]; // (1,0) is the only one saved
-  covMET[1][1] = (*covHandle)(1,1);
-  significance = (float) (*significanceHandle);
+  Handle<View<reco::MET> > METHandle;
+  
+  if (!_usePairMET)
+  {
+    iEvent.getByToken(vtheMETTag.at(0), METHandle);
+    const pat::MET& patMET = (*METHandle)[0];
+    METx = patMET.px();
+    METy = patMET.py();
+    Handle<double> significanceHandle;
+    Handle<math::Error<2>::type> covHandle;
+    iEvent.getByToken (theSigTag, significanceHandle);
+    iEvent.getByToken (theCovTag, covHandle);
+    covMET[0][0] = (*covHandle)(0,0);
+    covMET[1][0] = (*covHandle)(1,0);
+    covMET[0][1] = covMET[1][0]; // (1,0) is the only one saved
+    covMET[1][1] = (*covHandle)(1,1);
+    significance = (float) (*significanceHandle);
+  }
 
   // loop on all the pairs
   for (unsigned int i = 0; i < elNumber; ++i)
   {
+    if (_usePairMET)
+    {
+      iEvent.getByToken(vtheMETTag.at(i), METHandle);
+      //metNumber = METHandle->size();
+
+      const PFMET* pfMET = (PFMET*) &((*METHandle)[0]) ; // all this to transform the type of the pointer!
+      const reco::METCovMatrix& covMETbuf = pfMET->getSignificanceMatrix();
+      significance = (float) pfMET->significance();
+
+      METx = pfMET->px();
+      METy = pfMET->py();
+
+      covMET[0][0] = covMETbuf(0,0);
+      covMET[1][0] = covMETbuf(1,0);
+      covMET[0][1] = covMETbuf(0,1);
+      covMET[1][1] = covMETbuf(1,1);
+    }
+
     // Get the pair and the two leptons composing it
     const CompositeCandidate& pairBuf = (*pairHandle)[i];
     pat::CompositeCandidate pair(pairBuf);
@@ -105,6 +142,7 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float SVfitMass = -999.;
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", SVfitMass);
+    pair.addUserFloat("SVfitTransverseMass", -999);
     pair.addUserFloat("SVfit_pt",  -999);
     pair.addUserFloat("SVfit_eta", -999);
     pair.addUserFloat("SVfit_phi", -999);
