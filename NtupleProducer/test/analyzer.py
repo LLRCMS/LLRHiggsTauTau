@@ -23,7 +23,7 @@ USEPAIRMET=True # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusion
 APPLYMETCORR=True # flag to enable (True) and disable (False) Z-recoil corrections for MVA MET response and resolution
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
-SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 
 IsMC=True
@@ -119,3 +119,5 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #)
 #process.MessageLogger.threshold = cms.untracked.string('ERROR')
 
+#processDumpFile = open('process.dump' , 'w')
+#print >> processDumpFile, process.dumpPython()

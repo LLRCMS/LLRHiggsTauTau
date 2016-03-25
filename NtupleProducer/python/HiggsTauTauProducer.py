@@ -525,14 +525,14 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 
 # apply new jet energy corrections
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-levels = None
+jecLevels = None
 if IsMC:
-    levels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
 else:
-    levels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
     src = cms.InputTag("slimmedJets"),
-    levels = [],
+    levels = jecLevels,
     payload = 'AK4PFchs' # Make sure to choose the appropriate levels and payload here!
 )
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
@@ -591,10 +591,14 @@ if USEPAIRMET:
     process.MVAMET.requireOS = cms.bool(False)
 
     process.MVAMETInputs = cms.Sequence(
+        process.slimmedElectronsTight + process.slimmedMuonsTight + process.slimmedTausLoose + process.slimmedTausLooseCleaned + process.patJetsReapplyJECCleaned +
         process.pfCHS + process.pfChargedPV + process.pfChargedPU + process.pfNeutrals + process.neutralInJets +
         process.pfMETCands + process.pfTrackMETCands + process.pfNoPUMETCands + process.pfPUCorrectedMETCands + process.pfPUMETCands +
-        ##process.pfChargedPUMETCands + process.pfNeutralPUMETCands + process.pfNeutralPVMETCands + process.pfNeutralUnclusteredMETCands +
-        process.pfChs
+        process.pfChargedPUMETCands + process.pfNeutralPUMETCands + process.pfNeutralPVMETCands + process.pfNeutralUnclusteredMETCands +
+        process.pfChs +
+        process.ak4PFCHSL1FastjetCorrector + process.ak4PFCHSL2RelativeCorrector + process.ak4PFCHSL3AbsoluteCorrector + process.ak4PFCHSResidualCorrector +
+        process.ak4PFCHSL1FastL2L3Corrector + process.ak4PFCHSL1FastL2L3ResidualCorrector +
+        process.tauDecayProducts + process.tauPFMET + process.tauMET + process.tausSignificance
     )
     for met in ["pfMET", "pfTrackMET", "pfNoPUMET", "pfPUCorrectedMET", "pfPUMET", "pfChargedPUMET", "pfNeutralPUMET", "pfNeutralPVMET", "pfNeutralUnclusteredMET"]:
         process.MVAMETInputs += getattr(process, met)
@@ -773,3 +777,4 @@ process.Candidates = cms.Sequence(
     )
 # always run ntuplizer
 process.trees = cms.EndPath(process.HTauTauTree)# + process.HTauTauTreeTauUp + process.HTauTauTreeTauDown)
+
