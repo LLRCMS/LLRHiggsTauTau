@@ -14,6 +14,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="RecoEgamma/EgammaTools" />
 <use name="RecoEgamma/ElectronIdentification" />
+<use name="HTT-utilities/RecoilCorrections" />
 
 <library   file="*.cc" name="LLRHiggsTauTauPlugins">
   <Flags CPPDEFINES="CMSSW_VERSION=$(shell echo ${CMSSW_VERSION}|sed -e s/CMSSW_// -e s/_//g -e s/patch\.//)"/>
