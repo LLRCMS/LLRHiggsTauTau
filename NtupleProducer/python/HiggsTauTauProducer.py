@@ -30,6 +30,10 @@ except NameError:
 PFMetName = "slimmedMETs"
 if USE_NOHFMET: PFMetName = "slimmedMETsNoHF"
 
+try: APPLYMETCORR
+except NameError:
+    APPLYMETCORR=TRUE
+
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
@@ -39,11 +43,11 @@ if IsMC:
     #process.GlobalTag.globaltag = 'PLS170_V6AN1::All'#'GR_70_V2_AN1::All'   #MC in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
     #process.GlobalTag.globaltag = 'PHYS14_25_V1::All' #MC in PHYS14
     #process.GlobalTag.globaltag = 'MCRUN2_74_V9::All' #MC Spring 2015
-    process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2' #MC 25 ns miniAODv2    
+    process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1' #MC 25 ns miniAODv2    
     #process.GlobalTag.globaltag = 'PHYS14_ST_V1::All'
 else :
     # New Tag format for 2015, also ::All no longer required 
-    process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v1'
+    process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
     #process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
 print process.GlobalTag.globaltag
 
@@ -504,8 +508,27 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 #
 #Jets
 #
+
+# apply new jet energy corrections
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+levels = None
+if IsMC:
+    levels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
+else:
+    levels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
+process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+    src = cms.InputTag("slimmedJets"),
+    levels = [],
+    payload = 'AK4PFchs' # Make sure to choose the appropriate levels and payload here!
+)
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+process.patJetsReapplyJEC = patJetsUpdated.clone(
+    jetSource = cms.InputTag("slimmedJets"),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+)
+
 process.jets = cms.EDFilter("PATJetRefSelector",
-                           src = cms.InputTag("slimmedJets"),
+                           src = cms.InputTag("patJetsReapplyJEC"),
                            cut = cms.string(JETCUT)
 )
 ##
@@ -546,72 +569,143 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 ## MVA MET
 ## ----------------------------------------------------------------------
 
-
-
-
-# python trick: loop on all pairs for pair MET computation
-
 if USEPAIRMET:
-   print "Using pair MET (MVA MET)"
+    print "Using pair MET (MVA MET)"
+    from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
+    runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
+    process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
+    process.MVAMET.requireOS = cms.bool(False)
 
-   # plugin initialization
+    process.MVAMETInputs = cms.Sequence(
+        process.pfCHS + process.pfChargedPV + process.pfChargedPU + process.pfNeutrals + process.neutralInJets +
+        process.pfMETCands + process.pfTrackMETCands + process.pfNoPUMETCands + process.pfPUCorrectedMETCands + process.pfPUMETCands +
+        ##process.pfChargedPUMETCands + process.pfNeutralPUMETCands + process.pfNeutralPVMETCands + process.pfNeutralUnclusteredMETCands +
+        process.pfChs
+    )
+    for met in ["pfMET", "pfTrackMET", "pfNoPUMET", "pfPUCorrectedMET", "pfPUMET", "pfChargedPUMET", "pfNeutralPUMET", "pfNeutralPVMET", "pfNeutralUnclusteredMET"]:
+        process.MVAMETInputs += getattr(process, met)
+        process.MVAMETInputs += getattr(process, "ak4JetsFor"+met)
+        process.MVAMETInputs += getattr(process, "corr"+met)
+        process.MVAMETInputs += getattr(process, met+"T1")
+        process.MVAMETInputs += getattr(process, "pat"+met)
+        process.MVAMETInputs += getattr(process, "pat"+met+"T1")        
 
-   process.load("RecoJets.JetProducers.ak4PFJets_cfi")
-   process.ak4PFJets.src = cms.InputTag("packedPFCandidates")
+    process.METSequence = cms.Sequence(process.MVAMETInputs)
 
-   from JetMETCorrections.Configuration.DefaultJEC_cff import ak4PFJetsL1FastL2L3
+    UnpackerTemplate = cms.EDProducer("PairUnpacker",
+        src = cms.InputTag("barellCand")
+    )
 
-   # output collection is defined here, its name is pfMVAMEt
-   # access this through pfMVAMEtSequence
+    MVAPairMET = []
+    for index in range(100):
+        UnpackerName = "PairUnpacker%i" % index
+        UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
+        setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
+        process.METSequence += UnpackerModule
 
-   process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
-   #process.pfMVAMEt.srcLeptons = cms.VInputTag("slimmedElectrons") # srcLeptons contains all the hard scatter products, is set later
-   process.pfMVAMEt.srcPFCandidates = cms.InputTag("packedPFCandidates")
-   process.pfMVAMEt.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-   process.pfMVAMEt.minNumLeptons = cms.int32(2) # this is important to skip void collections in the loop on pairs
-
-   process.puJetIdForPFMVAMEt.jec = cms.string('AK4PF')
-   #process.puJetIdForPFMVAMEt.jets = cms.InputTag("ak4PFJets")
-   process.puJetIdForPFMVAMEt.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-   process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
-
+        MVAMETName = "patMETMVA%i" % index
+        MVAModule = process.MVAMET.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
+        setattr(process, MVAMETName, MVAModule)
+        process.METSequence += MVAModule
    
-   # template of unpacker
-   UnpackerTemplate = cms.EDProducer ("PairUnpacker",
-                                   src = cms.InputTag("barellCand"))
-#   UnpackerTemplateTauUp = cms.EDProducer ("PairUnpacker",
-#                                   src = cms.InputTag("barellCandTauUp"))
-#   UnpackerTemplateTauDown = cms.EDProducer ("PairUnpacker",
-#                                   src = cms.InputTag("barellCandTauDown"))
+        MVAPairMET.append(cms.InputTag(MVAMETName))
 
-   process.METSequence = cms.Sequence(process.ak4PFJets + process.calibratedAK4PFJetsForPFMVAMEt + process.puJetIdForPFMVAMEt)
-
-   MVAPairMET = ()
-   for index in range(100):
-      UnpackerName = "PairUnpacker%i" % index
-      UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
-      setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
-      process.METSequence += UnpackerModule
-
-      MVAMETName = "pfMETMVA%i" % index
-      MVAModule = process.pfMVAMEt.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
-      setattr(process, MVAMETName, MVAModule)
-      process.METSequence += MVAModule
-    
-      MVAPairMET += (cms.InputTag(MVAMETName),)
-    
 else:
-   print "Using event pfMET (same MET for all pairs)"
-   process.load("RecoMET.METProducers.METSignificance_cfi")
-   process.load("RecoMET.METProducers.METSignificanceParams_cfi")
-   process.METSequence = cms.Sequence (process.METSignificance)
-#    process.pfMVAMEt.minNumLeptons = cms.int32(0) # ONLY FOR DEBUG PURPOSE, OTHERWISE DOES NOT COMPUTE MET AND SVFIT CRASHES DUE TO A SINGULAR MATRIX
-#    process.METSequence = cms.Sequence(
-#        process.ak4PFJets         +
-#        process.pfMVAMEtSequence
-#    )
+    print "Using event pfMET (same MET for all pairs)"
+    process.load("RecoMET.METProducers.METSignificance_cfi")
+    process.load("RecoMET.METProducers.METSignificanceParams_cfi")
+    process.METSequence = cms.Sequence(process.METSignificance)
+
+## # python trick: loop on all pairs for pair MET computation
+
+##if USEPAIRMET:
+##   print "Using pair MET (MVA MET)"
+##
+##   # plugin initialization
+##
+##   process.load("RecoJets.JetProducers.ak4PFJets_cfi")
+##   process.ak4PFJets.src = cms.InputTag("packedPFCandidates")
+##
+##   from JetMETCorrections.Configuration.DefaultJEC_cff import ak4PFJetsL1FastL2L3
+##
+##   # output collection is defined here, its name is pfMVAMEt
+##   # access this through pfMVAMEtSequence
+##
+##   process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
+##   #process.pfMVAMEt.srcLeptons = cms.VInputTag("slimmedElectrons") # srcLeptons contains all the hard scatter products, is set later
+##   process.pfMVAMEt.srcPFCandidates = cms.InputTag("packedPFCandidates")
+##   process.pfMVAMEt.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
+##   process.pfMVAMEt.minNumLeptons = cms.int32(2) # this is important to skip void collections in the loop on pairs
+##
+##   process.puJetIdForPFMVAMEt.jec = cms.string('AK4PF')
+##   #process.puJetIdForPFMVAMEt.jets = cms.InputTag("ak4PFJets")
+##   process.puJetIdForPFMVAMEt.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+##   process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
+##
+##  
+##   # template of unpacker
+##   UnpackerTemplate = cms.EDProducer ("PairUnpacker",
+##                                   src = cms.InputTag("barellCand"))
+###   UnpackerTemplateTauUp = cms.EDProducer ("PairUnpacker",
+###                                   src = cms.InputTag("barellCandTauUp"))
+###   UnpackerTemplateTauDown = cms.EDProducer ("PairUnpacker",
+###                                   src = cms.InputTag("barellCandTauDown"))
+##
+##   process.METSequence = cms.Sequence(process.ak4PFJets + process.calibratedAK4PFJetsForPFMVAMEt + process.puJetIdForPFMVAMEt)
+##
+##   MVAPairMET = ()
+##   for index in range(100):
+##      UnpackerName = "PairUnpacker%i" % index
+##      UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
+##      setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
+##      process.METSequence += UnpackerModule
+##
+##      MVAMETName = "pfMETMVA%i" % index
+##      MVAModule = process.pfMVAMEt.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
+##      setattr(process, MVAMETName, MVAModule)
+##      process.METSequence += MVAModule
+##   
+##      MVAPairMET += (cms.InputTag(MVAMETName),)
+##   
+##else:
+##   print "Using event pfMET (same MET for all pairs)"
+##   process.load("RecoMET.METProducers.METSignificance_cfi")
+##   process.load("RecoMET.METProducers.METSignificanceParams_cfi")
+##   process.METSequence = cms.Sequence (process.METSignificance)
+###    process.pfMVAMEt.minNumLeptons = cms.int32(0) # ONLY FOR DEBUG PURPOSE, OTHERWISE DOES NOT COMPUTE MET AND SVFIT CRASHES DUE TO A SINGULAR MATRIX
+###    process.METSequence = cms.Sequence(
+###        process.ak4PFJets         +
+###        process.pfMVAMEtSequence
+###    )
 
 
+## ----------------------------------------------------------------------
+## Z-recoil correction
+## ----------------------------------------------------------------------
+
+corrMVAPairMET = ()
+if IsMC and APPLYMETCORR:
+    if USEPAIRMET:
+        process.selJetsForZrecoilCorrection = cms.EDFilter("PATJetSelector",
+            src = cms.InputTag("jets"),                                      
+            cut = cms.string("pt > 30. & abs(eta) < 4.7"), 
+            filter = cms.bool(False)
+        )
+        process.METSequence += process.selJetsForZrecoilCorrection        
+        for index in range(100):
+            corrMVAMETName = "corrMETMVA%i" % index
+            corrMVAModule = cms.EDProducer("ZrecoilCorrectionProducer",                                                   
+                srcLeptons = cms.InputTag("PairUnpacker%i" % index),
+                srcMEt = MVAPairMET[index],
+                srcGenParticles = cms.InputTag("prunedGenParticles"),
+                srcJets = cms.InputTag("selJetsForZrecoilCorrection"),
+                correction = cms.string("HTT-utilities/RecoilCorrections/data/recoilMvaMEt_76X_newTraining_MG5.root")
+            )
+            setattr(process, corrMVAMETName, corrMVAModule)
+            process.METSequence += MVAModule
+
+    else:
+        raise ValueError("Z-recoil corrections for PFMET not implemented yet !!")
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -632,7 +726,10 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
 #)
 
 if USEPAIRMET:
-   process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
+    if IsMC and APPLYMETCORR:
+        process.SVllCand.srcMET    = cms.VInputTag(corrMVAPairMET)
+    else:
+        process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
 #   process.SVllCandTauUp.srcMET    = cms.VInputTag(MVAPairMET)
 #   process.SVllCandTauDown.srcMET    = cms.VInputTag(MVAPairMET)
 else:
@@ -662,6 +759,7 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
 ## Ntuplizer
 ## ----------------------------------------------------------------------
 process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
+                      JetCollection = cms.InputTag("jets"),    
                       fileName = cms.untracked.string ("CosaACaso"),
                       skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),
@@ -717,7 +815,7 @@ process.Candidates = cms.Sequence(
     process.softLeptons       + process.barellCand +
 #    process.softLeptonsTauUp  + process.barellCandTauUp +
 #    process.softLeptonsTauDown  + process.barellCandTauDown +
-    process.jets              +
+    process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets +
     process.METSequence       +
     process.geninfo           +
     process.SVFit             #+ process.HTauTauTree

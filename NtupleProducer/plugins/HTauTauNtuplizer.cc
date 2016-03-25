@@ -21,6 +21,7 @@
 //#include <XYZTLorentzVector.h>
 
 // user include files
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -149,6 +150,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Configs
   int theChannel;
   std::string theCandLabel;
+  edm::InputTag jetLabel;
   TString theFileName;
   bool theFSR;
   Bool_t theisMC;
@@ -318,6 +320,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
+  std::vector<Float_t> _uncorrmetx;
+  std::vector<Float_t> _uncorrmety;
   std::vector<Float_t> _metCov00;
   std::vector<Float_t> _metCov01;
   std::vector<Float_t> _metCov10;
@@ -424,6 +428,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
   std::vector<Float_t> _jets_rawPt;
+  std::vector<Float_t> _jets_area;
   std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
   std::vector<Float_t> _jets_vtxPt;
@@ -464,6 +469,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
 
  {
   theCandLabel = pset.getUntrackedParameter<string>("CandCollection");
+  jetLabel = pset.getParameter<edm::InputTag>("JetCollection");
   //theChannel = myHelper.channel();
   theFileName = pset.getUntrackedParameter<string>("fileName");
   skipEmptyEvents = pset.getParameter<bool>("skipEmptyEvents");
@@ -691,6 +697,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_HLTpt.clear();
   _metx.clear();
   _mety.clear();
+  _uncorrmetx.clear();
+  _uncorrmety.clear();
   _metCov00.clear();
   _metCov01.clear();
   _metCov10.clear();
@@ -730,6 +738,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_pz.clear();
   _jets_e.clear();
   _jets_rawPt.clear();
+  _jets_area.clear();
   _jets_mT.clear();
   _jets_PUJetID.clear();
   _jets_vtxPt.clear();
@@ -899,6 +908,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
+  myTree->Branch("uncorrMETx",&_uncorrmetx);
+  myTree->Branch("uncorrMETy",&_uncorrmety);
   myTree->Branch("MET_cov00",&_metCov00);
   myTree->Branch("MET_cov01",&_metCov01);
   myTree->Branch("MET_cov10",&_metCov10);
@@ -974,6 +985,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_pz",&_jets_pz);
   myTree->Branch("jets_e",&_jets_e);
   myTree->Branch("jets_rawPt", &_jets_rawPt);
+  myTree->Branch("jets_area", &_jets_area);
   myTree->Branch("jets_mT", &_jets_mT);
   myTree->Branch("jets_Flavour",&_jets_Flavour);
   myTree->Branch("jets_HadronFlavour",&_jets_HadronFlavour);
@@ -1112,7 +1124,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByLabel(theCandLabel,candHandle);
   if (!candHandle.isValid()) return;
   event.getByLabel(theCandLabel,candHandle);
-  event.getByLabel("jets",jetHandle);
+  event.getByLabel(jetLabel,jetHandle);
   event.getByLabel("softLeptons",dauHandle);
   
   if (theUseNoHFPFMet) event.getByLabel("slimmedMETsNoHF",metHandle);
@@ -1176,6 +1188,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     float thisMETpx = cand.userFloat("MEt_px");
     float thisMETpy = cand.userFloat("MEt_py");
+    float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -1.;
+    float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -1.;
     
     _SVmass.push_back(cand.userFloat("SVfitMass"));
     _SVmassTauUp.push_back(cand.userFloat("SVfitMassTauUp"));
@@ -1219,6 +1233,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);    
+    _uncorrmetx.push_back(thisMETpx_uncorr);
+    _uncorrmety.push_back(thisMETpy_uncorr);
     _metCov00.push_back(cand.userFloat("MEt_cov00"));
     _metCov01.push_back(cand.userFloat("MEt_cov01"));
     _metCov10.push_back(cand.userFloat("MEt_cov10"));
@@ -1420,6 +1436,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     float jetRawPt = jecFactor * ijet->pt();
     //float jetRawPt2 = ijet->pt() / jecFactor; // this is wrong
     _jets_rawPt.push_back ( jetRawPt );
+    _jets_area.push_back (ijet->jetArea());
     _jetrawf.push_back(jecFactor);
   
     // loop on jet contituents to retrieve info for b jet regression
