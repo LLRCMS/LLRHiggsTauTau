@@ -147,6 +147,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // intialize MET
   double METx = 0.;
   double METy = 0.; 
+  double uncorrMETx = -1.;
+  double uncorrMETy = -1.; 
   TMatrixD covMET(2, 2);
   float significance = -999.;
       
@@ -161,7 +163,9 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      const pat::MET& patMET = (*METHandle)[0];
      METx = patMET.px();
      METy = patMET.py();
-     
+     if ( patMET.hasUserFloat("uncorrPx") ) uncorrMETx = patMET.userFloat("uncorrPx");
+     if ( patMET.hasUserFloat("uncorrPy") ) uncorrMETy = patMET.userFloat("uncorrPy");
+
      Handle<double> significanceHandle;
      Handle<math::Error<2>::type> covHandle;
      
@@ -630,6 +634,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     pair.addUserFloat("MEt_px", (float) METx);
     pair.addUserFloat("MEt_py", (float) METy);
+    pair.addUserFloat("uncorrMEt_px", (float) uncorrMETx);
+    pair.addUserFloat("uncorrMEt_py", (float) uncorrMETy);
     pair.addUserFloat("MEt_cov00", (float) covMET[0][0]);
     pair.addUserFloat("MEt_cov01", (float) covMET[0][1]);
     pair.addUserFloat("MEt_cov10", (float) covMET[1][0]);
