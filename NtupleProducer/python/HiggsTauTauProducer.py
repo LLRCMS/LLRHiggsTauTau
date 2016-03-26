@@ -627,7 +627,7 @@ if USEPAIRMET:
         setattr(process, MVAMETName, MVAModule)
         process.METSequence += MVAModule
    
-        MVAPairMET.append(cms.InputTag(MVAMETName))
+        MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
 
 else:
     print "Using event pfMET (same MET for all pairs)"
@@ -639,7 +639,7 @@ else:
 ## Z-recoil correction
 ## ----------------------------------------------------------------------
 
-corrMVAPairMET = ()
+corrMVAPairMET = []
 if IsMC and APPLYMETCORR:
     if USEPAIRMET:
         process.selJetsForZrecoilCorrection = cms.EDFilter("PATJetSelector",
@@ -658,7 +658,8 @@ if IsMC and APPLYMETCORR:
                 correction = cms.string("HTT-utilities/RecoilCorrections/data/recoilMvaMEt_76X_newTraining_MG5.root")
             )
             setattr(process, corrMVAMETName, corrMVAModule)
-            process.METSequence += MVAModule
+            process.METSequence += corrMVAModule
+            corrMVAPairMET.append(cms.InputTag(corrMVAMETName))
 
     else:
         raise ValueError("Z-recoil corrections for PFMET not implemented yet !!")
