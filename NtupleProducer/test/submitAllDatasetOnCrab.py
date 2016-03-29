@@ -98,7 +98,7 @@ isMC = False
 lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Reprocessing/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver.txt"
 
 
-FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
+FastJobs = True # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
