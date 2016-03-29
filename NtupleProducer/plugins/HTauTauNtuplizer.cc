@@ -1194,15 +1194,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
  
-   // Accessing the JEC uncertainties 
-  //ak4  
-  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl); 
-  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-  JetCorrectionUncertainty *jecUnc=0;
-  jecUnc = new JetCorrectionUncertainty(JetCorPar);
-
-
   // protect in case of events where trigger hasn't fired --> no collection created 
   //event.getByLabel(theCandLabel,candHandle);
   event.getByToken(theCandTag,candHandle);
@@ -1271,8 +1262,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   FillSoftLeptons(daus,event,theFSR,jets);
 
   //Loop on Jets
+
+  // Accessing the JEC uncertainties 
+  //ak4  
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl); 
+  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+  JetCorrectionUncertainty jecUnc (JetCorPar);
   _numberOfJets = 0;
-  if(writeJets)_numberOfJets = FillJet(jets, event,jecUnc);
+  if(writeJets)_numberOfJets = FillJet(jets, event, &jecUnc);
 
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
