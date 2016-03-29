@@ -77,11 +77,15 @@ import re
 # tag = "MC_76X_15Feb2016"
 # datasetsFile = "datasets.txt"
 
-PROCESS = ["DATA76X"]
-tag = "Data_76X_15Feb2016"
+# PROCESS = ["DATA76XZZ"]
+# tag = "Data_76X_ZZTolljj_29Mar2016"
+# datasetsFile = "datasets.txt"
+
+PROCESS = ["MC76XZZLUCA"]
+tag = "MC_76X_ZZTolljj_29Mar2016"
 datasetsFile = "datasets.txt"
 
-isMC = False
+isMC = True
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -198,7 +202,7 @@ for dtset in dtsetToLaunch:
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
     command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
-    command += " Data.outputDatasetTag=%s" % (dtsetNames + "_" + tag + "_" + str(counter))
+    command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
