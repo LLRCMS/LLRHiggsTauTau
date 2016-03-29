@@ -31,6 +31,8 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
+typedef edm::View<reco::Candidate> CandidateView;
+
 // ------------------------------------------------------------------
 
 class ZrecoilCorrectionProducer : public edm::EDProducer {
@@ -61,9 +63,13 @@ ZrecoilCorrectionProducer::ZrecoilCorrectionProducer(const edm::ParameterSet& cf
   : recoilCorrector_(0)
 {
   srcLeptons_ = cfg.getParameter<edm::InputTag>("srcLeptons");
+  consumes<CandidateView>(srcLeptons_);
   srcMEt_ = cfg.getParameter<edm::InputTag>("srcMEt");
+  consumes<pat::METCollection>(srcMEt_);
   srcGenParticles_ = cfg.getParameter<edm::InputTag>("srcGenParticles");
+  consumes<reco::GenParticleCollection>(srcGenParticles_);
   srcJets_ = cfg.getParameter<edm::InputTag>("srcJets");
+  consumes<CandidateView>(srcJets_);
   correction_ = cfg.getParameter<std::string>("correction");
   recoilCorrector_ = new RecoilCorrector(correction_);
 
@@ -112,7 +118,6 @@ void ZrecoilCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& 
   }
   if ( !(isW || isZ || isHiggs) ) isZ = true; // CV: off-shell Z/gamma* -> ll events may have no Z-boson in genParticle list
 
-  typedef edm::View<reco::Candidate> CandidateView;
   edm::Handle<CandidateView> leptons;
   evt.getByLabel(srcLeptons_, leptons);
 
@@ -131,32 +136,34 @@ void ZrecoilCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& 
   }
   if ( isW ) ++nJets; // CV: add jet that fakes the hadronic tau candidate
 
+  std::auto_ptr<pat::METCollection> result(new pat::METCollection());
+
   edm::Handle<pat::METCollection> uncorrMEt;
   evt.getByLabel(srcMEt_, uncorrMEt);
-  const pat::MET& theUncorrMEt = uncorrMEt->at(0);
+  if ( uncorrMEt->size() >= 1 ) {
+    const pat::MET& theUncorrMEt = uncorrMEt->at(0);
   
-  float corrMEtPx, corrMEtPy;
-  recoilCorrector_->CorrectByMeanResolution(
-    theUncorrMEt.px(),
-    theUncorrMEt.py(),
-    genBosonP4.px(),
-    genBosonP4.py(),
-    genBosonVisP4.px(),
-    genBosonVisP4.py(),
-    nJets,
-    corrMEtPx,
-    corrMEtPy
-  );
-  reco::Candidate::LorentzVector corrMEtP4(corrMEtPx, corrMEtPy, 0., sqrt(corrMEtPx*corrMEtPx + corrMEtPy*corrMEtPy));
+    float corrMEtPx, corrMEtPy;
+    recoilCorrector_->CorrectByMeanResolution(
+      theUncorrMEt.px(),
+      theUncorrMEt.py(),
+      genBosonP4.px(),
+      genBosonP4.py(),
+      genBosonVisP4.px(),
+      genBosonVisP4.py(),
+      nJets,
+      corrMEtPx,
+      corrMEtPy
+    );
+    reco::Candidate::LorentzVector corrMEtP4(corrMEtPx, corrMEtPy, 0., sqrt(corrMEtPx*corrMEtPx + corrMEtPy*corrMEtPy));
 
-  pat::MET corrMEt(theUncorrMEt);
-  corrMEt.setP4(corrMEtP4);
-  corrMEt.setSignificanceMatrix(theUncorrMEt.getSignificanceMatrix());
-  corrMEt.addUserFloat("uncorrPx", theUncorrMEt.px());
-  corrMEt.addUserFloat("uncorrPy", theUncorrMEt.py());
-
-  std::auto_ptr<pat::METCollection> result(new pat::METCollection());
-  result->push_back(corrMEt);
+    pat::MET corrMEt(theUncorrMEt);
+    corrMEt.setP4(corrMEtP4);
+    corrMEt.setSignificanceMatrix(theUncorrMEt.getSignificanceMatrix());
+    corrMEt.addUserFloat("uncorrPx", theUncorrMEt.px());
+    corrMEt.addUserFloat("uncorrPy", theUncorrMEt.py());
+    result->push_back(corrMEt);
+  }
 
   evt.put(result);
 }
