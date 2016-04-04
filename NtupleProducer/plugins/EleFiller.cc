@@ -216,6 +216,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
       dz  = (l.gsfTrack()->dz(vertex->position()));
     } 
 
+    float rel_error_trackpt = l.gsfTrack()->ptError()/l.gsfTrack()->pt();   
+
     bool isconversionveto=l.passConversionVeto();
     
     //-- Missing hit  
@@ -233,12 +235,16 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("SIP",SIP);
     l.addUserFloat("dxy",dxy);
     l.addUserFloat("dz",dz);
+    l.addUserFloat("rel_error_trackpt",rel_error_trackpt);
     l.addUserInt("isConversionVeto",(isconversionveto ? 1 : 0));
     //l.addUserFloat("HLTMatch", HLTMatch);
     l.addUserInt("missingHit", missinghit);
     l.addUserInt("isGsfCtfScPixChargeConsistent",(isGsfCtfScPixChargeConsistent ? 1 : 0));
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
+    l.addUserFloat("hOverE",l.hcalOverEcal());
+    l.addUserFloat("deltaEtaSuperClusterTrackAtVtx",l.deltaEtaSuperClusterTrackAtVtx());
     l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
+    l.addUserFloat("IoEmIoP",(1.0/l.ecalEnergy())-(1.0/l.p()));
     l.addUserFloat("SCeta", fSCeta);
     const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
     int eleCUT=0;
