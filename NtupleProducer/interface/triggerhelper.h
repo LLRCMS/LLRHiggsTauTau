@@ -57,7 +57,7 @@ class triggerhelper {
   //const int nTriggers;
   vector<string> triggerlist;
   vector<triggerMapper> triggerMap;
-  static const int nMETs =13;
+  static const int nMETs =6;
   string metlist[nMETs];
 
 };
