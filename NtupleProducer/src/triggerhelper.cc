@@ -26,19 +26,12 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   //cout << "nTriggers: " << nTriggers << endl;
   triggerlist=HLTPaths;
   string tmpMETfilters[nMETs]={
-                 "Flag_CSCTightHaloFilter", 
- "Flag_EcalDeadCellTriggerPrimitiveFilter",
-                    "Flag_HBHENoiseFilter",  
-                         "Flag_METFilters",  
-                "Flag_ecalLaserCorrFilter",  
-                      "Flag_eeBadScFilter",  
-                       "Flag_goodVertices",  
-               "Flag_hcalLaserEventFilter",  
-              "Flag_trackingFailureFilter",  
-                      "Flag_trkPOGFilters",  
-     "Flag_trkPOG_logErrorTooManyClusters",  
-            "Flag_trkPOG_manystripclus53X",  
-         "Flag_trkPOG_toomanystripclus53X"  
+    "Flag_HBHENoiseFilter",
+    "Flag_HBHENoiseIsoFilter",
+    "Flag_CSCTightHalo2015Filter",
+    "Flag_EcalDeadCellTriggerPrimitiveFilter",
+    "Flag_goodVertices",
+    "Flag_eeBadScFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -53,19 +46,12 @@ triggerhelper::triggerhelper(TH1F* hCounter){
   }
 
   string tmpMETfilters[nMETs]={
-                 "Flag_CSCTightHaloFilter",
- "Flag_EcalDeadCellTriggerPrimitiveFilter",
-                    "Flag_HBHENoiseFilter",
-                         "Flag_METFilters",
-                "Flag_ecalLaserCorrFilter",
-                      "Flag_eeBadScFilter",
-                       "Flag_goodVertices",
-               "Flag_hcalLaserEventFilter",
-              "Flag_trackingFailureFilter",
-                      "Flag_trkPOGFilters",
-     "Flag_trkPOG_logErrorTooManyClusters",
-            "Flag_trkPOG_manystripclus53X",
-         "Flag_trkPOG_toomanystripclus53X"
+    "Flag_HBHENoiseFilter",
+    "Flag_HBHENoiseIsoFilter",
+    "Flag_CSCTightHalo2015Filter",
+    "Flag_EcalDeadCellTriggerPrimitiveFilter",
+    "Flag_goodVertices",
+    "Flag_eeBadScFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -75,19 +61,12 @@ triggerhelper::triggerhelper(TH1F* hCounter){
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
-                 "Flag_CSCTightHaloFilter", 
- "Flag_EcalDeadCellTriggerPrimitiveFilter",
-                    "Flag_HBHENoiseFilter",  
-                         "Flag_METFilters",  
-                "Flag_ecalLaserCorrFilter",  
-                      "Flag_eeBadScFilter",  
-                       "Flag_goodVertices",  
-               "Flag_hcalLaserEventFilter",  
-              "Flag_trackingFailureFilter",  
-                      "Flag_trkPOGFilters",  
-     "Flag_trkPOG_logErrorTooManyClusters",  
-            "Flag_trkPOG_manystripclus53X",  
-         "Flag_trkPOG_toomanystripclus53X"  
+    "Flag_HBHENoiseFilter",
+    "Flag_HBHENoiseIsoFilter",
+    "Flag_CSCTightHalo2015Filter",
+    "Flag_EcalDeadCellTriggerPrimitiveFilter",
+    "Flag_goodVertices",
+    "Flag_eeBadScFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -165,19 +144,27 @@ Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<str
 int triggerhelper::FindMETBit(const edm::Event& event){
 
   int bit =0;
+  bool error = false;
   edm::Handle<edm::TriggerResults> metFilterBits;
   event.getByLabel(InputTag("TriggerResults","","HLT"), metFilterBits);
   //edm::EDGetTokenT<edm::TriggerResults> metFilterBitsToken_;//(consumes<edm::TriggerResults>(<edm::InputTag>("metFilterBits")));
   //event.getByToken(metFilterBitsToken_, metFilterBits);
   const edm::TriggerNames &metNames = event.triggerNames(*metFilterBits);
   for(int im=0;im<nMETs;im++){
-    for(unsigned int i = 0; i < metFilterBits->size(); ++i){
+    bool foundFilter = false;
+    for(unsigned int i = 0; i < metFilterBits->size(); ++i){      
       if(metlist[im].compare(metNames.triggerName(i))==0){
-	      if(metFilterBits->accept(i))bit |= 1 <<im;
-	      break;
+	foundFilter = true;
+	if ( metFilterBits->accept(i) ) bit |= 1 <<im;
+	break;
       }
     }
+    if ( !foundFilter ) {
+      cout << "** triggerHelper :: Failed to find MET filter " << metlist[im] << endl;
+      error = true;
+    }
   }
+  if ( error ) bit *= -1;
   return bit;
 }
 
