@@ -141,30 +141,29 @@ Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<str
   return bit;
 }
 
-int triggerhelper::FindMETBit(const edm::Event& event){
+int triggerhelper::FindMETBit(const edm::Event& event, edm::EDGetTokenT<edm::TriggerResults> metFilterBitsToken){
 
   int bit =0;
-  bool error = false;
   edm::Handle<edm::TriggerResults> metFilterBits;
-  event.getByLabel(InputTag("TriggerResults","","HLT"), metFilterBits);
+  event.getByToken(metFilterBitsToken, metFilterBits); // PAT, RECO, HLT, SIM ?
   //edm::EDGetTokenT<edm::TriggerResults> metFilterBitsToken_;//(consumes<edm::TriggerResults>(<edm::InputTag>("metFilterBits")));
   //event.getByToken(metFilterBitsToken_, metFilterBits);
   const edm::TriggerNames &metNames = event.triggerNames(*metFilterBits);
   for(int im=0;im<nMETs;im++){
+    // cout << "DEB looking for " << metlist[im] << endl;
     bool foundFilter = false;
     for(unsigned int i = 0; i < metFilterBits->size(); ++i){      
+      // cout << " --> and testing " << metNames.triggerName(i) << endl;
       if(metlist[im].compare(metNames.triggerName(i))==0){
-	foundFilter = true;
-	if ( metFilterBits->accept(i) ) bit |= 1 <<im;
-	break;
+        foundFilter = true;
+        if ( metFilterBits->accept(i) ) bit |= 1 <<im;
+        break;
       }
     }
     if ( !foundFilter ) {
       cout << "** triggerHelper :: Failed to find MET filter " << metlist[im] << endl;
-      error = true;
     }
   }
-  if ( error ) bit *= -1;
   return bit;
 }
 
