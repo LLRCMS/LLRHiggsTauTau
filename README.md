@@ -113,6 +113,18 @@ cd -
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons
 cd -
+# updated pileup jet ID (installation instruction taken from JetMET twiki https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID#Information_for_13_TeV_data_anal)
+git cms-init
+git cms-addpkg RecoJets/JetProducers
+git remote add -f PUJetId https://github.com/jbrands/cmssw.git
+git checkout PUJetId/pileupJetId76X -b pileupJetId76X
+cd RecoJets/JetProducers/data/
+wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta0to2p5_BDT.weights.xml.gz
+wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz
+wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz
+wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz
+cd ../../..
+cp /afs/cern.ch/user/v/veelken/public/PileupJetIdFix/PileupJetIdAlgo.cc RecoJets/JetProducers/src
 # SVfit
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
 scram b -j 4

@@ -527,6 +527,16 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 #Jets
 #
 
+# add latest pileup jet ID
+process.load("RecoJets.JetProducers.PileupJetID_cfi")
+process.pileupJetIdUpdated = process.pileupJetId.clone(
+  jets = cms.InputTag("slimmedJets"),
+  inputIsCorrected = True,
+  applyJec = True,
+  vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+)
+print process.pileupJetIdUpdated.dumpConfig()
+
 # apply new jet energy corrections
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
 jecLevels = None
@@ -544,10 +554,11 @@ process.patJetsReapplyJEC = patJetsUpdated.clone(
     jetSource = cms.InputTag("slimmedJets"),
     jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
 )
+process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
 
 process.jets = cms.EDFilter("PATJetRefSelector",
-                           src = cms.InputTag("patJetsReapplyJEC"),
-                           cut = cms.string(JETCUT)
+    src = cms.InputTag("patJetsReapplyJEC"),
+    cut = cms.string(JETCUT)
 )
 ##
 ## Build ll candidates (here OS)
@@ -776,7 +787,7 @@ process.Candidates = cms.Sequence(
     process.softLeptons       + process.barellCand +
 #    process.softLeptonsTauUp  + process.barellCandTauUp +
 #    process.softLeptonsTauDown  + process.barellCandTauDown +
-    process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets +
+    process.pileupJetIdUpdated + process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets +
     process.METSequence       +
     process.geninfo           +
     process.SVFit             
