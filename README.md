@@ -124,6 +124,7 @@ wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94
 wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz
 wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz
 cd ../../..
+# fix bug in RecoJets/JetProducers/src/PileupJetIdAlgo.cc, reported at https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1682.html
 cp /afs/cern.ch/user/v/veelken/public/PileupJetIdFix/PileupJetIdAlgo.cc RecoJets/JetProducers/src
 # SVfit
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
