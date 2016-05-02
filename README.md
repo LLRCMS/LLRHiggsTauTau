@@ -115,6 +115,8 @@ cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons
 cd -
 # SVfit
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+# SVfit TF
+git clone https://github.com/veelken/SVfitTF TauAnalysis/SVfitTF
 scram b -j 4
 
 ```
