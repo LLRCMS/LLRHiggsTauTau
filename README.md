@@ -126,6 +126,7 @@ wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94
 cd ../../..
 # SVfit
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+git checkout HIG-16-006
 scram b -j 4
 
 ```
