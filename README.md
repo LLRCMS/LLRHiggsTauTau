@@ -84,22 +84,13 @@ scram b -j 4
 ### Instructions for 7_6_3 (miniAODv2)
 
 ```
-cmsrel CMSSW_7_6_3
-cd CMSSW_7_6_3/src
+cmsrel CMSSW_7_6_3_patch2
+cd CMSSW_7_6_3_patch2/src
 cmsenv
 # MVA MET
-git cms-addpkg RecoMET/METPUSubtraction
-git cms-addpkg DataFormats/METReco
-git remote add -f mvamet https://github.com/rfriese/cmssw.git
-git checkout MVAMET2_beta_0.6 -b mvamet
+git cms-merge-topic --unsafe rfriese:MVAMET2_beta_0.6
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
-# the following is for the MET, but 1) need to pick additional commits 2) crashes with CRAB Input sanbox size is 120MB --> .git folder removed in /data
-#git cms-addpkg RecoMET/METPUSubtraction/
-#cd RecoMET/METPUSubtraction/
-#git clone --depth=1 https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
-#rm -rf data/.git/
-#cd -
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau; git checkout mvamet-devel
 cd -
@@ -113,11 +104,8 @@ cd -
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons
 cd -
-# updated pileup jet ID (installation instruction taken from JetMET twiki https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID#Information_for_13_TeV_data_anal)
-git cms-init
-git cms-addpkg RecoJets/JetProducers
-git remote add -f PUJetId https://github.com/jbrands/cmssw.git
-git checkout PUJetId/pileupJetId76X -b pileupJetId76X
+# updated pileup jet ID (see JetMET twiki https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID#Information_for_13_TeV_data_anal)
+git cms-merge-topic --unsafe jbrands:pileupJetId76X
 cd RecoJets/JetProducers/data/
 wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta0to2p5_BDT.weights.xml.gz
 wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz
