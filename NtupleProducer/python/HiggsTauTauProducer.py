@@ -535,7 +535,7 @@ process.pileupJetIdUpdated = process.pileupJetId.clone(
   applyJec = True,
   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
 )
-print process.pileupJetIdUpdated.dumpConfig()
+#print process.pileupJetIdUpdated.dumpConfig()
 
 # apply new jet energy corrections
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
