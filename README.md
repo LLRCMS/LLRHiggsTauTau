@@ -101,7 +101,7 @@ git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/Recoil
 #rm -rf data/.git/
 #cd -
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
-cd LLRHiggsTauTau; git checkout cecilecaillol-master
+cd LLRHiggsTauTau; git checkout mvamet-devel
 cd -
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
 cd Muon/MuonAnalysisTools ; git checkout master -- interface/MuonEffectiveArea.h
