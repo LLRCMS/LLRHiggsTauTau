@@ -123,10 +123,12 @@ wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94
 wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz
 wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz
 wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz
-cd ../../..
+cd -
 # SVfit
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
+cd -
 scram b -j 4
 
 ```
