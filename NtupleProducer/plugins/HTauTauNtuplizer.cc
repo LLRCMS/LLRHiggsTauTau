@@ -476,6 +476,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_area;
   std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
+  std::vector<Float_t> _jets_PUJetIDupdated;
   std::vector<Float_t> _jets_vtxPt;
   std::vector<Float_t> _jets_vtxMass;
   std::vector<Float_t> _jets_vtx3dL;
@@ -818,6 +819,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_area.clear();
   _jets_mT.clear();
   _jets_PUJetID.clear();
+  _jets_PUJetIDupdated.clear();
   _jets_vtxPt.clear();
   _jets_vtxMass.clear();
   _jets_vtx3dL.clear();
@@ -1081,6 +1083,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_HadronFlavour",&_jets_HadronFlavour);
   myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
+  myTree->Branch("jets_PUJetIDupdated",&_jets_PUJetIDupdated);
   myTree->Branch("jets_vtxPt", &_jets_vtxPt);
   myTree->Branch("jets_vtxMass", &_jets_vtxMass);
   myTree->Branch("jets_vtx3dL", &_jets_vtx3dL);
@@ -1499,6 +1502,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_Flavour.push_back(ijet->partonFlavour());
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
+    _jets_PUJetIDupdated.push_back(ijet->userFloat("pileupJetIdUpdated:fullDiscriminant"));
     float vtxPx = ijet->userFloat ("vtxPx");
     float vtxPy = ijet->userFloat ("vtxPy");
     _jets_vtxPt.  push_back(TMath::Sqrt(vtxPx*vtxPx + vtxPy*vtxPy));
