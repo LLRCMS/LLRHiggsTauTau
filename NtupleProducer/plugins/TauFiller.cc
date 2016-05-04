@@ -52,7 +52,9 @@ class TauFiller : public edm::EDProducer {
   const StringCutObjectSelector<pat::Tau, true> cut;
   const CutSet<pat::Tau> flags;
   const std::string NominalUpOrDown;
-};
+  const double NominalTESCorrection;
+  const bool ApplyTESCorrection;}
+;
 
 
 TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
@@ -62,7 +64,9 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   theDiscriminatorTag(iConfig.getParameter<std::string>("discriminator")),
   cut(iConfig.getParameter<std::string>("cut")),
   flags(iConfig.getParameter<ParameterSet>("flags")), 
-  NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown"))//,
+  NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown")),
+  NominalTESCorrection(iConfig.getParameter<double>("NominalTESCorrection")),
+  ApplyTESCorrection(iConfig.getParameter<bool>("ApplyTESCorrection"))//,
 {
   produces<pat::TauCollection>();
 }
@@ -105,39 +109,60 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //---Clone the pat::Tau
     pat::Tau l(*((*tauHandle)[i].get()));
     
-    double Shift = 1.;
-    if(NominalUpOrDown=="Nominal") Shift = 1.;
-    if(NominalUpOrDown=="Up") Shift = 1.03;
-    if(NominalUpOrDown=="Down") Shift = 0.97;
-    // cout<<"tau #"<<i<<endl;
-    // cout<<"NominalUpOrDown = "<<NominalUpOrDown<<endl;
+    //Nominal TES Correction
+    double Shift = 1.+NominalTESCorrection/100.;
     double shiftP = 1.;
     double shiftMass = 1.;
-    int isTESShifted = 0;
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. ) {
-
-      // cout<<"I have pT = "<<l.pt()<<" and will be shifted"<<endl;
-      isTESShifted = 1;
-      // cout<<"l.decayMode() = "<< l.decayMode()<<endl;
-      // cout<<"l.signalPFChargedHadrCands().size() = "<<(l.signalPFChargedHadrCands()).size()<<endl;
-      // cout<<"l.signalPFGammaCands().size() = "<<(l.signalPFGammaCands()).size()<<endl;
+    
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCorrection) {
 
       if(l.decayMode()>=1 && l.decayMode()<10){
-      // if((l.signalPFChargedHadrCands()).size()==1 && (l.signalPFGammaCands()).size()>0){
-	//cout<<"1-prong + pi0"<<endl;
 	shiftP = Shift;
 	shiftMass = Shift;
       }
 
       else if(l.decayMode()==0){
-      // else if((l.signalPFChargedHadrCands()).size()==1 && (l.signalPFGammaCands()).size()==0){
-	//cout<<"1-prong"<<endl;
 	shiftP = Shift;
 	shiftMass = 1.;
       }
       else if(l.decayMode()==10){
-      // else if((l.signalPFChargedHadrCands()).size()==3) {
-	//cout<<"3-prong"<<endl;
+	shiftP = Shift;
+	shiftMass = Shift;
+      }
+    }
+    
+    double pxS_Nominal = l.px()*shiftP;
+    double pyS_Nominal = l.py()*shiftP;
+    double pzS_Nominal = l.pz()*shiftP;
+    double massS_Nominal = l.mass()*shiftMass;
+    double enS_Nominal = TMath::Sqrt(pxS_Nominal*pxS_Nominal + pyS_Nominal*pyS_Nominal + pzS_Nominal*pzS_Nominal + massS_Nominal*massS_Nominal);
+    math::XYZTLorentzVectorD p4S_Nominal( pxS_Nominal, pyS_Nominal, pzS_Nominal, enS_Nominal );
+
+    l.setP4( p4S_Nominal );
+    
+    //Up and Down (+3/-3%) variations
+    Shift = 1.;
+    if(NominalUpOrDown=="Nominal") Shift = 1.;
+    if(NominalUpOrDown=="Up") Shift = 1.03;
+    if(NominalUpOrDown=="Down") Shift = 0.97;
+
+    shiftP = 1.;
+    shiftMass = 1.;
+    int isTESShifted = 0;
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. ) {
+
+      isTESShifted = 1;
+
+      if(l.decayMode()>=1 && l.decayMode()<10){
+	shiftP = Shift;
+	shiftMass = Shift;
+      }
+
+      else if(l.decayMode()==0){
+	shiftP = Shift;
+	shiftMass = 1.;
+      }
+      else if(l.decayMode()==10){
 	shiftP = Shift;
 	shiftMass = Shift;
       }
@@ -151,19 +176,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
     math::XYZTLorentzVectorD p4S( pxS, pyS, pzS, enS );
 
-    //Dump to check the T-ES
-    // if((l.decayMode()==0 || l.decayMode()==1 || l.decayMode()==2 || l.decayMode()==10) && l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && NominalUpOrDown=="Up")
-    //   {
-    // 	cout<<"NominalUpOrDown = "<<NominalUpOrDown<<endl;
-    // 	cout<<"l.decayMode() = "<<l.decayMode()<<endl;
-    // 	cout<<"pt before = "<<l.pt()<<endl;
-    // 	cout<<"pt after = "<<p4S.Pt()<<endl;
-    //   }
     l.setP4( p4S );
-    // cout<<"after, I have pT = "<<l.pt()<<" and my decayMode is = "<<l.decayMode()<<endl;
-    // if((l.decayMode()==0 || l.decayMode()==1 || l.decayMode()==2 || l.decayMode()==10) && l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && NominalUpOrDown=="Up") cout<<"pt after in pat = "<<l.pt()<<endl;
-    
-    
     
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();
