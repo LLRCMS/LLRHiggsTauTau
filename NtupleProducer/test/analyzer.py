@@ -38,7 +38,8 @@ TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #mi
 JETCUT="pt>10"
 LLCUT="mass>0"
 BCUT="pt>5"
-
+ApplyTESCorrection=True
+NominalTESCorrection=-1#in percent
 
 # ------------------------
 DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are saved!
