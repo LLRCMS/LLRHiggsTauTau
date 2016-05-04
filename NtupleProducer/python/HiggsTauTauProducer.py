@@ -401,6 +401,7 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
         finalCut = cms.string(' '),
 )
 
+NominalTESCorrection=-1#in percent
 
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
@@ -410,7 +411,7 @@ process.softTaus = cms.EDProducer("TauFiller",
    discriminator = cms.string(TAUDISCRIMINATOR),
    NominalUpOrDown = cms.string("Nominal"),
    NominalTESCorrection = cms.double(NominalTESCorrection),                            
-   ApplyTESCorrection = cms.bool(ApplyTESCorrection),
+   ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),
    flags = cms.PSet(
         isGood = cms.string("")
         )
@@ -423,7 +424,7 @@ process.softTausTauUp = process.softTaus.clone(
    cut = cms.string(TAUCUT),
    NominalUpOrDown = cms.string("Up"),
    NominalTESCorrection = cms.double(NominalTESCorrection),    
-   ApplyTESCorrection = cms.bool(ApplyTESCorrection),                        
+   ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                        
    discriminator = cms.string(TAUDISCRIMINATOR),
    flags = cms.PSet(
         isGood = cms.string("")
@@ -437,7 +438,7 @@ process.softTausTauDown = process.softTaus.clone(
    cut = cms.string(TAUCUT),
    NominalUpOrDown = cms.string("Down"),
    NominalTESCorrection = cms.double(NominalTESCorrection), 
-   ApplyTESCorrection = cms.bool(ApplyTESCorrection),                       
+   ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                       
    discriminator = cms.string(TAUDISCRIMINATOR),
    flags = cms.PSet(
         isGood = cms.string("")

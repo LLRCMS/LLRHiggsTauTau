@@ -25,6 +25,7 @@ USE_NOHFMET = False # True to exclude HF and run on silver json
 
 SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
+APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
 
 IsMC=True
 Is25ns=True
@@ -38,8 +39,6 @@ TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #mi
 JETCUT="pt>10"
 LLCUT="mass>0"
 BCUT="pt>5"
-ApplyTESCorrection=True
-NominalTESCorrection=-1#in percent
 
 # ------------------------
 DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are saved!

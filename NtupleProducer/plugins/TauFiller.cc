@@ -53,8 +53,8 @@ class TauFiller : public edm::EDProducer {
   const CutSet<pat::Tau> flags;
   const std::string NominalUpOrDown;
   const double NominalTESCorrection;
-  const bool ApplyTESCorrection;}
-;
+  const bool ApplyTESCorrection;
+};
 
 
 TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
@@ -116,19 +116,19 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCorrection) {
 
-      if(l.decayMode()>=1 && l.decayMode()<10){
-	shiftP = Shift;
-	shiftMass = Shift;
+      if(l.decayMode()>=1 && l.decayMode()<=10){
+        shiftP = Shift;
+        shiftMass = Shift;
       }
 
       else if(l.decayMode()==0){
-	shiftP = Shift;
-	shiftMass = 1.;
+        shiftP = Shift;
+        shiftMass = 1.;
       }
-      else if(l.decayMode()==10){
-	shiftP = Shift;
-	shiftMass = Shift;
-      }
+ //      else if(l.decayMode()==10){
+	// shiftP = Shift;
+	// shiftMass = Shift;
+ //      }
     }
     
     double pxS_Nominal = l.px()*shiftP;
@@ -153,19 +153,19 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       isTESShifted = 1;
 
-      if(l.decayMode()>=1 && l.decayMode()<10){
-	shiftP = Shift;
-	shiftMass = Shift;
+      if(l.decayMode()>=1 && l.decayMode()<=10){
+        shiftP = Shift;
+        shiftMass = Shift;
       }
 
       else if(l.decayMode()==0){
-	shiftP = Shift;
-	shiftMass = 1.;
+        shiftP = Shift;
+        shiftMass = 1.;
       }
-      else if(l.decayMode()==10){
-	shiftP = Shift;
-	shiftMass = Shift;
-      }
+ //      else if(l.decayMode()==10){
+	// shiftP = Shift;
+	// shiftMass = Shift;
+ //      }
       else isTESShifted = 0;
     }
     
