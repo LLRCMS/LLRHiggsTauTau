@@ -690,15 +690,24 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
 
 )
 
+
+srcMETTag = None
 if USEPAIRMET:
-    if IsMC and APPLYMETCORR:
-        process.SVllCand.srcMET    = cms.VInputTag(corrMVAPairMET)
-    else:
-        process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
-#   process.SVllCandTauUp.srcMET    = cms.VInputTag(MVAPairMET)
-#   process.SVllCandTauDown.srcMET    = cms.VInputTag(MVAPairMET)
+  srcMETTag = cms.VInputTag(corrMVAPairMET) if (IsMC and APPLYMETCORR) else cms.VInputTag(MVAPairMET)
 else:
-   process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
+  srcMETTag = cms.VInputTag(PFMetName)
+
+process.SVllCand.srcMET = srcMETTag
+
+# if USEPAIRMET:
+#     if IsMC and APPLYMETCORR:
+#         process.SVllCand.srcMET    = cms.VInputTag(corrMVAPairMET)
+#     else:
+#         process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
+# #   process.SVllCandTauUp.srcMET    = cms.VInputTag(MVAPairMET)
+# #   process.SVllCandTauDown.srcMET    = cms.VInputTag(MVAPairMET)
+# else:
+#    process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
 
 ## ----------------------------------------------------------------------
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass and don't get MET userfloats
@@ -706,7 +715,7 @@ else:
 process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcPairs   = cms.InputTag("barellCand"),
                                     usePairMET = cms.bool(USEPAIRMET),
-                                    srcMET     = cms.VInputTag(PFMetName),
+                                    srcMET     = srcMETTag,
                                     srcSig     = cms.InputTag("METSignificance", "METSignificance"),
                                     srcCov     = cms.InputTag("METSignificance", "METCovariance")
 )
