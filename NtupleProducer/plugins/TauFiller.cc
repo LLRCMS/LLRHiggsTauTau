@@ -51,9 +51,10 @@ class TauFiller : public edm::EDProducer {
   const std::string theDiscriminatorTag;
   const StringCutObjectSelector<pat::Tau, true> cut;
   const CutSet<pat::Tau> flags;
-  const std::string NominalUpOrDown;
-  const double NominalTESCorrection;
-  const bool ApplyTESCorrection;
+  // const std::string NominalUpOrDown;
+  const double NominalTESCorrection; // value of correction of centrale TES value
+  const bool ApplyTESCentralCorr; // shift the central TES value
+  const bool ApplyTESUpDown; // compute Up/Down TES variation
 
   vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
   vector<string> tauFloatDiscrims_; // tau discrims to be added as userFloats
@@ -67,9 +68,10 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   theDiscriminatorTag(iConfig.getParameter<std::string>("discriminator")),
   cut(iConfig.getParameter<std::string>("cut")),
   flags(iConfig.getParameter<ParameterSet>("flags")), 
-  NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown")),
+  // NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown")),
   NominalTESCorrection(iConfig.getParameter<double>("NominalTESCorrection")),
-  ApplyTESCorrection(iConfig.getParameter<bool>("ApplyTESCorrection"))//,
+  ApplyTESCentralCorr(iConfig.getParameter<bool>("ApplyTESCentralCorr")),
+  ApplyTESUpDown(iConfig.getParameter<bool>("ApplyTESUpDown"))
 {
   produces<pat::TauCollection>();
 
@@ -173,28 +175,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 //read one PFTauDiscriminator (set discriminatorSrc_ in to an edm::InputTag before)
 
-// loop over taus
-//    for ( unsigned iTau = 0; iTau < taus->size(); ++iTau ) {
-//        reco::PFTauRef tauCandidate(taus, iTau);
-// check if tau candidate has passed discriminator
-//        if( (*discriminator)[tauCandidate] > 0.5 ){
-//        // do something with your candidate
-//        }
-//    }
-
-
   // Get leptons and discriminators
-  //edm::Handle<pat::PFTauCollection> tauHandle;
   edm::Handle<pat::TauRefVector> tauHandle;
   iEvent.getByToken(theCandidateTag, tauHandle);
-  
-  //edm::Handle<reco::PFTauDiscriminator> discriminator;
-  //iEvent.getByLabel(theDiscriminatorTag, discriminator);
-
-  //hpsPFTauDiscrimination
-  
+    
   edm::Handle<vector<Vertex> >  vertexs;
-  //iEvent.getByLabel("goodPrimaryVertices",vertexs);
   iEvent.getByToken(theVtxTag, vertexs);
 
   // Output collection
@@ -204,26 +189,25 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //---Clone the pat::Tau
     pat::Tau l(*((*tauHandle)[itau].get()));
     
-    //Nominal TES Correction
+    // Nominal TES Correction
     double Shift = 1.+NominalTESCorrection/100.;
     double shiftP = 1.;
     double shiftMass = 1.;
     
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCorrection) {
-
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr)
+    {
       if(l.decayMode()>=1 && l.decayMode()<=10){
         shiftP = Shift;
         shiftMass = Shift;
       }
-
       else if(l.decayMode()==0){
         shiftP = Shift;
         shiftMass = 1.;
       }
- //      else if(l.decayMode()==10){
-	// shiftP = Shift;
-	// shiftMass = Shift;
- //      }
+      // else if(l.decayMode()==10){
+      //   shiftP = Shift;
+      //   shiftMass = Shift;
+      // }
     }
     
     double pxS_Nominal = l.px()*shiftP;
@@ -236,42 +220,70 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.setP4( p4S_Nominal );
     
     //Up and Down (+3/-3%) variations
-    Shift = 1.;
-    if(NominalUpOrDown=="Nominal") Shift = 1.;
-    if(NominalUpOrDown=="Up") Shift = 1.03;
-    if(NominalUpOrDown=="Down") Shift = 0.97;
+    const float udShift[2] = {1.03, 0.97}; // 0: UP, 1: DOWN
+    // ShiftDown = 0.97;
+    // if(NominalUpOrDown=="Nominal") Shift = 1.;
+    // if(NominalUpOrDown=="Up") Shift = 1.03;
+    // if(NominalUpOrDown=="Down") Shift = 0.97;
 
-    shiftP = 1.;
-    shiftMass = 1.;
-    int isTESShifted = 0;
+    float udshiftP[2] = {1., 1.};
+    float udshiftMass[2] = {1., 1.};
+    bool isTESShifted = false;
     if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. ) {
 
-      isTESShifted = 1;
+      isTESShifted = true;
 
       if(l.decayMode()>=1 && l.decayMode()<=10){
-        shiftP = Shift;
-        shiftMass = Shift;
+        udshiftP[0] = udShift[0]; // up
+        udshiftP[1] = udShift[1]; // down
+        udshiftMass[0] = udShift[0]; // up
+        udshiftMass[1] = udShift[1]; // down
       }
 
       else if(l.decayMode()==0){
-        shiftP = Shift;
-        shiftMass = 1.;
+        udshiftP[0] = udShift[0]; // up
+        udshiftP[1] = udShift[1]; // down
+        udshiftMass[0] = udshiftMass[1] = 1.; // no mass shift for pi0
       }
- //      else if(l.decayMode()==10){
-	// shiftP = Shift;
-	// shiftMass = Shift;
- //      }
-      else isTESShifted = 0;
+      // else if(l.decayMode()==10){
+      //   shiftP = Shift;
+      //   shiftMass = Shift;
+      // }
+      else isTESShifted = false;
     }
-    
-    double pxS = l.px()*shiftP;
-    double pyS = l.py()*shiftP;
-    double pzS = l.pz()*shiftP;
-    double massS = l.mass()*shiftMass;
-    double enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
-    math::XYZTLorentzVectorD p4S( pxS, pyS, pzS, enS );
 
-    l.setP4( p4S );
+    if (isTESShifted)
+    {
+      // up shift
+      double pxS = l.px()*udshiftP[0];
+      double pyS = l.py()*udshiftP[0];
+      double pzS = l.pz()*udshiftP[0];
+      double massS = l.mass()*udshiftMass[0];
+      double enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
+      math::XYZTLorentzVectorD p4SUP( pxS, pyS, pzS, enS );
+      // set userfloats
+      l.addUserFloat("px_TauUp",p4SUP.px());
+      l.addUserFloat("py_TauUp",p4SUP.py());
+      l.addUserFloat("pz_TauUp",p4SUP.pz());
+      l.addUserFloat("e_TauUp",p4SUP.energy());
+
+      // down shift
+      pxS = l.px()*udshiftP[1];
+      pyS = l.py()*udshiftP[1];
+      pzS = l.pz()*udshiftP[1];
+      massS = l.mass()*udshiftMass[1];
+      enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
+      math::XYZTLorentzVectorD p4SDOWN( pxS, pyS, pzS, enS );
+      // set userfloats
+      l.addUserFloat("px_TauDown",p4SUP.px());
+      l.addUserFloat("py_TauDown",p4SUP.py());
+      l.addUserFloat("pz_TauDown",p4SUP.pz());
+      l.addUserFloat("e_TauDown",p4SUP.energy());
+    }
+    l.addUserInt("TauUpExists", isTESShifted ? 1 : 0);
+    l.addUserInt("TauDownExists", isTESShifted ? 1 : 0);
+
+
     
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();

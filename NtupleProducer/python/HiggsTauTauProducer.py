@@ -135,18 +135,18 @@ process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
 )
 
 
-# MC matching. As the genParticles are no more available in cmg, we re-match with prunedGenParticles.
-process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
-                                   src     = cms.InputTag("softMuons"), # RECO objects to match  
-                                   matched = cms.InputTag("prunedGenParticles"),   # mc-truth particle collection
-                                   mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
-                                   checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge
-                                   mcStatus = cms.vint32(1),     # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-                                   maxDeltaR = cms.double(0.5),  # Minimum deltaR for the match
-                                   maxDPtRel = cms.double(0.5),  # Minimum deltaPt/Pt for the match
-                                   resolveAmbiguities = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
-                                   resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
-                                   )
+# # MC matching. As the genParticles are no more available in cmg, we re-match with prunedGenParticles.
+# process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+#                                    src     = cms.InputTag("softMuons"), # RECO objects to match  
+#                                    matched = cms.InputTag("prunedGenParticles"),   # mc-truth particle collection
+#                                    mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
+#                                    checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge
+#                                    mcStatus = cms.vint32(1),     # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
+#                                    maxDeltaR = cms.double(0.5),  # Minimum deltaR for the match
+#                                    maxDPtRel = cms.double(0.5),  # Minimum deltaPt/Pt for the match
+#                                    resolveAmbiguities = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
+#                                    resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
+#                                    )
 
 process.softMuons = cms.EDProducer("MuFiller",
     src = cms.InputTag("bareSoftMuons"),
@@ -319,17 +319,17 @@ process.electrons = cms.Sequence(getattr(process,mvaMod)*getattr(process,egmMod)
 #    process.calibratedPatElectrons.combinationType   = 0
 #    
 
-process.electronMatch = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
-                                       src         = cms.InputTag("bareSoftElectrons"), # RECO objects to match
-                                       matched     = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
-                                       mcPdgId     = cms.vint32(11),               # one or more PDG ID (11 = electron); absolute values (see below)
-                                       checkCharge = cms.bool(True),               # True = require RECO and MC objects to have the same charge
-                                       mcStatus    = cms.vint32(1),                # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-                                       maxDeltaR   = cms.double(0.5),              # Minimum deltaR for the match
-                                       maxDPtRel   = cms.double(0.5),              # Minimum deltaPt/Pt for the match
-                                       resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
-                                       resolveByMatchQuality = cms.bool(False),    # False = just match input in order; True = pick lowest deltaR pair first
-                                       )
+# process.electronMatch = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
+#                                        src         = cms.InputTag("bareSoftElectrons"), # RECO objects to match
+#                                        matched     = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
+#                                        mcPdgId     = cms.vint32(11),               # one or more PDG ID (11 = electron); absolute values (see below)
+#                                        checkCharge = cms.bool(True),               # True = require RECO and MC objects to have the same charge
+#                                        mcStatus    = cms.vint32(1),                # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
+#                                        maxDeltaR   = cms.double(0.5),              # Minimum deltaR for the match
+#                                        maxDPtRel   = cms.double(0.5),              # Minimum deltaPt/Pt for the match
+#                                        resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
+#                                        resolveByMatchQuality = cms.bool(False),    # False = just match input in order; True = pick lowest deltaR pair first
+#                                        )
 
 
 ### ----------------------------------------------------------------------
@@ -401,72 +401,70 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
         finalCut = cms.string(' '),
 )
 
-NominalTESCorrection=-1#in percent
-
+# NominalTESCorrection=-1#in percent\
+APPLYTESCORRECTION = APPLYTESCORRECTION if IsMC else False # always false if data
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
    genCollection = cms.InputTag("prunedGenParticles"),
    vtxCollection = cms.InputTag("goodPrimaryVertices"),
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
-   NominalUpOrDown = cms.string("Nominal"),
-   NominalTESCorrection = cms.double(NominalTESCorrection),                            
-   ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),
+   NominalTESCorrection = cms.double(-1), #in percent , shift of central value of TES
+   ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
+   ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
    flags = cms.PSet(
         isGood = cms.string("")
         )
    )
 
-process.softTausTauUp = process.softTaus.clone(
-   src = cms.InputTag("bareTaus"),
-   genCollection = cms.InputTag("prunedGenParticles"),
-   vtxCollection = cms.InputTag("goodPrimaryVertices"),
-   cut = cms.string(TAUCUT),
-   NominalUpOrDown = cms.string("Up"),
-   NominalTESCorrection = cms.double(NominalTESCorrection),    
-   ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                        
-   discriminator = cms.string(TAUDISCRIMINATOR),
-   flags = cms.PSet(
-        isGood = cms.string("")
-        )
-   )
+# process.softTausTauUp = process.softTaus.clone(
+#    src = cms.InputTag("bareTaus"),
+#    genCollection = cms.InputTag("prunedGenParticles"),
+#    vtxCollection = cms.InputTag("goodPrimaryVertices"),
+#    cut = cms.string(TAUCUT),
+#    NominalUpOrDown = cms.string("Up"),
+#    NominalTESCorrection = cms.double(NominalTESCorrection),    
+#    ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                        
+#    discriminator = cms.string(TAUDISCRIMINATOR),
+#    flags = cms.PSet(
+#         isGood = cms.string("")
+#         )
+#    )
 
-process.softTausTauDown = process.softTaus.clone(
-   src = cms.InputTag("bareTaus"),
-   genCollection = cms.InputTag("prunedGenParticles"),
-   vtxCollection = cms.InputTag("goodPrimaryVertices"),
-   cut = cms.string(TAUCUT),
-   NominalUpOrDown = cms.string("Down"),
-   NominalTESCorrection = cms.double(NominalTESCorrection), 
-   ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                       
-   discriminator = cms.string(TAUDISCRIMINATOR),
-   flags = cms.PSet(
-        isGood = cms.string("")
-        )
-   )
+# process.softTausTauDown = process.softTaus.clone(
+#    src = cms.InputTag("bareTaus"),
+#    genCollection = cms.InputTag("prunedGenParticles"),
+#    vtxCollection = cms.InputTag("goodPrimaryVertices"),
+#    cut = cms.string(TAUCUT),
+#    NominalUpOrDown = cms.string("Down"),
+#    NominalTESCorrection = cms.double(NominalTESCorrection), 
+#    ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                       
+#    discriminator = cms.string(TAUDISCRIMINATOR),
+#    flags = cms.PSet(
+#         isGood = cms.string("")
+#         )
+#    )
 
-process.tauMatch = cms.EDProducer("MCMatcher",
-    src = cms.InputTag("softTaus"),
-    maxDPtRel = cms.double(999.9),
-    mcPdgId = cms.vint32(15),
-    mcStatus = cms.vint32(2),
-    resolveByMatchQuality = cms.bool(False),
-    maxDeltaR = cms.double(999.9),
-    checkCharge = cms.bool(True),
-    resolveAmbiguities = cms.bool(True),
-    matched = cms.InputTag("prunedGenParticles")
-    )
+# process.tauMatch = cms.EDProducer("MCMatcher",
+#     src = cms.InputTag("softTaus"),
+#     maxDPtRel = cms.double(999.9),
+#     mcPdgId = cms.vint32(15),
+#     mcStatus = cms.vint32(2),
+#     resolveByMatchQuality = cms.bool(False),
+#     maxDeltaR = cms.double(999.9),
+#     checkCharge = cms.bool(True),
+#     resolveAmbiguities = cms.bool(True),
+#     matched = cms.InputTag("prunedGenParticles")
+#     )
 
 
-process.taus=cms.Sequence(process.bareTaus + process.softTaus + process.softTausTauUp + process.softTausTauDown)
+process.taus=cms.Sequence(process.bareTaus + process.softTaus)
 
-process.tausMerged = cms.EDProducer("MergeTauCollections",
-    src        = cms.InputTag("softTaus"),
-    srcTauUp   = cms.InputTag("softTausTauUp"),
-    srcTauDown = cms.InputTag("softTausTauDown")
-)
-
-#process.tausDummy=cms.Sequence(process.
+# process.tausMerged = cms.EDProducer("MergeTauCollections",
+#     src        = cms.InputTag("softTaus"),
+#     srcTauUp   = cms.InputTag("softTausTauUp"),
+#     srcTauDown = cms.InputTag("softTausTauDown")
+# )
 
 #process.tausMerged=cms.Sequence(process.softTaus + process.softTausTauUp + process.softTausTauDown + process.tausMerging)
 
@@ -511,24 +509,13 @@ if not APPLYFSR :
     process.fsrSequence = cms.Sequence()
     muString = "softMuons"
     eleString = "softElectrons"
-    tauString = "tausMerged"
-#    tauString = "softTaus"
+    tauString = "softTaus"
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
     #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
     src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
 )
-#print: "lepton collection built"
 
-#tauStringTauUp = "softTausTauUp" 
-#process.softLeptonsTauUp = cms.EDProducer("CandViewMerger",
-#    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauStringTauUp))
-#)
-
-#tauStringTauDown = "softTausTauDown" 
-#process.softLeptonsTauDown = cms.EDProducer("CandViewMerger",
-#    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauStringTauDown))
-#)
 
 #
 #Jets
@@ -580,26 +567,6 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     cut = cms.string(LLCUT),
                                     checkCharge = cms.bool(checkcharge)
 )
-
-#decayStringTauUp="softLeptonsTauUp softLeptonsTauUp"
-#if BUILDONLYOS:
-#    decayStringTauUp="softLeptonsTauUp@+ softLeptonsTauUp@-"
-#    checkcharge=True
-#process.barellCandTauUp = cms.EDProducer("CandViewShallowCloneCombiner",
-#                                    decay = cms.string(decayStringTauUp),
-#                                    cut = cms.string(LLCUT),
-#                                    checkCharge = cms.bool(checkcharge)
-#)
-
-#decayStringTauDown="softLeptonsTauDown softLeptonsTauDown"
-#if BUILDONLYOS:
-#    decayStringTauDown="softLeptonsTauDown@+ softLeptonsTauDown@-"
-#    checkcharge=True
-#process.barellCandTauDown = cms.EDProducer("CandViewShallowCloneCombiner",
-#                                    decay = cms.string(decayStringTauDown),
-#                                    cut = cms.string(LLCUT),
-#                                    checkCharge = cms.bool(checkcharge)
-#)
 
 ## ----------------------------------------------------------------------
 ## MVA MET
@@ -788,8 +755,6 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
-#process.HTtruth = cms.Path(process.HT)
-
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
     #process.printTree         + # just for debug, print MC particles
@@ -798,11 +763,9 @@ process.Candidates = cms.Sequence(
     process.nEventsPassTrigger+
     process.muons             +
     process.electrons         + process.cleanSoftElectrons +
-    process.taus              + process.tausMerged +
+    process.taus              + 
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-#    process.softLeptonsTauUp  + process.barellCandTauUp +
-#    process.softLeptonsTauDown  + process.barellCandTauDown +
     process.pileupJetIdUpdated + process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets +
     process.METSequence       +
     process.geninfo           +
