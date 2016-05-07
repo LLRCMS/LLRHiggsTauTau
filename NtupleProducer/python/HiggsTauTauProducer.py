@@ -658,10 +658,10 @@ if IsMC and APPLYMETCORR:
 ## ----------------------------------------------------------------------
 process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcPairs   = cms.InputTag("barellCand"),
-                                  usePairMET = cms.bool(USEPAIRMET),
                                   srcSig     = cms.InputTag("METSignificance", "METSignificance"),
-                                  srcCov     = cms.InputTag("METSignificance", "METCovariance")
-
+                                  srcCov     = cms.InputTag("METSignificance", "METCovariance"),
+                                  usePairMET = cms.bool(USEPAIRMET),
+                                  computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT)
 )
 
 

@@ -1309,11 +1309,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     float thisMETpx = cand.userFloat("MEt_px");
     float thisMETpy = cand.userFloat("MEt_py");
-    float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -1.;
-    float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -1.;
+    float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
+    float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
-    bool hasUp   = cand.hasUserFloat ("SVfitMassUp");
-    bool hasDown = cand.hasUserFloat ("SVfitMassDown");
+    bool hasUp   = cand.hasUserFloat ("SVfitMassTauUp");
+    bool hasDown = cand.hasUserFloat ("SVfitMassTauDown");
 
     _SVmass.push_back(cand.userFloat("SVfitMass"));
     _SVmassTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
