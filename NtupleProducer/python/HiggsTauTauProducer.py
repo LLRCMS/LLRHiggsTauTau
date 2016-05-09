@@ -115,7 +115,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   src = cms.InputTag("offlineSlimmedPrimaryVertices"),
   cut = cms.string(PVERTEXCUT),
-  filter = cms.bool(True),
+  filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
 
 ### Mu Ghost cleaning
