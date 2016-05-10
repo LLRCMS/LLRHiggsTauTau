@@ -699,9 +699,7 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
 ## Ntuplizer
 ## ----------------------------------------------------------------------
 process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
-                      JetCollection = cms.InputTag("jets"),    
                       fileName = cms.untracked.string ("CosaACaso"),
-                      skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -722,9 +720,9 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       triggerSet = cms.InputTag("selectedPatTrigger"),
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
+                      PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
-                      HT = cms.InputTag("externalLHEProducer"),
-                      useNOHFMet = cms.bool(USE_NOHFMET) # true to run on silver json, false to use ful MET including HF
+                      HT = cms.InputTag("externalLHEProducer")
                       )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
@@ -732,13 +730,11 @@ else:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs")
 
 if SVFITBYPASS:
-    process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
     process.SVFit = cms.Sequence (process.SVbypass)
 
 
 else:
-    process.HTauTauTree.CandCollection = cms.untracked.string("SVllCand")
     process.HTauTauTree.candCollection = cms.InputTag("SVllCand")
     process.SVFit = cms.Sequence (process.SVllCand)
 

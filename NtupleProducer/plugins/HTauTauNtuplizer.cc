@@ -159,13 +159,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::map <int, int> genFlagPosMap_; // to convert from input to output enum format for H/Z decays
   
   //Configs
-  int theChannel;
-  std::string theCandLabel;
-  edm::InputTag jetLabel;
   TString theFileName;
   bool theFSR;
   Bool_t theisMC;
-  Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
+  // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
   vector<string> foundPaths;
@@ -197,6 +194,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<LHEEventProduct> theLHETag;
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
   edm::EDGetTokenT<pat::METCollection> theMetTag;
+  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
   edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
   edm::EDGetTokenT<edm::View<reco::GenJet>> theGenJetTag;
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
@@ -208,7 +206,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
   bool applySkim;       //  "     "      "     skim
-  bool skipEmptyEvents; // Skip events whith no candidate in the collection
   //PUReweight reweight;
 
   //counters
@@ -224,6 +221,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _metfilterbit;
   Float_t _met;
   Float_t _metphi;
+  Float_t _PUPPImet;
+  Float_t _PUPPImetphi;
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
@@ -527,6 +526,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theLHETag            (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lheCollection"))),
   theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
   theMetTag            (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metCollection"))),
+  thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))),
   theGenericTag        (consumes<edm::View<pat::GenericParticle>>        (pset.getParameter<edm::InputTag>("genericCollection"))),
   theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
   theTotTag            (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("totCollection"))),
@@ -534,14 +534,10 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection")))
 
  {
-  theCandLabel = pset.getUntrackedParameter<string>("CandCollection");
-  jetLabel = pset.getParameter<edm::InputTag>("JetCollection");
-  //theChannel = myHelper.channel();
   theFileName = pset.getUntrackedParameter<string>("fileName");
-  skipEmptyEvents = pset.getParameter<bool>("skipEmptyEvents");
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
-  theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
+  // theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
@@ -802,6 +798,8 @@ void HTauTauNtuplizer::Initialize(){
   _metfilterbit=0;
   _met=0;
   _metphi=0.;
+  _PUPPImet=0;
+  _PUPPImetphi=0.;
   _MC_weight=0.;
   _npv=0;
   _lheHt=0;
@@ -866,7 +864,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
-  myTree->Branch("metphi",&_metphi,"metphi/F");  
+  myTree->Branch("metphi",&_metphi,"PUPPImetphi/F");  
+  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
+  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"metphi/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/F"); 
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
@@ -1210,6 +1210,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<reco::Candidate>>dauHandle;
   edm::Handle<edm::View<pat::Jet>>jetHandle;
   edm::Handle<pat::METCollection> metHandle;
+  edm::Handle<pat::METCollection> PUPPImetHandle;
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
  
@@ -1223,11 +1224,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
 
   // protect in case of events where trigger hasn't fired --> no collection created 
-  //event.getByLabel(theCandLabel,candHandle);
   event.getByToken(theCandTag,candHandle);
   if (!candHandle.isValid()) return;
 
-  //event.getByLabel(theCandLabel,candHandle);
   event.getByToken(theCandTag,candHandle);
   //event.getByLabel("jets",jetHandle);
   //event.getByLabel("softLeptons",dauHandle);
@@ -1235,6 +1234,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(theLepTag,dauHandle);
   
   event.getByToken(theMetTag,metHandle);
+  event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
     event.getByToken(theLHETag,lheeventinfo);
@@ -1267,6 +1267,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const edm::View<reco::Candidate>* daus = dauHandle.product();
   const edm::View<pat::Jet>* jets = jetHandle.product();
   const pat::MET &met = metHandle->front();
+  const pat::MET &PUPPImet = PUPPImetHandle->front();
   //myNtuple->InitializeVariables();
     
   _indexevents = event.id().event();
@@ -1275,6 +1276,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // _met = met.sumEt(); // scalar sum of the pf candidates
   _met = met.pt();
   _metphi = met.phi();
+  _PUPPImet = PUPPImet.pt();
+  _PUPPImetphi = PUPPImet.phi();
     
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
