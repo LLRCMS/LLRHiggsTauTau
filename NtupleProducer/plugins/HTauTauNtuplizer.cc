@@ -376,6 +376,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _dz;
   std::vector<Float_t> _dxy_innerTrack;
   std::vector<Float_t> _dz_innerTrack;
+  std::vector<Float_t> _daughters_rel_error_trackpt;
   std::vector<Float_t> _SIP;
   std::vector<bool> _daughters_iseleBDT; //isBDT for ele
   std::vector<bool> _daughters_iseleWP80; //isBDT for ele
@@ -421,7 +422,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byVTightIsolationMVArun2v1DBdR03oldDMwLT"
   };
   std::vector<Float_t> _daughters_IetaIeta;
+  std::vector<Float_t> _daughters_hOverE;
+  std::vector<Float_t> _daughters_deltaEtaSuperClusterTrackAtVtx;
   std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
+  std::vector<Float_t> _daughters_IoEmIoP;
   std::vector<Float_t> _daughters_SCeta;
   std::vector<Float_t> _daughters_depositR03_tracker;
   std::vector<Float_t> _daughters_depositR03_ecal;
@@ -653,7 +657,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_charge.clear();
   _daughters_genindex.clear();
   _daughters_IetaIeta.clear();
+  _daughters_hOverE.clear();
+  _daughters_deltaEtaSuperClusterTrackAtVtx.clear();
   _daughters_deltaPhiSuperClusterTrackAtVtx.clear();
+  _daughters_IoEmIoP.clear();
   _daughters_SCeta.clear();
   _daughters_depositR03_tracker.clear();  
   _daughters_depositR03_ecal.clear();  
@@ -813,6 +820,7 @@ void HTauTauNtuplizer::Initialize(){
   _dz.clear();
   _dxy_innerTrack.clear();
   _dz_innerTrack.clear();
+  _daughters_rel_error_trackpt.clear();
   _SIP.clear();
   _decayType.clear();
   _daughters_tauID.clear();
@@ -1058,6 +1066,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("dz",&_dz);
   myTree->Branch("dxy_innerTrack",&_dxy_innerTrack);
   myTree->Branch("dz_innerTrack",&_dz_innerTrack);
+  myTree->Branch("daughters_rel_error_trackpt",&_daughters_rel_error_trackpt);
   myTree->Branch("SIP",&_SIP);
   myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
   myTree->Branch("daughters_iseleWP80",&_daughters_iseleWP80);
@@ -1071,7 +1080,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
+  myTree->Branch("daughters_hOverE",&_daughters_hOverE);
+  myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
   myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
+  myTree->Branch("daughters_IoEmIoP",&_daughters_IoEmIoP);
   myTree->Branch("daughters_SCeta",&_daughters_SCeta);
   myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
@@ -1285,15 +1297,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
  
-   // Accessing the JEC uncertainties 
-  //ak4  
-  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl); 
-  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-  JetCorrectionUncertainty *jecUnc=0;
-  jecUnc = new JetCorrectionUncertainty(JetCorPar);
-
-
   // protect in case of events where trigger hasn't fired --> no collection created 
   event.getByToken(theCandTag,candHandle);
   if (!candHandle.isValid()) return;
@@ -1365,11 +1368,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   FillSoftLeptons(daus,event,theFSR,jets);
 
   //Loop on Jets
+
+  // Accessing the JEC uncertainties 
+  //ak4  
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl); 
+  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+  JetCorrectionUncertainty jecUnc (JetCorPar);
   _numberOfJets = 0;
-  if(writeJets)_numberOfJets = FillJet(jets, event,jecUnc);
+  if(writeJets)_numberOfJets = FillJet(jets, event, &jecUnc);
   if(writeFatJets) FillFatJet(fatjets, event);
   
-
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
   for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
@@ -1916,7 +1925,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     bool iselechargeconsistent=false;
 
     int decay=-1;
-    float ieta=-1,superatvtx=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
+    float ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
@@ -1932,7 +1941,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     neutralIsoPtSumWeight,
     photonPtSumOutsideSignalCone;
 
-    float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1.;
+    float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1., error_trackpt=-1.;
     int jetNDauChargedMVASel = -1;
     float miniRelIsoCharged = -1., miniRelIsoNeutral = -1.;
     float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1.;
@@ -1952,6 +1961,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
 
       dxy_innerTrack = userdatahelpers::getUserFloat(cand,"dxy_innerTrack");
       dz_innerTrack = userdatahelpers::getUserFloat(cand,"dz_innerTrack");
+      error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       sip = userdatahelpers::getUserFloat(cand,"SIP");
 
       jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
@@ -1968,13 +1978,17 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     }else if(type==ParticleType::ELECTRON){
       discr=userdatahelpers::getUserFloat(cand,"BDT");
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
-      superatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
+      hOverE=userdatahelpers::getUserFloat(cand,"hOverE");
+      etasuperatvtx=userdatahelpers::getUserFloat(cand,"deltaEtaSuperClusterTrackAtVtx");
+      phisuperatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
+      IoEmIoP=userdatahelpers::getUserFloat(cand,"IoEmIoP");
       SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
       if(userdatahelpers::getUserInt(cand,"isBDT") == 1)isgood=true;
       if(userdatahelpers::getUserInt(cand,"isEleID80") == 1) isele80=true;
       if(userdatahelpers::getUserInt(cand,"isEleID90") == 1) isele90=true;
       elemva=(userdatahelpers::getUserFloat(cand,"eleMVAvalue"));
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
+      error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
       if(userdatahelpers::getUserInt(cand,"isGsfCtfScPixChargeConsistent") == 1)iselechargeconsistent=true;
 
@@ -2054,7 +2068,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
     _decayType.push_back(decay);
     _daughters_IetaIeta.push_back(ieta);
-    _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(superatvtx);
+    _daughters_hOverE.push_back(hOverE);
+    _daughters_deltaEtaSuperClusterTrackAtVtx.push_back(etasuperatvtx);
+    _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(phisuperatvtx);
+    _daughters_IoEmIoP.push_back(IoEmIoP);
     _daughters_SCeta.push_back(SCeta);
     _daughters_depositR03_tracker.push_back(depositTracker);
     _daughters_depositR03_ecal.push_back(depositEcal);
@@ -2082,6 +2099,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
 
     _dxy_innerTrack.push_back(dxy_innerTrack);
     _dz_innerTrack.push_back(dz_innerTrack);
+    _daughters_rel_error_trackpt.push_back(error_trackpt);
     _SIP.push_back(sip);
 
     _daughters_jetNDauChargedMVASel.push_back(jetNDauChargedMVASel);
