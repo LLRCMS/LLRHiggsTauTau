@@ -92,7 +92,7 @@ git cms-merge-topic --unsafe rfriese:MVAMET2_beta_0.6
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
-cd LLRHiggsTauTau; git checkout mvamet-devel
+cd LLRHiggsTauTau; git checkout master
 cd -
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
 cd Muon/MuonAnalysisTools ; git checkout master -- interface/MuonEffectiveArea.h
