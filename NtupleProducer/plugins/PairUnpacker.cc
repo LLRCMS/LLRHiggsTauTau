@@ -56,6 +56,8 @@ PairUnpacker::PairUnpacker (const edm::ParameterSet& iConfig) :
    _InputPairsTag (iConfig.getParameter<InputTag>("src")),
    _pairIndex     (iConfig.getParameter<int> ("pairIndex"))
 {
+   consumes<View<reco::CompositeCandidate> >(_InputPairsTag);
+
    produces<reco::CandidateCollection>();
 }
 

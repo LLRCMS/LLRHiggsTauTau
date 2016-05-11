@@ -30,6 +30,10 @@ except NameError:
 PFMetName = "slimmedMETs"
 if USE_NOHFMET: PFMetName = "slimmedMETsNoHF"
 
+try: APPLYMETCORR
+except NameError:
+    APPLYMETCORR=TRUE
+
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
@@ -37,14 +41,17 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    #process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2' #MC 25 ns miniAODv2    
-    process.GlobalTag.globaltag = cms.string(autoCond['run2_mc'])
+    process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1' #MC 25 ns miniAODv2    
 else :
-    process.GlobalTag.globaltag = '76X_dataRun2_v15'
+    process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
 print process.GlobalTag.globaltag
 
 nanosec="25"
 if not Is25ns: nanosec="50"
+
+METfiltersProcess = "PAT" if IsMC else "RECO" # NB! this is not guaranteed to be true! the following is valid on 2015 Run C + Run D data. Check:
+# NB: for MET filters, use PAT or RECO depending if the miniAOD was generated simultaneously with RECO or in a separated step
+# https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD2016#ETmiss_filters
 
 ### ----------------------------------------------------------------------
 ### Standard stuff
@@ -108,7 +115,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   src = cms.InputTag("offlineSlimmedPrimaryVertices"),
   cut = cms.string(PVERTEXCUT),
-  filter = cms.bool(True),
+  filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
 
 ### Mu Ghost cleaning
@@ -128,18 +135,18 @@ process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
 )
 
 
-# MC matching. As the genParticles are no more available in cmg, we re-match with prunedGenParticles.
-process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
-                                   src     = cms.InputTag("softMuons"), # RECO objects to match  
-                                   matched = cms.InputTag("prunedGenParticles"),   # mc-truth particle collection
-                                   mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
-                                   checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge
-                                   mcStatus = cms.vint32(1),     # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-                                   maxDeltaR = cms.double(0.5),  # Minimum deltaR for the match
-                                   maxDPtRel = cms.double(0.5),  # Minimum deltaPt/Pt for the match
-                                   resolveAmbiguities = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
-                                   resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
-                                   )
+# # MC matching. As the genParticles are no more available in cmg, we re-match with prunedGenParticles.
+# process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
+#                                    src     = cms.InputTag("softMuons"), # RECO objects to match  
+#                                    matched = cms.InputTag("prunedGenParticles"),   # mc-truth particle collection
+#                                    mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
+#                                    checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge
+#                                    mcStatus = cms.vint32(1),     # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
+#                                    maxDeltaR = cms.double(0.5),  # Minimum deltaR for the match
+#                                    maxDPtRel = cms.double(0.5),  # Minimum deltaPt/Pt for the match
+#                                    resolveAmbiguities = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
+#                                    resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
+#                                    )
 
 process.softMuons = cms.EDProducer("MuFiller",
     src = cms.InputTag("bareSoftMuons"),
@@ -312,17 +319,17 @@ process.electrons = cms.Sequence(getattr(process,mvaMod)*getattr(process,egmMod)
 #    process.calibratedPatElectrons.combinationType   = 0
 #    
 
-process.electronMatch = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
-                                       src         = cms.InputTag("bareSoftElectrons"), # RECO objects to match
-                                       matched     = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
-                                       mcPdgId     = cms.vint32(11),               # one or more PDG ID (11 = electron); absolute values (see below)
-                                       checkCharge = cms.bool(True),               # True = require RECO and MC objects to have the same charge
-                                       mcStatus    = cms.vint32(1),                # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-                                       maxDeltaR   = cms.double(0.5),              # Minimum deltaR for the match
-                                       maxDPtRel   = cms.double(0.5),              # Minimum deltaPt/Pt for the match
-                                       resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
-                                       resolveByMatchQuality = cms.bool(False),    # False = just match input in order; True = pick lowest deltaR pair first
-                                       )
+# process.electronMatch = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
+#                                        src         = cms.InputTag("bareSoftElectrons"), # RECO objects to match
+#                                        matched     = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
+#                                        mcPdgId     = cms.vint32(11),               # one or more PDG ID (11 = electron); absolute values (see below)
+#                                        checkCharge = cms.bool(True),               # True = require RECO and MC objects to have the same charge
+#                                        mcStatus    = cms.vint32(1),                # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
+#                                        maxDeltaR   = cms.double(0.5),              # Minimum deltaR for the match
+#                                        maxDPtRel   = cms.double(0.5),              # Minimum deltaPt/Pt for the match
+#                                        resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
+#                                        resolveByMatchQuality = cms.bool(False),    # False = just match input in order; True = pick lowest deltaR pair first
+#                                        )
 
 
 ### ----------------------------------------------------------------------
@@ -394,65 +401,70 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
         finalCut = cms.string(' '),
 )
 
-
+# NominalTESCorrection=-1#in percent\
+APPLYTESCORRECTION = APPLYTESCORRECTION if IsMC else False # always false if data
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
    genCollection = cms.InputTag("prunedGenParticles"),
    vtxCollection = cms.InputTag("goodPrimaryVertices"),
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
-   NominalUpOrDown = cms.string("Nominal"),
+   NominalTESCorrection = cms.double(-1), #in percent , shift of central value of TES
+   ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
+   ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
    flags = cms.PSet(
         isGood = cms.string("")
         )
    )
 
-process.softTausTauUp = process.softTaus.clone(
-   src = cms.InputTag("bareTaus"),
-   genCollection = cms.InputTag("prunedGenParticles"),
-   vtxCollection = cms.InputTag("goodPrimaryVertices"),
-   cut = cms.string(TAUCUT),
-   NominalUpOrDown = cms.string("Up"),
-   discriminator = cms.string(TAUDISCRIMINATOR),
-   flags = cms.PSet(
-        isGood = cms.string("")
-        )
-   )
+# process.softTausTauUp = process.softTaus.clone(
+#    src = cms.InputTag("bareTaus"),
+#    genCollection = cms.InputTag("prunedGenParticles"),
+#    vtxCollection = cms.InputTag("goodPrimaryVertices"),
+#    cut = cms.string(TAUCUT),
+#    NominalUpOrDown = cms.string("Up"),
+#    NominalTESCorrection = cms.double(NominalTESCorrection),    
+#    ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                        
+#    discriminator = cms.string(TAUDISCRIMINATOR),
+#    flags = cms.PSet(
+#         isGood = cms.string("")
+#         )
+#    )
 
-process.softTausTauDown = process.softTaus.clone(
-   src = cms.InputTag("bareTaus"),
-   genCollection = cms.InputTag("prunedGenParticles"),
-   vtxCollection = cms.InputTag("goodPrimaryVertices"),
-   cut = cms.string(TAUCUT),
-   NominalUpOrDown = cms.string("Down"),
-   discriminator = cms.string(TAUDISCRIMINATOR),
-   flags = cms.PSet(
-        isGood = cms.string("")
-        )
-   )
+# process.softTausTauDown = process.softTaus.clone(
+#    src = cms.InputTag("bareTaus"),
+#    genCollection = cms.InputTag("prunedGenParticles"),
+#    vtxCollection = cms.InputTag("goodPrimaryVertices"),
+#    cut = cms.string(TAUCUT),
+#    NominalUpOrDown = cms.string("Down"),
+#    NominalTESCorrection = cms.double(NominalTESCorrection), 
+#    ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                       
+#    discriminator = cms.string(TAUDISCRIMINATOR),
+#    flags = cms.PSet(
+#         isGood = cms.string("")
+#         )
+#    )
 
-process.tauMatch = cms.EDProducer("MCMatcher",
-    src = cms.InputTag("softTaus"),
-    maxDPtRel = cms.double(999.9),
-    mcPdgId = cms.vint32(15),
-    mcStatus = cms.vint32(2),
-    resolveByMatchQuality = cms.bool(False),
-    maxDeltaR = cms.double(999.9),
-    checkCharge = cms.bool(True),
-    resolveAmbiguities = cms.bool(True),
-    matched = cms.InputTag("prunedGenParticles")
-    )
+# process.tauMatch = cms.EDProducer("MCMatcher",
+#     src = cms.InputTag("softTaus"),
+#     maxDPtRel = cms.double(999.9),
+#     mcPdgId = cms.vint32(15),
+#     mcStatus = cms.vint32(2),
+#     resolveByMatchQuality = cms.bool(False),
+#     maxDeltaR = cms.double(999.9),
+#     checkCharge = cms.bool(True),
+#     resolveAmbiguities = cms.bool(True),
+#     matched = cms.InputTag("prunedGenParticles")
+#     )
 
 
-process.taus=cms.Sequence(process.bareTaus + process.softTaus + process.softTausTauUp + process.softTausTauDown)
+process.taus=cms.Sequence(process.bareTaus + process.softTaus)
 
-process.tausMerged = cms.EDProducer("MergeTauCollections",
-    src        = cms.InputTag("softTaus"),
-    srcTauUp   = cms.InputTag("softTausTauUp"),
-    srcTauDown = cms.InputTag("softTausTauDown")
-)
-
-#process.tausDummy=cms.Sequence(process.
+# process.tausMerged = cms.EDProducer("MergeTauCollections",
+#     src        = cms.InputTag("softTaus"),
+#     srcTauUp   = cms.InputTag("softTausTauUp"),
+#     srcTauDown = cms.InputTag("softTausTauDown")
+# )
 
 #process.tausMerged=cms.Sequence(process.softTaus + process.softTausTauUp + process.softTausTauDown + process.tausMerging)
 
@@ -497,31 +509,50 @@ if not APPLYFSR :
     process.fsrSequence = cms.Sequence()
     muString = "softMuons"
     eleString = "softElectrons"
-    tauString = "tausMerged"
-#    tauString = "softTaus"
+    tauString = "softTaus"
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
     #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
     src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
 )
-#print: "lepton collection built"
 
-#tauStringTauUp = "softTausTauUp" 
-#process.softLeptonsTauUp = cms.EDProducer("CandViewMerger",
-#    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauStringTauUp))
-#)
-
-#tauStringTauDown = "softTausTauDown" 
-#process.softLeptonsTauDown = cms.EDProducer("CandViewMerger",
-#    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauStringTauDown))
-#)
 
 #
 #Jets
 #
+
+# add latest pileup jet ID
+process.load("RecoJets.JetProducers.PileupJetID_cfi")
+process.pileupJetIdUpdated = process.pileupJetId.clone(
+  jets = cms.InputTag("slimmedJets"),
+  inputIsCorrected = True,
+  applyJec = True,
+  vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+)
+#print process.pileupJetIdUpdated.dumpConfig()
+
+# apply new jet energy corrections
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+jecLevels = None
+if IsMC:
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
+else:
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
+process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+    src = cms.InputTag("slimmedJets"),
+    levels = jecLevels,
+    payload = 'AK4PFchs' # Make sure to choose the appropriate levels and payload here!
+)
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+process.patJetsReapplyJEC = patJetsUpdated.clone(
+    jetSource = cms.InputTag("slimmedJets"),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+)
+process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+
 process.jets = cms.EDFilter("PATJetRefSelector",
-                           src = cms.InputTag("slimmedJets"),
-                           cut = cms.string(JETCUT)
+    src = cms.InputTag("patJetsReapplyJEC"),
+    cut = cms.string(JETCUT)
 )
 ##
 ## Build ll candidates (here OS)
@@ -537,119 +568,120 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(checkcharge)
 )
 
-#decayStringTauUp="softLeptonsTauUp softLeptonsTauUp"
-#if BUILDONLYOS:
-#    decayStringTauUp="softLeptonsTauUp@+ softLeptonsTauUp@-"
-#    checkcharge=True
-#process.barellCandTauUp = cms.EDProducer("CandViewShallowCloneCombiner",
-#                                    decay = cms.string(decayStringTauUp),
-#                                    cut = cms.string(LLCUT),
-#                                    checkCharge = cms.bool(checkcharge)
-#)
-
-#decayStringTauDown="softLeptonsTauDown softLeptonsTauDown"
-#if BUILDONLYOS:
-#    decayStringTauDown="softLeptonsTauDown@+ softLeptonsTauDown@-"
-#    checkcharge=True
-#process.barellCandTauDown = cms.EDProducer("CandViewShallowCloneCombiner",
-#                                    decay = cms.string(decayStringTauDown),
-#                                    cut = cms.string(LLCUT),
-#                                    checkCharge = cms.bool(checkcharge)
-#)
-
 ## ----------------------------------------------------------------------
 ## MVA MET
 ## ----------------------------------------------------------------------
 
-
-
-
-# python trick: loop on all pairs for pair MET computation
-
 if USEPAIRMET:
-   print "Using pair MET (MVA MET)"
+    print "Using pair MET (MVA MET)"
+    from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
+    runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
+    process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
+    process.MVAMET.requireOS = cms.bool(False)
 
-   # plugin initialization
+    process.MVAMETInputs = cms.Sequence(
+        process.slimmedElectronsTight + process.slimmedMuonsTight + process.slimmedTausLoose + process.slimmedTausLooseCleaned + process.patJetsReapplyJECCleaned +
+        process.pfCHS + process.pfChargedPV + process.pfChargedPU + process.pfNeutrals + process.neutralInJets +
+        process.pfMETCands + process.pfTrackMETCands + process.pfNoPUMETCands + process.pfPUCorrectedMETCands + process.pfPUMETCands +
+        process.pfChargedPUMETCands + process.pfNeutralPUMETCands + process.pfNeutralPVMETCands + process.pfNeutralUnclusteredMETCands +
+        process.pfChs +
+        process.ak4PFCHSL1FastjetCorrector + process.ak4PFCHSL2RelativeCorrector + process.ak4PFCHSL3AbsoluteCorrector + process.ak4PFCHSResidualCorrector +
+        process.ak4PFCHSL1FastL2L3Corrector + process.ak4PFCHSL1FastL2L3ResidualCorrector +
+        process.tauDecayProducts + process.tauPFMET + process.tauMET + process.tausSignificance
+    )
+    for met in ["pfMET", "pfTrackMET", "pfNoPUMET", "pfPUCorrectedMET", "pfPUMET", "pfChargedPUMET", "pfNeutralPUMET", "pfNeutralPVMET", "pfNeutralUnclusteredMET"]:
+        process.MVAMETInputs += getattr(process, met)
+        process.MVAMETInputs += getattr(process, "ak4JetsFor"+met)
+        process.MVAMETInputs += getattr(process, "corr"+met)
+        process.MVAMETInputs += getattr(process, met+"T1")
+        process.MVAMETInputs += getattr(process, "pat"+met)
+        process.MVAMETInputs += getattr(process, "pat"+met+"T1")        
 
-   process.load("RecoJets.JetProducers.ak4PFJets_cfi")
-   process.ak4PFJets.src = cms.InputTag("packedPFCandidates")
+    process.METSequence = cms.Sequence(process.MVAMETInputs)
 
-   from JetMETCorrections.Configuration.DefaultJEC_cff import ak4PFJetsL1FastL2L3
+    # python trick: loop on all pairs for pair MET computation
+    UnpackerTemplate = cms.EDProducer("PairUnpacker",
+        src = cms.InputTag("barellCand")
+    )
 
-   # output collection is defined here, its name is pfMVAMEt
-   # access this through pfMVAMEtSequence
+    MVAPairMET = []
+    for index in range(100):
+        UnpackerName = "PairUnpacker%i" % index
+        UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
+        setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
+        process.METSequence += UnpackerModule
 
-   process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
-   #process.pfMVAMEt.srcLeptons = cms.VInputTag("slimmedElectrons") # srcLeptons contains all the hard scatter products, is set later
-   process.pfMVAMEt.srcPFCandidates = cms.InputTag("packedPFCandidates")
-   process.pfMVAMEt.srcVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-   process.pfMVAMEt.minNumLeptons = cms.int32(2) # this is important to skip void collections in the loop on pairs
-
-   process.pfMVAMEt.inputFileNames = cms.PSet(
-        U     = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru_7_4_X_miniAOD_25NS_July2015.root'),
-        DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_4_X_miniAOD_25NS_July2015.root'),
-        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_4_X_miniAOD_25NS_July2015.root'),
-        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_4_X_miniAOD_25NS_July2015.root')
-   )
-
-   process.puJetIdForPFMVAMEt.jec = cms.string('AK4PF')
-   #process.puJetIdForPFMVAMEt.jets = cms.InputTag("ak4PFJets")
-   process.puJetIdForPFMVAMEt.vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-   process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
-
+        MVAMETName = "patMETMVA%i" % index
+        MVAModule = process.MVAMET.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
+        setattr(process, MVAMETName, MVAModule)
+        process.METSequence += MVAModule
    
-   # template of unpacker
-   UnpackerTemplate = cms.EDProducer ("PairUnpacker",
-                                   src = cms.InputTag("barellCand"))
-#   UnpackerTemplateTauUp = cms.EDProducer ("PairUnpacker",
-#                                   src = cms.InputTag("barellCandTauUp"))
-#   UnpackerTemplateTauDown = cms.EDProducer ("PairUnpacker",
-#                                   src = cms.InputTag("barellCandTauDown"))
+        MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
 
-   process.METSequence = cms.Sequence(process.ak4PFJets + process.calibratedAK4PFJetsForPFMVAMEt + process.puJetIdForPFMVAMEt)
-
-   MVAPairMET = ()
-   for index in range(100):
-      UnpackerName = "PairUnpacker%i" % index
-      UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
-      setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
-      process.METSequence += UnpackerModule
-
-      MVAMETName = "pfMETMVA%i" % index
-      MVAModule = process.pfMVAMEt.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
-      setattr(process, MVAMETName, MVAModule)
-      process.METSequence += MVAModule
-    
-      MVAPairMET += (cms.InputTag(MVAMETName),)
-    
 else:
-   print "Using event pfMET (same MET for all pairs)"
-   process.load("RecoMET.METProducers.METSignificance_cfi")
-   process.load("RecoMET.METProducers.METSignificanceParams_cfi")
-   process.METSequence = cms.Sequence (process.METSignificance)
-#    process.pfMVAMEt.minNumLeptons = cms.int32(0) # ONLY FOR DEBUG PURPOSE, OTHERWISE DOES NOT COMPUTE MET AND SVFIT CRASHES DUE TO A SINGULAR MATRIX
-#    process.METSequence = cms.Sequence(
-#        process.ak4PFJets         +
-#        process.pfMVAMEtSequence
-#    )
+    print "Using event pfMET (same MET for all pairs)"
+    process.load("RecoMET.METProducers.METSignificance_cfi")
+    process.load("RecoMET.METProducers.METSignificanceParams_cfi")
+    process.METSequence = cms.Sequence(process.METSignificance)
 
+## ----------------------------------------------------------------------
+## Z-recoil correction
+## ----------------------------------------------------------------------
 
+corrMVAPairMET = []
+if IsMC and APPLYMETCORR:
+    if USEPAIRMET:
+        process.selJetsForZrecoilCorrection = cms.EDFilter("PATJetSelector",
+            src = cms.InputTag("jets"),                                      
+            cut = cms.string("pt > 30. & abs(eta) < 4.7"), 
+            filter = cms.bool(False)
+        )
+        process.METSequence += process.selJetsForZrecoilCorrection        
+        for index in range(100):
+            corrMVAMETName = "corrMETMVA%i" % index
+            corrMVAModule = cms.EDProducer("ZrecoilCorrectionProducer",                                                   
+                srcLeptons = cms.InputTag("PairUnpacker%i" % index),
+                srcMEt = MVAPairMET[index],
+                srcGenParticles = cms.InputTag("prunedGenParticles"),
+                srcJets = cms.InputTag("selJetsForZrecoilCorrection"),
+                correction = cms.string("HTT-utilities/RecoilCorrections/data/recoilMvaMEt_76X_newTraining_MG5.root")
+            )
+            setattr(process, corrMVAMETName, corrMVAModule)
+            process.METSequence += corrMVAModule
+            corrMVAPairMET.append(cms.InputTag(corrMVAMETName))
+
+    else:
+        raise ValueError("Z-recoil corrections for PFMET not implemented yet !!")
 
 ## ----------------------------------------------------------------------
 ## SV fit
 ## ----------------------------------------------------------------------
 process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcPairs   = cms.InputTag("barellCand"),
-                                  usePairMET = cms.bool(USEPAIRMET),
                                   srcSig     = cms.InputTag("METSignificance", "METSignificance"),
-                                  srcCov     = cms.InputTag("METSignificance", "METCovariance")
-
+                                  srcCov     = cms.InputTag("METSignificance", "METCovariance"),
+                                  usePairMET = cms.bool(USEPAIRMET),
+                                  computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT)
 )
 
+
+srcMETTag = None
 if USEPAIRMET:
-   process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
+  srcMETTag = cms.VInputTag(corrMVAPairMET) if (IsMC and APPLYMETCORR) else cms.VInputTag(MVAPairMET)
 else:
-   process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
+  srcMETTag = cms.VInputTag(PFMetName)
+
+process.SVllCand.srcMET = srcMETTag
+
+# if USEPAIRMET:
+#     if IsMC and APPLYMETCORR:
+#         process.SVllCand.srcMET    = cms.VInputTag(corrMVAPairMET)
+#     else:
+#         process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
+# #   process.SVllCandTauUp.srcMET    = cms.VInputTag(MVAPairMET)
+# #   process.SVllCandTauDown.srcMET    = cms.VInputTag(MVAPairMET)
+# else:
+#    process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
 
 ## ----------------------------------------------------------------------
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass and don't get MET userfloats
@@ -657,7 +689,7 @@ else:
 process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcPairs   = cms.InputTag("barellCand"),
                                     usePairMET = cms.bool(USEPAIRMET),
-                                    srcMET     = cms.VInputTag(PFMetName),
+                                    srcMET     = srcMETTag,
                                     srcSig     = cms.InputTag("METSignificance", "METSignificance"),
                                     srcCov     = cms.InputTag("METSignificance", "METCovariance")
 )
@@ -668,7 +700,6 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
 ## ----------------------------------------------------------------------
 process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
-                      skipEmptyEvents = cms.bool(True),
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -677,6 +708,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
+                      ak8jetCollection = cms.InputTag("slimmedJetsAK8"),
                       lepCollection = cms.InputTag("softLeptons"),
                       lheCollection = cms.InputTag("LHEEventProduct"),
                       genCollection = cms.InputTag("generator"),
@@ -688,9 +720,10 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
                       triggerSet = cms.InputTag("selectedPatTrigger"),
                       triggerList = HLTLIST,
+                      metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
+                      PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
-                      HT = cms.InputTag("externalLHEProducer"),
-                      useNOHFMet = cms.bool(USE_NOHFMET) # true to run on silver json, false to use ful MET including HF
+                      HT = cms.InputTag("externalLHEProducer")
                       )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
@@ -698,13 +731,11 @@ else:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs")
 
 if SVFITBYPASS:
-    process.HTauTauTree.CandCollection = cms.untracked.string("SVbypass")
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
     process.SVFit = cms.Sequence (process.SVbypass)
 
 
 else:
-    process.HTauTauTree.CandCollection = cms.untracked.string("SVllCand")
     process.HTauTauTree.candCollection = cms.InputTag("SVllCand")
     process.SVFit = cms.Sequence (process.SVllCand)
 
@@ -721,8 +752,6 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
-#process.HTtruth = cms.Path(process.HT)
-
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
     #process.printTree         + # just for debug, print MC particles
@@ -731,13 +760,14 @@ process.Candidates = cms.Sequence(
     process.nEventsPassTrigger+
     process.muons             +
     process.electrons         + process.cleanSoftElectrons +
-    process.taus              + process.tausMerged +
+    process.taus              + 
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-    process.jets              +
+    process.pileupJetIdUpdated + process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets +
     process.METSequence       +
     process.geninfo           +
     process.SVFit             
     )
 # always run ntuplizer
 process.trees = cms.EndPath(process.HTauTauTree)# + process.HTauTauTreeTauUp + process.HTauTauTreeTauDown)
+

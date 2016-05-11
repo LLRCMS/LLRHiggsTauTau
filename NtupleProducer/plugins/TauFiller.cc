@@ -51,7 +51,13 @@ class TauFiller : public edm::EDProducer {
   const std::string theDiscriminatorTag;
   const StringCutObjectSelector<pat::Tau, true> cut;
   const CutSet<pat::Tau> flags;
-  const std::string NominalUpOrDown;
+  // const std::string NominalUpOrDown;
+  const double NominalTESCorrection; // value of correction of centrale TES value
+  const bool ApplyTESCentralCorr; // shift the central TES value
+  const bool ApplyTESUpDown; // compute Up/Down TES variation
+
+  vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
+  vector<string> tauFloatDiscrims_; // tau discrims to be added as userFloats
 };
 
 
@@ -62,9 +68,104 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   theDiscriminatorTag(iConfig.getParameter<std::string>("discriminator")),
   cut(iConfig.getParameter<std::string>("cut")),
   flags(iConfig.getParameter<ParameterSet>("flags")), 
-  NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown"))//,
+  // NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown")),
+  NominalTESCorrection(iConfig.getParameter<double>("NominalTESCorrection")),
+  ApplyTESCentralCorr(iConfig.getParameter<bool>("ApplyTESCentralCorr")),
+  ApplyTESUpDown(iConfig.getParameter<bool>("ApplyTESUpDown"))
 {
   produces<pat::TauCollection>();
+
+  tauIntDiscrims_ = 
+  {
+    "decayModeFinding", // it is decayModeFindingOldDMs
+    "decayModeFindingNewDMs",
+    
+    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
+    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
+    "byTightCombinedIsolationDeltaBetaCorr3Hits",
+    
+    "byVLooseIsolationMVArun2v1DBoldDMwLT",
+    "byLooseIsolationMVArun2v1DBoldDMwLT",
+    "byMediumIsolationMVArun2v1DBoldDMwLT",
+    "byTightIsolationMVArun2v1DBoldDMwLT",
+    "byVTightIsolationMVArun2v1DBoldDMwLT",
+
+    "byVLooseIsolationMVArun2v1DBnewDMwLT",    
+    "byLooseIsolationMVArun2v1DBnewDMwLT",
+    "byMediumIsolationMVArun2v1DBnewDMwLT",
+    "byTightIsolationMVArun2v1DBnewDMwLT",
+    "byVTightIsolationMVArun2v1DBnewDMwLT",
+
+    "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
+    "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
+    "byTightIsolationMVArun2v1DBdR03oldDMwLT",
+    "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
+    
+    "byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",
+    "byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",
+    "byTightCombinedIsolationDeltaBetaCorr3HitsdR03",
+
+    "againstElectronMVA5category",
+    
+    "byLooseIsolationMVA3newDMwLT",
+    "byLooseIsolationMVA3oldDMwLT",
+    "byLoosePileupWeightedIsolation3Hits",
+    "byMediumIsolationMVA3newDMwLT",
+    "byMediumIsolationMVA3oldDMwLT",
+    "byMediumPileupWeightedIsolation3Hits",
+    "byTightIsolationMVA3newDMwLT",
+    "byTightIsolationMVA3oldDMwLT",
+    "byTightPileupWeightedIsolation3Hits",
+    
+    "byVLooseIsolationMVA3newDMwLT",
+    "byVTightIsolationMVA3newDMwLT",
+    "byVVTightIsolationMVA3newDMwLT",
+
+    "byVLooseIsolationMVA3oldDMwLT",
+    "byVTightIsolationMVA3oldDMwLT",
+    "byVVTightIsolationMVA3oldDMwLT",
+
+    "againstMuonLoose3",
+    "againstMuonTight3",
+
+    "againstElectronVLooseMVA6",
+    "againstElectronLooseMVA6",
+    "againstElectronMediumMVA6",
+    "againstElectronTightMVA6",
+    "againstElectronVTightMVA6",
+
+    "numChargedParticlesSignalCone",
+    "numNeutralHadronsSignalCone",
+    "numPhotonsSignalCone",
+    "numParticlesSignalCone",
+    "numChargedParticlesIsoCone",
+    "numNeutralHadronsIsoCone",
+    "numPhotonsIsoCone",
+    "numParticlesIsoCone"
+  };
+
+
+  tauFloatDiscrims_ =
+  {
+    "byCombinedIsolationDeltaBetaCorrRaw3Hits",
+    "byIsolationMVA3oldDMwoLTraw",
+    "byIsolationMVA3oldDMwLTraw",
+    "byIsolationMVA3newDMwoLTraw",
+    "againstElectronMVA5raw",
+    "byPhotonPtSumOutsideSignalCone",
+    "byPileupWeightedIsolationRaw3Hits",
+    "footprintCorrection",
+    "neutralIsoPtSumWeight",
+    "photonPtSumOutsideSignalCone",
+    "byIsolationMVA3newDMwLTraw",
+    "chargedIsoPtSum",
+    "neutralIsoPtSum",
+    "puCorrPtSum",
+    "leadChargedParticlePt",
+    "trackRefPt"
+  };
+
+
 }
 
 
@@ -74,96 +175,115 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 //read one PFTauDiscriminator (set discriminatorSrc_ in to an edm::InputTag before)
 
-// loop over taus
-//    for ( unsigned iTau = 0; iTau < taus->size(); ++iTau ) {
-//        reco::PFTauRef tauCandidate(taus, iTau);
-// check if tau candidate has passed discriminator
-//        if( (*discriminator)[tauCandidate] > 0.5 ){
-//        // do something with your candidate
-//        }
-//    }
-
-
   // Get leptons and discriminators
-  //edm::Handle<pat::PFTauCollection> tauHandle;
   edm::Handle<pat::TauRefVector> tauHandle;
   iEvent.getByToken(theCandidateTag, tauHandle);
-  
-  //edm::Handle<reco::PFTauDiscriminator> discriminator;
-  //iEvent.getByLabel(theDiscriminatorTag, discriminator);
-
-  //hpsPFTauDiscrimination
-  
+    
   edm::Handle<vector<Vertex> >  vertexs;
-  //iEvent.getByLabel("goodPrimaryVertices",vertexs);
   iEvent.getByToken(theVtxTag, vertexs);
 
   // Output collection
   auto_ptr<pat::TauCollection> result( new pat::TauCollection() );
 
-  for (unsigned int i = 0; i< tauHandle->size(); ++i){
+  for (unsigned int itau = 0; itau < tauHandle->size(); ++itau){
     //---Clone the pat::Tau
-    pat::Tau l(*((*tauHandle)[i].get()));
+    pat::Tau l(*((*tauHandle)[itau].get()));
     
-    double Shift = 1.;
-    if(NominalUpOrDown=="Nominal") Shift = 1.;
-    if(NominalUpOrDown=="Up") Shift = 1.03;
-    if(NominalUpOrDown=="Down") Shift = 0.97;
-    // cout<<"tau #"<<i<<endl;
-    // cout<<"NominalUpOrDown = "<<NominalUpOrDown<<endl;
+    // Nominal TES Correction
+    double Shift = 1.+NominalTESCorrection/100.;
     double shiftP = 1.;
     double shiftMass = 1.;
-    int isTESShifted = 0;
+    
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr)
+    {
+      if(l.decayMode()>=1 && l.decayMode()<=10){
+        shiftP = Shift;
+        shiftMass = Shift;
+      }
+      else if(l.decayMode()==0){
+        shiftP = Shift;
+        shiftMass = 1.;
+      }
+      // else if(l.decayMode()==10){
+      //   shiftP = Shift;
+      //   shiftMass = Shift;
+      // }
+    }
+    
+    double pxS_Nominal = l.px()*shiftP;
+    double pyS_Nominal = l.py()*shiftP;
+    double pzS_Nominal = l.pz()*shiftP;
+    double massS_Nominal = l.mass()*shiftMass;
+    double enS_Nominal = TMath::Sqrt(pxS_Nominal*pxS_Nominal + pyS_Nominal*pyS_Nominal + pzS_Nominal*pzS_Nominal + massS_Nominal*massS_Nominal);
+    math::XYZTLorentzVectorD p4S_Nominal( pxS_Nominal, pyS_Nominal, pzS_Nominal, enS_Nominal );
+
+    l.setP4( p4S_Nominal );
+    
+    //Up and Down (+3/-3%) variations
+    const float udShift[2] = {1.03, 0.97}; // 0: UP, 1: DOWN
+    // ShiftDown = 0.97;
+    // if(NominalUpOrDown=="Nominal") Shift = 1.;
+    // if(NominalUpOrDown=="Up") Shift = 1.03;
+    // if(NominalUpOrDown=="Down") Shift = 0.97;
+
+    float udshiftP[2] = {1., 1.};
+    float udshiftMass[2] = {1., 1.};
+    bool isTESShifted = false;
     if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. ) {
 
-      // cout<<"I have pT = "<<l.pt()<<" and will be shifted"<<endl;
-      isTESShifted = 1;
-      // cout<<"l.decayMode() = "<< l.decayMode()<<endl;
-      // cout<<"l.signalPFChargedHadrCands().size() = "<<(l.signalPFChargedHadrCands()).size()<<endl;
-      // cout<<"l.signalPFGammaCands().size() = "<<(l.signalPFGammaCands()).size()<<endl;
+      isTESShifted = true;
 
-      if(l.decayMode()>=1 && l.decayMode()<10){
-      // if((l.signalPFChargedHadrCands()).size()==1 && (l.signalPFGammaCands()).size()>0){
-	//cout<<"1-prong + pi0"<<endl;
-	shiftP = Shift;
-	shiftMass = Shift;
+      if(l.decayMode()>=1 && l.decayMode()<=10){
+        udshiftP[0] = udShift[0]; // up
+        udshiftP[1] = udShift[1]; // down
+        udshiftMass[0] = udShift[0]; // up
+        udshiftMass[1] = udShift[1]; // down
       }
 
       else if(l.decayMode()==0){
-      // else if((l.signalPFChargedHadrCands()).size()==1 && (l.signalPFGammaCands()).size()==0){
-	//cout<<"1-prong"<<endl;
-	shiftP = Shift;
-	shiftMass = 1.;
+        udshiftP[0] = udShift[0]; // up
+        udshiftP[1] = udShift[1]; // down
+        udshiftMass[0] = udshiftMass[1] = 1.; // no mass shift for pi0
       }
-      else if(l.decayMode()==10){
-      // else if((l.signalPFChargedHadrCands()).size()==3) {
-	//cout<<"3-prong"<<endl;
-	shiftP = Shift;
-	shiftMass = Shift;
-      }
-      else isTESShifted = 0;
+      // else if(l.decayMode()==10){
+      //   shiftP = Shift;
+      //   shiftMass = Shift;
+      // }
+      else isTESShifted = false;
     }
-    
-    double pxS = l.px()*shiftP;
-    double pyS = l.py()*shiftP;
-    double pzS = l.pz()*shiftP;
-    double massS = l.mass()*shiftMass;
-    double enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
-    math::XYZTLorentzVectorD p4S( pxS, pyS, pzS, enS );
 
-    //Dump to check the T-ES
-    // if((l.decayMode()==0 || l.decayMode()==1 || l.decayMode()==2 || l.decayMode()==10) && l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && NominalUpOrDown=="Up")
-    //   {
-    // 	cout<<"NominalUpOrDown = "<<NominalUpOrDown<<endl;
-    // 	cout<<"l.decayMode() = "<<l.decayMode()<<endl;
-    // 	cout<<"pt before = "<<l.pt()<<endl;
-    // 	cout<<"pt after = "<<p4S.Pt()<<endl;
-    //   }
-    l.setP4( p4S );
-    // cout<<"after, I have pT = "<<l.pt()<<" and my decayMode is = "<<l.decayMode()<<endl;
-    // if((l.decayMode()==0 || l.decayMode()==1 || l.decayMode()==2 || l.decayMode()==10) && l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && NominalUpOrDown=="Up") cout<<"pt after in pat = "<<l.pt()<<endl;
-    
-    
+    if (isTESShifted)
+    {
+      // up shift
+      double pxS = l.px()*udshiftP[0];
+      double pyS = l.py()*udshiftP[0];
+      double pzS = l.pz()*udshiftP[0];
+      double massS = l.mass()*udshiftMass[0];
+      double enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
+      math::XYZTLorentzVectorD p4SUP( pxS, pyS, pzS, enS );
+      // set userfloats
+      l.addUserFloat("px_TauUp",p4SUP.px());
+      l.addUserFloat("py_TauUp",p4SUP.py());
+      l.addUserFloat("pz_TauUp",p4SUP.pz());
+      l.addUserFloat("e_TauUp",p4SUP.energy());
+
+      // down shift
+      pxS = l.px()*udshiftP[1];
+      pyS = l.py()*udshiftP[1];
+      pzS = l.pz()*udshiftP[1];
+      massS = l.mass()*udshiftMass[1];
+      enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
+      math::XYZTLorentzVectorD p4SDOWN( pxS, pyS, pzS, enS );
+      // set userfloats
+      l.addUserFloat("px_TauDown",p4SUP.px());
+      l.addUserFloat("py_TauDown",p4SUP.py());
+      l.addUserFloat("pz_TauDown",p4SUP.pz());
+      l.addUserFloat("e_TauDown",p4SUP.energy());
+    }
+    l.addUserInt("TauUpExists", isTESShifted ? 1 : 0);
+    l.addUserInt("TauDownExists", isTESShifted ? 1 : 0);
+
+
     
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();
@@ -171,45 +291,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float PFPhotonIso       = l.photonIso();
 
     float combRelIsoPF = LeptonIsoHelper::combRelIsoPF(l);
-
-    // NOTE: tauID returns a float but I checked that the returned value is always 0 or 1 for "booleans" --> safe implicit cast to an int
-    //float decayModeFindingOldDMs = l.tauID ("decayModeFindingOldDMs");
-    int decayModeFindingOldDMs = l.tauID ("decayModeFinding");
-    int decayModeFindingNewDMs = l.tauID ("decayModeFindingNewDMs");
-    
-    int byLooseCombinedIsolationDeltaBetaCorr3Hits = l.tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits");
-    int byMediumCombinedIsolationDeltaBetaCorr3Hits = l.tauID ("byMediumCombinedIsolationDeltaBetaCorr3Hits");
-    int byTightCombinedIsolationDeltaBetaCorr3Hits = l.tauID ("byTightCombinedIsolationDeltaBetaCorr3Hits");
-
-    int byLooseIsolationMVArun2v1DBoldDMwLT = l.tauID("byLooseIsolationMVArun2v1DBoldDMwLT");
-    int byMediumIsolationMVArun2v1DBoldDMwLT = l.tauID("byMediumIsolationMVArun2v1DBoldDMwLT");
-    int byTightIsolationMVArun2v1DBoldDMwLT = l.tauID("byTightIsolationMVArun2v1DBoldDMwLT");
-    int byVTightIsolationMVArun2v1DBoldDMwLT = l.tauID("byVTightIsolationMVArun2v1DBoldDMwLT");
-    int byLooseIsolationMVArun2v1DBnewDMwLT = l.tauID("byLooseIsolationMVArun2v1DBnewDMwLT");
-    int byMediumIsolationMVArun2v1DBnewDMwLT = l.tauID("byMediumIsolationMVArun2v1DBnewDMwLT");
-    int byTightIsolationMVArun2v1DBnewDMwLT = l.tauID("byTightIsolationMVArun2v1DBnewDMwLT");
-    int byVTightIsolationMVArun2v1DBnewDMwLT = l.tauID("byVTightIsolationMVArun2v1DBnewDMwLT");
-    int byLooseCombinedIsolationDeltaBetaCorr3HitsdR03 = l.tauID("byLooseCombinedIsolationDeltaBetaCorr3HitsdR03");
-    int byMediumCombinedIsolationDeltaBetaCorr3HitsdR03 = l.tauID("byMediumCombinedIsolationDeltaBetaCorr3HitsdR03");
-    int byTightCombinedIsolationDeltaBetaCorr3HitsdR03 = l.tauID("byTightCombinedIsolationDeltaBetaCorr3HitsdR03");
-    int byLooseIsolationMVArun2v1DBdR03oldDMwLT = l.tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT");
-    int byMediumIsolationMVArun2v1DBdR03oldDMwLT = l.tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT");
-    int byTightIsolationMVArun2v1DBdR03oldDMwLT = l.tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT");
-    int byVTightIsolationMVArun2v1DBdR03oldDMwLT = l.tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT");
-
-    float byCombinedIsolationDeltaBetaCorrRaw3Hits = l.tauID ("byCombinedIsolationDeltaBetaCorrRaw3Hits");
-    float chargedIsoPtSum = l.tauID ("chargedIsoPtSum");
-    float neutralIsoPtSum = l.tauID ("neutralIsoPtSum");
-    float puCorrPtSum = l.tauID ("puCorrPtSum");
-    
-    int againstMuonLoose3 = l.tauID ("againstMuonLoose3");
-    int againstMuonTight3 = l.tauID ("againstMuonTight3");
-    
-    int againstElectronVLooseMVA6 = l.tauID ("againstElectronVLooseMVA6");
-    int againstElectronLooseMVA6 = l.tauID ("againstElectronLooseMVA6");
-    int againstElectronMediumMVA6 = l.tauID ("againstElectronMediumMVA6");
-    int againstElectronTightMVA6 = l.tauID ("againstElectronTightMVA6");
-    int againstElectronVTightMVA6 = l.tauID ("againstElectronVTightMVA6");
 
     int numChargedParticlesSignalCone = l.signalChargedHadrCands().size();
     int numNeutralHadronsSignalCone = l.signalNeutrHadrCands().size();
@@ -262,99 +343,14 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
     //--- Embed user variables
     l.addUserInt("isTESShifted",isTESShifted);
-    l.addUserFloat("HPSDiscriminator",tauid);
-    l.addUserFloat("decayMode",l.decayMode());
-    l.addUserFloat("dxy",dxy);
-    l.addUserFloat("dz",dz);
-    l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
-    l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
-    l.addUserFloat("PFPhotonIso",PFPhotonIso);
-    l.addUserFloat("combRelIsoPF",combRelIsoPF);
-    l.addUserInt("decayModeFindingOldDMs", decayModeFindingOldDMs);
-    l.addUserInt("decayModeFindingNewDMs", decayModeFindingNewDMs);
-    l.addUserInt("byLooseCombinedIsolationDeltaBetaCorr3Hits", byLooseCombinedIsolationDeltaBetaCorr3Hits);
-    l.addUserInt("byMediumCombinedIsolationDeltaBetaCorr3Hits", byMediumCombinedIsolationDeltaBetaCorr3Hits);
-    l.addUserInt("byTightCombinedIsolationDeltaBetaCorr3Hits", byTightCombinedIsolationDeltaBetaCorr3Hits);
-
-    l.addUserInt("byLooseIsolationMVArun2v1DBoldDMwLT",byLooseIsolationMVArun2v1DBoldDMwLT);
-    l.addUserInt("byMediumIsolationMVArun2v1DBoldDMwLT",byMediumIsolationMVArun2v1DBoldDMwLT);
-    l.addUserInt("byTightIsolationMVArun2v1DBoldDMwLT",byTightIsolationMVArun2v1DBoldDMwLT);
-    l.addUserInt("byVTightIsolationMVArun2v1DBoldDMwLT",byVTightIsolationMVArun2v1DBoldDMwLT);
-    l.addUserInt("byLooseIsolationMVArun2v1DBnewDMwLT",byLooseIsolationMVArun2v1DBnewDMwLT);
-    l.addUserInt("byMediumIsolationMVArun2v1DBnewDMwLT",byMediumIsolationMVArun2v1DBnewDMwLT);
-    l.addUserInt("byTightIsolationMVArun2v1DBnewDMwLT",byTightIsolationMVArun2v1DBnewDMwLT);
-    l.addUserInt("byVTightIsolationMVArun2v1DBnewDMwLT",byVTightIsolationMVArun2v1DBnewDMwLT);
-    l.addUserInt("byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",byLooseCombinedIsolationDeltaBetaCorr3HitsdR03);
-    l.addUserInt("byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",byMediumCombinedIsolationDeltaBetaCorr3HitsdR03);
-    l.addUserInt("byTightCombinedIsolationDeltaBetaCorr3HitsdR03",byTightCombinedIsolationDeltaBetaCorr3HitsdR03);
-    l.addUserInt("byLooseIsolationMVArun2v1DBdR03oldDMwLT",byLooseIsolationMVArun2v1DBdR03oldDMwLT);
-    l.addUserInt("byMediumIsolationMVArun2v1DBdR03oldDMwLT",byMediumIsolationMVArun2v1DBdR03oldDMwLT);
-    l.addUserInt("byTightIsolationMVArun2v1DBdR03oldDMwLT",byTightIsolationMVArun2v1DBdR03oldDMwLT);
-    l.addUserInt("byVTightIsolationMVArun2v1DBdR03oldDMwLT",byVTightIsolationMVArun2v1DBdR03oldDMwLT);
-
-    l.addUserFloat("byCombinedIsolationDeltaBetaCorrRaw3Hits", byCombinedIsolationDeltaBetaCorrRaw3Hits);
-    if (l.isTauIDAvailable("byIsolationMVA3oldDMwoLTraw")) l.addUserFloat("byIsolationMVA3oldDMwoLTraw",l.tauID("byIsolationMVA3oldDMwoLTraw"));
-    else                                                   l.addUserFloat("byIsolationMVA3oldDMwoLTraw",-999.);    
-    l.addUserFloat("byIsolationMVA3oldDMwLTraw",l.tauID("byIsolationMVA3oldDMwLTraw"));
-    if (l.isTauIDAvailable("byIsolationMVA3newDMwoLTraw")) l.addUserFloat("byIsolationMVA3newDMwoLTraw",l.tauID("byIsolationMVA3newDMwoLTraw"));
-    else                                                   l.addUserFloat("byIsolationMVA3newDMwoLTraw",-999.);    
-    if (l.isTauIDAvailable("againstElectronMVA5category")) l.addUserInt("againstElectronMVA5category",l.tauID("againstElectronMVA5category"));
-    else l.addUserInt("againstElectronMVA5category",0);
-    if (l.isTauIDAvailable("againstElectronMVA5raw")) l.addUserFloat("againstElectronMVA5raw",l.tauID("againstElectronMVA5raw"));
-    else l.addUserFloat("againstElectronMVA5raw",-999);
-    if (l.isTauIDAvailable("byLooseIsolationMVA3newDMwLT")) l.addUserInt("byLooseIsolationMVA3newDMwLT",l.tauID("byLooseIsolationMVA3newDMwLT"));
-    else l.addUserInt("byLooseIsolationMVA3newDMwLT",0);
-    if (l.isTauIDAvailable("byLooseIsolationMVA3oldDMwLT")) l.addUserInt("byLooseIsolationMVA3oldDMwLT",l.tauID("byLooseIsolationMVA3oldDMwLT"));
-    else l.addUserFloat("byLooseIsolationMVA3oldDMwLT",0);
-    if (l.isTauIDAvailable("byLoosePileupWeightedIsolation3Hits")) l.addUserInt("byLoosePileupWeightedIsolation3Hits",l.tauID("byLoosePileupWeightedIsolation3Hits"));
-    else l.addUserInt("byLoosePileupWeightedIsolation3Hits",0);
-    if (l.isTauIDAvailable("byMediumIsolationMVA3newDMwLT")) l.addUserInt("byMediumIsolationMVA3newDMwLT",l.tauID("byMediumIsolationMVA3newDMwLT"));
-    else l.addUserInt("byMediumIsolationMVA3newDMwLT",0);
-    if (l.isTauIDAvailable("byMediumIsolationMVA3oldDMwLT")) l.addUserInt("byMediumIsolationMVA3oldDMwLT",l.tauID("byMediumIsolationMVA3oldDMwLT"));
-    else l.addUserInt("byMediumIsolationMVA3oldDMwLT",0);
-    if (l.isTauIDAvailable("byMediumPileupWeightedIsolation3Hits")) l.addUserInt("byMediumPileupWeightedIsolation3Hits",l.tauID("byMediumPileupWeightedIsolation3Hits"));
-    else l.addUserInt("byMediumPileupWeightedIsolation3Hits",0);
-    if (l.isTauIDAvailable("byPhotonPtSumOutsideSignalCone")) l.addUserFloat("byPhotonPtSumOutsideSignalCone",l.tauID("byPhotonPtSumOutsideSignalCone"));
-    else l.addUserFloat("byPhotonPtSumOutsideSignalCone",-999);
-    if (l.isTauIDAvailable("byPileupWeightedIsolationRaw3Hits")) l.addUserFloat("byPileupWeightedIsolationRaw3Hits",l.tauID("byPileupWeightedIsolationRaw3Hits"));
-    else l.addUserFloat("byPileupWeightedIsolationRaw3Hits",-999);
-    if (l.isTauIDAvailable("byTightIsolationMVA3newDMwLT")) l.addUserInt("byTightIsolationMVA3newDMwLT",l.tauID("byTightIsolationMVA3newDMwLT"));
-    else l.addUserInt("byTightIsolationMVA3newDMwLT",-999);
-    if (l.isTauIDAvailable("byTightIsolationMVA3oldDMwLT")) l.addUserInt("byTightIsolationMVA3oldDMwLT",l.tauID("byTightIsolationMVA3oldDMwLT"));
-    else l.addUserInt("byTightIsolationMVA3oldDMwLT",-999);
-    if (l.isTauIDAvailable("byTightPileupWeightedIsolation3Hits")) l.addUserInt("byTightPileupWeightedIsolation3Hits",l.tauID("byTightPileupWeightedIsolation3Hits"));
-    else l.addUserInt("byTightPileupWeightedIsolation3Hits",-999);
-    if (l.isTauIDAvailable("byVLooseIsolationMVA3newDMwLT")) l.addUserInt("byVLooseIsolationMVA3newDMwLT",l.tauID("byVLooseIsolationMVA3newDMwLT"));
-    else l.addUserInt("byVLooseIsolationMVA3newDMwLT",0);
-    if (l.isTauIDAvailable("byVLooseIsolationMVA3oldDMwLT")) l.addUserInt("byVLooseIsolationMVA3oldDMwLT",l.tauID("byVLooseIsolationMVA3oldDMwLT"));
-    else l.addUserInt("byVLooseIsolationMVA3oldDMwLT",0);
-    if (l.isTauIDAvailable("byVTightIsolationMVA3newDMwLT")) l.addUserInt("byVTightIsolationMVA3newDMwLT",l.tauID("byVTightIsolationMVA3newDMwLT"));
-    else l.addUserInt("byVTightIsolationMVA3newDMwLT",0);
-    if (l.isTauIDAvailable("byVTightIsolationMVA3oldDMwLT")) l.addUserInt("byVTightIsolationMVA3oldDMwLT",l.tauID("byVTightIsolationMVA3oldDMwLT"));
-    else l.addUserInt("byVTightIsolationMVA3oldDMwLT",0);
-    if (l.isTauIDAvailable("byVVTightIsolationMVA3newDMwLT")) l.addUserInt("byVVTightIsolationMVA3newDMwLT",l.tauID("byVVTightIsolationMVA3newDMwLT"));
-    else l.addUserInt("byVVTightIsolationMVA3newDMwLT",0);
-    if (l.isTauIDAvailable("byVVTightIsolationMVA3oldDMwLT")) l.addUserInt("byVVTightIsolationMVA3oldDMwLT",l.tauID("byVVTightIsolationMVA3oldDMwLT"));
-    else l.addUserInt("byVVTightIsolationMVA3oldDMwLT",0);
-    if (l.isTauIDAvailable("footprintCorrection")) l.addUserFloat("footprintCorrection",l.tauID("footprintCorrection"));
-    else l.addUserFloat("footprintCorrection",-999);
-    if (l.isTauIDAvailable("neutralIsoPtSumWeight")) l.addUserFloat("neutralIsoPtSumWeight",l.tauID("neutralIsoPtSumWeight"));
-    else l.addUserFloat("neutralIsoPtSumWeight",-999);
-    if (l.isTauIDAvailable("photonPtSumOutsideSignalCone")) l.addUserFloat("photonPtSumOutsideSignalCone",l.tauID("photonPtSumOutsideSignalCone"));
-    else l.addUserFloat("photonPtSumOutsideSignalCone",-999);
-    l.addUserFloat("byIsolationMVA3newDMwLTraw",l.tauID("byIsolationMVA3newDMwLTraw"));
-
-
-    l.addUserFloat("chargedIsoPtSum", chargedIsoPtSum);
-    l.addUserFloat("neutralIsoPtSum", neutralIsoPtSum);
-    l.addUserFloat("puCorrPtSum", puCorrPtSum);
-    l.addUserInt("againstMuonLoose3", againstMuonLoose3);
-    l.addUserInt("againstMuonTight3", againstMuonTight3);
-    l.addUserInt("againstElectronVLooseMVA6", againstElectronVLooseMVA6);
-    l.addUserInt("againstElectronLooseMVA6", againstElectronLooseMVA6);
-    l.addUserInt("againstElectronMediumMVA6", againstElectronMediumMVA6);
-    l.addUserInt("againstElectronTightMVA6", againstElectronTightMVA6);
-    l.addUserInt("againstElectronVTightMVA6", againstElectronVTightMVA6);
+    l.addUserFloat("HPSDiscriminator",tauid); 
+    l.addUserFloat("decayMode",l.decayMode()); 
+    l.addUserFloat("dxy",dxy); 
+    l.addUserFloat("dz",dz); 
+    l.addUserFloat("PFChargedHadIso",PFChargedHadIso); 
+    l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso); 
+    l.addUserFloat("PFPhotonIso",PFPhotonIso); 
+    l.addUserFloat("combRelIsoPF",combRelIsoPF); 
     l.addUserInt("numChargedParticlesSignalCone",numChargedParticlesSignalCone);
     l.addUserInt("numNeutralHadronsSignalCone",numNeutralHadronsSignalCone);
     l.addUserInt("numPhotonsSignalCone",numPhotonsSignalCone);
@@ -363,8 +359,28 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserInt("numNeutralHadronsIsoCone",numNeutralHadronsIsoCone);
     l.addUserInt("numPhotonsIsoCone",numPhotonsIsoCone);
     l.addUserInt("numParticlesIsoCone",numParticlesIsoCone);
-    l.addUserFloat("leadChargedParticlePt",leadChargedParticlePt);
-    l.addUserFloat("trackRefPt",trackRefPt);
+    l.addUserFloat("leadChargedParticlePt",leadChargedParticlePt); 
+    l.addUserFloat("trackRefPt",trackRefPt); 
+
+    // fill all userfloats
+    for (unsigned int iuf = 0; iuf < tauFloatDiscrims_.size(); iuf++)
+    {
+      string ID = tauFloatDiscrims_.at(iuf);
+      l.addUserFloat (ID.c_str(), l.isTauIDAvailable(ID.c_str()) ? l.tauID (ID.c_str()) : -999.);
+    }
+
+    // fill all userints
+    for (unsigned int iui = 0; iui < tauIntDiscrims_.size(); iui++)
+    {
+      string ID = tauIntDiscrims_.at(iui);
+      int ui = -999;
+      if (l.isTauIDAvailable(ID.c_str()))
+      {
+        ui = ( (l.tauID (ID.c_str()) > 0.5) ? 1 : 0);
+      }
+      l.addUserInt (ID.c_str(), ui);
+    }
+
 
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();

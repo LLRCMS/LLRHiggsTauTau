@@ -84,17 +84,15 @@ scram b -j 4
 ### Instructions for 7_6_3 (miniAODv2)
 
 ```
-cmsrel CMSSW_7_6_3
-cd CMSSW_7_6_3/src
+cmsrel CMSSW_7_6_3_patch2
+cd CMSSW_7_6_3_patch2/src
 cmsenv
-# the following is for the MET, but 1) need to pick additional commits 2) crashes with CRAB Input sanbox size is 120MB --> .git folder removed in /data
-#git cms-addpkg RecoMET/METPUSubtraction/
-#cd RecoMET/METPUSubtraction/
-#git clone --depth=1 https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
-#rm -rf data/.git/
-#cd -
+# MVA MET
+git cms-merge-topic --unsafe rfriese:MVAMET2_beta_0.6
+# Z-recoil corrections
+git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
-cd LLRHiggsTauTau; git checkout master
+cd LLRHiggsTauTau; git checkout mvamet-devel
 cd -
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
 cd Muon/MuonAnalysisTools ; git checkout master -- interface/MuonEffectiveArea.h
@@ -102,14 +100,26 @@ cd -
 git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
 cd EGamma/EGammaAnalysisTools; git checkout c0db796 -- interface/ElectronEffectiveArea.h
 cd -
+# FSR corrections
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 cd UFHZZAnalysisRun2 ; git checkout master FSRPhotons
 cd -
+# updated pileup jet ID (see JetMET twiki https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID#Information_for_13_TeV_data_anal)
+git cms-merge-topic --unsafe jbrands:pileupJetId76X
+cd RecoJets/JetProducers/data/
+wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta0to2p5_BDT.weights.xml.gz
+wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz
+wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz
+wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz
+cd -
+# SVfit
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
+cd TauAnalysis/SVfitStandalone
+git checkout HIG-16-006
+cd -
 scram b -j 4
+
 ```
-
-
 
 ### Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py

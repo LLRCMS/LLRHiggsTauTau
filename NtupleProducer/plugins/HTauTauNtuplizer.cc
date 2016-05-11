@@ -21,6 +21,7 @@
 //#include <XYZTLorentzVector.h>
 
 // user include files
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -107,6 +108,7 @@
  namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
    bool writeJets = true;     // Write jets in the tree. 
+   bool writeFatJets = true;
    bool writeSoftLep = false;
    bool DEBUG = false;
  }
@@ -143,6 +145,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
   int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
+  void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR, const edm::View<pat::Jet>* jets);
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
@@ -158,12 +161,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::map <int, int> genFlagPosMap_; // to convert from input to output enum format for H/Z decays
   
   //Configs
-  int theChannel;
-  std::string theCandLabel;
   TString theFileName;
   bool theFSR;
   Bool_t theisMC;
-  Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
+  // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
   vector<string> foundPaths;
@@ -183,6 +184,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
   edm::EDGetTokenT<vector<l1extra::L1JetParticle>> l1ExtraIsoTau_;
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
+  edm::EDGetTokenT<edm::TriggerResults> metFilterBits_;
   edm::EDGetTokenT<vector<Vertex>> theVtxTag;
   edm::EDGetTokenT<double> theRhoTag;
   edm::EDGetTokenT<double> theRhoMiniRelIsoTag;
@@ -190,10 +192,12 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::View<pat::PackedCandidate>> thePFCandTag;
   edm::EDGetTokenT<edm::View<pat::CompositeCandidate>> theCandTag;
   edm::EDGetTokenT<edm::View<pat::Jet>> theJetTag;
+  edm::EDGetTokenT<edm::View<pat::Jet>> theFatJetTag;
   edm::EDGetTokenT<edm::View<reco::Candidate>> theLepTag;
   edm::EDGetTokenT<LHEEventProduct> theLHETag;
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
   edm::EDGetTokenT<pat::METCollection> theMetTag;
+  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
   edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
   edm::EDGetTokenT<edm::View<reco::GenJet>> theGenJetTag;
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
@@ -205,7 +209,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
   bool applySkim;       //  "     "      "     skim
-  bool skipEmptyEvents; // Skip events whith no candidate in the collection
   //PUReweight reweight;
 
   //counters
@@ -221,6 +224,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _metfilterbit;
   Float_t _met;
   Float_t _metphi;
+  Float_t _PUPPImet;
+  Float_t _PUPPImetphi;
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
@@ -349,6 +354,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
+  std::vector<Float_t> _uncorrmetx;
+  std::vector<Float_t> _uncorrmety;
   std::vector<Float_t> _metCov00;
   std::vector<Float_t> _metCov01;
   std::vector<Float_t> _metCov10;
@@ -381,7 +388,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 28;
+  static const int ntauIds = 30;
   TString tauIDStrings[ntauIds] = {
    "byLoosePileupWeightedIsolation3Hits",
    "byMediumPileupWeightedIsolation3Hits",
@@ -396,10 +403,12 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "againstElectronMediumMVA6",
    "againstElectronTightMVA6",
    "againstElectronVTightMVA6",
+   "byVLooseIsolationMVArun2v1DBoldDMwLT",
    "byLooseIsolationMVArun2v1DBoldDMwLT",
    "byMediumIsolationMVArun2v1DBoldDMwLT",
    "byTightIsolationMVArun2v1DBoldDMwLT",
    "byVTightIsolationMVArun2v1DBoldDMwLT",
+   "byVLooseIsolationMVArun2v1DBnewDMwLT",
    "byLooseIsolationMVArun2v1DBnewDMwLT",
    "byMediumIsolationMVArun2v1DBnewDMwLT",
    "byTightIsolationMVArun2v1DBnewDMwLT",
@@ -472,8 +481,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
   std::vector<Float_t> _jets_rawPt;
+  std::vector<Float_t> _jets_area;
   std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
+  std::vector<Float_t> _jets_PUJetIDupdated;
   std::vector<Float_t> _jets_vtxPt;
   std::vector<Float_t> _jets_vtxMass;
   std::vector<Float_t> _jets_vtx3dL;
@@ -489,6 +500,28 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_nHEF;
   std::vector<Int_t> _jets_chMult;
   std::vector<Float_t> _jets_jecUnc;
+
+  std::vector<Float_t> _ak8jets_px;
+  std::vector<Float_t> _ak8jets_py;
+  std::vector<Float_t> _ak8jets_pz;
+  std::vector<Float_t> _ak8jets_e;
+  std::vector<Float_t> _ak8jets_SoftDropMass;
+  std::vector<Float_t> _ak8jets_PrunedMass;
+  std::vector<Float_t> _ak8jets_TrimmedMass;
+  std::vector<Float_t> _ak8jets_FilteredMass;
+  std::vector<Float_t> _ak8jets_tau1; // subjettiness
+  std::vector<Float_t> _ak8jets_tau2; // subjettiness
+  std::vector<Float_t> _ak8jets_tau3; // subjettiness
+  std::vector<Float_t> _ak8jets_CSV; // CSV score
+  std::vector<Int_t>   _ak8jets_nsubjets;
+
+  // subjets of ak8 -- store ALL subjets, and link them with an idx to the ak8 jet vectors
+  std::vector<Float_t> _subjets_px;
+  std::vector<Float_t> _subjets_py;
+  std::vector<Float_t> _subjets_pz;
+  std::vector<Float_t> _subjets_e;
+  std::vector<Float_t> _subjets_CSV;
+  std::vector<Float_t> _subjets_ak8MotherIdx;
 
   std::vector<Int_t> _jets_Flavour; // parton flavour
   std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
@@ -510,6 +543,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   triggerObjects_      (consumes<pat::TriggerObjectStandAloneCollection> (pset.getParameter<edm::InputTag>("triggerSet"))),
   l1ExtraIsoTau_       (consumes<vector<l1extra::L1JetParticle>>         (pset.getParameter<edm::InputTag>("l1extraIsoTau"))) ,
   triggerBits_         (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
+  metFilterBits_       (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("metFilters"))),
   theVtxTag            (consumes<vector<Vertex>>                         (pset.getParameter<edm::InputTag>("vtxCollection"))),
   theRhoTag            (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoCollection"))),
   theRhoMiniRelIsoTag  (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoMiniRelIsoCollection"))),
@@ -517,10 +551,12 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   thePFCandTag         (consumes<edm::View<pat::PackedCandidate>>        (pset.getParameter<edm::InputTag>("PFCandCollection"))),
   theCandTag           (consumes<edm::View<pat::CompositeCandidate>>     (pset.getParameter<edm::InputTag>("candCollection"))),
   theJetTag            (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("jetCollection"))),
+  theFatJetTag         (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("ak8jetCollection"))),
   theLepTag            (consumes<edm::View<reco::Candidate>>             (pset.getParameter<edm::InputTag>("lepCollection"))),
   theLHETag            (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lheCollection"))),
   theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
   theMetTag            (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metCollection"))),
+  thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))),
   theGenericTag        (consumes<edm::View<pat::GenericParticle>>        (pset.getParameter<edm::InputTag>("genericCollection"))),
   theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
   theTotTag            (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("totCollection"))),
@@ -528,13 +564,10 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection")))
 
  {
-  theCandLabel = pset.getUntrackedParameter<string>("CandCollection");
-  //theChannel = myHelper.channel();
   theFileName = pset.getUntrackedParameter<string>("fileName");
-  skipEmptyEvents = pset.getParameter<bool>("skipEmptyEvents");
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
-  theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
+  // theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
@@ -770,6 +803,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_isL1IsoTau28Matched.clear();
   _metx.clear();
   _mety.clear();
+  _uncorrmetx.clear();
+  _uncorrmety.clear();
   _metCov00.clear();
   _metCov01.clear();
   _metCov10.clear();
@@ -797,6 +832,8 @@ void HTauTauNtuplizer::Initialize(){
   _metfilterbit=0;
   _met=0;
   _metphi=0.;
+  _PUPPImet=0;
+  _PUPPImetphi=0.;
   _MC_weight=0.;
   _npv=0;
   _lheHt=0;
@@ -813,8 +850,10 @@ void HTauTauNtuplizer::Initialize(){
   _jets_pz.clear();
   _jets_e.clear();
   _jets_rawPt.clear();
+  _jets_area.clear();
   _jets_mT.clear();
   _jets_PUJetID.clear();
+  _jets_PUJetIDupdated.clear();
   _jets_vtxPt.clear();
   _jets_vtxMass.clear();
   _jets_vtx3dL.clear();
@@ -839,6 +878,28 @@ void HTauTauNtuplizer::Initialize(){
   _jetID.clear();
   _jetrawf.clear();
 
+  _ak8jets_px.clear();
+  _ak8jets_py.clear();
+  _ak8jets_pz.clear();
+  _ak8jets_e.clear();
+  _ak8jets_SoftDropMass.clear();
+  _ak8jets_PrunedMass.clear();
+  _ak8jets_TrimmedMass.clear();
+  _ak8jets_FilteredMass.clear();
+  _ak8jets_tau1.clear();
+  _ak8jets_tau2.clear();
+  _ak8jets_tau3.clear();
+  _ak8jets_CSV.clear();
+  _ak8jets_nsubjets.clear();
+
+  _subjets_px.clear();
+  _subjets_py.clear();
+  _subjets_pz.clear();
+  _subjets_e.clear();
+  _subjets_CSV.clear();
+  _subjets_ak8MotherIdx.clear();
+
+
   //_genH_px.clear();
   //_genH_py.clear();
   //_genH_pz.clear();
@@ -859,7 +920,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
-  myTree->Branch("metphi",&_metphi,"metphi/F");  
+  myTree->Branch("metphi",&_metphi,"PUPPImetphi/F");  
+  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
+  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"metphi/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/F"); 
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
@@ -983,6 +1046,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
+  myTree->Branch("uncorrMETx",&_uncorrmetx);
+  myTree->Branch("uncorrMETy",&_uncorrmety);
   myTree->Branch("MET_cov00",&_metCov00);
   myTree->Branch("MET_cov01",&_metCov01);
   myTree->Branch("MET_cov10",&_metCov10);
@@ -1074,11 +1139,13 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_pz",&_jets_pz);
   myTree->Branch("jets_e",&_jets_e);
   myTree->Branch("jets_rawPt", &_jets_rawPt);
+  myTree->Branch("jets_area", &_jets_area);
   myTree->Branch("jets_mT", &_jets_mT);
   myTree->Branch("jets_Flavour",&_jets_Flavour);
   myTree->Branch("jets_HadronFlavour",&_jets_HadronFlavour);
   myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
+  myTree->Branch("jets_PUJetIDupdated",&_jets_PUJetIDupdated);
   myTree->Branch("jets_vtxPt", &_jets_vtxPt);
   myTree->Branch("jets_vtxMass", &_jets_vtxMass);
   myTree->Branch("jets_vtx3dL", &_jets_vtx3dL);
@@ -1099,6 +1166,28 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("bCSVscore",&_bdiscr2);
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
+
+  myTree->Branch("ak8jets_px", &_ak8jets_px);
+  myTree->Branch("ak8jets_py", &_ak8jets_py);
+  myTree->Branch("ak8jets_pz", &_ak8jets_pz);
+  myTree->Branch("ak8jets_e", &_ak8jets_e);
+  myTree->Branch("ak8jets_SoftDropMass", &_ak8jets_SoftDropMass);
+  myTree->Branch("ak8jets_PrunedMass", &_ak8jets_PrunedMass);
+  myTree->Branch("ak8jets_TrimmedMass", &_ak8jets_TrimmedMass);
+  myTree->Branch("ak8jets_FilteredMass", &_ak8jets_FilteredMass);
+  myTree->Branch("ak8jets_tau1", &_ak8jets_tau1);
+  myTree->Branch("ak8jets_tau2", &_ak8jets_tau2);
+  myTree->Branch("ak8jets_tau3", &_ak8jets_tau3);
+  myTree->Branch("ak8jets_CSV", &_ak8jets_CSV);
+  myTree->Branch("ak8jets_nsubjets", &_ak8jets_nsubjets);
+
+  myTree->Branch("subjets_px", &_subjets_px);
+  myTree->Branch("subjets_py", &_subjets_py);
+  myTree->Branch("subjets_pz", &_subjets_pz);
+  myTree->Branch("subjets_e", &_subjets_e);
+  myTree->Branch("subjets_CSV", &_subjets_CSV);
+  myTree->Branch("subjets_ak8MotherIdx", &_subjets_ak8MotherIdx);
+
 }
 
 Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0){
@@ -1192,7 +1281,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   }
   
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
-  _metfilterbit = myTriggerHelper->FindMETBit(event);
+  _metfilterbit = myTriggerHelper->FindMETBit(event, metFilterBits_);
   Long64_t tbit = _triggerbit;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
@@ -1202,22 +1291,23 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
   edm::Handle<edm::View<reco::Candidate>>dauHandle;
   edm::Handle<edm::View<pat::Jet>>jetHandle;
+  edm::Handle<edm::View<pat::Jet>>fatjetHandle;
   edm::Handle<pat::METCollection> metHandle;
+  edm::Handle<pat::METCollection> PUPPImetHandle;
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
  
   // protect in case of events where trigger hasn't fired --> no collection created 
-  //event.getByLabel(theCandLabel,candHandle);
   event.getByToken(theCandTag,candHandle);
   if (!candHandle.isValid()) return;
-  //event.getByLabel(theCandLabel,candHandle);
+
   event.getByToken(theCandTag,candHandle);
-  //event.getByLabel("jets",jetHandle);
-  //event.getByLabel("softLeptons",dauHandle);
   event.getByToken(theJetTag,jetHandle);
+  event.getByToken(theFatJetTag,fatjetHandle);
   event.getByToken(theLepTag,dauHandle);
   
   event.getByToken(theMetTag,metHandle);
+  event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
     event.getByToken(theLHETag,lheeventinfo);
@@ -1249,7 +1339,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const edm::View<pat::CompositeCandidate>* cands = candHandle.product();
   const edm::View<reco::Candidate>* daus = dauHandle.product();
   const edm::View<pat::Jet>* jets = jetHandle.product();
+  const edm::View<pat::Jet>* fatjets = fatjetHandle.product();
   const pat::MET &met = metHandle->front();
+  const pat::MET &PUPPImet = PUPPImetHandle->front();
   //myNtuple->InitializeVariables();
     
   _indexevents = event.id().event();
@@ -1258,6 +1350,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // _met = met.sumEt(); // scalar sum of the pf candidates
   _met = met.pt();
   _metphi = met.phi();
+  _PUPPImet = PUPPImet.pt();
+  _PUPPImetphi = PUPPImet.phi();
     
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
@@ -1283,7 +1377,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   JetCorrectionUncertainty jecUnc (JetCorPar);
   _numberOfJets = 0;
   if(writeJets)_numberOfJets = FillJet(jets, event, &jecUnc);
-
+  if(writeFatJets) FillFatJet(fatjets, event);
+  
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
   for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
@@ -1299,9 +1394,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     float thisMETpx = cand.userFloat("MEt_px");
     float thisMETpy = cand.userFloat("MEt_py");
+    float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
+    float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
-    bool hasUp   = cand.hasUserFloat ("SVfitMassUp");
-    bool hasDown = cand.hasUserFloat ("SVfitMassDown");
+    bool hasUp   = cand.hasUserFloat ("SVfitMassTauUp");
+    bool hasDown = cand.hasUserFloat ("SVfitMassTauDown");
 
     _SVmass.push_back(cand.userFloat("SVfitMass"));
     _SVmassTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
@@ -1345,6 +1442,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);    
+    _uncorrmetx.push_back(thisMETpx_uncorr);
+    _uncorrmety.push_back(thisMETpy_uncorr);
     _metCov00.push_back(cand.userFloat("MEt_cov00"));
     _metCov01.push_back(cand.userFloat("MEt_cov01"));
     _metCov10.push_back(cand.userFloat("MEt_cov10"));
@@ -1490,6 +1589,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_Flavour.push_back(ijet->partonFlavour());
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
+    _jets_PUJetIDupdated.push_back(ijet->userFloat("pileupJetIdUpdated:fullDiscriminant"));
     float vtxPx = ijet->userFloat ("vtxPx");
     float vtxPy = ijet->userFloat ("vtxPy");
     _jets_vtxPt.  push_back(TMath::Sqrt(vtxPx*vtxPx + vtxPy*vtxPy));
@@ -1500,6 +1600,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
     _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+
     //PF jet ID
     float NHF = ijet->neutralHadronEnergyFraction();
     float NEMF = ijet->neutralEmEnergyFraction();
@@ -1546,6 +1647,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     float jetRawPt = jecFactor * ijet->pt();
     //float jetRawPt2 = ijet->pt() / jecFactor; // this is wrong
     _jets_rawPt.push_back ( jetRawPt );
+    _jets_area.push_back (ijet->jetArea());
     _jetrawf.push_back(jecFactor);
   
     // loop on jet contituents to retrieve info for b jet regression
@@ -1641,6 +1743,46 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
   return nJets;
 }
+
+void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&)
+{
+    for(edm::View<pat::Jet>::const_iterator ijet = fatjets->begin(); ijet!=fatjets->end();++ijet)
+    {
+      _ak8jets_px.push_back( (float) ijet->px());
+      _ak8jets_py.push_back( (float) ijet->py());
+      _ak8jets_pz.push_back( (float) ijet->pz());
+      _ak8jets_e.push_back( (float) ijet->energy());    
+      _ak8jets_SoftDropMass.push_back(ijet->userFloat("ak8PFJetsCHSSoftDropMass"));
+      _ak8jets_PrunedMass.push_back(ijet->userFloat("ak8PFJetsCHSPrunedMass"));
+      _ak8jets_TrimmedMass.push_back(ijet->userFloat("ak8PFJetsCHSTrimmedMass"));
+      _ak8jets_FilteredMass.push_back(ijet->userFloat("ak8PFJetsCHSFilteredMass"));
+      _ak8jets_tau1.push_back(ijet->userFloat("NjettinessAK8:tau1"));
+      _ak8jets_tau2.push_back(ijet->userFloat("NjettinessAK8:tau2"));
+      _ak8jets_tau3.push_back(ijet->userFloat("NjettinessAK8:tau3"));
+      _ak8jets_CSV.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+
+      // store subjets for soft drop
+      int nsubj = 0;
+      if (ijet->hasSubjets("SoftDrop"))
+      {
+        pat::JetPtrCollection const & subj = ijet->subjets("SoftDrop");
+        // cout << "============= IJET " << ijet - fatjets->begin() << " ============= " << endl;
+        for (auto isubj = subj.begin(); isubj!=subj.end(); isubj++)
+        {
+          nsubj += 1;
+          _subjets_px.push_back((*isubj)->px());
+          _subjets_py.push_back((*isubj)->py());
+          _subjets_pz.push_back((*isubj)->pz());
+          _subjets_e.push_back((*isubj)->energy());
+          _subjets_CSV.push_back((*isubj)->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+          _subjets_ak8MotherIdx.push_back(ijet - fatjets->begin()); // idx of fatjet in fatjet vector
+          // cout << " * " << (*isubj)->pt() << " " << isubj - subj.begin() << endl;
+        }
+      }
+      _ak8jets_nsubjets.push_back(nsubj);
+    }
+}
+
 
 //Fill all leptons (we keep them all for veto purposes
 void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, const edm::Event& event,bool theFSR, const edm::View<pat::Jet> *jets){
@@ -1867,7 +2009,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
-      decayModeFindingOldDMs = userdatahelpers::getUserInt (cand, "decayModeFindingOldDMs");
+      decayModeFindingOldDMs = userdatahelpers::getUserInt (cand, "decayModeFinding");
       decayModeFindingNewDMs = userdatahelpers::getUserInt (cand, "decayModeFindingNewDMs");
       for (uint itau =0; itau<ntauIds; itau++){
         int id = userdatahelpers::getUserInt (cand,  tauIDStrings[itau]);

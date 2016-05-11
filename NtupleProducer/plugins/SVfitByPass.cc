@@ -43,7 +43,7 @@ class SVfitBypass : public edm::EDProducer {
   //std::vector<edm::InputTag> vtheMETTag;
   edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
   //edm::EDGetTokenT<View<pat::MET> > vtheMETTag;
-  std::vector <edm::EDGetTokenT<View<reco::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
+  std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
   edm::EDGetTokenT<double> theSigTag;
   edm::EDGetTokenT<math::Error<2>::type> theCovTag;
 
@@ -70,7 +70,8 @@ theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("sr
   const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
   for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
   {      
-    vtheMETTag.emplace_back(consumes<edm::View<reco::MET> >(*it) );
+    // vtheMETTag.emplace_back(consumes<edm::View<reco::MET> >(*it) );
+    vtheMETTag.emplace_back(consumes<edm::View<pat::MET> >(*it) );
   }
 
   produces<pat::CompositeCandidateCollection>();
@@ -93,9 +94,11 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get event pat MET to be saved in output
   double METx = 0.;
   double METy = 0.; 
+  double uncorrMETx = -999.;
+  double uncorrMETy = -999.; 
   TMatrixD covMET(2, 2);
   float significance = -999.;
-  Handle<View<reco::MET> > METHandle;
+  Handle<View<pat::MET> > METHandle;
   
   if (!_usePairMET)
   {
@@ -122,12 +125,16 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       iEvent.getByToken(vtheMETTag.at(i), METHandle);
       //metNumber = METHandle->size();
 
-      const PFMET* pfMET = (PFMET*) &((*METHandle)[0]) ; // all this to transform the type of the pointer!
-      const reco::METCovMatrix& covMETbuf = pfMET->getSignificanceMatrix();
-      significance = (float) pfMET->significance();
+      // const PFMET* pfMET = (PFMET*) &((*METHandle)[0]) ; // all this to transform the type of the pointer!
+      const pat::MET* patMET = &((*METHandle)[0]);
+      const reco::METCovMatrix& covMETbuf = patMET->getSignificanceMatrix();
+      significance = (float) patMET->significance();
 
-      METx = pfMET->px();
-      METy = pfMET->py();
+      METx = patMET->px();
+      METy = patMET->py();
+
+      uncorrMETx = ( patMET->hasUserFloat("uncorrPx") ) ? patMET->userFloat("uncorrPx") : -999;
+      uncorrMETy = ( patMET->hasUserFloat("uncorrPy") ) ? patMET->userFloat("uncorrPy") : -999;
 
       covMET[0][0] = covMETbuf(0,0);
       covMET[1][0] = covMETbuf(1,0);
@@ -153,6 +160,8 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("SVfit_METPhi", -999);
     pair.addUserFloat("MEt_px", (float) METx);
     pair.addUserFloat("MEt_py", (float) METy);
+    pair.addUserFloat("uncorrMEt_px", (float) uncorrMETx);
+    pair.addUserFloat("uncorrMEt_py", (float) uncorrMETy);
     pair.addUserFloat("MEt_cov00", (float) covMET[0][0]);
     pair.addUserFloat("MEt_cov01", (float) covMET[0][1]);
     pair.addUserFloat("MEt_cov10", (float) covMET[1][0]);
