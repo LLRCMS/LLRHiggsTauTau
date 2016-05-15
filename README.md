@@ -118,6 +118,7 @@ cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
 cd -
 scram b -j 4
+```
 
 ### Instructions for 8_0_6 (miniAOD 2016)
 
