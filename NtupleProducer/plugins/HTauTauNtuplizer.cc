@@ -921,9 +921,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
-  myTree->Branch("metphi",&_metphi,"PUPPImetphi/F");  
+  myTree->Branch("metphi",&_metphi,"metphi/F");  
   myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
-  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"metphi/F");  
+  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");  
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/F"); 
   myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
