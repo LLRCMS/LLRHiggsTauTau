@@ -75,7 +75,7 @@ if __name__ == "__main__":
     jobsDir=cmsswBase+'/src/LLRHiggsTauTau/NtupleProducer/test/' + relativeJobDir
     # NB samplefile should stay in test and the script has to be run from test
     os.system('mkdir -p %s'%jobsDir)
-    print ('cp ' + opt.samplefile + ' ' + jobsDir)
+    # print ('cp ' + opt.samplefile + ' ' + jobsDir)
     os.system ('cp ' + opt.samplefile + ' ' + jobsDir)
     print '** INFO ** Jobs folder is: %s'%(jobsDir)
 
@@ -98,7 +98,8 @@ if __name__ == "__main__":
     #     os.system ('source /opt/exp_soft/cms/t3/t3setup')
 
     #loop over the required number of jobs
-    for n in xrange (0, len (chunks)) :
+    nloop = len (chunks) if opt.wholefile else opt.njobs
+    for n in xrange (0, nloop) :
 
         #sed the cfg template 
         inCfg = open(opt.cfg).read()

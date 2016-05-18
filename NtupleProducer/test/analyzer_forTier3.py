@@ -19,11 +19,14 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #TAUCUT="pt>15"
 #JETCUT="pt>15"
 
-USEPAIRMET=False # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusion set using USE_NOHFMET)
-USE_NOHFMET=False # True to exclude HF and run on silver json
+USEPAIRMET=True # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusion set using USE_NOHFMET)
+APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil corrections for MVA MET response and resolution
+USE_NOHFMET = False # True to exclude HF and run on silver json
 
 SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
+APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
+COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
 
 IsMC=XXX_ISMC_XXX
 Is25ns=True
@@ -75,6 +78,7 @@ if not IsMC:
 ##
 
 process.TFileService=cms.Service('TFileService',fileName=cms.string("XXX_OUTPUTFILENTUPLE_XXX"))
+
 if DO_ENRICHED:
     process.out = cms.OutputModule("PoolOutputModule",
         fileName = cms.untracked.string("XXX_OUTPUTFILEENRICHED_XXX"),
@@ -89,7 +93,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'
