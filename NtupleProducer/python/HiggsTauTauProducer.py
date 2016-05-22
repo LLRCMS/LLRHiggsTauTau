@@ -656,7 +656,7 @@ srcMETTag = None
 if USEPAIRMET:
   srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
 else:
-  srcMETTag = cms.VInputTag(PFMetName)
+  srcMETTag = cms.InputTag(PFMetName)
 
 ## ----------------------------------------------------------------------
 ## SV fit
