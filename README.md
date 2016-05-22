@@ -88,7 +88,7 @@ cmsrel CMSSW_7_6_3_patch2
 cd CMSSW_7_6_3_patch2/src
 cmsenv
 # MVA MET
-git cms-merge-topic --unsafe rfriese:MVAMET2_beta_0.6
+git cms-merge-topic --unsafe l-cadamuro:MVAMETExtCombinatorics
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 git clone https://github.com/LLRCMS/LLRHiggsTauTau

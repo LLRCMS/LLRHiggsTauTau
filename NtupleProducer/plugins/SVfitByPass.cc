@@ -39,11 +39,9 @@ class SVfitBypass : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
   
-  //edm::InputTag theCandidateTag;
-  //std::vector<edm::InputTag> vtheMETTag;
   edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
-  //edm::EDGetTokenT<View<pat::MET> > vtheMETTag;
-  std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
+  // std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
+  edm::EDGetTokenT<View<pat::MET>> theMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
   edm::EDGetTokenT<double> theSigTag;
   edm::EDGetTokenT<math::Error<2>::type> theCovTag;
 
@@ -58,7 +56,7 @@ class SVfitBypass : public edm::EDProducer {
 
 SVfitBypass::SVfitBypass(const edm::ParameterSet& iConfig):
 theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
-//vtheMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
+theMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
 theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
 theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov")))
 {
@@ -67,12 +65,12 @@ theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("sr
 
   _usePairMET = iConfig.getParameter<bool>("usePairMET");
 
-  const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
-  for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
-  {      
-    // vtheMETTag.emplace_back(consumes<edm::View<reco::MET> >(*it) );
-    vtheMETTag.emplace_back(consumes<edm::View<pat::MET> >(*it) );
-  }
+  // const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
+  // for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
+  // {      
+  //   // vtheMETTag.emplace_back(consumes<edm::View<reco::MET> >(*it) );
+  //   vtheMETTag.emplace_back(consumes<edm::View<pat::MET> >(*it) );
+  // }
 
   produces<pat::CompositeCandidateCollection>();
 }  
@@ -102,7 +100,8 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if (!_usePairMET)
   {
-    iEvent.getByToken(vtheMETTag.at(0), METHandle);
+    // iEvent.getByToken(vtheMETTag.at(0), METHandle);
+    iEvent.getByToken(theMETTag, METHandle);
     const pat::MET& patMET = (*METHandle)[0];
     METx = patMET.px();
     METy = patMET.py();
@@ -122,11 +121,13 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
     if (_usePairMET)
     {
-      iEvent.getByToken(vtheMETTag.at(i), METHandle);
+      // iEvent.getByToken(vtheMETTag.at(i), METHandle);
+      iEvent.getByToken(theMETTag, METHandle);
       //metNumber = METHandle->size();
 
       // const PFMET* pfMET = (PFMET*) &((*METHandle)[0]) ; // all this to transform the type of the pointer!
-      const pat::MET* patMET = &((*METHandle)[0]);
+      // const pat::MET* patMET = &((*METHandle)[0]);
+      const pat::MET* patMET = &((*METHandle)[i]);
       const reco::METCovMatrix& covMETbuf = patMET->getSignificanceMatrix();
       significance = (float) patMET->significance();
 

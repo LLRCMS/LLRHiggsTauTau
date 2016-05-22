@@ -61,17 +61,13 @@ class SVfitInterface : public edm::EDProducer {
   bool Switch (svFitStandalone::kDecayType type1, double pt1, svFitStandalone::kDecayType type2, double pt2);
   double GetMass (svFitStandalone::kDecayType type, double candMass);
 
-  //edm::InputTag theCandidateTag;
   edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
-  //std::vector<edm::InputTag> vtheMETTag;
-  std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
-  //edm::EDGetTokenT<View<pat::MET> > vtheMETTag;
+  // std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
+  edm::EDGetTokenT<View<pat::MET> > theMETTag;
   edm::EDGetTokenT<double> theSigTag;
   edm::EDGetTokenT<math::Error<2>::type> theCovTag;
-  //int sampleType;
   bool _usePairMET;
   bool _computeForUpDownTES;
-  //bool _useMVAMET;
   TFile* inputFile_visPtResolution_;
   
 };
@@ -82,6 +78,7 @@ class SVfitInterface : public edm::EDProducer {
 SVfitInterface::SVfitInterface(const edm::ParameterSet& iConfig):
 theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
 //vtheMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
+theMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
 theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
 theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov")))
 {
@@ -89,12 +86,12 @@ theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("sr
   _usePairMET = iConfig.getParameter<bool>("usePairMET");
   _computeForUpDownTES = iConfig.getParameter<bool>("computeForUpDownTES");
   
-  const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
-  for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
-  {      
-    // vtheMETTag.emplace_back(consumes<edm::View<reco::MET> >(*it) );
-    vtheMETTag.emplace_back(consumes<edm::View<pat::MET> >(*it) );
-  }
+  // const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
+  // for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
+  // {      
+  //   // vtheMETTag.emplace_back(consumes<edm::View<reco::MET> >(*it) );
+  //   vtheMETTag.emplace_back(consumes<edm::View<pat::MET> >(*it) );
+  // }
 
   edm::FileInPath inputFileName_visPtResolution("TauAnalysis/SVfitStandalone/data/svFitVisMassAndPtResolutionPDF.root");
   TH1::AddDirectory(false);  
@@ -136,11 +133,11 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double uncorrMETy = -999.; 
   TMatrixD covMET(2, 2);
   float significance = -999.;
-      
+
+  iEvent.getByToken(theMETTag, METHandle);    
   // initialize MET once if not using PairMET
   if (!_usePairMET)
   {   
-     iEvent.getByToken(vtheMETTag.at(0), METHandle);
      metNumber = METHandle->size();
      if (metNumber != 1)     
         edm::LogWarning("pfMetHasNotSizeOne") << "(SVfitInterface) Warning! Using single pf MEt, but input MEt collection size is different from 1"
@@ -213,11 +210,11 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
     if (_usePairMET)
     {
-      iEvent.getByToken(vtheMETTag.at(i), METHandle);
+      // iEvent.getByToken(theMETTag, METHandle);
       metNumber = METHandle->size();
 
       // const PFMET* pfMET = (PFMET*) &((*METHandle)[0]) ; // all this to transform the type of the pointer!
-      const pat::MET* patMET = &((*METHandle)[0]);
+      const pat::MET* patMET = &((*METHandle)[i]);
       const reco::METCovMatrix& covMETbuf = patMET->getSignificanceMatrix();
       significance = (float) patMET->significance();
 

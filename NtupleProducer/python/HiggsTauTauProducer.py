@@ -578,6 +578,8 @@ if USEPAIRMET:
     runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
     process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
     process.MVAMET.requireOS = cms.bool(False)
+    process.MVAMET.skipCombinatorics = cms.bool(True)
+    process.MVAMET.leptonPairs = cms.InputTag("barellCand")
 
     process.MVAMETInputs = cms.Sequence(
         process.slimmedElectronsTight + process.slimmedMuonsTight + process.slimmedTausLoose + process.slimmedTausLooseCleaned + process.patJetsReapplyJECCleaned +
@@ -597,26 +599,26 @@ if USEPAIRMET:
         process.MVAMETInputs += getattr(process, "pat"+met)
         process.MVAMETInputs += getattr(process, "pat"+met+"T1")        
 
-    process.METSequence = cms.Sequence(process.MVAMETInputs)
+    process.METSequence = cms.Sequence(process.MVAMETInputs + process.MVAMET)
 
-    # python trick: loop on all pairs for pair MET computation
-    UnpackerTemplate = cms.EDProducer("PairUnpacker",
-        src = cms.InputTag("barellCand")
-    )
+    # # python trick: loop on all pairs for pair MET computation
+    # UnpackerTemplate = cms.EDProducer("PairUnpacker",
+    #     src = cms.InputTag("barellCand")
+    # )
 
-    MVAPairMET = []
-    for index in range(210):
-        UnpackerName = "PairUnpacker%i" % index
-        UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
-        setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
-        process.METSequence += UnpackerModule
+    # MVAPairMET = []
+    # for index in range(210):
+    #     UnpackerName = "PairUnpacker%i" % index
+    #     UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
+    #     setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
+    #     process.METSequence += UnpackerModule
 
-        MVAMETName = "patMETMVA%i" % index
-        MVAModule = process.MVAMET.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
-        setattr(process, MVAMETName, MVAModule)
-        process.METSequence += MVAModule
+    #     MVAMETName = "patMETMVA%i" % index
+    #     MVAModule = process.MVAMET.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
+    #     setattr(process, MVAMETName, MVAModule)
+    #     process.METSequence += MVAModule
    
-        MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
+    #     MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
 
 else:
     print "Using event pfMET (same MET for all pairs)"
@@ -628,7 +630,7 @@ else:
 ## Z-recoil correction
 ## ----------------------------------------------------------------------
 
-corrMVAPairMET = []
+# corrMVAPairMET = []
 if IsMC and APPLYMETCORR:
     if USEPAIRMET:
         process.selJetsForZrecoilCorrection = cms.EDFilter("PATJetSelector",
@@ -636,22 +638,25 @@ if IsMC and APPLYMETCORR:
             cut = cms.string("pt > 30. & abs(eta) < 4.7"), 
             filter = cms.bool(False)
         )
+        process.corrMVAMET = cms.EDProducer("ZrecoilCorrectionProducer",                                                   
+            srcPairs = cms.InputTag("barellCand"),
+            srcMEt = cms.InputTag("MVAMET", "MVAMET"),
+            srcGenParticles = cms.InputTag("prunedGenParticles"),
+            srcJets = cms.InputTag("selJetsForZrecoilCorrection"),
+            correction = cms.string("HTT-utilities/RecoilCorrections/data/recoilMvaMEt_76X_newTraining_MG5.root")
+        )
         process.METSequence += process.selJetsForZrecoilCorrection        
-        for index in range(210):
-            corrMVAMETName = "corrMETMVA%i" % index
-            corrMVAModule = cms.EDProducer("ZrecoilCorrectionProducer",                                                   
-                srcLeptons = cms.InputTag("PairUnpacker%i" % index),
-                srcMEt = MVAPairMET[index],
-                srcGenParticles = cms.InputTag("prunedGenParticles"),
-                srcJets = cms.InputTag("selJetsForZrecoilCorrection"),
-                correction = cms.string("HTT-utilities/RecoilCorrections/data/recoilMvaMEt_76X_newTraining_MG5.root")
-            )
-            setattr(process, corrMVAMETName, corrMVAModule)
-            process.METSequence += corrMVAModule
-            corrMVAPairMET.append(cms.InputTag(corrMVAMETName))
+        process.METSequence += process.corrMVAMET
 
     else:
         raise ValueError("Z-recoil corrections for PFMET not implemented yet !!")
+
+
+srcMETTag = None
+if USEPAIRMET:
+  srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
+else:
+  srcMETTag = cms.VInputTag(PFMetName)
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -661,30 +666,12 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcSig     = cms.InputTag("METSignificance", "METSignificance"),
                                   srcCov     = cms.InputTag("METSignificance", "METCovariance"),
                                   usePairMET = cms.bool(USEPAIRMET),
+                                  srcMET     = srcMETTag,
                                   computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT)
 )
 
-
-srcMETTag = None
-if USEPAIRMET:
-  srcMETTag = cms.VInputTag(corrMVAPairMET) if (IsMC and APPLYMETCORR) else cms.VInputTag(MVAPairMET)
-else:
-  srcMETTag = cms.VInputTag(PFMetName)
-
-process.SVllCand.srcMET = srcMETTag
-
-# if USEPAIRMET:
-#     if IsMC and APPLYMETCORR:
-#         process.SVllCand.srcMET    = cms.VInputTag(corrMVAPairMET)
-#     else:
-#         process.SVllCand.srcMET    = cms.VInputTag(MVAPairMET)
-# #   process.SVllCandTauUp.srcMET    = cms.VInputTag(MVAPairMET)
-# #   process.SVllCandTauDown.srcMET    = cms.VInputTag(MVAPairMET)
-# else:
-#    process.SVllCand.srcMET    = cms.VInputTag(PFMetName)
-
 ## ----------------------------------------------------------------------
-## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass and don't get MET userfloats
+## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass)
 ## ----------------------------------------------------------------------
 process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcPairs   = cms.InputTag("barellCand"),
