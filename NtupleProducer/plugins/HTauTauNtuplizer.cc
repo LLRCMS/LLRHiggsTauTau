@@ -538,6 +538,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<Float_t> _genH_e;
 };
 
+const int HTauTauNtuplizer::ntauIds; // definition of static member
+
 // ----Constructor and Destructor -----
 HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   triggerObjects_      (consumes<pat::TriggerObjectStandAloneCollection> (pset.getParameter<edm::InputTag>("triggerSet"))),
@@ -1589,7 +1591,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_Flavour.push_back(ijet->partonFlavour());
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
-    _jets_PUJetIDupdated.push_back(ijet->userFloat("pileupJetIdUpdated:fullDiscriminant"));
+    _jets_PUJetIDupdated.push_back(ijet->hasUserFloat("pileupJetIdUpdated:fullDiscriminant") ? ijet->userFloat("pileupJetIdUpdated:fullDiscriminant") : -999);
     float vtxPx = ijet->userFloat ("vtxPx");
     float vtxPy = ijet->userFloat ("vtxPy");
     _jets_vtxPt.  push_back(TMath::Sqrt(vtxPx*vtxPx + vtxPy*vtxPy));
