@@ -578,8 +578,8 @@ if USEPAIRMET:
     runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
     process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
     process.MVAMET.requireOS = cms.bool(False)
-    process.MVAMET.skipCombinatorics = cms.bool(True)
-    process.MVAMET.leptonPairs = cms.InputTag("barellCand")
+    process.MVAMET.permuteLeptonsWithinPlugin = cms.bool(False)
+    process.MVAMET.leptonPermutations = cms.InputTag("barellCand")
 
     process.MVAMETInputs = cms.Sequence(
         process.slimmedElectronsTight + process.slimmedMuonsTight + process.slimmedTausLoose + process.slimmedTausLooseCleaned + process.patJetsReapplyJECCleaned +
