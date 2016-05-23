@@ -521,7 +521,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _subjets_pz;
   std::vector<Float_t> _subjets_e;
   std::vector<Float_t> _subjets_CSV;
-  std::vector<Float_t> _subjets_ak8MotherIdx;
+  std::vector<Int_t>   _subjets_ak8MotherIdx;
 
   std::vector<Int_t> _jets_Flavour; // parton flavour
   std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
