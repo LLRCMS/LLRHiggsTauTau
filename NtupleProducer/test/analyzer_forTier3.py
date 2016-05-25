@@ -19,13 +19,13 @@ APPLYFSR=False #this is by far the slowest module (not counting SVFit so far)
 #TAUCUT="pt>15"
 #JETCUT="pt>15"
 
-USEPAIRMET=True # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusion set using USE_NOHFMET)
+USEPAIRMET=False # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusion set using USE_NOHFMET)
 APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil corrections for MVA MET response and resolution
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
-SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
-APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
+APPLYTESCORRECTION=False # shift the central value of the tau energy scale before computing up/down variations
 COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
 
 IsMC=XXX_ISMC_XXX
@@ -45,12 +45,16 @@ BCUT="pt>5"
 DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are saved!
 # ------------------------
 
+is80X = True if 'CMSSW_8' in os.environ['CMSSW_VERSION'] else False# True to run in 80X (2016), False to run in 76X (2015)
+print "is80X: " , is80X
 ##
 ## Standard sequence
 ##
-execfile(PyFilePath+"python/triggers.py") # contains the list of triggers and filters
-execfile(PyFilePath+"python/HiggsTauTauProducer.py")
-#execfile(PyFilePath+"python/DoubleHiggsProducer.py") #doesn't have mu and e --> it is just hadronic tau final states...
+
+if is80X:
+    execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
+else :
+    execfile(PyFilePath+"python/HiggsTauTauProducer.py")
 
 ### ----------------------------------------------------------------------
 ### Source, better to use sample to run on batch
