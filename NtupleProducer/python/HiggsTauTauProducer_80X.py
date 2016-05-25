@@ -412,7 +412,7 @@ process.softTaus = cms.EDProducer("TauFiller",
    discriminator = cms.string(TAUDISCRIMINATOR),
    NominalTESCorrection = cms.double(-1), #in percent , shift of central value of TES
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
-   ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
+   # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
    flags = cms.PSet(
         isGood = cms.string("")
         )

@@ -54,7 +54,7 @@ class TauFiller : public edm::EDProducer {
   // const std::string NominalUpOrDown;
   const double NominalTESCorrection; // value of correction of centrale TES value
   const bool ApplyTESCentralCorr; // shift the central TES value
-  const bool ApplyTESUpDown; // compute Up/Down TES variation
+  // const bool ApplyTESUpDown; // compute Up/Down TES variation
 
   vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
   vector<string> tauFloatDiscrims_; // tau discrims to be added as userFloats
@@ -70,8 +70,8 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   flags(iConfig.getParameter<ParameterSet>("flags")), 
   // NominalUpOrDown(iConfig.getParameter<std::string>("NominalUpOrDown")),
   NominalTESCorrection(iConfig.getParameter<double>("NominalTESCorrection")),
-  ApplyTESCentralCorr(iConfig.getParameter<bool>("ApplyTESCentralCorr")),
-  ApplyTESUpDown(iConfig.getParameter<bool>("ApplyTESUpDown"))
+  ApplyTESCentralCorr(iConfig.getParameter<bool>("ApplyTESCentralCorr"))
+  // ApplyTESUpDown(iConfig.getParameter<bool>("ApplyTESUpDown"))
 {
   produces<pat::TauCollection>();
 
