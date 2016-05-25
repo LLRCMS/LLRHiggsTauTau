@@ -668,7 +668,7 @@ process.SVllCand = cms.EDProducer("SVfitInterface",
                                   srcCov     = cms.InputTag("METSignificance", "METCovariance"),
                                   usePairMET = cms.bool(USEPAIRMET),
                                   srcMET     = srcMETTag,
-                                  computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT)
+                                  computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
 )
 
 ## ----------------------------------------------------------------------
