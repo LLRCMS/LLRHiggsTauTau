@@ -1754,13 +1754,13 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_py.push_back( (float) ijet->py());
       _ak8jets_pz.push_back( (float) ijet->pz());
       _ak8jets_e.push_back( (float) ijet->energy());    
-      _ak8jets_SoftDropMass.push_back(ijet->userFloat("ak8PFJetsCHSSoftDropMass"));
-      _ak8jets_PrunedMass.push_back(ijet->userFloat("ak8PFJetsCHSPrunedMass"));
-      _ak8jets_TrimmedMass.push_back(ijet->userFloat("ak8PFJetsCHSTrimmedMass"));
-      _ak8jets_FilteredMass.push_back(ijet->userFloat("ak8PFJetsCHSFilteredMass"));
-      _ak8jets_tau1.push_back(ijet->userFloat("NjettinessAK8:tau1"));
-      _ak8jets_tau2.push_back(ijet->userFloat("NjettinessAK8:tau2"));
-      _ak8jets_tau3.push_back(ijet->userFloat("NjettinessAK8:tau3"));
+      _ak8jets_SoftDropMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSSoftDropMass") ? ijet->userFloat("ak8PFJetsCHSSoftDropMass") : -999 );
+      _ak8jets_PrunedMass.push_back   (ijet->hasUserFloat("ak8PFJetsCHSPrunedMass")   ? ijet->userFloat("ak8PFJetsCHSPrunedMass")   : -999 );
+      _ak8jets_TrimmedMass.push_back  (ijet->hasUserFloat("ak8PFJetsCHSTrimmedMass")  ? ijet->userFloat("ak8PFJetsCHSTrimmedMass")  : -999 );
+      _ak8jets_FilteredMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSFilteredMass") ? ijet->userFloat("ak8PFJetsCHSFilteredMass") : -999 );
+      _ak8jets_tau1.push_back         (ijet->hasUserFloat("NjettinessAK8:tau1")       ? ijet->userFloat("NjettinessAK8:tau1")       : -999 );
+      _ak8jets_tau2.push_back         (ijet->hasUserFloat("NjettinessAK8:tau2")       ? ijet->userFloat("NjettinessAK8:tau2")       : -999 );
+      _ak8jets_tau3.push_back         (ijet->hasUserFloat("NjettinessAK8:tau3")       ? ijet->userFloat("NjettinessAK8:tau3")       : -999 );
       _ak8jets_CSV.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
 
       // store subjets for soft drop
