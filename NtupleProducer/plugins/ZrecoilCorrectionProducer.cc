@@ -19,6 +19,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
+#include <DataFormats/PatCandidates/interface/CompositeCandidate.h>
 #include <DataFormats/PatCandidates/interface/MET.h>
 #include "HTT-utilities/RecoilCorrections/interface/RecoilCorrector.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -48,7 +49,7 @@ class ZrecoilCorrectionProducer : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
 
-  edm::InputTag srcLeptons_;
+  edm::InputTag srcPairs_;
   edm::InputTag srcMEt_;
   edm::InputTag srcGenParticles_;
   edm::InputTag srcJets_;
@@ -62,8 +63,8 @@ class ZrecoilCorrectionProducer : public edm::EDProducer {
 ZrecoilCorrectionProducer::ZrecoilCorrectionProducer(const edm::ParameterSet& cfg)
   : recoilCorrector_(0)
 {
-  srcLeptons_ = cfg.getParameter<edm::InputTag>("srcLeptons");
-  consumes<CandidateView>(srcLeptons_);
+  srcPairs_ = cfg.getParameter<edm::InputTag>("srcPairs");
+  consumes<CompositeCandidateView>(srcPairs_);
   srcMEt_ = cfg.getParameter<edm::InputTag>("srcMEt");
   consumes<pat::METCollection>(srcMEt_);
   srcGenParticles_ = cfg.getParameter<edm::InputTag>("srcGenParticles");
@@ -83,6 +84,9 @@ ZrecoilCorrectionProducer::~ZrecoilCorrectionProducer()
 
 void ZrecoilCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {  
+  std::auto_ptr<pat::METCollection> result(new pat::METCollection());
+
+  // retrieve gen info
   edm::Handle<reco::GenParticleCollection> genParticles;
   evt.getByLabel(srcGenParticles_, genParticles);
 
@@ -118,30 +122,35 @@ void ZrecoilCorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& 
   }
   if ( !(isW || isZ || isHiggs) ) isZ = true; // CV: off-shell Z/gamma* -> ll events may have no Z-boson in genParticle list
 
-  edm::Handle<CandidateView> leptons;
-  evt.getByLabel(srcLeptons_, leptons);
+  // loop on al lepton pairs
+  edm::Handle<CompositeCandidateView> pairs;
+  evt.getByLabel(srcPairs_, pairs);
 
   edm::Handle<CandidateView> jets;
   evt.getByLabel(srcJets_, jets);
-  int nJets = 0;
-  for ( CandidateView::const_iterator jet = jets->begin();
-	jet != jets->end(); ++jet ) {
-    bool isLepton = false;
-    for ( CandidateView::const_iterator lepton = leptons->begin();
-	  lepton != leptons->end(); ++lepton ) {
-      double dR = deltaR(jet->p4(), lepton->p4());
-      if ( dR < 0.5 ) isLepton = true;
-    }
-    if ( !isLepton ) ++nJets;
-  }
-  if ( isW ) ++nJets; // CV: add jet that fakes the hadronic tau candidate
-
-  std::auto_ptr<pat::METCollection> result(new pat::METCollection());
 
   edm::Handle<pat::METCollection> uncorrMEt;
   evt.getByLabel(srcMEt_, uncorrMEt);
-  if ( uncorrMEt->size() >= 1 ) {
-    const pat::MET& theUncorrMEt = uncorrMEt->at(0);
+
+  unsigned int nPairs = pairs->size();
+  for (unsigned int iPair = 0; iPair < nPairs; ++iPair)
+  {
+    const CompositeCandidate& pair = (*pairs)[iPair];
+    const Candidate *l1 = pair.daughter(0);
+    const Candidate *l2 = pair.daughter(1);
+
+    int nJets = 0;
+    for ( CandidateView::const_iterator jet = jets->begin(); jet != jets->end(); ++jet )
+    {
+      bool isLepton1 = ( deltaR(*jet, *l1) < 0.5 ? true : false );
+      bool isLepton2 = ( deltaR(*jet, *l2) < 0.5 ? true : false );
+
+      if ( !isLepton1 ) ++nJets;
+      if ( !isLepton2 ) ++nJets;
+    }
+    if ( isW ) ++nJets; // CV: add jet that fakes the hadronic tau candidate
+
+    const pat::MET& theUncorrMEt = uncorrMEt->at(iPair);
   
     float corrMEtPx, corrMEtPy;
     recoilCorrector_->CorrectByMeanResolution(

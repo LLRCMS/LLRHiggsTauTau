@@ -522,7 +522,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _subjets_pz;
   std::vector<Float_t> _subjets_e;
   std::vector<Float_t> _subjets_CSV;
-  std::vector<Float_t> _subjets_ak8MotherIdx;
+  std::vector<Int_t>   _subjets_ak8MotherIdx;
 
   std::vector<Int_t> _jets_Flavour; // parton flavour
   std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
@@ -538,6 +538,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<Float_t> _genH_pz;
   //std::vector<Float_t> _genH_e;
 };
+
+const int HTauTauNtuplizer::ntauIds; // definition of static member
 
 // ----Constructor and Destructor -----
 HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
@@ -1593,7 +1595,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_Flavour.push_back(ijet->partonFlavour());
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
-    _jets_PUJetIDupdated.push_back(ijet->userFloat("pileupJetIdUpdated:fullDiscriminant"));
+    _jets_PUJetIDupdated.push_back(ijet->hasUserFloat("pileupJetIdUpdated:fullDiscriminant") ? ijet->userFloat("pileupJetIdUpdated:fullDiscriminant") : -999);
     float vtxPx = ijet->userFloat ("vtxPx");
     float vtxPy = ijet->userFloat ("vtxPy");
     _jets_vtxPt.  push_back(TMath::Sqrt(vtxPx*vtxPx + vtxPy*vtxPy));
@@ -1756,13 +1758,13 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_py.push_back( (float) ijet->py());
       _ak8jets_pz.push_back( (float) ijet->pz());
       _ak8jets_e.push_back( (float) ijet->energy());    
-      _ak8jets_SoftDropMass.push_back(ijet->userFloat("ak8PFJetsCHSSoftDropMass"));
-      _ak8jets_PrunedMass.push_back(ijet->userFloat("ak8PFJetsCHSPrunedMass"));
-      _ak8jets_TrimmedMass.push_back(ijet->userFloat("ak8PFJetsCHSTrimmedMass"));
-      _ak8jets_FilteredMass.push_back(ijet->userFloat("ak8PFJetsCHSFilteredMass"));
-      _ak8jets_tau1.push_back(ijet->userFloat("NjettinessAK8:tau1"));
-      _ak8jets_tau2.push_back(ijet->userFloat("NjettinessAK8:tau2"));
-      _ak8jets_tau3.push_back(ijet->userFloat("NjettinessAK8:tau3"));
+      _ak8jets_SoftDropMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSSoftDropMass") ? ijet->userFloat("ak8PFJetsCHSSoftDropMass") : -999 );
+      _ak8jets_PrunedMass.push_back   (ijet->hasUserFloat("ak8PFJetsCHSPrunedMass")   ? ijet->userFloat("ak8PFJetsCHSPrunedMass")   : -999 );
+      _ak8jets_TrimmedMass.push_back  (ijet->hasUserFloat("ak8PFJetsCHSTrimmedMass")  ? ijet->userFloat("ak8PFJetsCHSTrimmedMass")  : -999 );
+      _ak8jets_FilteredMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSFilteredMass") ? ijet->userFloat("ak8PFJetsCHSFilteredMass") : -999 );
+      _ak8jets_tau1.push_back         (ijet->hasUserFloat("NjettinessAK8:tau1")       ? ijet->userFloat("NjettinessAK8:tau1")       : -999 );
+      _ak8jets_tau2.push_back         (ijet->hasUserFloat("NjettinessAK8:tau2")       ? ijet->userFloat("NjettinessAK8:tau2")       : -999 );
+      _ak8jets_tau3.push_back         (ijet->hasUserFloat("NjettinessAK8:tau3")       ? ijet->userFloat("NjettinessAK8:tau3")       : -999 );
       _ak8jets_CSV.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
 
       // store subjets for soft drop
