@@ -128,7 +128,7 @@ process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
 
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
-    src = cms.InputTag("cleanedMu"),
+    src = cms.InputTag("slimmedMuons"), #This should not be commited
     cut = cms.string(MUCUT)
 #    Lowering pT cuts
 #    cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
@@ -627,6 +627,7 @@ else:
     process.load("RecoMET.METProducers.METSignificanceParams_cfi")
     process.METSequence = cms.Sequence(process.METSignificance)
 
+
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
 ## ----------------------------------------------------------------------
@@ -658,6 +659,11 @@ if USEPAIRMET:
   srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
 else:
   srcMETTag = cms.InputTag(PFMetName)
+
+from RecoMET.METProducers.METSignificance_cfi import METSignificance
+from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams
+process.PFMETSignificance = METSignificance.clone()
+process.METSequence += process.PFMETSignificance
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -711,6 +717,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
                       PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
+                      srcPFMETCov = cms.InputTag("PFMETSignificance", "METCovariance"),
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer")
                       )
