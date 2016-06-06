@@ -164,6 +164,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   TString theFileName;
   bool theFSR;
   Bool_t theisMC;
+  string theJECName;
   // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
@@ -203,7 +204,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
   edm::EDGetTokenT<edm::MergeableCounter> thePassTag;
   edm::EDGetTokenT<LHEEventProduct> theLHEPTag;
-
+  
 
   //flags
   //static const int nOutVars =14;
@@ -563,10 +564,12 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   thePassTag           (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("passCollection"))),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection")))
 
+
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
+  theJECName = pset.getUntrackedParameter<string>("JECset");
   // theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
@@ -1378,7 +1381,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _numberOfJets = 0;
   if(writeJets)_numberOfJets = FillJet(jets, event, &jecUnc);
   if(writeFatJets) FillFatJet(fatjets, event);
-  
+     
+
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
   for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
@@ -1969,8 +1973,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       miniRelIsoCharged = miniRelIso.first;
       miniRelIsoNeutral = miniRelIso.second;
 
-      jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet);
-      jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet);
+      jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet,theJECName);
+      jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
 
       lepMVA_mvaId  = userdatahelpers::getUserFloat(cand,"segmentCompatibility");
@@ -2000,8 +2004,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       miniRelIsoCharged = miniRelIso.first;
       miniRelIsoNeutral = miniRelIso.second;
       
-      jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet);
-      jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet);
+      jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet,theJECName);
+      jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");      
 
       lepMVA_mvaId = elemva;

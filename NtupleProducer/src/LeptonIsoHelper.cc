@@ -380,29 +380,25 @@ std::pair<float,float> LeptonIsoHelper::miniRelIso_ChargedNeutral(const reco::Ca
 
 
 
-float LeptonIsoHelper::jetPtRel(const reco::Candidate& cand, const pat::Jet& jet)
+float LeptonIsoHelper::jetPtRel(const reco::Candidate& cand, const pat::Jet& jet, string JECname)
 {
 
   float PtRel = 0;
 
   if(jet.numberOfDaughters()>1){
-
-    pat::Jet myUncJet;
-    pat::Jet myCorJet;
     
-    //myUncJet.setP4(jet.correctedJet("Uncorrected").p4());
-    myCorJet.setP4(jet.correctedJet("L1FastJet").p4());
+    pat::Jet myCorJet;    
+    myCorJet.setP4(jet.correctedJet("L1FastJet","none",JECname).p4());
     
-    //float          SF          = myUncJet.p4().E() / myCorJet.p4().E();
     float          SF          = jet.p4().E() / myCorJet.p4().E();
     
-   auto lepAwareJetp4 = ( myCorJet.p4() - cand.p4() ) * SF + cand.p4();
-   
-   TLorentzVector candV = TLorentzVector(cand.px(),cand.py(),cand.pz(),cand.p4().E());
-   TLorentzVector jetV = TLorentzVector(lepAwareJetp4.px(),lepAwareJetp4.py(),lepAwareJetp4.pz(),lepAwareJetp4.E());
-   
-   PtRel = candV.Perp( (jetV - candV).Vect() );
-   
+    auto lepAwareJetp4 = ( myCorJet.p4() - cand.p4() ) * SF + cand.p4();
+    
+    TLorentzVector candV = TLorentzVector(cand.px(),cand.py(),cand.pz(),cand.p4().E());
+    TLorentzVector jetV = TLorentzVector(lepAwareJetp4.px(),lepAwareJetp4.py(),lepAwareJetp4.pz(),lepAwareJetp4.E());
+    
+    PtRel = candV.Perp( (jetV - candV).Vect() );
+    
   }
 
   return (PtRel > 0) ? PtRel : 0.0;
@@ -411,24 +407,19 @@ float LeptonIsoHelper::jetPtRel(const reco::Candidate& cand, const pat::Jet& jet
 
 
 
-float LeptonIsoHelper::jetPtRatio(const reco::Candidate& cand, const pat::Jet& jet)
+float LeptonIsoHelper::jetPtRatio(const reco::Candidate& cand, const pat::Jet& jet, string JECname)
 {
 
   float PtRatio = 1.;
 
   if(jet.numberOfDaughters()>1){
 
-    //pat::Jet myUncJet;
     pat::Jet myCorJet;
-    
-    //myUncJet.setP4(jet.correctedJet("Uncorrected").p4());
-    myCorJet.setP4(jet.correctedJet("L1FastJet").p4());
-    
-    //float          SF          = myUncJet.p4().E() / myCorJet.p4().E();
-    float          SF          = jet.p4().E() / myCorJet.p4().E();
-    
-    auto lepAwareJetp4 = ( myCorJet.p4() - cand.p4() ) * SF + cand.p4();
-    
+    myCorJet.setP4(jet.correctedJet("L1FastJet","none",JECname).p4());
+
+    float          SF          = jet.p4().E() / myCorJet.p4().E();    
+    auto lepAwareJetp4 = ( myCorJet.p4() - cand.p4() ) * SF + cand.p4();    
+
     PtRatio = cand.pt() / lepAwareJetp4.pt();
     
   }

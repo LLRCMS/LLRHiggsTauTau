@@ -59,8 +59,8 @@ namespace LeptonIsoHelper {
 
   //Used for lepton MVA
   int jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet jet);
-  float jetPtRel(const reco::Candidate& cand, const pat::Jet& jet);
-  float jetPtRatio(const reco::Candidate& cand, const pat::Jet& jet);
+  float jetPtRel(const reco::Candidate& cand, const pat::Jet& jet, std::string JECname);
+  float jetPtRatio(const reco::Candidate& cand, const pat::Jet& jet, std::string JECname);
 
 }
 #endif
