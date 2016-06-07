@@ -128,7 +128,7 @@ process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
 
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
-    src = cms.InputTag("slimmedMuons"), #This should not be commited
+    src = cms.InputTag("cleanedMu"),
     cut = cms.string(MUCUT)
 #    Lowering pT cuts
 #    cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
@@ -573,6 +573,7 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 ## MVA MET
 ## ----------------------------------------------------------------------
 
+process.METSequence = cms.Sequence()
 if USEPAIRMET:
     print "Using pair MET (MVA MET)"
     from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
@@ -600,7 +601,7 @@ if USEPAIRMET:
         process.MVAMETInputs += getattr(process, "pat"+met)
         process.MVAMETInputs += getattr(process, "pat"+met+"T1")        
 
-    process.METSequence = cms.Sequence(process.MVAMETInputs + process.MVAMET)
+    process.METSequence += cms.Sequence(process.MVAMETInputs + process.MVAMET)
 
     # # python trick: loop on all pairs for pair MET computation
     # UnpackerTemplate = cms.EDProducer("PairUnpacker",
@@ -623,9 +624,11 @@ if USEPAIRMET:
 
 else:
     print "Using event pfMET (same MET for all pairs)"
-    process.load("RecoMET.METProducers.METSignificance_cfi")
-    process.load("RecoMET.METProducers.METSignificanceParams_cfi")
-    process.METSequence = cms.Sequence(process.METSignificance)
+
+## always compute met significance
+process.load("RecoMET.METProducers.METSignificance_cfi")
+process.load("RecoMET.METProducers.METSignificanceParams_cfi")
+process.METSequence += cms.Sequence(process.METSignificance)
 
 
 ## ----------------------------------------------------------------------
@@ -660,10 +663,6 @@ if USEPAIRMET:
 else:
   srcMETTag = cms.InputTag(PFMetName)
 
-from RecoMET.METProducers.METSignificance_cfi import METSignificance
-from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams
-process.PFMETSignificance = METSignificance.clone()
-process.METSequence += process.PFMETSignificance
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -717,7 +716,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
                       PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
-                      srcPFMETCov = cms.InputTag("PFMETSignificance", "METCovariance"),
+                      srcPFMETCov = cms.InputTag("METSignificance", "METCovariance"),
+                      srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer")
                       )

@@ -573,6 +573,7 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 ## MVA MET
 ## ----------------------------------------------------------------------
 
+process.METSequence = cms.Sequence()
 if USEPAIRMET:
     print "Using pair MET (MVA MET)"
     from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
@@ -600,7 +601,7 @@ if USEPAIRMET:
         process.MVAMETInputs += getattr(process, "pat"+met)
         process.MVAMETInputs += getattr(process, "pat"+met+"T1")        
 
-    process.METSequence = cms.Sequence(process.MVAMETInputs + process.MVAMET)
+    process.METSequence += cms.Sequence(process.MVAMETInputs + process.MVAMET)
 
     # # python trick: loop on all pairs for pair MET computation
     # UnpackerTemplate = cms.EDProducer("PairUnpacker",
@@ -623,9 +624,11 @@ if USEPAIRMET:
 
 else:
     print "Using event pfMET (same MET for all pairs)"
-    process.load("RecoMET.METProducers.METSignificance_cfi")
-    process.load("RecoMET.METProducers.METSignificanceParams_cfi")
-    process.METSequence = cms.Sequence(process.METSignificance)
+
+## always compute met significance
+process.load("RecoMET.METProducers.METSignificance_cfi")
+process.load("RecoMET.METProducers.METSignificanceParams_cfi")
+process.METSequence += cms.Sequence(process.METSignificance)
 
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
@@ -696,6 +699,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
+                      JECset = cms.untracked.string("patJetCorrFactors"),
                       ak8jetCollection = cms.InputTag("slimmedJetsAK8"),
                       lepCollection = cms.InputTag("softLeptons"),
                       lheCollection = cms.InputTag("LHEEventProduct"),
@@ -710,6 +714,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
                       PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
+                      srcPFMETCov = cms.InputTag("METSignificance", "METCovariance"),
+                      srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer")
                       )
