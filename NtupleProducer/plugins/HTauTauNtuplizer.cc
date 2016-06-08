@@ -536,6 +536,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _jets_genjetIndex; // index of matched gen jet in genjet vector
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
+  std::vector<Float_t> _bdiscr3;
   std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
   std::vector<Float_t> _jetrawf;
 
@@ -894,6 +895,7 @@ void HTauTauNtuplizer::Initialize(){
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
+  _bdiscr3.clear();
   _jetID.clear();
   _jetrawf.clear();
 
@@ -1188,6 +1190,7 @@ void HTauTauNtuplizer::beginJob(){
 
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
+  myTree->Branch("pfCombinedMVAV2BJetTags",&_bdiscr3);
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
 
@@ -1632,8 +1635,9 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_vtxNtrk.push_back(ijet->userFloat("vtxNtracks"));
     _jets_vtx3deL.push_back(ijet->userFloat("vtx3DSig"));
 
-    _bdiscr.push_back(ijet->bDiscriminator("jetBProbabilityBJetTags"));
+    _bdiscr.push_back(ijet->bDiscriminator("pfJetProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+    _bdiscr3.push_back(ijet->bDiscriminator("pfCombinedMVAV2BJetTags"));
 
     //PF jet ID
     float NHF = ijet->neutralHadronEnergyFraction();
