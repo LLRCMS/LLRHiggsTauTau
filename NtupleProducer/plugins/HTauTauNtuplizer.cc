@@ -2028,7 +2028,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
-      if(userdatahelpers::getUserInt(cand,"isGsfCtfScPixChargeConsistent") == 1)iselechargeconsistent=true;
+      if((userdatahelpers::getUserInt(cand,"isGsfCtfScPixChargeConsistent") + userdatahelpers::getUserInt(cand,"isGsfScPixChargeConsistent"))>1)iselechargeconsistent=true;
 
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
 

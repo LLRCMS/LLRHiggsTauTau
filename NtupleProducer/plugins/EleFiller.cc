@@ -225,6 +225,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 
     //--- 3 charge assignement
     bool isGsfCtfScPixChargeConsistent=l.isGsfCtfScPixChargeConsistent();
+    bool isGsfScPixChargeConsistent=l.isGsfScPixChargeConsistent();
 
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
@@ -240,6 +241,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     //l.addUserFloat("HLTMatch", HLTMatch);
     l.addUserInt("missingHit", missinghit);
     l.addUserInt("isGsfCtfScPixChargeConsistent",(isGsfCtfScPixChargeConsistent ? 1 : 0));
+    l.addUserInt("isGsfScPixChargeConsistent",(isGsfScPixChargeConsistent ? 1 : 0));
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
     l.addUserFloat("hOverE",l.hcalOverEcal());
     l.addUserFloat("deltaEtaSuperClusterTrackAtVtx",l.deltaEtaSuperClusterTrackAtVtx());
