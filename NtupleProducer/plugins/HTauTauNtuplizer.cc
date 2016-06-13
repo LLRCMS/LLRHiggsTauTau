@@ -2137,7 +2137,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           if (type==ParticleType::ELECTRON && obj.hasFilterLabel("hltSingleEle22WP75GsfTrackIsoFilter") && (obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", false, true ) or obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", true, false )))
             hltpt = (float) obj.pt();
           Long64_t triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
-                    
+          if (type==ParticleType::TAU ){
+            const std::vector<std::string>& vLabels = obj.filterLabels();
+            for (const std::string& label : vLabels)
+            {
+              if (label == std::string("hltDoublePFTau35TrackPt1MediumIsolationDz02Reg") || label == std::string("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg") ){
+                isLF = true;
+                isL3 = true;
+              }
+            }
+          }
           /*
           for (int i = 0; i < myTriggerHelper->GetNTriggers(); i++)
           {
