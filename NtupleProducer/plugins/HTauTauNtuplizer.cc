@@ -1930,9 +1930,11 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
     //_SIP.push_back(userdatahelpers::getUserFloat(cand,"SIP"));
-    int type = ParticleType::TAU;
-    if(cand->isMuon()) type = ParticleType::MUON;
-    else if(cand->isElectron()) type = ParticleType::ELECTRON;
+    int type = -1; 
+    if( userdatahelpers::hasUserInt(cand,"isTESShifted") ) type = ParticleType::TAU;
+    else if (userdatahelpers::hasUserInt(cand,"isPFMuon")) type = ParticleType::MUON;
+    else if (userdatahelpers::hasUserInt(cand,"isEleID80")) type = ParticleType::ELECTRON;
+    else printf("===ERROR!!! UNRECOGNIZED PARTICLE\n");
     _particleType.push_back(type);
     
 
@@ -2169,18 +2171,43 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
-          if (type==ParticleType::MUON && obj.hasFilterLabel("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09") && (obj.hasPathName("HLT_IsoMu17_eta2p1_v3", false, true ) or obj.hasPathName("HLT_IsoMu17_eta2p1_v3", true, false )))
+          const std::vector<std::string>& vLabels = obj.filterLabels();
+          if (type==ParticleType::MUON && obj.hasFilterLabel("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09") && (obj.hasPathName("HLT_IsoMu17_eta2p1_v3", false, true ) or obj.hasPathName("HLT_IsoMu17_eta2p1_v3", true, false ))){
             hltpt = (float) obj.pt();
-          if (type==ParticleType::ELECTRON && obj.hasFilterLabel("hltSingleEle22WP75GsfTrackIsoFilter") && (obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", false, true ) or obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", true, false )))
+            for (const std::string& label : vLabels){
+              for(int i =0; i<myTriggerHelper->GetNTriggers(); i++){
+                for(const std::string& pathtocheck : myTriggerHelper->GetTriggerMap(myTriggerHelper->printTriggerName(i)).Getfilters(true)){
+                  if(label.compare(pathtocheck) == 0){
+                    isLF = true;
+                    isL3 = true;
+                  }
+                }
+              }
+            }
+          }
+          if (type==ParticleType::ELECTRON && obj.hasFilterLabel("hltSingleEle22WP75GsfTrackIsoFilter") && (obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", false, true ) or obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", true, false ))){
             hltpt = (float) obj.pt();
+            for (const std::string& label : vLabels){
+              for(int i =0; i<myTriggerHelper->GetNTriggers(); i++){
+                for(const std::string& pathtocheck : myTriggerHelper->GetTriggerMap(myTriggerHelper->printTriggerName(i)).Getfilters(true)){
+                  if(label.compare(pathtocheck) == 0){
+                    isLF = true;
+                    isL3 = true;
+                  }
+                }
+              }
+            }
+          }
           Long64_t triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
           if (type==ParticleType::TAU ){
-            const std::vector<std::string>& vLabels = obj.filterLabels();
-            for (const std::string& label : vLabels)
-            {
-              if (label == std::string("hltDoublePFTau35TrackPt1MediumIsolationDz02Reg") || label == std::string("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg") ){
-                isLF = true;
-                isL3 = true;
+            for (const std::string& label : vLabels){
+              for(int i =0; i<myTriggerHelper->GetNTriggers(); i++){              
+                for(const std::string& pathtocheck : myTriggerHelper->GetTriggerMap(myTriggerHelper->printTriggerName(i)).Getfilters(false)){
+                  if(label.compare(pathtocheck) == 0){
+                    isLF = true;
+                    isL3 = true;
+                  }
+                }
               }
             }
           }

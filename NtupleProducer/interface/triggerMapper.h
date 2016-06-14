@@ -36,6 +36,7 @@ class triggerMapper {
   int GetNfiltersleg1(){return filter_leg1.size();}
   int GetNfiltersleg2(){return filter_leg2.size();}
   string Getfilter(bool isleg1, int iFilter);
+  std::vector<std::string> Getfilters(bool isleg1){return (isleg1 ? filter_leg1 : filter_leg2); };
   int GetTriggerChannel(){return channel;}
   pair <int, int> GetTriggerLegsID(){return make_pair(leg1ID, leg2ID);}
   int GetLegFromID(int ID); //0: not fourd; 1 = leg1; 2 = leg2
