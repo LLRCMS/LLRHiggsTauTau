@@ -2178,7 +2178,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
             const std::vector<std::string>& vLabels = obj.filterLabels();
             for (const std::string& label : vLabels)
             {
-              if (label == std::string("hltDoublePFTau35TrackPt1MediumIsolationDz02Reg") || label == std::string("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg") ){
+              if (label == std::string("hltDoublePFTau35TrackPt1MediumIsolationDz02Reg") ){
                 isLF = true;
                 isL3 = true;
               }
@@ -2225,10 +2225,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
 
             //_isFilterFiredLast;
             if(isfilterGood)filterFired |= 1 <<triggerbit;
-            if(isLF)LFtriggerbit |= 1 <<triggerbit;
-            if(isL3)L3triggerbit |= 1 <<triggerbit;
             if (triggerType) triggertypeIsGood |= 1 << triggerbit;
           }
+          if(isLF)LFtriggerbit |= 1 <<triggerbit;
+          if(isL3)L3triggerbit |= 1 <<triggerbit;
         } // loop on all trigger paths
       } // if dR < 0.25
     } // loop on all trigger candidates
