@@ -1930,11 +1930,14 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
     //_SIP.push_back(userdatahelpers::getUserFloat(cand,"SIP"));
-    int type = -1; 
-    if( userdatahelpers::hasUserInt(cand,"isTESShifted") ) type = ParticleType::TAU;
-    else if (userdatahelpers::hasUserInt(cand,"isPFMuon")) type = ParticleType::MUON;
-    else if (userdatahelpers::hasUserInt(cand,"isEleID80")) type = ParticleType::ELECTRON;
-    else printf("===ERROR!!! UNRECOGNIZED PARTICLE\n");
+    //int type = -1; 
+    //if( userdatahelpers::hasUserInt(cand,"isTESShifted") ) type = ParticleType::TAU;
+    //else if (userdatahelpers::hasUserInt(cand,"isPFMuon")) type = ParticleType::MUON;
+    //else if (userdatahelpers::hasUserInt(cand,"isEleID80")) type = ParticleType::ELECTRON;
+    //else printf("===ERROR!!! UNRECOGNIZED PARTICLE\n");
+     int type = ParticleType::TAU;
+     if(cand->isMuon()) type = ParticleType::MUON;
+     else if(cand->isElectron()) type = ParticleType::ELECTRON;
     _particleType.push_back(type);
     
 
