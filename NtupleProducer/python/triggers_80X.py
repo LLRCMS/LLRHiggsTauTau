@@ -13,23 +13,9 @@ TRIGGERLIST=[]
 HLTLIST = cms.VPSet(
 
 ### === Single muon triggers
-    # cms.PSet (
-    #     HLT = cms.string("HLT_IsoMu24_eta2p1_v"),
-    #     path1 = cms.vstring ("hltL3crIsoL1sMu20Eta2p1L1f0L2f10QL3f24QL3trkIsoFiltered0p09"),
-    #     path2 = cms.vstring (""),
-    #     leg1 = cms.int32(13),
-    #     leg2 = cms.int32(999)
-    #     ),
-    # cms.PSet (
-    #     HLT = cms.string("HLT_IsoMu17_eta2p1_v"),
-    #     path1 = cms.vstring ("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09"),
-    #     path2 = cms.vstring (""),
-    #     leg1 = cms.int32(13),
-    #     leg2 = cms.int32(999)
-    #     ),
     cms.PSet (
-        HLT = cms.string("HLT_IsoMu18_v"),
-        path1 = cms.vstring ("hltL3crIsoL1sMu16L1f0L2f10QL3f18QL3trkIsoFiltered0p09"),
+        HLT = cms.string("HLT_IsoMu20_v"),
+        path1 = cms.vstring ("hltL3crIsoL1sMu18L1f0L2f10QL3f20QL3trkIsoFiltered0p09"),
         path2 = cms.vstring (""),
         leg1 = cms.int32(13),
         leg2 = cms.int32(999)
@@ -42,65 +28,128 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(999)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_IsoMu27_v"),
-        path1 = cms.vstring ("hltL3crIsoL1sMu25L1f0L2f10QL3f27QL3trkIsoFiltered0p09"),
+        HLT = cms.string("HLT_IsoMu22_eta2p1_v"),
+        path1 = cms.vstring ("hltL3crIsoL1sSingleMu20erL1f0L2f10QL3f22QL3trkIsoFiltered0p09"),
         path2 = cms.vstring (""),
         leg1 = cms.int32(13),
         leg2 = cms.int32(999)
         ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_v"),
+        path1 = cms.vstring ("hltL3crIsoL1sMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p09"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(999)
+        ), ### ok
 ### === Single electron triggers
     cms.PSet (
-        HLT = cms.string("HLT_Ele32_eta2p1_WPTight_Gsf_v"),
-        path1 = cms.vstring ("hltEle32WP75GsfTrackIsoFilter"), #FIXME: to check
+        HLT = cms.string("HLT_Ele25_WPTight_Gsf_v"),
+        path1 = cms.vstring ("hltEle25WPTightGsfTrackIsoFilter"), #FIXME: to check
         path2 = cms.vstring (""),
         leg1 = cms.int32(11),
         leg2 = cms.int32(999)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_Ele22_eta2p1_WPLoose_Gsf_v"),
-        path1 = cms.vstring ("hltSingleEle22WP75GsfTrackIsoFilter"), #FIXME: to check
+        HLT = cms.string("HLT_Ele25_eta2p1_WPLoose_Gsf_v"),
+        path1 = cms.vstring ("hltEle25erWPLooseGsfTrackIsoFilter"), #FIXME: to check
         path2 = cms.vstring (""),
         leg1 = cms.int32(11),
         leg2 = cms.int32(999)
         ),
-    # cms.PSet (
-    #     HLT = cms.string("HLT_Ele32_eta2p1_WPTight_Gsf_v"),
-    #     path1 = cms.vstring ("hltEle32WPTightGsfTrackIsoFilter"),
-    #     path2 = cms.vstring (""),
-    #     leg1 = cms.int32(11),
-    #     leg2 = cms.int32(999)
-    #     ),
-    # cms.PSet (
-    #     HLT = cms.string("HLT_Ele23_WPLoose_Gsf_v"),
-    #     path1 = cms.vstring ("hltEle23WPLooseGsfTrackIsoFilter"),
-    #     path2 = cms.vstring (""),
-    #     leg1 = cms.int32(11),
-    #     leg2 = cms.int32(999)
-    #     ),
+    cms.PSet (
+        HLT = cms.string("HLT_Ele25_eta2p1_WPTight_Gsf_v"),
+        path1 = cms.vstring ("hltEle25erWPTightGsfTrackIsoFilter"), #FIXME: to check
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_Ele27_WPTight_Gsf_v"),
+        path1 = cms.vstring ("hltEle27WPTightGsfTrackIsoFilter"), #FIXME: to check
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(999)
+        ), ### ok
+    cms.PSet (
+        HLT = cms.string("HLT_Ele27_eta2p1_WPLoose_Gsf_v"),
+        path1 = cms.vstring ("hltEle27erWPLooseGsfTrackIsoFilter"), #FIXME: to check
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_Ele27_eta2p1_WPTight_Gsf_v"),
+        path1 = cms.vstring ("hltEle27erWPTightGsfTrackIsoFilter"), #FIXME: to check
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(999)
+        ), ### ok
 ### === mu tauh triggers
-    cms.PSet (
-        HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v"),
+cms.PSet (
+        HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v5"),
         path1 = cms.vstring ("hltL3crIsoL1sMu16erTauJet20erL1f0L2f10QL3f17QL3trkIsoFiltered0p09", "hltOverlapFilterIsoMu17LooseIsoPFTau20"),
         path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterIsoMu17LooseIsoPFTau20"),
         leg1 = cms.int32(13),
         leg2 = cms.int32(15)
         ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v5"),
+        path1 = cms.vstring ("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09", "hltOverlapFilterSingleIsoMu17LooseIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterSingleIsoMu17LooseIsoPFTau20"),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ), ### ok
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu19_eta2p1_LooseIsoPFTau20_v"),
+        path1 = cms.vstring ("hltL3crIsoL1sMu18erTauJet20erL1f0L2f10QL3f19QL3trkIsoFiltered0p09", "hltOverlapFilterIsoMu19LooseIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterIsoMu19LooseIsoPFTau20"),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ), ### ok
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu19_eta2p1_LooseIsoPFTau20_SingleL1_v"),
+        path1 = cms.vstring ("hltL3crIsoL1sSingleMu18erIorSingleMu20erL1f0L2f10QL3f19QL3trkIsoFiltered0p09", "hltOverlapFilterSingleIsoMu19LooseIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterSingleIsoMu19LooseIsoPFTau20"),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ), ### ok
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu21_eta2p1_LooseIsoPFTau20_SingleL1_v"),
+        path1 = cms.vstring ("hltL3crIsoL1sSingleMu20erIorSingleMu22erL1f0L2f10QL3f21QL3trkIsoFiltered0p09", "hltOverlapFilterSingleIsoMu21LooseIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterSingleIsoMu21LooseIsoPFTau20"),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ), ### ok
 ### === ele tauh triggers
     cms.PSet (
         HLT = cms.string("HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v"),
-        path1 = cms.vstring ("hltEle22WP75L1IsoEG20erTau20erGsfTrackIsoFilter", "hltOverlapFilterIsoEle22WP75GsfLooseIsoPFTau20"), #FIXME: to check
-        path2 = cms.vstring ("hltPFTau20TrackLooseIso", "hltOverlapFilterIsoEle22WP75GsfLooseIsoPFTau20"), #FIXME: to check
+        path1 = cms.vstring ("hltEle22WPLooseL1SingleIsoEG20erGsfTrackIsoFilter", "hltOverlapFilterSingleIsoEle22WPLooseGsfLooseIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackLooseIso", "hltOverlapFilterSingleIsoEle22WPLooseGsfLooseIsoPFTau20"),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(15)
+        ), ### ok
+    cms.PSet (
+        HLT = cms.string("HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v"),
+        path1 = cms.vstring ("hltEle24WPLooseL1IsoEG22erTau20erGsfTrackIsoFilter", "hltOverlapFilterIsoEle24WPLooseGsfLooseIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackLooseIso", "hltOverlapFilterIsoEle24WPLooseGsfLooseIsoPFTau20"),
         leg1 = cms.int32(11),
         leg2 = cms.int32(15)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v"),
-        path1 = cms.vstring ("hltSingleEle22WPLooseGsfTrackIsoFilter", "hltOverlapFilterIsoEle22WPLooseGsfLooseIsoPFTau20"), #FIXME: to check
-        path2 = cms.vstring ("hltPFTau20TrackLooseIso", "hltOverlapFilterIsoEle22WPLooseGsfLooseIsoPFTau20"), #FIXME: to check
+        HLT = cms.string("HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v"),
+        path1 = cms.vstring ("hltEle24WPLooseL1SingleIsoEG22erGsfTrackIsoFilter", "hltOverlapFilterSingleIsoEle24WPLooseGsfLooseIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackLooseIso", "hltOverlapFilterSingleIsoEle24WPLooseGsfLooseIsoPFTau20"),
         leg1 = cms.int32(11),
         leg2 = cms.int32(15)
-        ),
+        ), ### ok
 ### === tauh tauh triggers
+    cms.PSet (
+        HLT = cms.string("HLT_DoubleMediumIsoPFTau32_Trk1_eta2p1_Reg_v"),
+        path1 = cms.vstring ("hltDoublePFTau32TrackPt1MediumIsolationDz02Reg"),
+        path2 = cms.vstring ("hltDoublePFTau32TrackPt1MediumIsolationDz02Reg"),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(15)
+        ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v"),
         path1 = cms.vstring ("hltDoublePFTau35TrackPt1MediumIsolationDz02Reg"),
@@ -123,28 +172,8 @@ HLTLIST = cms.VPSet(
 #         leg1 = cms.int32(11),
 #         leg2 = cms.int32(13)
 #         ),
-#     cms.PSet (
-#         HLT = cms.string("HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v"),
-#         path1 = cms.vstring ("hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8"),
-#         path2 = cms.vstring ("hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
-#         leg1 = cms.int32(11),
-#         leg2 = cms.int32(13)
-#         ),
-#     cms.PSet (
-#         HLT = cms.string("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v"),
-#         path1 = cms.vstring ("hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23"),
-#         path2 = cms.vstring ("hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
-#         leg1 = cms.int32(11),
-#         leg2 = cms.int32(13)
-#         ),
-#     cms.PSet (
-#         HLT = cms.string("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v"),
-#         path1 = cms.vstring ("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8"),
-#         path2 = cms.vstring ("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
-#         leg1 = cms.int32(11),
-#         leg2 = cms.int32(13)
-#         ),
 ### === mu mu triggers 
+### FIXME!! MuMu and EleEle paths have not been checked in 80X and filter names are dummy
     cms.PSet (
         HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"),
         path1 = cms.vstring (""),
