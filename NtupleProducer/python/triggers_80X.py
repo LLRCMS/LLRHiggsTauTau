@@ -35,6 +35,20 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(999)
         ),
     cms.PSet (
+        HLT = cms.string("HLT_IsoMu20_v"),
+        path1 = cms.vstring ("hltL3crIsoL1sMu18L1f0L2f10QL3f20QL3trkIsoFiltered0p09"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoTkMu20_v"),
+        path1 = cms.vstring ("hltL3fL1sMu18L1f0Tkf20QL3trkIsoFiltered0p09"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
         HLT = cms.string("HLT_IsoMu22_v"),
         path1 = cms.vstring ("hltL3crIsoL1sMu20L1f0L2f10QL3f22QL3trkIsoFiltered0p09"),
         path2 = cms.vstring (""),
@@ -70,13 +84,13 @@ HLTLIST = cms.VPSet(
     #     leg1 = cms.int32(11),
     #     leg2 = cms.int32(999)
     #     ),
-    # cms.PSet (
-    #     HLT = cms.string("HLT_Ele23_WPLoose_Gsf_v"),
-    #     path1 = cms.vstring ("hltEle23WPLooseGsfTrackIsoFilter"),
-    #     path2 = cms.vstring (""),
-    #     leg1 = cms.int32(11),
-    #     leg2 = cms.int32(999)
-    #     ),
+    cms.PSet (
+         HLT = cms.string("HLT_Ele23_WPLoose_Gsf_v"),
+         path1 = cms.vstring ("hltEle23WPLooseGsfTrackIsoFilter"),
+         path2 = cms.vstring (""),
+         leg1 = cms.int32(11),
+         leg2 = cms.int32(999)
+         ),
 ### === mu tauh triggers
     cms.PSet (
         HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v"),
@@ -116,20 +130,20 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(15)
         ),
 # ### === ele mu triggers
-#     cms.PSet (
-#         HLT = cms.string("HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v"),
-#         path1 = cms.vstring ("hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered17"),
-#         path2 = cms.vstring ("hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
-#         leg1 = cms.int32(11),
-#         leg2 = cms.int32(13)
-#         ),
-#     cms.PSet (
-#         HLT = cms.string("HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v"),
-#         path1 = cms.vstring ("hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8"),
-#         path2 = cms.vstring ("hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
-#         leg1 = cms.int32(11),
-#         leg2 = cms.int32(13)
-#         ),
+     cms.PSet (
+         HLT = cms.string("HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v"),
+         path1 = cms.vstring ("hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered17"),
+         path2 = cms.vstring ("hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
+         leg1 = cms.int32(11),
+         leg2 = cms.int32(13)
+         ),
+     cms.PSet (
+         HLT = cms.string("HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v"),
+         path1 = cms.vstring ("hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8"),
+         path2 = cms.vstring ("hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
+         leg1 = cms.int32(11),
+         leg2 = cms.int32(13)
+         ),
 #     cms.PSet (
 #         HLT = cms.string("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v"),
 #         path1 = cms.vstring ("hltMu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23"),
@@ -180,8 +194,27 @@ HLTLIST = cms.VPSet(
         path2 = cms.vstring (""),
         leg1 = cms.int32(13),
         leg2 = cms.int32(13)
+        ),
+    
+
+### === 3 lepton triggers 
+
+    cms.PSet (
+        HLT = cms.string("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(11)
         )
     )
+
 
 
 #now I create the trigger list for HLTconfig
