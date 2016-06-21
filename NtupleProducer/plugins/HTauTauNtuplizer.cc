@@ -468,10 +468,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_trackRefPt;
   std::vector<Int_t> _daughters_LFtrigger;
   std::vector<Int_t> _daughters_L3trigger;
-  std::vector<Int_t> _daughters_FilterFired;
-  std::vector<Int_t> _daughters_isGoodTriggerType;
-  std::vector<Int_t> _daughters_L3FilterFired;
-  std::vector<Int_t> _daughters_L3FilterFiredLast;
+  std::vector<Long64_t> _daughters_trgMatched;
+  std::vector<Long64_t> _daughters_FilterFired;
+  std::vector<Long64_t> _daughters_isGoodTriggerType;
+  std::vector<Long64_t> _daughters_L3FilterFired;
+  std::vector<Long64_t> _daughters_L3FilterFiredLast;
 
   std::vector<Int_t> _daughters_jetNDauChargedMVASel;
   std::vector<Float_t> _daughters_miniRelIsoCharged;
@@ -606,6 +607,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
     myTriggerHelper->addTriggerMap(hlt,path1,path2,chan);
   }
   */
+  if (HLTList.size() > 64) cout << endl << "** HTauTauNtuplizer : Warning : trigger list size exceeds 64, not enough bits in Long64_t type to store all" << endl << endl;
+  
   for (std::vector<edm::ParameterSet>::const_iterator iPSet = HLTList.begin();iPSet != HLTList.end(); ++iPSet) {
     const std::string& hlt = iPSet->getParameter<std::string>("HLT");
     const std::vector<std::string>& path1 = iPSet->getParameter<std::vector<std::string>>("path1");
@@ -710,6 +713,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_trackRefPt.clear();
   _daughters_LFtrigger.clear();
   _daughters_L3trigger.clear();
+  _daughters_trgMatched.clear();
   _daughters_FilterFired.clear();
   _daughters_isGoodTriggerType.clear();
   _daughters_L3FilterFired.clear();
@@ -1143,6 +1147,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_leadChargedParticlePt", &_daughters_leadChargedParticlePt);
   myTree->Branch("daughters_trackRefPt", &_daughters_trackRefPt);
   myTree->Branch("daughters_isLastTriggerObjectforPath", &_daughters_LFtrigger);
+  myTree->Branch("daughters_trgMatched", &_daughters_trgMatched);
   myTree->Branch("daughters_isTriggerObjectforPath", &_daughters_L3trigger);
   myTree->Branch("daughters_FilterFired",&_daughters_FilterFired);
   myTree->Branch("daughters_isGoodTriggerType",&_daughters_isGoodTriggerType);
@@ -2154,118 +2159,118 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_lepMVA_mvaId.push_back(lepMVA_mvaId);
 
     //TRIGGER MATCHING
-    int LFtriggerbit=0,L3triggerbit=0,filterFired=0;
-    int triggertypeIsGood = 0;
+    Long64_t LFtriggerbit=0,L3triggerbit=0,filterFired=0;
+    Long64_t trgMatched = 0;
+    Long64_t triggertypeIsGood = 0;
     float hltpt=0;
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
       //check if the trigger object matches cand
-      //bool matchCand = false;
-      //if(type == ParticleType::TAU && 
       bool triggerType=false;
       if(deltaR2(obj,*cand)<0.25){
+      
+      // cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
+
         if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
         if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
         if (type==ParticleType::MUON && (obj.hasTriggerObjectType(trigger::TriggerMuon)))triggerType=true;
-        //triggerhelper myTriggerHelper;
         //check fired paths
         obj.unpackPathNames(names);
         std::vector<std::string> pathNamesAll  = obj.pathNames(false);
         std::vector<std::string> pathNamesLast = obj.pathNames(true);
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
+          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+          if (triggerbit < 0) continue ; // not a path I want to save
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
-          const std::vector<std::string>& vLabels = obj.filterLabels();
-          if (type==ParticleType::MUON && obj.hasFilterLabel("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09") && (obj.hasPathName("HLT_IsoMu17_eta2p1_v3", false, true ) or obj.hasPathName("HLT_IsoMu17_eta2p1_v3", true, false ))){
-            hltpt = (float) obj.pt();
-            for (const std::string& label : vLabels){
-              for(int i =0; i<myTriggerHelper->GetNTriggers(); i++){
-                for(const std::string& pathtocheck : myTriggerHelper->GetTriggerMap(myTriggerHelper->printTriggerName(i)).Getfilters(true)){
-                  if(label.compare(pathtocheck) == 0){
-                    isLF = true;
-                    isL3 = true;
-                  }
-                }
-              }
-            }
-          }
-          if (type==ParticleType::ELECTRON && obj.hasFilterLabel("hltSingleEle22WP75GsfTrackIsoFilter") && (obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", false, true ) or obj.hasPathName("HLT_Ele22_eta2p1_WP75_Gsf_v3", true, false ))){
-            hltpt = (float) obj.pt();
-            for (const std::string& label : vLabels){
-              for(int i =0; i<myTriggerHelper->GetNTriggers(); i++){
-                for(const std::string& pathtocheck : myTriggerHelper->GetTriggerMap(myTriggerHelper->printTriggerName(i)).Getfilters(true)){
-                  if(label.compare(pathtocheck) == 0){
-                    isLF = true;
-                    isL3 = true;
-                  }
-                }
-              }
-            }
-          }
-          Long64_t triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
-          if (type==ParticleType::TAU ){
-            for (const std::string& label : vLabels){
-              for(int i =0; i<myTriggerHelper->GetNTriggers(); i++){              
-                for(const std::string& pathtocheck : myTriggerHelper->GetTriggerMap(myTriggerHelper->printTriggerName(i)).Getfilters(false)){
-                  if(label.compare(pathtocheck) == 0){
-                    isLF = true;
-                    isL3 = true;
-                  }
-                }
-              }
-            }
-          }
-                    
-          /*
-          for (int i = 0; i < myTriggerHelper->GetNTriggers(); i++)
-          {
-            TString nameTr = myTriggerHelper->printTriggerName(i);
-            cout << i << ") " << nameTr << " - " << myTriggerHelper->FindTriggerNumber(nameTr) << endl;
-          }
-          cout << " =============================== " << endl;
-          */
-          //int triggerbit = _triggerbit;
-          if(triggerbit>=0)
-          { // get the number (position) of this trigger in the _triggerbit branch output (yes, names are too similar!)
-            triggerMapper map = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
-            bool isfilterGood = true;
-            int IDsearch = 0;
-            if (type==ParticleType::ELECTRON) IDsearch = 11;
-            else if (type==ParticleType::MUON) IDsearch = 13;
-            else if(type==ParticleType::TAU) IDsearch = 15;
-            int legPosition = map.GetLegFromID(IDsearch);
-            if (legPosition == 1)
-            {
-              for(int ifilt=0;ifilt<map.GetNfiltersleg1();ifilt++)
-              {
-                string label = map.Getfilter(true,ifilt);
-                if (label.empty()) continue;
-                if(! obj.hasFilterLabel(label.c_str())) isfilterGood=false;
-              }
-            }
-            else if (legPosition == 2)
-            {
-              for(int ifilt=0;ifilt<map.GetNfiltersleg2();ifilt++)
-              {
-                string label = map.Getfilter(false,ifilt);
-                if (label.empty()) continue;
-                if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
-              }
-            }
-            else isfilterGood = false;
 
-            //_isFilterFiredLast;
-            if(isfilterGood)filterFired |= 1 <<triggerbit;
-            if (triggerType) triggertypeIsGood |= 1 << triggerbit;
-            if(isLF)LFtriggerbit |= 1 <<triggerbit;
-            if(isL3)L3triggerbit |= 1 <<triggerbit;
+          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
+          bool isfilterGood = true;
+          int IDsearch = 0;
+          if (type==ParticleType::ELECTRON) IDsearch = 11;
+          else if (type==ParticleType::MUON) IDsearch = 13;
+          else if(type==ParticleType::TAU) IDsearch = 15;
+          int legPosition = trgmap.GetLegFromID(IDsearch);
+          if (legPosition == 1)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
+            {
+              string label = trgmap.Getfilter(true,ifilt);
+              if (label.empty()) continue;
+              if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
+            }
           }
+          else if (legPosition == 2)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++)
+            {
+              string label = trgmap.Getfilter(false,ifilt);
+              if (label.empty()) continue;
+              if(! obj.hasFilterLabel(label.c_str()))isfilterGood=false;
+            }
+          }
+          else isfilterGood = false;
+
+          //_isFilterFiredLast;
+          if(isfilterGood)filterFired |= 1 <<triggerbit;
+          if(triggerType) triggertypeIsGood |= 1 << triggerbit;
+          if(isLF)LFtriggerbit |= 1 <<triggerbit;
+          if(isL3)L3triggerbit |= 1 <<triggerbit;
         } // loop on all trigger paths
+
+        // -------------- now do matching "filter-wise" to do x-check
+        // trigger matching checking labels
+        const std::vector<std::string>& vLabels = obj.filterLabels();
+        for (int triggerbit = 0; triggerbit < myTriggerHelper->GetNTriggers(); ++triggerbit)
+        {
+          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(triggerbit);
+          bool istrgMatched = true;
+          int IDsearch = 0;
+          if (type==ParticleType::ELECTRON)  IDsearch = 11;
+          else if (type==ParticleType::MUON) IDsearch = 13;
+          else if(type==ParticleType::TAU)   IDsearch = 15;
+          int legPosition = trgmap.GetLegFromID(IDsearch);
+
+          // debug
+          // cout << "***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << endl;
+          // cout << "all this object labels: ID " << IDsearch << " --> leg position : " << legPosition << endl;
+          // cout << "Nfilters . 1 : " << trgmap.GetNfiltersleg1() << " || 2 : " << trgmap.GetNfiltersleg2() << endl;
+          // for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "   -- " << vLabels.at(ll) << endl; 
+
+          if (legPosition == 1)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
+            {
+              string label = trgmap.Getfilter(true,ifilt);
+              // cout << " @@ leg 1 looking for " << label << endl;
+              if (label.empty()) continue;
+              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) istrgMatched=false;
+            }
+          }
+          else if (legPosition == 2)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++)
+            {
+              string label = trgmap.Getfilter(false,ifilt);
+              // cout << " @@ leg 2 looking for " << label << endl;
+              if (label.empty()) continue;
+              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) istrgMatched=false;
+            }
+          }
+          else istrgMatched = false;
+          // FIXME: should I check type? --> no, multiple filters should be enough
+          if(istrgMatched) trgMatched |= (1 <<triggerbit);
+
+          // cout << "istrgMatched ? " << istrgMatched << endl;
+
+        } // loop on triggerbit from 0 to GetNTriggers()
+
       } // if dR < 0.25
     } // loop on all trigger candidates
     _daughters_isGoodTriggerType.push_back(triggertypeIsGood);
     _daughters_FilterFired.push_back(filterFired);
     _daughters_L3FilterFired.push_back(LFtriggerbit);
     _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
+    _daughters_trgMatched.push_back(trgMatched);    
     _daughters_HLTpt.push_back(hltpt);
 
 
