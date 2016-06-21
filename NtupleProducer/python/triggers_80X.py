@@ -101,14 +101,14 @@ HLTLIST = cms.VPSet(
         ), ### ok
 ### === mu tauh triggers
     cms.PSet (
-        HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v5"),
+        HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v"),
         path1 = cms.vstring ("hltL3crIsoL1sMu16erTauJet20erL1f0L2f10QL3f17QL3trkIsoFiltered0p09", "hltOverlapFilterIsoMu17LooseIsoPFTau20"),
         path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterIsoMu17LooseIsoPFTau20"),
         leg1 = cms.int32(13),
         leg2 = cms.int32(15)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v5"),
+        HLT = cms.string("HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v"),
         path1 = cms.vstring ("hltL3crIsoL1sSingleMu16erL1f0L2f10QL3f17QL3trkIsoFiltered0p09", "hltOverlapFilterSingleIsoMu17LooseIsoPFTau20"),
         path2 = cms.vstring ("hltPFTau20TrackLooseIsoAgainstMuon", "hltOverlapFilterSingleIsoMu17LooseIsoPFTau20"),
         leg1 = cms.int32(13),
