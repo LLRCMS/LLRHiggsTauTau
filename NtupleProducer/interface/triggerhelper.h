@@ -48,6 +48,7 @@ class triggerhelper {
 
 
   triggerMapper GetTriggerMap(string trigger);
+  triggerMapper GetTriggerMap(int idx);
   int GetNTriggers(){return triggerlist.size();}
   string printTriggerName(int ntrigger);
 

@@ -172,9 +172,15 @@ triggerMapper triggerhelper::GetTriggerMap(string path){
     //if(triggerMap.at(i).GetHLTPath().compare(path)==0)return triggerMap.at(i); // full name comparison
     if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos) return triggerMap.at(i); // use av equivalent of "contains" for versioning wildcard
   }
+  cout << "** trigger mapper : error : path " << path << " not found in triggerMap stored , return empty map" << endl;
   return triggerMapper();
 }
 
+triggerMapper triggerhelper::GetTriggerMap(int idx){
+  if (idx < (int)triggerMap.size()) return triggerMap.at(idx);
+  cout << "** trigger mapper : error : index idx exceeds size of triggerMap stored = " << triggerMap.size() << " , return empty map" << endl;
+  return triggerMapper();  
+}
 
 int triggerhelper::FindTriggerNumber(string triggername, bool isTrigger){ 
   if (isTrigger) return FindTriggerNumberTrig (triggername);

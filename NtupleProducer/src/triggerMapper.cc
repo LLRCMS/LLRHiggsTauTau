@@ -42,8 +42,8 @@ triggerMapper::triggerMapper(const triggerMapper& trigMap)
 
 triggerMapper::triggerMapper(string HLTtrigger, std::vector<string> filters1, std::vector<string> filters2, int c){
   HLT=HLTtrigger;
-  int n1 = filter_leg1.size();
-  int n2 = filter_leg2.size();
+  int n1 = filters1.size();
+  int n2 = filters2.size();
   for(int i=0;i<n1;i++)filter_leg1.push_back(filters1.at(i));
   for(int i=0;i<n2;i++)filter_leg2.push_back(filters2.at(i));
   
@@ -88,8 +88,8 @@ triggerMapper::triggerMapper(string HLTtrigger, std::vector<string> filters1, st
 triggerMapper::triggerMapper(string HLTtrigger, std::vector<std::string> filters1, std::vector<std::string> filters2, int theleg1ID, int theleg2ID)
 {
   HLT=HLTtrigger;
-  int n1 = filter_leg1.size();
-  int n2 = filter_leg2.size();
+  int n1 = filters1.size();
+  int n2 = filters2.size();
   for(int i=0;i<n1;i++)filter_leg1.push_back(filters1.at(i));
   for(int i=0;i<n2;i++)filter_leg2.push_back(filters2.at(i));
 
