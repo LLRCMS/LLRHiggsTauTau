@@ -81,11 +81,19 @@ import re
 # tag = "Data_76X_ZZTolljj_29Mar2016"
 # datasetsFile = "datasets.txt"
 
-PROCESS = ["MC76XZZLUCA"]
-tag = "MC_76X_ZZTolljj_29Mar2016"
+# PROCESS = ["MC76XZZLUCA"]
+# tag = "MC_76X_ZZTolljj_29Mar2016"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA2016"]
+# tag = "data_2016_21Giu"
+# datasetsFile = "datasets.txt"
+
+PROCESS = ["DATA2016RESUB"]
+tag = "data_2016_21Giu_resubSingleEle"
 datasetsFile = "datasets.txt"
 
-isMC = True
+isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -99,10 +107,13 @@ isMC = True
 # lumiMaskFileName  = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver.txt"
 
 #25ns SILVER JSON : 2.63/fb - dec2016 re-reco
-lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Reprocessing/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver.txt"
+# lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Reprocessing/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver.txt"
+
+# 16 giu Golden JSON 2016
+lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274443_13TeV_PromptReco_Collisions16_JSON.txt"
 
 
-FastJobs = True # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
+FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
