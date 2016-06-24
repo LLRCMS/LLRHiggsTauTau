@@ -414,3 +414,14 @@
 /WZJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM
 /WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM
 /WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM
+
+=== DATA2016 ===
+/SingleMuon/Run2016B-PromptReco-v1/MINIAOD
+/SingleMuon/Run2016B-PromptReco-v2/MINIAOD
+/SingleElectron/Run2016B-PromptReco-v1/MINIAOD
+/SingleElectron/Run2016B-PromptReco-v2/MINIAOD
+/Tau/Run2016B-PromptReco-v1/MINIAOD
+/Tau/Run2016B-PromptReco-v2/MINIAOD
+
+=== DATA2016RESUB ===
+/SingleElectron/Run2016B-PromptReco-v2/MINIAOD
