@@ -227,6 +227,10 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     bool isGsfCtfScPixChargeConsistent=l.isGsfCtfScPixChargeConsistent();
     bool isGsfScPixChargeConsistent=l.isGsfScPixChargeConsistent();
 
+    float IoEmIoP_ttH = 9e9;
+    if(l.ecalEnergy()>0)
+      IoEmIoP_ttH = (1.0/l.ecalEnergy() - l.eSuperClusterOverP()/l.ecalEnergy());
+
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
@@ -247,6 +251,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("deltaEtaSuperClusterTrackAtVtx",l.deltaEtaSuperClusterTrackAtVtx());
     l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
     l.addUserFloat("IoEmIoP",(1.0/l.ecalEnergy())-(1.0/l.p()));
+    l.addUserFloat("IoEmIoP_ttH",IoEmIoP_ttH);
     l.addUserFloat("SCeta", fSCeta);
     const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
     int eleCUT=0;
