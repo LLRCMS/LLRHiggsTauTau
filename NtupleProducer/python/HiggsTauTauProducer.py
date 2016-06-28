@@ -32,7 +32,7 @@ if USE_NOHFMET: PFMetName = "slimmedMETsNoHF"
 
 try: APPLYMETCORR
 except NameError:
-    APPLYMETCORR=TRUE
+    APPLYMETCORR=True
 
 ### ----------------------------------------------------------------------
 ### Set the GT
