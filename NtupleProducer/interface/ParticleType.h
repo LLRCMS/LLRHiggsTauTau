@@ -1,5 +1,7 @@
 // enum for electron - muon -tau
 //
+#ifndef ParticleType_h
+#define ParticleType_h
 
 class ParticleType{
   public:
@@ -12,3 +14,5 @@ class ParticleType{
     ParticleType() {}
     ~ParticleType(){}  
 };
+
+#endif
