@@ -275,10 +275,10 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       enS = TMath::Sqrt(pxS*pxS + pyS*pyS + pzS*pzS + massS*massS);
       math::XYZTLorentzVectorD p4SDOWN( pxS, pyS, pzS, enS );
       // set userfloats
-      l.addUserFloat("px_TauDown",p4SUP.px());
-      l.addUserFloat("py_TauDown",p4SUP.py());
-      l.addUserFloat("pz_TauDown",p4SUP.pz());
-      l.addUserFloat("e_TauDown",p4SUP.energy());
+      l.addUserFloat("px_TauDown",p4SDOWN.px());
+      l.addUserFloat("py_TauDown",p4SDOWN.py());
+      l.addUserFloat("pz_TauDown",p4SDOWN.pz());
+      l.addUserFloat("e_TauDown",p4SDOWN.energy());
     }
     l.addUserInt("TauUpExists", isTESShifted ? 1 : 0);
     l.addUserInt("TauDownExists", isTESShifted ? 1 : 0);
