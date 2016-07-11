@@ -1,5 +1,8 @@
 // enum for gen particle saved flags (used in global flag word creation)
 
+#ifndef GenFlags_h
+#define GenFlags_h
+
 class GenFlags {
     public:
         enum genFlags {
@@ -24,3 +27,5 @@ class GenFlags {
             */
         };
 };
+
+#endif
