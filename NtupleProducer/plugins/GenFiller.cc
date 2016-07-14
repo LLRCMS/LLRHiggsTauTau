@@ -222,8 +222,6 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  genhelper::GetTausDaughters(*genPClone,tauDaughters,true,false);
 	  reco::GenParticleRef leadChParticleRef = genhelper::GetLeadChParticle(tauDaughters);
 
-	  std::cout<<"lead ch part pdg: "<<leadChParticleRef->pdgId()<<std::endl;
-	  
 	  TLorentzVector p4LeadingChParticle(leadChParticleRef->px(),
 					     leadChParticleRef->py(),
 					     leadChParticleRef->pz(),
