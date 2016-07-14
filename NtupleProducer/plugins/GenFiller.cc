@@ -213,6 +213,28 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> fromTau: 1, indexTau: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
         }
 
+
+	if(filtGenP.hasUserInt("tauGenDecayMode") &&
+	   (filtGenP.hasUserInt("ZMothIndex") || filtGenP.hasUserInt("HMothIndex") || filtGenP.hasUserInt("MSSMHMothIndex"))){
+
+	  TVector3 aPVGenPoint = TVector3(genPClone->vx(), genPClone->vy(), genPClone->vz());
+	  reco::GenParticleRefVector tauDaughters;
+	  genhelper::GetTausDaughters(*genPClone,tauDaughters,true,false);
+	  reco::GenParticleRef leadChParticleRef = genhelper::GetLeadChParticle(tauDaughters);
+
+	  std::cout<<"lead ch part pdg: "<<leadChParticleRef->pdgId()<<std::endl;
+	  
+	  TLorentzVector p4LeadingChParticle(leadChParticleRef->px(),
+					     leadChParticleRef->py(),
+					     leadChParticleRef->pz(),
+					     leadChParticleRef->energy());
+	  TVector3 tauDecayVertex(leadChParticleRef->vx(), leadChParticleRef->vy(), leadChParticleRef->vz());
+	  TVector3 pca = genhelper::ImpactParameter(aPVGenPoint, tauDecayVertex, p4LeadingChParticle);
+	  filtGenP.addUserFloat("pca_x",pca.X());
+	  filtGenP.addUserFloat("pca_y",pca.Y());
+	  filtGenP.addUserFloat("pca_z",pca.Z());
+	}
+
         result->push_back (filtGenP);
     }
 

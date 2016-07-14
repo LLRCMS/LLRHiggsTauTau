@@ -290,3 +290,95 @@ int genhelper::GetIndexInOutput (const reco::Candidate* part, std::vector<const 
     return index;
 
 }
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+TVector3 genhelper::ImpactParameter(const TVector3& pv, const TVector3& sv, const TLorentzVector& p4){
+  TVector3 dir = (p4.Vect()).Unit();
+  return (sv-pv) - ((sv-pv)*dir)*dir;
+}
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+void genhelper::GetTausDaughters(const reco::GenParticle& tau,
+				 reco::GenParticleRefVector& products,
+				 bool ignoreNus, bool direct){
+    
+  products.clear();
+  if(!direct)
+    FindDescendents(tau, products, 1, 0);
+  else{
+    const reco::GenParticleRefVector& daughterRefs = tau.daughterRefVector();
+
+    std::cout<<" tau.daughterRefVector().size(): "<< tau.daughterRefVector().size()<<std::endl;
+    
+    for(IGR idr = daughterRefs.begin(); idr != daughterRefs.end(); ++idr )
+      products.push_back(*idr);
+  }
+  if(ignoreNus){
+    std::set<int> allNus;
+    allNus.insert(12);
+    allNus.insert(14);
+    allNus.insert(16);
+    //allNus.insert(18);
+    reco::GenParticleRefVector tmp;
+    for(IGR idr=products.begin(); idr !=products.end(); ++idr)
+      if(allNus.find(std::abs((*idr)->pdgId()))==allNus.end())
+	tmp.push_back((*idr));
+    products.swap(tmp);
+  }
+}
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+//copy of function from PhysicsTools/HepMCCandAlgos/interface/GenParticlesHelper.h" which allows ignore status
+void genhelper::FindDescendents(const reco::GenParticle& base, 
+				reco::GenParticleRefVector& descendents, 
+				int status, int pdgId,
+				bool skipPhotonsPi0AndFSR) {
+  
+  //one form status or pdgId has to be specifed!
+  if(status<0 && pdgId==0) return;
+  
+  const reco::GenParticleRefVector& daughterRefs = base.daughterRefVector();
+  
+  for(IGR idr = daughterRefs.begin(); idr != daughterRefs.end(); ++idr ) {
+    
+    ///Skip leptons from pi0 decays
+    if(skipPhotonsPi0AndFSR && (*idr)->mother(0) && (abs((*idr)->mother(0)->pdgId())==22 || abs((*idr)->mother(0)->pdgId())==111)) continue;
+    ///Skip electrons from FSR from muons
+    if(skipPhotonsPi0AndFSR && (*idr)->mother(0) && abs((*idr)->mother(0)->pdgId())==13 && abs((*idr)->pdgId())==11) continue;
+    ///Skip muons and electrons from FSR
+    if(skipPhotonsPi0AndFSR && (*idr)->mother(0) && abs((*idr)->mother(0)->pdgId())==13 && abs((*idr)->pdgId())==11) continue;
+    if(skipPhotonsPi0AndFSR && (*idr)->mother(0) && abs((*idr)->mother(0)->pdgId())==11 && abs((*idr)->pdgId())==13) continue;
+    
+    
+    if( (status<0 || (*idr)->status() == status ) && 
+	(!pdgId || std::abs((*idr)->pdgId()) == std::abs(pdgId) )) {
+      descendents.push_back(*idr);
+    }
+    else FindDescendents( *(*idr), descendents, status, pdgId, skipPhotonsPi0AndFSR);
+  }
+}
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+const reco::GenParticleRef genhelper::GetLeadChParticle(const reco::GenParticleRefVector& products){
+    
+    float maxPt=0;
+    reco::GenParticleRef part;
+    std::set<int> charged;
+    charged.insert(211);//pi
+    charged.insert(321);//K
+    charged.insert(11);//e
+    charged.insert(13);//mu
+    
+    for(IGR idr = products.begin(); idr != products.end(); ++idr ){
+      if( (*idr)->pt() > maxPt &&
+	  //charged.find( std::abs( (*idr)->pdgId() ) )!=charged.end() //MB: Logix used in pure Pythia code when charge not defined
+	  std::abs( (*idr)->charge() )>0.001 //MB: GenParts have defined charge
+	  ){
+	maxPt = (*idr)->pt();
+	part = (*idr);
+      }
+    }
+    return part;
+  }
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////

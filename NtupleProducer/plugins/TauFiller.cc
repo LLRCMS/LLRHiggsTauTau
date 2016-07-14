@@ -161,8 +161,6 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "chargedIsoPtSum",
     "neutralIsoPtSum",
     "puCorrPtSum",
-    "leadChargedParticlePt",
-    "trackRefPt"
   };
 
 
@@ -359,7 +357,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserInt("numNeutralHadronsIsoCone",numNeutralHadronsIsoCone);
     l.addUserInt("numPhotonsIsoCone",numPhotonsIsoCone);
     l.addUserInt("numParticlesIsoCone",numParticlesIsoCone);
-    l.addUserFloat("leadChargedParticlePt",leadChargedParticlePt); 
+    l.addUserFloat("leadChargedParticlePt",leadChargedParticlePt);
     l.addUserFloat("trackRefPt",trackRefPt); 
 
     // fill all userfloats

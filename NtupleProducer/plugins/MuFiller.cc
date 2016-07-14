@@ -20,6 +20,13 @@
 #include <Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
+
 #include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/CutSet.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
@@ -45,6 +52,10 @@ private:
   virtual void beginJob(){};  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob(){};
+
+   TVector3 getPCA(const edm::Event & iEvent, const edm::EventSetup & iSetup,
+		   const reco::Track *aTrack,	   
+		   const GlobalPoint & aPoint);
 
   //const edm::InputTag theCandidateTag;
   //edm::EDGetTokenT<edm::View<pat::Muon> > theCandidateTag;
@@ -125,12 +136,18 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float dxy_innerTrack = 999.;
     float dz_innerTrack  = 999.;
     const Vertex* vertex = 0;
+
+    TVector3 pcaAOD, pcaRefit;
+    
     if (vertexs->size()>0) {
       vertex = &(vertexs->front());
       dxy = (l.muonBestTrack()->dxy(vertex->position()));
       dz  = (l.muonBestTrack()->dz(vertex->position()));
       dxy_innerTrack = (l.innerTrack()->dxy(vertex->position()));
       dz_innerTrack  = (l.innerTrack()->dz(vertex->position()));
+
+      GlobalPoint aPoint(vertex->position().x(), vertex->position().y(), vertex->position().z());
+      pcaAOD = getPCA(iEvent, iSetup, l.muonBestTrack().get(), aPoint); 
     }
 
     float rel_error_trackpt = l.muonBestTrack()->ptError()/l.muonBestTrack()->pt();    
@@ -260,7 +277,28 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   iEvent.put(result);
 }
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+TVector3 MuFiller::getPCA(const edm::Event & iEvent, const edm::EventSetup & iSetup,
+			  const reco::Track *aTrack,	   
+			  const GlobalPoint & aPoint){
 
+  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);  
+  reco::TransientTrack transTrk=transTrackBuilder->build(aTrack);
+    
+  AnalyticalImpactPointExtrapolator extrapolator(transTrk.field());
+  GlobalPoint pos  = extrapolator.extrapolate(transTrk.impactPointState(),aPoint).globalPosition();
+
+  TVector3 aPCA;
+  aPCA.SetX(pos.x() - aPoint.x());
+  aPCA.SetY(pos.y() - aPoint.y());
+  aPCA.SetZ(pos.z() - aPoint.z());
+
+  return aPCA;
+}
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 DEFINE_FWK_MODULE(MuFiller);

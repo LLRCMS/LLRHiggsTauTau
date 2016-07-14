@@ -10,6 +10,9 @@
 #ifndef GenHelper_h
 #define GenHelper_h
 
+#include "TVector3.h"
+#include "TLorentzVector.h"
+
 #include <DataFormats/HepMCCandidate/interface/GenParticle.h>
 #include <vector>
 
@@ -52,6 +55,13 @@ namespace genhelper {
     reco::GenParticle GetTauHad (const reco::Candidate* part); // build had tau by summing sons without nu
     const reco::Candidate* IsFromID (const reco::Candidate* part, int targetPDGId); // find if is son of a certain particle (select by targetPDGId); if not found, return NULL, else return its pointer
     int GetIndexInOutput (const reco::Candidate* part, std::vector<const reco::Candidate *> cands);
-}
 
+    typedef reco::GenParticleCollection::const_iterator IG;
+    typedef reco::GenParticleRefVector::const_iterator IGR;
+    TVector3 ImpactParameter(const TVector3& pv, const TVector3& sv, const TLorentzVector& p4);//Calculate generator level impact parameter
+    void GetTausDaughters(const reco::GenParticle& tau, reco::GenParticleRefVector& products, bool ignoreNus, bool direct);
+    void FindDescendents(const reco::GenParticle& base, reco::GenParticleRefVector& descendents, int status, int pdgId=0, bool skipPhotonsPi0AndFSR=false);
+    const reco::GenParticleRef GetLeadChParticle(const reco::GenParticleRefVector& products);
+    
+}
 #endif
