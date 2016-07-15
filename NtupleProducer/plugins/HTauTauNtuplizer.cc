@@ -1289,17 +1289,17 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("subjets_ak8MotherIdx", &_subjets_ak8MotherIdx);
 
 
-  myTree->Branch("px_x", &_pv_x);
-  myTree->Branch("px_y", &_pv_y);
-  myTree->Branch("px_z", &_pv_z);
+  myTree->Branch("pv_x", &_pv_x);
+  myTree->Branch("pv_y", &_pv_y);
+  myTree->Branch("pv_z", &_pv_z);
 
-  myTree->Branch("pxRefit_x", &_pvRefit_x);
-  myTree->Branch("pxRefit_y", &_pvRefit_y);
-  myTree->Branch("pxRefit_z", &_pvRefit_z);
+  myTree->Branch("pvRefit_x", &_pvRefit_x);
+  myTree->Branch("pvRefit_y", &_pvRefit_y);
+  myTree->Branch("pvRefit_z", &_pvRefit_z);
 
-  myTree->Branch("pxGen_x", &_pvGen_x);
-  myTree->Branch("pxGen_y", &_pvGen_y);
-  myTree->Branch("pxGen_z", &_pvGen_z);
+  myTree->Branch("pvGen_x", &_pvGen_x);
+  myTree->Branch("pvGen_y", &_pvGen_y);
+  myTree->Branch("pvGen_z", &_pvGen_z);
 
 }
 
