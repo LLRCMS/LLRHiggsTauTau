@@ -264,6 +264,29 @@ reco::GenParticle genhelper::GetTauHad (const reco::Candidate* part)
     return TauH;
 }
 
+reco::GenParticle genhelper::GetTauHadNeutrals (const reco::Candidate* part)
+{
+    if (abs(part->pdgId()) != 15)
+    {
+        reco::GenParticle fakeTauH = reco::GenParticle (0, reco::Candidate::LorentzVector(0.,0.,0.,0.), reco::Candidate::Point (0.,0.,0.), -999999, 0, true);
+        std::cout << "Warning: building had tau from a particle with pdgId != 15 --> dummy entry returned" << std::endl;
+        return fakeTauH;        
+    }
+    
+    reco::Candidate::LorentzVector p4Had (0,0,0,0);
+    for (unsigned int iDau = 0; iDau < part->numberOfDaughters(); iDau++)
+    {
+        const reco::Candidate * Dau = part->daughter( iDau );
+        int dauId = abs(Dau->pdgId());
+        if (dauId != 12 && dauId != 14 && dauId != 16 && Dau->charge()==0) // no neutrinos
+            p4Had += Dau->p4();
+    }
+    
+    int sign = part->pdgId() / abs(part->pdgId());
+    reco::GenParticle TauH = reco::GenParticle (part->charge(), p4Had, part->vertex(), sign*77715, part->status(), true);
+    return TauH;
+}
+
 const reco::Candidate* genhelper::IsFromID (const reco::Candidate* part, int targetPDGId)
 {
     if (abs(part->pdgId()) == targetPDGId){ 

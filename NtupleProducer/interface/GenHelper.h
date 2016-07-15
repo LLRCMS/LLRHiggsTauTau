@@ -53,6 +53,8 @@ namespace genhelper {
     WDecay GetTopDecay (const reco::Candidate* part); // return final state for top (= final state for W) -> see enum for code    
 
     reco::GenParticle GetTauHad (const reco::Candidate* part); // build had tau by summing sons without nu
+    reco::GenParticle GetTauHadNeutrals (const reco::Candidate* part); // build neutral component of had tau by summing sons without nu
+    
     const reco::Candidate* IsFromID (const reco::Candidate* part, int targetPDGId); // find if is son of a certain particle (select by targetPDGId); if not found, return NULL, else return its pointer
     int GetIndexInOutput (const reco::Candidate* part, std::vector<const reco::Candidate *> cands);
 
