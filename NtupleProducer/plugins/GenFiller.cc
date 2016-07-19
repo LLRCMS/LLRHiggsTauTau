@@ -220,6 +220,9 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  TVector3 aPVGenPoint = TVector3(genPClone->vx(), genPClone->vy(), genPClone->vz());
 	  reco::GenParticleRefVector tauDaughters;
 	  genhelper::GetTausDaughters(*genPClone,tauDaughters,true,false);
+	  int detailedDecayMode = genhelper::getDetailedTauDecayMode(tauDaughters);
+	  filtGenP.addUserInt("tauGenDetailedDecayMode", detailedDecayMode);
+	  
 	  reco::GenParticleRef leadChParticleRef = genhelper::GetLeadChParticle(tauDaughters);
 
 	  TLorentzVector p4LeadingChParticle(leadChParticleRef->px(),

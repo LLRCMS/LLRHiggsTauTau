@@ -255,6 +255,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _pv_x, _pv_y, _pv_z;
   Float_t _pvGen_x, _pvGen_y, _pvGen_z;
   Float_t _pvRefit_x, _pvRefit_y, _pvRefit_z;
+  bool _isRefitPV;
   
   // pairs
   //std::vector<TLorentzVector> _mothers;
@@ -327,6 +328,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _genpart_WDecayMode;
   std::vector<Int_t> _genpart_TopDecayMode;
   std::vector<Int_t> _genpart_TauGenDecayMode;
+  std::vector<Int_t> _genpart_TauGenDetailedDecayMode;
 
   std::vector<Int_t> _genpart_flags; // vector of bit flags bout gen info
   
@@ -823,6 +825,7 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_TopDecayMode.clear();
   _genpart_WDecayMode.clear();
   _genpart_TauGenDecayMode.clear();
+  _genpart_TauGenDetailedDecayMode.clear();
   _genpart_flags.clear();
   
   _genjet_px.clear();
@@ -1081,6 +1084,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_TopDecayMode", &_genpart_TopDecayMode);
     myTree->Branch("genpart_WDecayMode", &_genpart_WDecayMode);
     myTree->Branch("genpart_TauGenDecayMode", &_genpart_TauGenDecayMode);
+    myTree->Branch("genpart_TauGenDetailedDecayMode", &_genpart_TauGenDetailedDecayMode);
     myTree->Branch("genpart_flags", &_genpart_flags);
 
     myTree->Branch("genjet_px", &_genjet_px);
@@ -1301,6 +1305,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("pvGen_y", &_pvGen_y);
   myTree->Branch("pvGen_z", &_pvGen_z);
 
+  myTree->Branch("isRefitPV", &_isRefitPV);
 }
 
 Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0){
@@ -2448,6 +2453,7 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         int TopDecayMode = -1;
         int WDecayMode = -1;
         int TauGenDecayMode = -1;
+	int TauGenDetailedDecayMode = -1;
 	TVector3 pca(99,99,99);
         
         if (igen->hasUserInt("HMothIndex"))   HMIndex = igen->userInt("HMothIndex");
@@ -2461,6 +2467,7 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         if (igen->hasUserInt("TopDecayMode"))   TopDecayMode = igen->userInt("TopDecayMode");
         if (igen->hasUserInt("WDecayMode"))   WDecayMode = igen->userInt("WDecayMode");
         if (igen->hasUserInt("tauGenDecayMode"))   TauGenDecayMode = igen->userInt("tauGenDecayMode");
+	if (igen->hasUserInt("tauGenDetailedDecayMode"))   TauGenDetailedDecayMode = igen->userInt("tauGenDetailedDecayMode");
 	if (igen->hasUserFloat("pca_x")) pca = TVector3(igen->userFloat("pca_x"),igen->userFloat("pca_y"),igen->userFloat("pca_z"));
 	  
         
@@ -2475,6 +2482,7 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         _genpart_TopDecayMode.push_back(TopDecayMode);
         _genpart_WDecayMode.push_back(WDecayMode);
         _genpart_TauGenDecayMode.push_back(TauGenDecayMode);
+	_genpart_TauGenDetailedDecayMode.push_back(TauGenDetailedDecayMode);
 	_genpart_pca_x.push_back(pca.X());
 	_genpart_pca_y.push_back(pca.Y());
 	_genpart_pca_z.push_back(pca.Z());
@@ -2862,12 +2870,12 @@ bool HTauTauNtuplizer::refitPV(const edm::Event & iEvent, const edm::EventSetup 
     _pvRefit_z = (*vertices)[0].z();
   }
   else {
-    _pvRefit_x = -999;
-    _pvRefit_y = -999;
-    _pvRefit_z = -999;
+    _pvRefit_x = (*vertices)[0].x();
+    _pvRefit_y = (*vertices)[0].y();
+    _pvRefit_z = (*vertices)[0].z();
   }
 
-  return true;
+  return fitOk && transVtx.isValid();
 }
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
@@ -2882,7 +2890,7 @@ bool HTauTauNtuplizer::findPrimaryVertices(const edm::Event & iEvent, const edm:
   _pv_y = (*vertices)[0].y();
   _pv_z = (*vertices)[0].z();
 
-  refitPV(iEvent, iSetup);
+  _isRefitPV = refitPV(iEvent, iSetup);
 
   return true;
 }
@@ -2893,12 +2901,16 @@ TVector3 HTauTauNtuplizer::getPCA(const edm::Event & iEvent, const edm::EventSet
 				  const GlobalPoint & aPoint){
   TVector3 aPCA;
   if(!aTrack) return aPCA;
-  
+
   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);  
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
+  if(!transTrackBuilder.isValid()){
+    std::cout<<"Problem with TransientTrackBuilder"<<std::endl;
+    return aPCA;
+  }
   reco::TransientTrack transTrk=transTrackBuilder->build(aTrack);
-    
   AnalyticalImpactPointExtrapolator extrapolator(transTrk.field());
+
   GlobalPoint pos  = extrapolator.extrapolate(transTrk.impactPointState(),aPoint).globalPosition();
 
   aPCA.SetX(pos.x() - aPoint.x());

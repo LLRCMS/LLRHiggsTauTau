@@ -11,6 +11,8 @@
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenHelper.h"
 #include <DataFormats/Candidate/interface/Candidate.h>
 
+#include "DataFormats/TauReco/interface/PFTauDecayMode.h"
+
 bool genhelper::IsLastCopy (const reco::GenParticle& part)
 {
     bool isLast = true;
@@ -403,5 +405,107 @@ const reco::GenParticleRef genhelper::GetLeadChParticle(const reco::GenParticleR
     }
     return part;
   }
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+int genhelper::getDetailedTauDecayMode(const reco::GenParticleRefVector& products){
+
+  int tauDecayMode = reco::PFTauDecayMode::tauDecayOther;
+  
+  int numElectrons      = 0;
+  int numMuons          = 0;
+  int numChargedPions   = 0;
+  int numNeutralPions   = 0;
+  int numPhotons        = 0;
+  int numNeutrinos      = 0;
+  int numOtherParticles = 0;
+  
+  for(IGR idr = products.begin(); idr != products.end(); ++idr ) {
+    int pdg_id = std::abs((*idr)->pdgId());
+    if(pdg_id == 11) numElectrons++;
+    else if(pdg_id == 13) numMuons++;
+    else if(pdg_id == 211 || pdg_id == 321 ) numChargedPions++; //Count both pi+ and K+
+    else if(pdg_id == 111 || pdg_id == 130 || pdg_id == 310 ) numNeutralPions++; //Count both pi0 and K0_L/S
+    else if(pdg_id == 12 || 
+	    pdg_id == 14 || 
+	    pdg_id == 16) {
+      numNeutrinos++;
+    }
+    else if(pdg_id == 22) numPhotons++;
+    else {
+      numOtherParticles++;
+    }
+  }
+  if(numElectrons>1){//sometimes there are gamma->ee conversions 
+    numPhotons += numElectrons/2;
+    numElectrons -= 2*(numElectrons/2);
+  }
+  
+  if( numOtherParticles == 0 ){
+    if( numElectrons == 1 ){
+      //--- tau decays into electrons
+      tauDecayMode = reco::PFTauDecayMode::tauDecaysElectron;
+    } else if( numMuons == 1 ){
+      //--- tau decays into muons
+      tauDecayMode = reco::PFTauDecayMode::tauDecayMuon;
+    } else {
+      //--- hadronic tau decays
+      switch ( numChargedPions ){
+      case 1 :
+	if( numNeutralPions != 0 ){
+	  tauDecayMode =  reco::PFTauDecayMode::tauDecayOther;
+	  break;
+	}
+	switch ( numPhotons ){
+	case 0:
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion0PiZero;
+	  break;
+	case 2:
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion1PiZero;
+	  break;
+	case 4:
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion2PiZero;
+	  break;
+	case 6:
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion3PiZero;
+	  break;
+	case 8:
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion4PiZero;
+	  break;
+	default:
+	  tauDecayMode = reco::PFTauDecayMode::tauDecayOther;
+	  break;
+	}
+	break;
+      case 3 : 
+	if( numNeutralPions != 0 ){
+	  tauDecayMode = reco::PFTauDecayMode::tauDecayOther;
+	  break;
+	}
+	switch ( numPhotons ){
+	case 0 : 
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay3ChargedPion0PiZero;
+	  break;
+	case 2 : 
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay3ChargedPion1PiZero;
+	  break;
+	case 4 : 
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay3ChargedPion2PiZero;
+	  break;
+	case 6 : 
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay3ChargedPion3PiZero;
+	  break;
+	case 8 : 
+	  tauDecayMode = reco::PFTauDecayMode::tauDecay3ChargedPion4PiZero;
+	  break;
+	default:
+	  tauDecayMode = reco::PFTauDecayMode::tauDecayOther;
+	  break;
+	}
+	break;
+      }
+    }
+  }
+  return tauDecayMode;
+}
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////

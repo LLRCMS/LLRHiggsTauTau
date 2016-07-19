@@ -64,6 +64,7 @@ namespace genhelper {
     void GetTausDaughters(const reco::GenParticle& tau, reco::GenParticleRefVector& products, bool ignoreNus, bool direct);
     void FindDescendents(const reco::GenParticle& base, reco::GenParticleRefVector& descendents, int status, int pdgId=0, bool skipPhotonsPi0AndFSR=false);
     const reco::GenParticleRef GetLeadChParticle(const reco::GenParticleRefVector& products);
+    int getDetailedTauDecayMode(const reco::GenParticleRefVector& products);
     
 }
 #endif
