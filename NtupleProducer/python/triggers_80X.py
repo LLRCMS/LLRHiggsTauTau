@@ -35,6 +35,13 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(999)
         ),
     cms.PSet (
+        HLT = cms.string("HLT_IsoTkMu22_v"),
+        path1 = cms.vstring ("hltL3fL1sMu20L1f0Tkf22QL3trkIsoFiltered0p09"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
         HLT = cms.string("HLT_IsoMu22_eta2p1_v"),
         path1 = cms.vstring ("hltL3crIsoL1sSingleMu20erL1f0L2f10QL3f22QL3trkIsoFiltered0p09"),
         path2 = cms.vstring (""),
@@ -184,15 +191,29 @@ HLTLIST = cms.VPSet(
          HLT = cms.string("HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v"),
          path1 = cms.vstring ("hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered17"),
          path2 = cms.vstring ("hltMu17TrkIsoVVLEle12CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
-         leg1 = cms.int32(11),
-         leg2 = cms.int32(13)
+         leg1 = cms.int32(13),
+         leg2 = cms.int32(11)
          ),
      cms.PSet (
          HLT = cms.string("HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v"),
          path1 = cms.vstring ("hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8"),
          path2 = cms.vstring ("hltMu8TrkIsoVVLEle17CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
-         leg1 = cms.int32(11),
-         leg2 = cms.int32(13)
+         leg1 = cms.int32(13),
+         leg2 = cms.int32(11)
+         ),
+    cms.PSet (
+         HLT = cms.string("HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_v"),
+         path1 = cms.vstring ("hltMu23TrkIsoVVLEle8CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered23"),
+         path2 = cms.vstring ("hltMu23TrkIsoVVLEle8CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
+         leg1 = cms.int32(13),
+         leg2 = cms.int32(11)
+         ),
+    cms.PSet (
+         HLT = cms.string("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v"),
+         path1 = cms.vstring ("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLMuonlegL3IsoFiltered8"),
+         path2 = cms.vstring ("hltMu8TrkIsoVVLEle23CaloIdLTrackIdLIsoVLElectronlegTrackIsoFilter"),
+         leg1 = cms.int32(13),
+         leg2 = cms.int32(11)
          ),
 ### === mu mu triggers 
 ### FIXME!! MuMu and EleEle paths have not been checked in 80X and filter names are dummy
