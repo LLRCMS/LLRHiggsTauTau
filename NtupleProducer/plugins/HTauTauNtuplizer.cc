@@ -119,6 +119,7 @@
    bool writeJets = true;     // Write jets in the tree. 
    bool writeFatJets = true;
    bool writeSoftLep = false;
+   bool doPVRefit = true;
    bool DEBUG = false;
  }
 
@@ -2078,11 +2079,6 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     GlobalPoint aPVRefitPoint(_pvRefit_x, _pvRefit_y, _pvRefit_z);    
     GlobalPoint aPVGenPoint(_pvGen_x, _pvGen_y, _pvGen_z);
 
-    std::cout<<"cand->p4().pt(): "<<cand->p4().pt()<<" bestTrack: "<<cand->bestTrack()<<std::endl;
-    if(type==ParticleType::MUON) std::cout<<"MUON"<<std::endl;
-    if(type==ParticleType::ELECTRON) std::cout<<"ELECTRON"<<std::endl;
-    if(type==ParticleType::TAU) std::cout<<"TAU"<<std::endl;
-
     TVector3 pcaPV = getPCA(event, setup, cand->bestTrack(), aPVPoint);
     TVector3 pcaRefitPV = getPCA(event, setup, cand->bestTrack(), aPVRefitPoint);
     TVector3 pcaGenPV = getPCA(event, setup, cand->bestTrack(), aPVGenPoint);
@@ -2905,9 +2901,7 @@ TVector3 HTauTauNtuplizer::getPCA(const edm::Event & iEvent, const edm::EventSet
 				  const reco::Track *aTrack,	   
 				  const GlobalPoint & aPoint){
   TVector3 aPCA;
-  if(!aTrack ||  _npv==0 || aTrack->pt()<1.0) return aPCA;
-
-  std::cout<<aPoint<<std::endl;
+  if(!doPVRefit || !aTrack ||  _npv==0 || aTrack->pt()<2) return aPCA;
 
   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
@@ -2916,19 +2910,11 @@ TVector3 HTauTauNtuplizer::getPCA(const edm::Event & iEvent, const edm::EventSet
     return aPCA;
   }
 
-  std::cout<<"Here 1"<<std::endl;
-  
   reco::TransientTrack transTrk=transTrackBuilder->build(aTrack);
 
-  std::cout<<"Here 2"<<std::endl;
   
   AnalyticalImpactPointExtrapolator extrapolator(transTrk.field());
-
-  std::cout<<"Here 3 pt: "<<aTrack->pt()<<" impactPointState: "<<transTrk.impactPointState()<<std::endl;
-
   GlobalPoint pos  = extrapolator.extrapolate(transTrk.impactPointState(),aPoint).globalPosition();
-
-  std::cout<<"Here 4"<<std::endl;
 
   aPCA.SetX(pos.x() - aPoint.x());
   aPCA.SetY(pos.y() - aPoint.y());
