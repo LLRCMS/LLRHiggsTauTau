@@ -2138,7 +2138,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     TVector3 pcaPV = getPCA(event, setup, cand->bestTrack(), aPVPoint);
     TVector3 pcaRefitPV = getPCA(event, setup, cand->bestTrack(), aPVRefitPoint);
-    TVector3 pcaGenPV = getPCA(event, setup, cand->bestTrack(), aPVGenPoint);
+    TVector3 pcaGenPV;
+    if(theisMC) pcaGenPV = getPCA(event, setup, cand->bestTrack(), aPVGenPoint);
 
     if(type==ParticleType::MUON){	
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
@@ -2240,7 +2241,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       if(taon){
 	pcaPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVPoint);
 	pcaRefitPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVRefitPoint);
-	pcaGenPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVGenPoint);
+	if(theisMC) pcaGenPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVGenPoint);
 
 	reco::CandidatePtrVector chCands = taon->signalChargedHadrCands();
 	reco::CandidatePtrVector neCands = taon->signalGammaCands();
@@ -2954,8 +2955,10 @@ bool HTauTauNtuplizer::refitPV(const edm::Event & iEvent, const edm::EventSetup 
       std::cout<<"Vtx fit failed!"<<std::endl;
     }
   }
+
+  fitOk = fitOk && transVtx.isValid() && fabs(transVtx.position().x())<1 && fabs(transVtx.position().y())<1;
   
-  if(fitOk && transVtx.isValid()) {
+  if(fitOk) {
     ///NOTE: we take original vertex z position, as this gives the best reults on CP
     ///variables. To be understood.
     _pvRefit_x = transVtx.position().x();
@@ -2968,7 +2971,7 @@ bool HTauTauNtuplizer::refitPV(const edm::Event & iEvent, const edm::EventSetup 
     _pvRefit_z = (*vertices)[0].z();
   }
 
-  return fitOk && transVtx.isValid();
+  return fitOk;
 }
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
@@ -3003,7 +3006,6 @@ TVector3 HTauTauNtuplizer::getPCA(const edm::Event & iEvent, const edm::EventSet
   }
 
   reco::TransientTrack transTrk=transTrackBuilder->build(aTrack);
-
   
   AnalyticalImpactPointExtrapolator extrapolator(transTrk.field());
   GlobalPoint pos  = extrapolator.extrapolate(transTrk.impactPointState(),aPoint).globalPosition();
