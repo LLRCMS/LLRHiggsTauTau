@@ -332,9 +332,6 @@ void genhelper::GetTausDaughters(const reco::GenParticle& tau,
     FindDescendents(tau, products, 1, 0);
   else{
     const reco::GenParticleRefVector& daughterRefs = tau.daughterRefVector();
-
-    std::cout<<" tau.daughterRefVector().size(): "<< tau.daughterRefVector().size()<<std::endl;
-    
     for(IGR idr = daughterRefs.begin(); idr != daughterRefs.end(); ++idr )
       products.push_back(*idr);
   }

@@ -717,7 +717,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       srcPFMETCov = cms.InputTag("METSignificance", "METCovariance"),
                       srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
-                      HT = cms.InputTag("externalLHEProducer")
+                      HT = cms.InputTag("externalLHEProducer"),
+                      beamSpot = cms.InputTag("offlineBeamSpot")               
                       )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
