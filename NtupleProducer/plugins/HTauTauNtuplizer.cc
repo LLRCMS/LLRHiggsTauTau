@@ -261,10 +261,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _rho;
   Int_t _nup;
 
-  Float_t _pv_x, _pv_y, _pv_z;
-  Float_t _pvGen_x, _pvGen_y, _pvGen_z;
-  Float_t _pvRefit_x, _pvRefit_y, _pvRefit_z;
-  bool _isRefitPV;
+  Float_t _pv_x=0, _pv_y=0, _pv_z=0;
+  Float_t _pvGen_x=0, _pvGen_y=0, _pvGen_z=0;
+  Float_t _pvRefit_x=0, _pvRefit_y=0, _pvRefit_z=0;
+  bool _isRefitPV=false;
   
   // pairs
   //std::vector<TLorentzVector> _mothers;
