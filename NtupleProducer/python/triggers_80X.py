@@ -243,9 +243,16 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"),
         path1 = cms.vstring (""),
         path2 = cms.vstring (""),
-        leg1 = cms.int32(13),
-        leg2 = cms.int32(13)
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(11)
         ),
+    cms.PSet (
+        HLT = cms.string("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(11)
+        ),    
     cms.PSet (
         HLT = cms.string("HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v"),
         path1 = cms.vstring (""),
