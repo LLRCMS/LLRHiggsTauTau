@@ -103,6 +103,15 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
+
 #include "TLorentzVector.h"
 
  namespace {
@@ -110,6 +119,7 @@
    bool writeJets = true;     // Write jets in the tree. 
    bool writeFatJets = true;
    bool writeSoftLep = false;
+   bool doPVRefit = true;
    bool DEBUG = false;
  }
 
@@ -146,7 +156,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //virtual void FillPhoton(const pat::Photon& photon);
   int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
-  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, bool theFSR, const edm::View<pat::Jet>* jets);
+  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets);
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
@@ -156,6 +166,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   float ComputeMT (math::XYZTLorentzVector visP4, float METx, float METy);
   static bool ComparePairsbyPt(pat::CompositeCandidate i, pat::CompositeCandidate j);
   static bool ComparePairsbyIso(pat::CompositeCandidate i, pat::CompositeCandidate j);
+
+  bool refitPV(const edm::Event & iEvent, const edm::EventSetup & iSetup);
+  bool findPrimaryVertices(const edm::Event & iEvent, const edm::EventSetup & iSetup);
+  TVector3 getPCA(const edm::Event & iEvent, const edm::EventSetup & iSetup,
+		  const reco::Track *aTrack, const GlobalPoint & aPoint);
 
   // ----------member data ---------------------------
   //std::map <int, int> genFlagPosMap_; // to convert from input to output enum format for H/Z decays
@@ -206,7 +221,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
   edm::EDGetTokenT<edm::MergeableCounter> thePassTag;
   edm::EDGetTokenT<LHEEventProduct> theLHEPTag;
-  
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag;
 
   //flags
   //static const int nOutVars =14;
@@ -245,6 +260,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _PUReweight;
   Float_t _rho;
   Int_t _nup;
+
+  Float_t _pv_x=0, _pv_y=0, _pv_z=0;
+  Float_t _pvGen_x=0, _pvGen_y=0, _pvGen_z=0;
+  Float_t _pvRefit_x=0, _pvRefit_y=0, _pvRefit_z=0;
+  bool _isRefitPV=false;
   
   // pairs
   //std::vector<TLorentzVector> _mothers;
@@ -261,6 +281,17 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_py;
   std::vector<Float_t> _daughters_pz;
   std::vector<Float_t> _daughters_e;
+  
+  std::vector<Float_t> _daughters_charged_px;
+  std::vector<Float_t> _daughters_charged_py;
+  std::vector<Float_t> _daughters_charged_pz;
+  std::vector<Float_t> _daughters_charged_e;
+
+  std::vector<Float_t> _daughters_neutral_px;
+  std::vector<Float_t> _daughters_neutral_py;
+  std::vector<Float_t> _daughters_neutral_pz;
+  std::vector<Float_t> _daughters_neutral_e;
+
   std::vector<Int_t> _daughters_TauUpExists;
   std::vector<Float_t> _daughters_px_TauUp;
   std::vector<Float_t> _daughters_py_TauUp;
@@ -287,6 +318,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _genpart_py;
   std::vector<Float_t> _genpart_pz;
   std::vector<Float_t> _genpart_e;
+
+  std::vector<Float_t> _genpart_pca_x;
+  std::vector<Float_t> _genpart_pca_y;
+  std::vector<Float_t> _genpart_pca_z;
+  
   std::vector<Int_t> _genpart_pdg;
   std::vector<Int_t> _genpart_status;
   //std::vector<Int_t> _genpart_mothInd;
@@ -301,6 +337,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _genpart_WDecayMode;
   std::vector<Int_t> _genpart_TopDecayMode;
   std::vector<Int_t> _genpart_TauGenDecayMode;
+  std::vector<Int_t> _genpart_TauGenDetailedDecayMode;
 
   std::vector<Int_t> _genpart_flags; // vector of bit flags bout gen info
   
@@ -484,6 +521,19 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_jetBTagCSV;
   std::vector<Float_t> _daughters_lepMVA_mvaId;
 
+  std::vector<Float_t> _daughters_pca_x;
+  std::vector<Float_t> _daughters_pca_y;
+  std::vector<Float_t> _daughters_pca_z;
+
+  std::vector<Float_t> _daughters_pcaRefitPV_x;
+  std::vector<Float_t> _daughters_pcaRefitPV_y;
+  std::vector<Float_t> _daughters_pcaRefitPV_z;
+
+  std::vector<Float_t> _daughters_pcaGenPV_x;
+  std::vector<Float_t> _daughters_pcaGenPV_y;
+  std::vector<Float_t> _daughters_pcaGenPV_z;
+
+
   //Jets variables
   Int_t _numberOfJets;
   //std::vector<TLorentzVector> _jets;
@@ -577,7 +627,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
   theTotTag            (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("totCollection"))),
   thePassTag           (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("passCollection"))),
-  theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection")))
+  theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection"))),
+  beamSpotTag          (consumes<reco::BeamSpot>                         (pset.getParameter<edm::InputTag>("beamSpot")))
 
 
  {
@@ -664,6 +715,17 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_py.clear();
   _daughters_pz.clear();
   _daughters_e.clear();
+
+  _daughters_charged_px.clear();
+  _daughters_charged_py.clear();
+  _daughters_charged_pz.clear();
+  _daughters_charged_e.clear();
+
+  _daughters_neutral_px.clear();
+  _daughters_neutral_py.clear();
+  _daughters_neutral_pz.clear();
+  _daughters_neutral_e.clear();
+   
   _daughters_TauUpExists.clear();
   _daughters_px_TauUp.clear();
   _daughters_py_TauUp.clear();
@@ -741,6 +803,18 @@ void HTauTauNtuplizer::Initialize(){
   //_daughter2.clear();
   _softLeptons.clear();
   //_genDaughters.clear();
+
+  _daughters_pca_x.clear();
+  _daughters_pca_y.clear();
+  _daughters_pca_z.clear();
+
+  _daughters_pcaRefitPV_x.clear();
+  _daughters_pcaRefitPV_y.clear();
+  _daughters_pcaRefitPV_z.clear();
+
+  _daughters_pcaGenPV_x.clear();
+  _daughters_pcaGenPV_y.clear();
+  _daughters_pcaGenPV_z.clear();
   
   //_bquarks.clear();
   //_bquarks_px.clear();
@@ -754,6 +828,11 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_py.clear();
   _genpart_pz.clear();
   _genpart_e.clear();
+
+  _genpart_pca_x.clear();
+  _genpart_pca_y.clear();
+  _genpart_pca_z.clear();
+
   _genpart_pdg.clear();
   _genpart_status.clear();
   //_genpart_mothInd.clear();
@@ -768,6 +847,7 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_TopDecayMode.clear();
   _genpart_WDecayMode.clear();
   _genpart_TauGenDecayMode.clear();
+  _genpart_TauGenDetailedDecayMode.clear();
   _genpart_flags.clear();
   
   _genjet_px.clear();
@@ -976,6 +1056,16 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_e",&_daughters_e);
   myTree->Branch("daughters_charge",&_daughters_charge);
 
+  myTree->Branch("daughters_charged_px",&_daughters_charged_px);
+  myTree->Branch("daughters_charged_py",&_daughters_charged_py);
+  myTree->Branch("daughters_charged_pz",&_daughters_charged_pz);
+  myTree->Branch("daughters_charged_e",&_daughters_charged_e);
+
+  myTree->Branch("daughters_neutral_px",&_daughters_neutral_px);
+  myTree->Branch("daughters_neutral_py",&_daughters_neutral_py);
+  myTree->Branch("daughters_neutral_pz",&_daughters_neutral_pz);
+  myTree->Branch("daughters_neutral_e",&_daughters_neutral_e);
+
   myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
   myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
   myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
@@ -1012,6 +1102,9 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_py", &_genpart_py);
     myTree->Branch("genpart_pz", &_genpart_pz);
     myTree->Branch("genpart_e", &_genpart_e);
+    myTree->Branch("genpart_pca_x",&_genpart_pca_x);
+    myTree->Branch("genpart_pca_y",&_genpart_pca_y);
+    myTree->Branch("genpart_pca_z",&_genpart_pca_z);
     myTree->Branch("genpart_pdg", &_genpart_pdg);
     myTree->Branch("genpart_status", &_genpart_status);
     //myTree->Branch("genpart_mothInd", _genpart_mothInd);
@@ -1026,6 +1119,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_TopDecayMode", &_genpart_TopDecayMode);
     myTree->Branch("genpart_WDecayMode", &_genpart_WDecayMode);
     myTree->Branch("genpart_TauGenDecayMode", &_genpart_TauGenDecayMode);
+    myTree->Branch("genpart_TauGenDetailedDecayMode", &_genpart_TauGenDetailedDecayMode);
     myTree->Branch("genpart_flags", &_genpart_flags);
 
     myTree->Branch("genjet_px", &_genjet_px);
@@ -1169,7 +1263,17 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_jetPtRatio",&_daughters_jetPtRatio);
   myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
   myTree->Branch("daughters_lepMVA_mvaId",&_daughters_lepMVA_mvaId);
-  
+
+  myTree->Branch("daughters_pca_x",&_daughters_pca_x);
+  myTree->Branch("daughters_pca_y",&_daughters_pca_y);
+  myTree->Branch("daughters_pca_z",&_daughters_pca_z);
+  myTree->Branch("daughters_pcaRefitPV_x",&_daughters_pcaRefitPV_x);
+  myTree->Branch("daughters_pcaRefitPV_y",&_daughters_pcaRefitPV_y);
+  myTree->Branch("daughters_pcaRefitPV_z",&_daughters_pcaRefitPV_z);
+  myTree->Branch("daughters_pcaGenPV_x",&_daughters_pcaGenPV_x);
+  myTree->Branch("daughters_pcaGenPV_y",&_daughters_pcaGenPV_y);
+  myTree->Branch("daughters_pcaGenPV_z",&_daughters_pcaGenPV_z);
+
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
@@ -1226,6 +1330,20 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("subjets_CSV", &_subjets_CSV);
   myTree->Branch("subjets_ak8MotherIdx", &_subjets_ak8MotherIdx);
 
+
+  myTree->Branch("pv_x", &_pv_x);
+  myTree->Branch("pv_y", &_pv_y);
+  myTree->Branch("pv_z", &_pv_z);
+
+  myTree->Branch("pvRefit_x", &_pvRefit_x);
+  myTree->Branch("pvRefit_y", &_pvRefit_y);
+  myTree->Branch("pvRefit_z", &_pvRefit_z);
+
+  myTree->Branch("pvGen_x", &_pvGen_x);
+  myTree->Branch("pvGen_y", &_pvGen_y);
+  myTree->Branch("pvGen_z", &_pvGen_z);
+
+  myTree->Branch("isRefitPV", &_isRefitPV);
 }
 
 Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0){
@@ -1245,8 +1363,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 {
   Initialize();
 
+  findPrimaryVertices(event, eSetup);
+  
   Handle<vector<reco::Vertex> >  vertexs;
-  //event.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
+  //event.getByLabel("offlineSlimmedPrimaryVertices",vertex);
   event.getByToken(theVtxTag,vertexs);
   
   //----------------------------------------------------------------------
@@ -1416,7 +1536,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     FillGenJetInfo(event); // gen jets
   }
   //Loop of softleptons and fill them
-  FillSoftLeptons(daus,event,theFSR,jets);
+  FillSoftLeptons(daus,event,eSetup,theFSR,jets);
 
   //Loop on Jets
 
@@ -1838,7 +1958,9 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
 
 
 //Fill all leptons (we keep them all for veto purposes
-void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, const edm::Event& event,bool theFSR, const edm::View<pat::Jet> *jets){
+void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
+				       const edm::Event& event, const edm::EventSetup& setup,
+				       bool theFSR, const edm::View<pat::Jet> *jets){
   edm::Handle<edm::TriggerResults> triggerBits;
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
 
@@ -1862,8 +1984,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
   float rho_miniRelIso = *rhoHandle_miniRelIso;
 
   for(edm::View<reco::Candidate>::const_iterator daui = daus->begin(); daui!=daus->end();++daui){
+
     const reco::Candidate* cand = &(*daui);
     math::XYZTLorentzVector pfour = cand->p4();
+    math::XYZTLorentzVector chargedP4 = cand->p4();
+    math::XYZTLorentzVector neutralP4;
+    
     TLorentzVector pfourTauUp;
     TLorentzVector pfourTauDown;
 
@@ -2006,8 +2132,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     float lepMVA_mvaId = -1.;
 
     //
+    GlobalPoint aPVPoint(_pv_x, _pv_y, _pv_z);
+    GlobalPoint aPVRefitPoint(_pvRefit_x, _pvRefit_y, _pvRefit_z);    
+    GlobalPoint aPVGenPoint(_pvGen_x, _pvGen_y, _pvGen_z);
 
-    if(type==ParticleType::MUON){
+    TVector3 pcaPV = getPCA(event, setup, cand->bestTrack(), aPVPoint);
+    TVector3 pcaRefitPV = getPCA(event, setup, cand->bestTrack(), aPVRefitPoint);
+    TVector3 pcaGenPV;
+    if(theisMC) pcaGenPV = getPCA(event, setup, cand->bestTrack(), aPVGenPoint);
+
+    if(type==ParticleType::MUON){	
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
       discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
       if(userdatahelpers::getUserFloat(cand,"isPFMuon"))typeOfMuon |= 1 << 0;
@@ -2103,6 +2237,19 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
       leadChargedParticlePt = userdatahelpers::getUserFloat (cand, "leadChargedParticlePt");
       trackRefPt = userdatahelpers::getUserFloat (cand, "trackRefPt");
 
+      const pat::Tau *taon  = dynamic_cast<const pat::Tau*>(cand);
+      if(taon){
+	pcaPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVPoint);
+	pcaRefitPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVRefitPoint);
+	if(theisMC) pcaGenPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVGenPoint);
+
+	reco::CandidatePtrVector chCands = taon->signalChargedHadrCands();
+	reco::CandidatePtrVector neCands = taon->signalGammaCands();
+	chargedP4 = math::XYZTLorentzVector();
+	neutralP4 = math::XYZTLorentzVector();
+	for(reco::CandidatePtrVector::const_iterator id=chCands.begin();id!=chCands.end(); ++id) chargedP4 += (*id)->p4();
+	for(reco::CandidatePtrVector::const_iterator id=neCands.begin();id!=neCands.end(); ++id) neutralP4 += (*id)->p4();
+      }
     }
     _discriminator.push_back(discr);
     _daughters_typeOfMuon.push_back(typeOfMuon);
@@ -2169,6 +2316,28 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _daughters_jetPtRatio.push_back(jetPtRatio);
     _daughters_jetBTagCSV.push_back(jetBTagCSV);
     _daughters_lepMVA_mvaId.push_back(lepMVA_mvaId);
+
+    _daughters_pca_x.push_back(pcaPV.X());
+    _daughters_pca_y.push_back(pcaPV.Y());
+    _daughters_pca_z.push_back(pcaPV.Z());
+
+    _daughters_pcaRefitPV_x.push_back(pcaRefitPV.X());
+    _daughters_pcaRefitPV_y.push_back(pcaRefitPV.Y());
+    _daughters_pcaRefitPV_z.push_back(pcaRefitPV.Z());
+
+    _daughters_pcaGenPV_x.push_back(pcaGenPV.X());
+    _daughters_pcaGenPV_y.push_back(pcaGenPV.Y());
+    _daughters_pcaGenPV_z.push_back(pcaGenPV.Z());
+
+    _daughters_charged_px.push_back(chargedP4.X());
+    _daughters_charged_py.push_back(chargedP4.Y());
+    _daughters_charged_pz.push_back(chargedP4.Z());
+    _daughters_charged_e.push_back(chargedP4.T());
+
+    _daughters_neutral_px.push_back(neutralP4.X());
+    _daughters_neutral_py.push_back(neutralP4.Y());
+    _daughters_neutral_pz.push_back(neutralP4.Z());
+    _daughters_neutral_e.push_back(neutralP4.T());
 
     //TRIGGER MATCHING
     Long64_t LFtriggerbit=0,L3triggerbit=0,filterFired=0;
@@ -2356,6 +2525,7 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
     //event.getByLabel ("genInfo", candHandle);
     event.getByToken (theGenericTag, candHandle);
     const edm::View<pat::GenericParticle>* gens = candHandle.product();
+
     for(edm::View<pat::GenericParticle>::const_iterator igen = gens->begin(); igen!=gens->end(); ++igen)
     {
         // fill gen particle branches
@@ -2377,6 +2547,8 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         int TopDecayMode = -1;
         int WDecayMode = -1;
         int TauGenDecayMode = -1;
+	int TauGenDetailedDecayMode = -1;
+	TVector3 pca(99,99,99);
         
         if (igen->hasUserInt("HMothIndex"))   HMIndex = igen->userInt("HMothIndex");
         if (igen->hasUserInt("MSSMHMothIndex"))   MSSMHMIndex = igen->userInt("MSSMHMothIndex");
@@ -2389,6 +2561,9 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         if (igen->hasUserInt("TopDecayMode"))   TopDecayMode = igen->userInt("TopDecayMode");
         if (igen->hasUserInt("WDecayMode"))   WDecayMode = igen->userInt("WDecayMode");
         if (igen->hasUserInt("tauGenDecayMode"))   TauGenDecayMode = igen->userInt("tauGenDecayMode");
+	if (igen->hasUserInt("tauGenDetailedDecayMode"))   TauGenDetailedDecayMode = igen->userInt("tauGenDetailedDecayMode");
+	if (igen->hasUserFloat("pca_x")) pca = TVector3(igen->userFloat("pca_x"),igen->userFloat("pca_y"),igen->userFloat("pca_z"));
+	  
         
         _genpart_HMothInd.push_back(HMIndex);
         _genpart_MSSMHMothInd.push_back(MSSMHMIndex);
@@ -2401,11 +2576,21 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         _genpart_TopDecayMode.push_back(TopDecayMode);
         _genpart_WDecayMode.push_back(WDecayMode);
         _genpart_TauGenDecayMode.push_back(TauGenDecayMode);
+	_genpart_TauGenDetailedDecayMode.push_back(TauGenDetailedDecayMode);
+	_genpart_pca_x.push_back(pca.X());
+	_genpart_pca_y.push_back(pca.Y());
+	_genpart_pca_z.push_back(pca.Z());
         
         //const pat::GenericParticle* genClone = &(*igen);
         //int flags = CreateFlagsWord (genClone);
         int flags = igen -> userInt ("generalGenFlags");
         _genpart_flags.push_back(flags);
+
+	if(igen->hasUserInt("HZDecayMode") || igen->hasUserInt("WDecayMode") || igen->hasUserInt("TopDecayMode")){
+	  _pvGen_x = igen->vx();
+	  _pvGen_y = igen->vy();
+	  _pvGen_z = igen->vz();
+	}
     }
 }
 
@@ -2718,6 +2903,122 @@ float HTauTauNtuplizer::ComputeMT (math::XYZTLorentzVector visP4, float METx, fl
     
     return TMath::Sqrt (scalSum*scalSum - vecSumPt*vecSumPt);
 }
+
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+bool HTauTauNtuplizer::refitPV(const edm::Event & iEvent, const edm::EventSetup & iSetup){
+
+  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
+
+  edm::Handle<edm::View<pat::PackedCandidate> >pfCandHandle;
+  iEvent.getByToken(thePFCandTag,pfCandHandle);
+  const edm::View<pat::PackedCandidate>* cands = pfCandHandle.product();
+
+  Handle<vector<reco::Vertex> >  vertices;
+  iEvent.getByToken(theVtxTag,vertices);
+
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByToken(beamSpotTag, beamSpot);
+ 
+  TransientVertex transVtx;
+
+  //Get tracks associated wiht pfPV
+  reco::TrackCollection pvTracks;
+  TLorentzVector aTrack;
+  for(size_t i=0; i<cands->size(); ++i){
+    if((*cands)[i].charge()==0 || (*cands)[i].vertexRef().isNull()) continue;
+    if(!(*cands)[i].bestTrack()) continue;
+    
+    unsigned int key = (*cands)[i].vertexRef().key();
+    int quality = (*cands)[i].pvAssociationQuality();
+
+    if(key!=0 ||
+       (quality!=pat::PackedCandidate::UsedInFitTight
+	&& quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
+
+    pvTracks.push_back(*((*cands)[i].bestTrack()));
+  }
+  ///Built transient tracks from tracks.
+  std::vector<reco::TransientTrack> transTracks;  
+  for(auto iter: pvTracks) transTracks.push_back(transTrackBuilder->build(iter));
+
+  bool fitOk = false;  
+  if(transTracks.size() >= 2 ) {
+    AdaptiveVertexFitter avf;
+    avf.setWeightThreshold(0.001); 
+    try {
+      transVtx = avf.vertex(transTracks, *beamSpot);
+      fitOk = true; 
+    } catch (...) {
+      fitOk = false; 
+      std::cout<<"Vtx fit failed!"<<std::endl;
+    }
+  }
+
+  fitOk = fitOk && transVtx.isValid() && fabs(transVtx.position().x())<1 && fabs(transVtx.position().y())<1;
+  
+  if(fitOk) {
+    ///NOTE: we take original vertex z position, as this gives the best reults on CP
+    ///variables. To be understood.
+    _pvRefit_x = transVtx.position().x();
+    _pvRefit_y = transVtx.position().y();
+    _pvRefit_z = (*vertices)[0].z();
+  }
+  else {
+    _pvRefit_x = (*vertices)[0].x();
+    _pvRefit_y = (*vertices)[0].y();
+    _pvRefit_z = (*vertices)[0].z();
+  }
+
+  return fitOk;
+}
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+bool HTauTauNtuplizer::findPrimaryVertices(const edm::Event & iEvent, const edm::EventSetup & iSetup){
+
+  Handle<vector<reco::Vertex> >  vertices;
+  iEvent.getByToken(theVtxTag,vertices);
+  
+  if(vertices->size()==0) return false;   //at least one vertex
+
+  _pv_x = (*vertices)[0].x();
+  _pv_y = (*vertices)[0].y();
+  _pv_z = (*vertices)[0].z();
+
+  _isRefitPV = refitPV(iEvent, iSetup);
+
+  return true;
+}
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+TVector3 HTauTauNtuplizer::getPCA(const edm::Event & iEvent, const edm::EventSetup & iSetup,
+				  const reco::Track *aTrack,	   
+				  const GlobalPoint & aPoint){
+  TVector3 aPCA;
+  if(!doPVRefit || !aTrack ||  _npv==0 || aTrack->pt()<2) return aPCA;
+
+  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
+  if(!transTrackBuilder.isValid()){
+    std::cout<<"Problem with TransientTrackBuilder"<<std::endl;
+    return aPCA;
+  }
+
+  reco::TransientTrack transTrk=transTrackBuilder->build(aTrack);
+  
+  AnalyticalImpactPointExtrapolator extrapolator(transTrk.field());
+  GlobalPoint pos  = extrapolator.extrapolate(transTrk.impactPointState(),aPoint).globalPosition();
+
+  aPCA.SetX(pos.x() - aPoint.x());
+  aPCA.SetY(pos.y() - aPoint.y());
+  aPCA.SetZ(pos.z() - aPoint.z());
+
+  return aPCA;
+}
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+
 
 // // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 // void HTauTauNtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -213,6 +213,29 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (DEBUG) cout << "   --> fromTau: 1, indexTau: " << genhelper::GetIndexInOutput(MothPtr, cands_) << endl;
         }
 
+
+	if(filtGenP.hasUserInt("tauGenDecayMode") &&
+	   (filtGenP.hasUserInt("ZMothIndex") || filtGenP.hasUserInt("HMothIndex") || filtGenP.hasUserInt("MSSMHMothIndex"))){
+
+	  TVector3 aPVGenPoint = TVector3(genPClone->vx(), genPClone->vy(), genPClone->vz());
+	  reco::GenParticleRefVector tauDaughters;
+	  genhelper::GetTausDaughters(*genPClone,tauDaughters,true,false);
+	  int detailedDecayMode = genhelper::getDetailedTauDecayMode(tauDaughters);
+	  filtGenP.addUserInt("tauGenDetailedDecayMode", detailedDecayMode);
+	  
+	  reco::GenParticleRef leadChParticleRef = genhelper::GetLeadChParticle(tauDaughters);
+
+	  TLorentzVector p4LeadingChParticle(leadChParticleRef->px(),
+					     leadChParticleRef->py(),
+					     leadChParticleRef->pz(),
+					     leadChParticleRef->energy());
+	  TVector3 tauDecayVertex(leadChParticleRef->vx(), leadChParticleRef->vy(), leadChParticleRef->vz());
+	  TVector3 pca = genhelper::ImpactParameter(aPVGenPoint, tauDecayVertex, p4LeadingChParticle);
+	  filtGenP.addUserFloat("pca_x",pca.X());
+	  filtGenP.addUserFloat("pca_y",pca.Y());
+	  filtGenP.addUserFloat("pca_z",pca.Z());
+	}
+
         result->push_back (filtGenP);
     }
 
@@ -222,24 +245,51 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (unsigned int iTauH = 0; iTauH < tauHadcandsMothers_.size(); iTauH++)
     {
         int tauMothInd = tauHadcandsMothers_.at(iTauH);
-        pat::GenericParticle tauH (genhelper::GetTauHad(cands_.at(tauMothInd)));       
+        pat::GenericParticle tauH (genhelper::GetTauHad(cands_.at(tauMothInd)));
+	pat::GenericParticle tauH_neutral (genhelper::GetTauHadNeutrals(cands_.at(tauMothInd)));
         tauH.addUserInt ("TauMothIndex", tauMothInd);
+	tauH_neutral.addUserInt ("TauMothIndex", tauMothInd);
         
         // copy all the other flags from original tau
         pat::GenericParticle& tauMothGenP = result->at(tauMothInd);
-        if (tauMothGenP.hasUserInt("HMothIndex") ) tauH.addUserInt ("HMothIndex", tauMothGenP.userInt ("HMothIndex"));
-        if (tauMothGenP.hasUserInt("MSSMHMothIndex") ) tauH.addUserInt ("MSSMHMothIndex", tauMothGenP.userInt ("MSSMHMothIndex"));
-        if (tauMothGenP.hasUserInt("TopMothIndex") ) tauH.addUserInt ("TopMothIndex", tauMothGenP.userInt ("TopMothIndex"));
-        if (tauMothGenP.hasUserInt("bMothIndex") ) tauH.addUserInt ("bMothIndex", tauMothGenP.userInt ("bMothIndex"));
-        if (tauMothGenP.hasUserInt("WMothIndex") ) tauH.addUserInt ("WMothIndex", tauMothGenP.userInt ("WMothIndex"));
-        if (tauMothGenP.hasUserInt("ZMothIndex") ) tauH.addUserInt ("ZMothIndex", tauMothGenP.userInt ("ZMothIndex"));
+        if (tauMothGenP.hasUserInt("HMothIndex") ){
+	  tauH.addUserInt ("HMothIndex", tauMothGenP.userInt ("HMothIndex"));
+	  tauH_neutral.addUserInt ("HMothIndex", tauMothGenP.userInt ("HMothIndex"));
+	}
+        if (tauMothGenP.hasUserInt("MSSMHMothIndex") ){
+	  tauH.addUserInt ("MSSMHMothIndex", tauMothGenP.userInt ("MSSMHMothIndex"));
+	  tauH_neutral.addUserInt ("MSSMHMothIndex", tauMothGenP.userInt ("MSSMHMothIndex"));
+	}
+        if (tauMothGenP.hasUserInt("TopMothIndex") ){
+	  tauH.addUserInt ("TopMothIndex", tauMothGenP.userInt ("TopMothIndex"));
+	  tauH_neutral.addUserInt ("TopMothIndex", tauMothGenP.userInt ("TopMothIndex"));
+	}
+        if (tauMothGenP.hasUserInt("bMothIndex") ){
+	  tauH.addUserInt ("bMothIndex", tauMothGenP.userInt ("bMothIndex"));
+	  tauH_neutral.addUserInt ("bMothIndex", tauMothGenP.userInt ("bMothIndex"));
+	}
+        if (tauMothGenP.hasUserInt("WMothIndex") ){
+	  tauH.addUserInt ("WMothIndex", tauMothGenP.userInt ("WMothIndex"));
+	  tauH_neutral.addUserInt ("WMothIndex", tauMothGenP.userInt ("WMothIndex"));
+	}
+        if (tauMothGenP.hasUserInt("ZMothIndex") ){
+	  tauH.addUserInt ("ZMothIndex", tauMothGenP.userInt ("ZMothIndex"));
+	  tauH_neutral.addUserInt ("ZMothIndex", tauMothGenP.userInt ("ZMothIndex"));
+	}
+
+	
         
         // many flags change of meaning w.r.t. mother tau, put everything to 0 (can be changed in future)
         int tauhFlags = 0;        
-        tauH.addUserInt ("generalGenFlags", tauhFlags); // remember! TauH inherits ALL the flags from 
+        tauH.addUserInt ("generalGenFlags", tauhFlags); // remember! TauH inherits ALL the flags from
+	tauH_neutral.addUserInt ("generalGenFlags", tauhFlags); // remember! TauH inherits ALL the flags from 
         
-        if (DEBUG) cout << " ++ " << iTauH << " id: " << tauH.pdgId() << " | pt: " << tauH.pt() << " | eta: " << tauH.eta() << endl;
+        if (DEBUG){
+	  cout << " ++ " << iTauH << " id: " << tauH.pdgId() << " | pt: " << tauH.pt() << " | eta: " << tauH.eta() << endl;
+	  cout << " ++ " << iTauH << " id: " << tauH_neutral.pdgId() << " | pt: " << tauH_neutral.pt() << " | eta: " << tauH_neutral.eta() << endl;
+	}
         result->push_back (tauH);
+	result->push_back (tauH_neutral);
     }        
     iEvent.put(result);
 }
