@@ -207,7 +207,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::MergeableCounter> thePassTag;
   edm::EDGetTokenT<LHEEventProduct> theLHEPTag;
   
-
   //flags
   //static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
@@ -245,6 +244,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _PUReweight;
   Float_t _rho;
   Int_t _nup;
+  Float_t _MC_weight_scale_muF0p5;
+  Float_t _MC_weight_scale_muF2;
+  Float_t _MC_weight_scale_muR0p5;
+  Float_t _MC_weight_scale_muR2;
   
   // pairs
   //std::vector<TLorentzVector> _mothers;
@@ -579,7 +582,6 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   thePassTag           (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("passCollection"))),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection")))
 
-
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
   theFSR = pset.getParameter<bool>("applyFSR");
@@ -871,6 +873,10 @@ void HTauTauNtuplizer::Initialize(){
   _PUReweight=0.;
   _rho=0;
   _nup=-999;
+  _MC_weight_scale_muF0p5=0.;
+  _MC_weight_scale_muF2=0.;
+  _MC_weight_scale_muR0p5=0.;
+  _MC_weight_scale_muR2=0.;
 
 //  _jets.clear();
   _jets_px.clear();
@@ -1004,6 +1010,10 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/I");  
     myTree->Branch("daughters_genindex",&_daughters_genindex);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
+    myTree->Branch("MC_weight_scale_muF0p5",&_MC_weight_scale_muF0p5,"MC_weight_scale_muF0p5/F");
+    myTree->Branch("MC_weight_scale_muF2",&_MC_weight_scale_muF2,"MC_weight_scale_muF2/F");
+    myTree->Branch("MC_weight_scale_muR0p5",&_MC_weight_scale_muR0p5,"MC_weight_scale_muR0p5/F");
+    myTree->Branch("MC_weight_scale_muR2",&_MC_weight_scale_muR2,"MC_weight_scale_muR2/F");
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("lheNOutPartons", &_lheNOutPartons, "lheNOutPartons/I");
     myTree->Branch("lheNOutB", &_lheNOutB, "lheNOutB/I");
@@ -1354,16 +1364,25 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   event.getByToken(thePFMETCovTag,covHandle);
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
+
+
   if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
-    event.getByToken(theLHETag,lheeventinfo);
+    event.getByToken(theLHEPTag,lheeventinfo);
     if (lheeventinfo.isValid()) {
       _nup=lheeventinfo->hepeup().NUP;
     }
+
     edm::Handle<GenEventInfoProduct> genEvt;
     event.getByToken(theGenTag,genEvt);
     _aMCatNLOweight=genEvt->weight();
     _MC_weight = _aMCatNLOweight; // duplicated
+
+    _MC_weight_scale_muF0p5 = _aMCatNLOweight*(lheeventinfo->weights()[2].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 0.5 | muR = 1
+    _MC_weight_scale_muF2 = _aMCatNLOweight*(lheeventinfo->weights()[1].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 2 | muR = 1
+    _MC_weight_scale_muR0p5 = _aMCatNLOweight*(lheeventinfo->weights()[6].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 0.5
+    _MC_weight_scale_muR2 = _aMCatNLOweight*(lheeventinfo->weights()[3].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 2
+
   }
 
   /*if (theUseNoHFPFMet) event.getByLabel("slimmedMETsNoHF",metHandle);
@@ -2178,9 +2197,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
       //check if the trigger object matches cand
       bool triggerType=false;
+
       if(deltaR2(obj,*cand)<0.25){
       
-      // cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
+	//cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
 
         if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
         if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
@@ -2189,7 +2209,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
         obj.unpackPathNames(names);
         std::vector<std::string> pathNamesAll  = obj.pathNames(false);
         std::vector<std::string> pathNamesLast = obj.pathNames(true);
+
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
+
           int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
           if (triggerbit < 0) continue ; // not a path I want to save
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
@@ -2202,6 +2224,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           else if (type==ParticleType::MUON) IDsearch = 13;
           else if(type==ParticleType::TAU) IDsearch = 15;
           int legPosition = trgmap.GetLegFromID(IDsearch);
+
           if (legPosition == 1)
           {
             for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
@@ -2544,7 +2567,7 @@ void HTauTauNtuplizer::endJob(){
 
 
 void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
-  
+
   Bool_t changedConfig = false;
  
   //if(!hltConfig_.init(iRun, iSetup, triggerResultsLabel.process(), changedConfig)){
