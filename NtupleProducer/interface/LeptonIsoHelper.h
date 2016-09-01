@@ -37,7 +37,7 @@ namespace LeptonIsoHelper {
   edm::InputTag getEleRhoTag(int sampleType, int setup);
   
   /// Compute combRelIsoPF for a mu
-  float combRelIsoPF(int sampleType, int setup, double rho, const pat::Muon& mu, float fsr=0);
+  float combRelIsoPF(int sampleType, int setup, double rho, const pat::Muon& mu, bool dr03=false, float fsr=0);
   
   /// Compute combRelIsoPF for a tau
   float combRelIsoPF(const pat::Tau& mu);

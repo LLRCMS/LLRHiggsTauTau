@@ -115,6 +115,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float PFPhotonIso       = l.photonIso();
     
     float combRelIsoPF = LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, l);
+    float combRelIsoPF03 = LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, l, true);
     //--- SIP, dxy, dz
     float IP      = std::abs(l.dB(pat::Muon::PV3D));
     float IPError = l.edB(pat::Muon::PV3D);
@@ -151,6 +152,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
     l.addUserFloat("PFPhotonIso",PFPhotonIso);
     l.addUserFloat("combRelIsoPF",combRelIsoPF);
+    l.addUserFloat("combRelIsoPF03",combRelIsoPF03);
     l.addUserFloat("rho",rho);
     l.addUserFloat("DepositR03TrackerOfficial",l.isolationR03().sumPt);
     l.addUserFloat("DepositR03ECal",l.isolationR03().emEt);

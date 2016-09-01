@@ -381,6 +381,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _pdgdau;
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
   std::vector<Float_t> _combreliso;
+  std::vector<Float_t> _combreliso03;
   std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, 
   std::vector<Int_t> _daughters_muonID; //bitwise (bit 0 loose, 1 soft , 2 medium, 3 tight, 4 highPT 5 tight_noVtx)
   std::vector<Int_t> _daughters_typeOfMuon; //bitwise, 0=PF, 1=Global, 2=Tracker
@@ -849,6 +850,7 @@ void HTauTauNtuplizer::Initialize(){
   _decayType.clear();
   _daughters_tauID.clear();
   _combreliso.clear();
+  _combreliso03.clear();
   _indexevents=0;
   _runNumber=0;
   _lumi=0;
@@ -1124,6 +1126,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
+  myTree->Branch("combreliso03",& _combreliso03);
   myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
   myTree->Branch("daughters_hOverE",&_daughters_hOverE);
   myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
@@ -1961,6 +1964,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
     _softLeptons.push_back(cand);//This is needed also for FindCandIndex
     _pdgdau.push_back(cand->pdgId());
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
+    _combreliso03.push_back( userdatahelpers::hasUserFloat(cand,"combRelIsoPF03") ? userdatahelpers::getUserFloat(cand,"combRelIsoPF03") : -1 );
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
     //_SIP.push_back(userdatahelpers::getUserFloat(cand,"SIP"));
