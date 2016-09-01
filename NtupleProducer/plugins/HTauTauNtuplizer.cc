@@ -1335,7 +1335,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     //else cout << "LHE product not found" << endl;
   }
   
-  _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
+  _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath,triggerBits);
   _metfilterbit = myTriggerHelper->FindMETBit(event, metFilterBits_);
   Long64_t tbit = _triggerbit;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
@@ -1874,6 +1874,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
   edm::Handle<vector<l1extra::L1JetParticle>> L1ExtraIsoTau;
   event.getByToken(l1ExtraIsoTau_, L1ExtraIsoTau);
 
+
   edm::Handle<edm::View<pat::PackedCandidate> >pfCandHandle;
   event.getByToken(thePFCandTag,pfCandHandle);
   const edm::View<pat::PackedCandidate>* pfCands = pfCandHandle.product();
@@ -2318,17 +2319,22 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
 
     // L1 candidate matching -- to correct for the missing seed
     bool isL1IsoTauMatched = false;
-    for (unsigned int iL1IsoTau = 0; iL1IsoTau < L1ExtraIsoTau->size(); iL1IsoTau++)
-    {
-      const l1extra::L1JetParticle& L1IsoTau = (*L1ExtraIsoTau).at(iL1IsoTau);
-      //cout << "IL1TauL: " << iL1IsoTau << " - " << L1IsoTau.pt() << " " << L1IsoTau.eta() << " " << L1IsoTau.phi() << " " << isL1IsoTauMatched << endl;
-      // 0.5 cone match + pT requirement as in data taking
-      if(L1IsoTau.pt() > 28 && deltaR2(L1IsoTau,*cand)<0.25)
-      {
-        isL1IsoTauMatched = true;
-        break;
-      }
+
+    if(L1ExtraIsoTau.isValid()){
+
+      for (unsigned int iL1IsoTau = 0; iL1IsoTau < L1ExtraIsoTau->size(); iL1IsoTau++)
+	{
+	  const l1extra::L1JetParticle& L1IsoTau = (*L1ExtraIsoTau).at(iL1IsoTau);
+	  //cout << "IL1TauL: " << iL1IsoTau << " - " << L1IsoTau.pt() << " " << L1IsoTau.eta() << " " << L1IsoTau.phi() << " " << isL1IsoTauMatched << endl;
+	  // 0.5 cone match + pT requirement as in data taking
+	  if(L1IsoTau.pt() > 28 && deltaR2(L1IsoTau,*cand)<0.25)
+	    {
+	      isL1IsoTauMatched = true;
+	      break;
+	    }
+	}
     }
+
     _daughters_isL1IsoTau28Matched.push_back(isL1IsoTauMatched) ;
 
   }
