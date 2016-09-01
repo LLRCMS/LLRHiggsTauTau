@@ -35,6 +35,10 @@ try: APPLYMETCORR
 except NameError:
     APPLYMETCORR=True
 
+try: HLTProcessName
+except NameError:
+    HLTProcessName='HLT'
+
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
@@ -42,7 +46,8 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_miniAODv2'
+    #process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_miniAODv2' #MiniAODv1
+    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_miniAODv2_v1' #MiniAODv2
 else :
     process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v8'
 print process.GlobalTag.globaltag
@@ -80,7 +85,7 @@ process.nEventsPassTrigger = cms.EDProducer("EventCountProducer") # these names 
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 
 process.hltFilter = hlt.hltHighLevel.clone(
-    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+    TriggerResultsTag = cms.InputTag("TriggerResults","",HLTProcessName),
     HLTPaths = TRIGGERLIST,
     andOr = cms.bool(True), # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
     throw = cms.bool(False) #if True: throws exception if a trigger path is invalid  
@@ -709,7 +714,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       totCollection = cms.InputTag("nEventsTotal"),
                       passCollection = cms.InputTag("nEventsPassTrigger"),
                       lhepCollection = cms.InputTag("externalLHEProducer"),
-                      triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
+                      triggerResultsLabel = cms.InputTag("TriggerResults", "", HLTProcessName), #Different names for MiniAODv2 at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.                      
                       triggerSet = cms.InputTag("selectedPatTrigger"),
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),

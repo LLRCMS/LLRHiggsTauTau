@@ -1442,7 +1442,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     //else cout << "LHE product not found" << endl;
   }
   
-  _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath);
+  _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath,triggerBits_);
   _metfilterbit = myTriggerHelper->FindMETBit(event, metFilterBits_);
   Long64_t tbit = _triggerbit;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {

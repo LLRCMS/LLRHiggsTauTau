@@ -35,6 +35,10 @@ try: APPLYMETCORR
 except NameError:
     APPLYMETCORR=True
 
+try: HLTProcessName
+except NameError:
+    HLTProcessName='HLT'
+
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
@@ -80,7 +84,7 @@ process.nEventsPassTrigger = cms.EDProducer("EventCountProducer") # these names 
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 
 process.hltFilter = hlt.hltHighLevel.clone(
-    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+    TriggerResultsTag = cms.InputTag("TriggerResults","",HLTProcessName),
     HLTPaths = TRIGGERLIST,
     andOr = cms.bool(True), # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
     throw = cms.bool(False) #if True: throws exception if a trigger path is invalid  
@@ -711,7 +715,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       totCollection = cms.InputTag("nEventsTotal"),
                       passCollection = cms.InputTag("nEventsPassTrigger"),
                       lhepCollection = cms.InputTag("externalLHEProducer"),
-                      triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
+                      triggerResultsLabel = cms.InputTag("TriggerResults", "", HLTProcessName),
                       triggerSet = cms.InputTag("selectedPatTrigger"),
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),

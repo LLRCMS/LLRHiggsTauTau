@@ -30,6 +30,10 @@ COMPUTEUPDOWNSVFIT = True # compute SVfit for up/down TES variation
 
 IsMC=False
 Is25ns=True
+HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.
+if not IsMC:
+    HLTProcessName='HLT' #It always 'HLT' for real data
+print "HLTProcessName: ",HLTProcessName
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
