@@ -2250,10 +2250,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           else isfilterGood = false;
 
           //_isFilterFiredLast;
-          if(isfilterGood)filterFired |= 1 <<triggerbit;
-          if(triggerType) triggertypeIsGood |= 1 << triggerbit;
-          if(isLF)LFtriggerbit |= 1 <<triggerbit;
-          if(isL3)L3triggerbit |= 1 <<triggerbit;
+          if(isfilterGood)filterFired |= long(1) <<triggerbit;
+          if(triggerType) triggertypeIsGood |= long(1) << triggerbit;
+          if(isLF)LFtriggerbit |= long(1) <<triggerbit;
+          if(isL3)L3triggerbit |= long(1) <<triggerbit;
         } // loop on all trigger paths
 
         // -------------- now do matching "filter-wise" to do x-check
@@ -2297,7 +2297,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus, c
           }
           else istrgMatched = false;
           // FIXME: should I check type? --> no, multiple filters should be enough
-          if(istrgMatched) trgMatched |= (1 <<triggerbit);
+          if(istrgMatched) trgMatched |= (long(1) <<triggerbit);
 
           // cout << "istrgMatched ? " << istrgMatched << endl;
 
