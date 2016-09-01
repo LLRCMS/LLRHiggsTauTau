@@ -44,7 +44,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if IsMC:
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_miniAODv2_v1'
 else :
-    process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v8'
+    process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0'
 print process.GlobalTag.globaltag
 
 nanosec="25"
