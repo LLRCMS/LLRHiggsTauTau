@@ -652,7 +652,7 @@ if IsMC and APPLYMETCORR:
             srcMEt = cms.InputTag("MVAMET", "MVAMET"),
             srcGenParticles = cms.InputTag("prunedGenParticles"),
             srcJets = cms.InputTag("selJetsForZrecoilCorrection"),
-            correction = cms.string("HTT-utilities/RecoilCorrections/data/recoilMvaMEt_76X_newTraining_MG5.root")
+            correction = cms.string("HTT-utilities/RecoilCorrections/data/MvaMET_MG_2016BCD.root")
         )
         process.METSequence += process.selJetsForZrecoilCorrection        
         process.METSequence += process.corrMVAMET
