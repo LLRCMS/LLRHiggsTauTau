@@ -151,6 +151,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byIsolationMVA3oldDMwoLTraw",
     "byIsolationMVA3oldDMwLTraw",
     "byIsolationMVA3newDMwoLTraw",
+    "byIsolationMVArun2v1DBoldDMwLTraw",
     "againstElectronMVA5raw",
     "byPhotonPtSumOutsideSignalCone",
     "byPileupWeightedIsolationRaw3Hits",
