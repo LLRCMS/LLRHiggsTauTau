@@ -11,6 +11,9 @@ ELECORRTYPE=APPLYELECORR
 try: IsMC
 except NameError:
     IsMC=True
+try: doCPVariables
+except NameError:
+    doCPVariables=True    
 try: LEPTON_SETUP
 except NameError:
     LEPTON_SETUP=2012
@@ -699,6 +702,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
+                      doCPVariables = cms.bool(doCPVariables),
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
                       puCollection = cms.InputTag("slimmedAddPileupInfo"),
                       rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),

@@ -119,7 +119,6 @@
    bool writeJets = true;     // Write jets in the tree. 
    bool writeFatJets = true;
    bool writeSoftLep = false;
-   bool doPVRefit = true;
    bool DEBUG = false;
  }
 
@@ -179,6 +178,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   TString theFileName;
   bool theFSR;
   Bool_t theisMC;
+  Bool_t doCPVariables;
   string theJECName;
   // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
@@ -635,6 +635,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theFileName = pset.getUntrackedParameter<string>("fileName");
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
+  doCPVariables = pset.getParameter<bool>("doCPVariables");
   theJECName = pset.getUntrackedParameter<string>("JECset");
   // theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
@@ -1056,15 +1057,17 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_e",&_daughters_e);
   myTree->Branch("daughters_charge",&_daughters_charge);
 
-  myTree->Branch("daughters_charged_px",&_daughters_charged_px);
-  myTree->Branch("daughters_charged_py",&_daughters_charged_py);
-  myTree->Branch("daughters_charged_pz",&_daughters_charged_pz);
-  myTree->Branch("daughters_charged_e",&_daughters_charged_e);
-
-  myTree->Branch("daughters_neutral_px",&_daughters_neutral_px);
-  myTree->Branch("daughters_neutral_py",&_daughters_neutral_py);
-  myTree->Branch("daughters_neutral_pz",&_daughters_neutral_pz);
-  myTree->Branch("daughters_neutral_e",&_daughters_neutral_e);
+  if(doCPVariables){
+    myTree->Branch("daughters_charged_px",&_daughters_charged_px);
+    myTree->Branch("daughters_charged_py",&_daughters_charged_py);
+    myTree->Branch("daughters_charged_pz",&_daughters_charged_pz);
+    myTree->Branch("daughters_charged_e",&_daughters_charged_e);
+    
+    myTree->Branch("daughters_neutral_px",&_daughters_neutral_px);
+    myTree->Branch("daughters_neutral_py",&_daughters_neutral_py);
+    myTree->Branch("daughters_neutral_pz",&_daughters_neutral_pz);
+    myTree->Branch("daughters_neutral_e",&_daughters_neutral_e);
+  }
 
   myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
   myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
@@ -1102,9 +1105,11 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genpart_py", &_genpart_py);
     myTree->Branch("genpart_pz", &_genpart_pz);
     myTree->Branch("genpart_e", &_genpart_e);
-    myTree->Branch("genpart_pca_x",&_genpart_pca_x);
-    myTree->Branch("genpart_pca_y",&_genpart_pca_y);
-    myTree->Branch("genpart_pca_z",&_genpart_pca_z);
+    if(doCPVariables){
+      myTree->Branch("genpart_pca_x",&_genpart_pca_x);
+      myTree->Branch("genpart_pca_y",&_genpart_pca_y);
+      myTree->Branch("genpart_pca_z",&_genpart_pca_z);
+    }
     myTree->Branch("genpart_pdg", &_genpart_pdg);
     myTree->Branch("genpart_status", &_genpart_status);
     //myTree->Branch("genpart_mothInd", _genpart_mothInd);
@@ -1263,16 +1268,17 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_jetPtRatio",&_daughters_jetPtRatio);
   myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
   myTree->Branch("daughters_lepMVA_mvaId",&_daughters_lepMVA_mvaId);
-
-  myTree->Branch("daughters_pca_x",&_daughters_pca_x);
-  myTree->Branch("daughters_pca_y",&_daughters_pca_y);
-  myTree->Branch("daughters_pca_z",&_daughters_pca_z);
-  myTree->Branch("daughters_pcaRefitPV_x",&_daughters_pcaRefitPV_x);
-  myTree->Branch("daughters_pcaRefitPV_y",&_daughters_pcaRefitPV_y);
-  myTree->Branch("daughters_pcaRefitPV_z",&_daughters_pcaRefitPV_z);
-  myTree->Branch("daughters_pcaGenPV_x",&_daughters_pcaGenPV_x);
-  myTree->Branch("daughters_pcaGenPV_y",&_daughters_pcaGenPV_y);
-  myTree->Branch("daughters_pcaGenPV_z",&_daughters_pcaGenPV_z);
+  if(doCPVariables){
+    myTree->Branch("daughters_pca_x",&_daughters_pca_x);
+    myTree->Branch("daughters_pca_y",&_daughters_pca_y);
+    myTree->Branch("daughters_pca_z",&_daughters_pca_z);
+    myTree->Branch("daughters_pcaRefitPV_x",&_daughters_pcaRefitPV_x);
+    myTree->Branch("daughters_pcaRefitPV_y",&_daughters_pcaRefitPV_y);
+    myTree->Branch("daughters_pcaRefitPV_z",&_daughters_pcaRefitPV_z);
+    myTree->Branch("daughters_pcaGenPV_x",&_daughters_pcaGenPV_x);
+    myTree->Branch("daughters_pcaGenPV_y",&_daughters_pcaGenPV_y);
+    myTree->Branch("daughters_pcaGenPV_z",&_daughters_pcaGenPV_z);
+  }
 
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_px",&_jets_px);
@@ -2999,7 +3005,7 @@ TVector3 HTauTauNtuplizer::getPCA(const edm::Event & iEvent, const edm::EventSet
 				  const reco::Track *aTrack,	   
 				  const GlobalPoint & aPoint){
   TVector3 aPCA;
-  if(!doPVRefit || !aTrack ||  _npv==0 || aTrack->pt()<2) return aPCA;
+  if(!doCPVariables || !aTrack ||  _npv==0 || aTrack->pt()<2) return aPCA;
 
   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
