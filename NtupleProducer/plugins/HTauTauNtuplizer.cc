@@ -277,10 +277,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<TLorentzVector> _daughters;
   std::vector<string> _trigger_name;
   std::vector<Int_t> _trigger_accept;
-  std::vector<Float_t> _daughters_px;
-  std::vector<Float_t> _daughters_py;
-  std::vector<Float_t> _daughters_pz;
-  std::vector<Float_t> _daughters_e;
+  std::vector<Double_t> _daughters_px;
+  std::vector<Double_t> _daughters_py;
+  std::vector<Double_t> _daughters_pz;
+  std::vector<Double_t> _daughters_e;
   
   std::vector<Float_t> _daughters_charged_px;
   std::vector<Float_t> _daughters_charged_py;
@@ -2043,10 +2043,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       }
     } 
     
-    _daughters_px.push_back( (float) pfour.X());
-    _daughters_py.push_back( (float) pfour.Y());
-    _daughters_pz.push_back( (float) pfour.Z());
-    _daughters_e.push_back( (float) pfour.T());
+    _daughters_px.push_back( pfour.X());
+    _daughters_py.push_back( pfour.Y());
+    _daughters_pz.push_back( pfour.Z());
+    _daughters_e.push_back(  pfour.T());
 
     _daughters_TauUpExists.push_back( (existUp ? hasUp : 0) );
     _daughters_px_TauUp.push_back((float)pfourTauUp.Px());
