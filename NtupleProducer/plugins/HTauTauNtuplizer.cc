@@ -2821,8 +2821,6 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   if(CompareLegs(j.daughter(0),j.daughter(1)))cand1j=0;
   else cand1j=1;
 
-  std::cout<<"is Leg1 muon?: "<<i.daughter(cand1i)->isMuon()<<" "<<i.daughter(cand1j)->isMuon()<<std::endl;
-
   //step 1, leg 1 ISO
   //byIsolationMVArun2v1DBoldDMwLTraw
   isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"combRelIsoPF");
