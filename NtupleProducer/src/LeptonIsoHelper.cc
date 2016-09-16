@@ -97,11 +97,11 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
 
   } else if (correctionType==2) {
     //return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - fsr - 0.5*PFPUChargedHadIso))/l.pt();
-    return (l.pfIsolationR03().sumChargedHadronPt + max(
-           l.pfIsolationR03().sumNeutralHadronEt +
-           l.pfIsolationR03().sumPhotonEt - 
-           0.5 * l.pfIsolationR03().sumPUPt, 0.0)) / l.pt();
-  }
+    return (l.pfIsolationR04().sumChargedHadronPt + max(
+           l.pfIsolationR04().sumNeutralHadronEt +
+           l.pfIsolationR04().sumPhotonEt - 
+           0.5 * l.pfIsolationR04().sumPUPt, 0.0)) / l.pt();
+  }  
   return 0;
 }
 

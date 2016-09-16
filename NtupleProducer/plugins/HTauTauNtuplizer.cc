@@ -1718,14 +1718,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       _mTDau2.push_back (mT1);
     }
 
-    std::cout<<" leg1 pt: "<<cand.daughter(0)->p4().pt()
-	     <<" eta: "<<cand.daughter(0)->p4().eta()
-	     <<" pdgId: "<<cand.daughter(0)->pdgId()
-	     <<" leg2 pt: "<<cand.daughter(1)->p4().pt()
-	     <<" eta: "<<cand.daughter(1)->p4().eta()	     
-	     <<" pdgId: "<<cand.daughter(1)->pdgId()
-	     <<std::endl;
-
     // do not read pair charge: sometimes taus have charge +/- 3 and this spoils the pair charge
     //if(fabs(cand.charge())>0.5)_isOSCand.push_back(false);
     //else _isOSCand.push_back(true);
@@ -2829,8 +2821,10 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   if(CompareLegs(j.daughter(0),j.daughter(1)))cand1j=0;
   else cand1j=1;
 
-  //step 1, l;eg 1 ISO
-  //byCombinedIsolationDeltaBetaCorrRaw3Hits
+  std::cout<<"is Leg1 muon?: "<<i.daughter(cand1i)->isMuon()<<" "<<i.daughter(cand1j)->isMuon()<<std::endl;
+
+  //step 1, leg 1 ISO
+  //byIsolationMVArun2v1DBoldDMwLTraw
   isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"combRelIsoPF");
   if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
