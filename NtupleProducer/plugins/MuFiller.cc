@@ -20,6 +20,13 @@
 #include <Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
+
 #include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/CutSet.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/LeptonIsoHelper.h>
@@ -126,6 +133,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float dxy_innerTrack = 999.;
     float dz_innerTrack  = 999.;
     const Vertex* vertex = 0;
+
     if (vertexs->size()>0) {
       vertex = &(vertexs->front());
       dxy = (l.muonBestTrack()->dxy(vertex->position()));
@@ -272,7 +280,6 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   iEvent.put(result);
 }
-
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 DEFINE_FWK_MODULE(MuFiller);

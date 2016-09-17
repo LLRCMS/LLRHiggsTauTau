@@ -11,6 +11,9 @@ ELECORRTYPE=APPLYELECORR
 try: IsMC
 except NameError:
     IsMC=True
+try: doCPVariables
+except NameError:
+    doCPVariables=True    
 try: LEPTON_SETUP
 except NameError:
     LEPTON_SETUP=2012
@@ -34,6 +37,10 @@ if USE_NOHFMET: PFMetName = "slimmedMETsNoHF"
 try: APPLYMETCORR
 except NameError:
     APPLYMETCORR=True
+
+try: HLTProcessName
+except NameError:
+    HLTProcessName='HLT'
 
 ### ----------------------------------------------------------------------
 ### Set the GT
@@ -80,7 +87,7 @@ process.nEventsPassTrigger = cms.EDProducer("EventCountProducer") # these names 
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 
 process.hltFilter = hlt.hltHighLevel.clone(
-    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+    TriggerResultsTag = cms.InputTag("TriggerResults","",HLTProcessName),
     HLTPaths = TRIGGERLIST,
     andOr = cms.bool(True), # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
     throw = cms.bool(False) #if True: throws exception if a trigger path is invalid  
@@ -695,6 +702,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
+                      doCPVariables = cms.bool(doCPVariables),
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
                       puCollection = cms.InputTag("slimmedAddPileupInfo"),
                       rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
@@ -711,7 +719,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       totCollection = cms.InputTag("nEventsTotal"),
                       passCollection = cms.InputTag("nEventsPassTrigger"),
                       lhepCollection = cms.InputTag("externalLHEProducer"),
-                      triggerResultsLabel = cms.InputTag("TriggerResults", "", "HLT"),
+                      triggerResultsLabel = cms.InputTag("TriggerResults", "", HLTProcessName),
                       triggerSet = cms.InputTag("selectedPatTrigger"),
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
@@ -719,7 +727,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       srcPFMETCov = cms.InputTag("METSignificance", "METCovariance"),
                       srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
-                      HT = cms.InputTag("externalLHEProducer")
+                      HT = cms.InputTag("externalLHEProducer"),
+                      beamSpot = cms.InputTag("offlineBeamSpot")               
                       )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
