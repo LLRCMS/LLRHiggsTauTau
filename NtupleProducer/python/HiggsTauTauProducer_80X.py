@@ -531,33 +531,34 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 #
 
 # # add latest pileup jet ID
-# process.load("RecoJets.JetProducers.PileupJetID_cfi")
-# process.pileupJetIdUpdated = process.pileupJetId.clone(
-#   jets = cms.InputTag("slimmedJets"),
-#   inputIsCorrected = True,
-#   applyJec = True,
-#   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-# )
+process.load("RecoJets.JetProducers.PileupJetID_cfi")
+process.pileupJetIdUpdated = process.pileupJetId.clone(
+   jets = cms.InputTag("slimmedJets"),
+   inputIsCorrected = True,
+   applyJec = True,
+   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+)
 #print process.pileupJetIdUpdated.dumpConfig()
 
 # # apply new jet energy corrections
-# from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-# jecLevels = None
-# if IsMC:
-#     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
-# else:
-#     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
-# process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-#     src = cms.InputTag("slimmedJets"),
-#     levels = jecLevels,
-#     payload = 'AK4PFchs' # Make sure to choose the appropriate levels and payload here!
-# )
-# from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-# process.patJetsReapplyJEC = patJetsUpdated.clone(
-#     jetSource = cms.InputTag("slimmedJets"),
-#     jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
-# )
-# process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
+jecLevels = None
+if IsMC:
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
+else:
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
+process.patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
+    src = cms.InputTag("slimmedJets"),
+    levels = jecLevels,
+    payload = 'AK4PFchs' # Make sure to choose the appropriate levels and payload here!
+)
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
+process.patJetsReapplyJEC = updatedPatJets.clone(
+    jetSource = cms.InputTag("slimmedJets"),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+)
+#process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+
 
 process.jets = cms.EDFilter("PATJetRefSelector",
     src = cms.InputTag("slimmedJets"),
@@ -767,7 +768,7 @@ process.Candidates = cms.Sequence(
     process.taus              + 
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-    # process.pileupJetIdUpdated + process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets +
+    #process.pileupJetIdUpdated + process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets + #enabled by AK
     process.jets              +
     process.METSequence       +
     process.geninfo           +
