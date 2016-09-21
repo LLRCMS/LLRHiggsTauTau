@@ -260,7 +260,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _PUReweight;
   Float_t _rho;
   Int_t _nup;
-
+  Float_t _MC_weight_scale_muF0p5;
+  Float_t _MC_weight_scale_muF2;
+  Float_t _MC_weight_scale_muR0p5;
+  Float_t _MC_weight_scale_muR2;
   Float_t _pv_x=0, _pv_y=0, _pv_z=0;
   Float_t _pvGen_x=0, _pvGen_y=0, _pvGen_z=0;
   Float_t _pvRefit_x=0, _pvRefit_y=0, _pvRefit_z=0;
@@ -415,6 +418,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _pdgdau;
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
   std::vector<Float_t> _combreliso;
+  std::vector<Float_t> _combreliso03;
   std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, 
   std::vector<Int_t> _daughters_muonID; //bitwise (bit 0 loose, 1 soft , 2 medium, 3 tight, 4 highPT 5 tight_noVtx)
   std::vector<Int_t> _daughters_typeOfMuon; //bitwise, 0=PF, 1=Global, 2=Tracker
@@ -630,7 +634,6 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   thePassTag           (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("passCollection"))),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection"))),
   beamSpotTag          (consumes<reco::BeamSpot>                         (pset.getParameter<edm::InputTag>("beamSpot")))
-
 
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
@@ -930,6 +933,7 @@ void HTauTauNtuplizer::Initialize(){
   _decayType.clear();
   _daughters_tauID.clear();
   _combreliso.clear();
+  _combreliso03.clear();
   _indexevents=0;
   _runNumber=0;
   _lumi=0;
@@ -954,6 +958,10 @@ void HTauTauNtuplizer::Initialize(){
   _PUReweight=0.;
   _rho=0;
   _nup=-999;
+  _MC_weight_scale_muF0p5=0.;
+  _MC_weight_scale_muF2=0.;
+  _MC_weight_scale_muR0p5=0.;
+  _MC_weight_scale_muR2=0.;
 
 //  _jets.clear();
   _jets_px.clear();
@@ -1099,6 +1107,10 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/I");  
     myTree->Branch("daughters_genindex",&_daughters_genindex);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
+    myTree->Branch("MC_weight_scale_muF0p5",&_MC_weight_scale_muF0p5,"MC_weight_scale_muF0p5/F");
+    myTree->Branch("MC_weight_scale_muF2",&_MC_weight_scale_muF2,"MC_weight_scale_muF2/F");
+    myTree->Branch("MC_weight_scale_muR0p5",&_MC_weight_scale_muR0p5,"MC_weight_scale_muR0p5/F");
+    myTree->Branch("MC_weight_scale_muR2",&_MC_weight_scale_muR2,"MC_weight_scale_muR2/F");
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("lheNOutPartons", &_lheNOutPartons, "lheNOutPartons/I");
     myTree->Branch("lheNOutB", &_lheNOutB, "lheNOutB/I");
@@ -1215,6 +1227,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
+  myTree->Branch("combreliso03",& _combreliso03);
   myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
   myTree->Branch("daughters_hOverE",&_daughters_hOverE);
   myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
@@ -1451,7 +1464,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     //else cout << "LHE product not found" << endl;
   }
   
-  _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath,triggerBits_);
+  _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath,triggerBits);
   _metfilterbit = myTriggerHelper->FindMETBit(event, metFilterBits_);
   Long64_t tbit = _triggerbit;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
@@ -1483,16 +1496,28 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   event.getByToken(thePFMETCovTag,covHandle);
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
+
+
   if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
-    event.getByToken(theLHETag,lheeventinfo);
-    if (lheeventinfo.isValid()) {
-      _nup=lheeventinfo->hepeup().NUP;
-    }
+    event.getByToken(theLHEPTag,lheeventinfo);
+
     edm::Handle<GenEventInfoProduct> genEvt;
     event.getByToken(theGenTag,genEvt);
     _aMCatNLOweight=genEvt->weight();
     _MC_weight = _aMCatNLOweight; // duplicated
+
+    if (lheeventinfo.isValid()) {
+      _nup=lheeventinfo->hepeup().NUP;
+      if (lheeventinfo->weights().size() > 6) // access weights only if weights() is filled
+      {
+        _MC_weight_scale_muF0p5 = _aMCatNLOweight*(lheeventinfo->weights()[2].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 0.5 | muR = 1
+        _MC_weight_scale_muF2 = _aMCatNLOweight*(lheeventinfo->weights()[1].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 2 | muR = 1
+        _MC_weight_scale_muR0p5 = _aMCatNLOweight*(lheeventinfo->weights()[6].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 0.5
+        _MC_weight_scale_muR2 = _aMCatNLOweight*(lheeventinfo->weights()[3].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 2
+      }
+    }
+
   }
 
   /*if (theUseNoHFPFMet) event.getByLabel("slimmedMETsNoHF",metHandle);
@@ -1980,6 +2005,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
   edm::Handle<vector<l1extra::L1JetParticle>> L1ExtraIsoTau;
   event.getByToken(l1ExtraIsoTau_, L1ExtraIsoTau);
 
+
   edm::Handle<edm::View<pat::PackedCandidate> >pfCandHandle;
   event.getByToken(thePFCandTag,pfCandHandle);
   const edm::View<pat::PackedCandidate>* pfCands = pfCandHandle.product();
@@ -2077,6 +2103,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _softLeptons.push_back(cand);//This is needed also for FindCandIndex
     _pdgdau.push_back(cand->pdgId());
     _combreliso.push_back(userdatahelpers::getUserFloat(cand,"combRelIsoPF"));
+    _combreliso03.push_back( userdatahelpers::hasUserFloat(cand,"combRelIsoPF03") ? userdatahelpers::getUserFloat(cand,"combRelIsoPF03") : -1 );
     _dxy.push_back(userdatahelpers::getUserFloat(cand,"dxy"));
     _dz.push_back(userdatahelpers::getUserFloat(cand,"dz"));
     //_SIP.push_back(userdatahelpers::getUserFloat(cand,"SIP"));
@@ -2358,9 +2385,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
       //check if the trigger object matches cand
       bool triggerType=false;
+
       if(deltaR2(obj,*cand)<0.25){
       
-      // cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
+	//cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
 
         if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
         if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
@@ -2369,7 +2397,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
         obj.unpackPathNames(names);
         std::vector<std::string> pathNamesAll  = obj.pathNames(false);
         std::vector<std::string> pathNamesLast = obj.pathNames(true);
+
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h) {
+
           int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
           if (triggerbit < 0) continue ; // not a path I want to save
           bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
@@ -2382,6 +2412,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           else if (type==ParticleType::MUON) IDsearch = 13;
           else if(type==ParticleType::TAU) IDsearch = 15;
           int legPosition = trgmap.GetLegFromID(IDsearch);
+
           if (legPosition == 1)
           {
             for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
@@ -2403,10 +2434,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           else isfilterGood = false;
 
           //_isFilterFiredLast;
-          if(isfilterGood)filterFired |= 1 <<triggerbit;
-          if(triggerType) triggertypeIsGood |= 1 << triggerbit;
-          if(isLF)LFtriggerbit |= 1 <<triggerbit;
-          if(isL3)L3triggerbit |= 1 <<triggerbit;
+          if(isfilterGood)filterFired |= long(1) <<triggerbit;
+          if(triggerType) triggertypeIsGood |= long(1) << triggerbit;
+          if(isLF)LFtriggerbit |= long(1) <<triggerbit;
+          if(isL3)L3triggerbit |= long(1) <<triggerbit;
         } // loop on all trigger paths
 
         // -------------- now do matching "filter-wise" to do x-check
@@ -2450,7 +2481,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           }
           else istrgMatched = false;
           // FIXME: should I check type? --> no, multiple filters should be enough
-          if(istrgMatched) trgMatched |= (1 <<triggerbit);
+          if(istrgMatched) trgMatched |= (long(1) <<triggerbit);
 
           // cout << "istrgMatched ? " << istrgMatched << endl;
 
@@ -2468,18 +2499,18 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     // L1 candidate matching -- to correct for the missing seed
     bool isL1IsoTauMatched = false;
-    if(L1ExtraIsoTau.isValid() ){
+    if(L1ExtraIsoTau.isValid()){
       for (unsigned int iL1IsoTau = 0; iL1IsoTau < L1ExtraIsoTau->size(); iL1IsoTau++)
-	{
-	  const l1extra::L1JetParticle& L1IsoTau = (*L1ExtraIsoTau).at(iL1IsoTau);
-	  //cout << "IL1TauL: " << iL1IsoTau << " - " << L1IsoTau.pt() << " " << L1IsoTau.eta() << " " << L1IsoTau.phi() << " " << isL1IsoTauMatched << endl;
-	  // 0.5 cone match + pT requirement as in data taking
-	  if(L1IsoTau.pt() > 28 && deltaR2(L1IsoTau,*cand)<0.25)
-	    {
-	      isL1IsoTauMatched = true;
-	      break;
-	    }
-	}
+      {
+        const l1extra::L1JetParticle& L1IsoTau = (*L1ExtraIsoTau).at(iL1IsoTau);
+        //cout << "IL1TauL: " << iL1IsoTau << " - " << L1IsoTau.pt() << " " << L1IsoTau.eta() << " " << L1IsoTau.phi() << " " << isL1IsoTauMatched << endl;
+        // 0.5 cone match + pT requirement as in data taking
+        if(L1IsoTau.pt() > 28 && deltaR2(L1IsoTau,*cand)<0.25)
+          {
+            isL1IsoTauMatched = true;
+            break;
+          }
+      }
     }
     _daughters_isL1IsoTau28Matched.push_back(isL1IsoTauMatched) ;
 
@@ -2742,7 +2773,7 @@ void HTauTauNtuplizer::endJob(){
 
 
 void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
-  
+
   Bool_t changedConfig = false;
  
   //if(!hltConfig_.init(iRun, iSetup, triggerResultsLabel.process(), changedConfig)){
@@ -2827,8 +2858,8 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   //should pick candidates with max value. Get that by using -iso_val for taus.
   isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"combRelIsoPF");
-  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi=-userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
-  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj=-userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
+  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
+  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
@@ -2840,8 +2871,8 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   //step 3, leg 2 ISO
   isoi=userdatahelpers::getUserFloat(i.daughter(1-cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"combRelIsoPF");
-  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi=-userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
-  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj=-userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
+  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
+  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;

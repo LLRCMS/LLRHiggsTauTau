@@ -27,7 +27,7 @@ SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy user
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
 COMPUTEUPDOWNSVFIT = True # compute SVfit for up/down TES variation
-
+doCPVariables=False # compute CP variables and PV refit
 IsMC=False
 Is25ns=True
 HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.

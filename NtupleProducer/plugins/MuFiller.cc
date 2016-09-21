@@ -122,6 +122,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float PFPhotonIso       = l.photonIso();
     
     float combRelIsoPF = LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, l);
+    float combRelIsoPF03 = LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, l, true);
     //--- SIP, dxy, dz
     float IP      = std::abs(l.dB(pat::Muon::PV3D));
     float IPError = l.edB(pat::Muon::PV3D);
@@ -159,6 +160,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
     l.addUserFloat("PFPhotonIso",PFPhotonIso);
     l.addUserFloat("combRelIsoPF",combRelIsoPF);
+    l.addUserFloat("combRelIsoPF03",combRelIsoPF03);
     l.addUserFloat("rho",rho);
     l.addUserFloat("DepositR03TrackerOfficial",l.isolationR03().sumPt);
     l.addUserFloat("DepositR03ECal",l.isolationR03().emEt);
@@ -194,7 +196,17 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(l.innerTrack()->hitPattern().numberOfValidPixelHits()>0 && l.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5)idbit |= 1 << 5;
       }
     }
+
+    bool goodGlob = l.isGlobalMuon() && 
+      l.globalTrack()->normalizedChi2() < 3 && 
+      l.combinedQuality().chi2LocalPosition < 12 && 
+      l.combinedQuality().trkKink < 20; 
+    bool isMedium = muon::isLooseMuon(l) && 
+      l.innerTrack()->validFraction() > 0.49 && 
+      muon::segmentCompatibility(l) > (goodGlob ? 0.303 : 0.451); 
     
+    if(isMedium) idbit |= 1 << 6;
+
     l.addUserInt("muonID",idbit);
     //--- isPFMuon flag - in old samples, l.isPFMuon() is not functional, so this has to be filled
     //    beforehand with the module PATPFMuonEmbedder.

@@ -77,7 +77,7 @@ InputTag LeptonIsoHelper::getEleRhoTag(int sampleType, int setup) {
 }
 
 
-float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const pat::Muon& l, float fsr) {
+float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const pat::Muon& l, bool dr03, float fsr) {
   float PFChargedHadIso   = l.chargedHadronIso();
   float PFNeutralHadIso   = l.neutralHadronIso();
   float PFPhotonIso       = l.photonIso();
@@ -97,11 +97,22 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
 
   } else if (correctionType==2) {
     //return  (PFChargedHadIso + max(0., PFNeutralHadIso + PFPhotonIso - fsr - 0.5*PFPUChargedHadIso))/l.pt();
-    return (l.pfIsolationR04().sumChargedHadronPt + max(
-           l.pfIsolationR04().sumNeutralHadronEt +
-           l.pfIsolationR04().sumPhotonEt - 
-           0.5 * l.pfIsolationR04().sumPUPt, 0.0)) / l.pt();
-  }  
+    if (dr03)
+    {
+      return (l.pfIsolationR03().sumChargedHadronPt + max(
+             l.pfIsolationR03().sumNeutralHadronEt +
+             l.pfIsolationR03().sumPhotonEt - 
+             0.5 * l.pfIsolationR03().sumPUPt, 0.0)) / l.pt();
+    }
+    else
+    {
+      return (l.pfIsolationR04().sumChargedHadronPt + max(
+             l.pfIsolationR04().sumNeutralHadronEt +
+             l.pfIsolationR04().sumPhotonEt - 
+             0.5 * l.pfIsolationR04().sumPUPt, 0.0)) / l.pt();
+
+    }
+  }
   return 0;
 }
 
@@ -153,7 +164,7 @@ float LeptonIsoHelper::combRelIsoPF(int sampleType, int setup, double rho, const
   // should check if lep->hasMasterClone()?  
   if (lep->isMuon()) {
     const pat::Muon* mu = dynamic_cast<const pat::Muon*>(lep->masterClone().get());
-    return combRelIsoPF(sampleType, setup, rho, *mu, fsr);
+    return combRelIsoPF(sampleType, setup, rho, *mu, false, fsr); //NB: defaults to 2016 0.4 mu cone
   } else if (lep->isElectron()) {
     const pat::Electron* ele = dynamic_cast<const pat::Electron*>(lep->masterClone().get());
     return combRelIsoPF(sampleType, setup, rho, *ele, fsr);    
