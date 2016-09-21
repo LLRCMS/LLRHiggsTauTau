@@ -556,7 +556,7 @@ process.patJetsReapplyJEC = updatedPatJets.clone(
     jetSource = cms.InputTag("slimmedJets"),
     jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
 )
-#process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
 
 
 process.jets = cms.EDFilter("PATJetRefSelector",
@@ -599,8 +599,9 @@ if USEPAIRMET:
         process.pfChs +
         process.ak4PFCHSL1FastjetCorrector + process.ak4PFCHSL2RelativeCorrector + process.ak4PFCHSL3AbsoluteCorrector + process.ak4PFCHSResidualCorrector +
         process.ak4PFCHSL1FastL2L3Corrector + process.ak4PFCHSL1FastL2L3ResidualCorrector +
-        process.tauDecayProducts + process.tauPFMET + process.tauMET + process.tausSignificance
+        process.tauDecayProducts + process.allDecayProducts + process.tauPFMET + process.tauMET + process.tausSignificance
     )
+    
     for met in ["pfMET", "pfTrackMET", "pfNoPUMET", "pfPUCorrectedMET", "pfPUMET", "pfChargedPUMET", "pfNeutralPUMET", "pfNeutralPVMET", "pfNeutralUnclusteredMET"]:
         process.MVAMETInputs += getattr(process, met)
         process.MVAMETInputs += getattr(process, "ak4JetsFor"+met)
@@ -767,8 +768,8 @@ process.Candidates = cms.Sequence(
     process.taus              + 
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-    #process.pileupJetIdUpdated + process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets + #enabled by AK
-    process.jets              +
+    process.pileupJetIdUpdated + process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets +
+    #process.jets              +
     process.METSequence       +
     process.geninfo           +
     process.SVFit             
