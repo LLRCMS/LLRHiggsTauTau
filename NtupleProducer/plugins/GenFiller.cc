@@ -78,6 +78,7 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (unsigned int iGen = 0; iGen < Ngen; iGen++)
     {
         const GenParticle& genP = (*genHandle)[iGen];
+
         if (IsInteresting (genP))
         {
             cands_.push_back (&genP); 

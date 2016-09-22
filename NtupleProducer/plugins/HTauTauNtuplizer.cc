@@ -2024,7 +2024,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     math::XYZTLorentzVector pfour = cand->p4();
     math::XYZTLorentzVector chargedP4 = cand->p4();
     math::XYZTLorentzVector neutralP4;
-    
+
     TLorentzVector pfourTauUp;
     TLorentzVector pfourTauDown;
 

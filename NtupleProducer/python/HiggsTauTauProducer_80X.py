@@ -130,7 +130,7 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
 process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
                                    src = cms.InputTag("slimmedMuons"),
                                    preselection = cms.string("track.isNonnull"),
-                                   passthrough = cms.string("isGlobalMuon && numberOfMatches >= 2"),
+                                   passthrough = cms.string(""),
                                    fractionOfSharedSegments = cms.double(0.499))
 
 
