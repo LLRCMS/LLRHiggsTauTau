@@ -601,7 +601,7 @@ if USEPAIRMET:
         process.ak4PFCHSL1FastL2L3Corrector + process.ak4PFCHSL1FastL2L3ResidualCorrector +
         process.tauDecayProducts + process.allDecayProducts + process.tauPFMET + process.tauMET + process.tausSignificance
     )
-    
+
     for met in ["pfMET", "pfTrackMET", "pfNoPUMET", "pfPUCorrectedMET", "pfPUMET", "pfChargedPUMET", "pfNeutralPUMET", "pfNeutralPVMET", "pfNeutralUnclusteredMET"]:
         process.MVAMETInputs += getattr(process, met)
         process.MVAMETInputs += getattr(process, "ak4JetsFor"+met)
@@ -634,6 +634,9 @@ if USEPAIRMET:
 else:
     print "Using event pfMET (same MET for all pairs)"
 
+##Rerun PF MET to get the covariance matrix
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+runMetCorAndUncFromMiniAOD(process, not IsMC)
 ## always compute met significance
 process.load("RecoMET.METProducers.METSignificance_cfi")
 process.load("RecoMET.METProducers.METSignificanceParams_cfi")

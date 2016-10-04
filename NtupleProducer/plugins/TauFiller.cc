@@ -339,7 +339,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //if(l.hasSecondaryVertex()) {
         //dz  = l.secondaryVertex().get()->z()-vertex->z();      
       //}
-    } 
+    }
    
     //--- Embed user variables
     l.addUserInt("isTESShifted",isTESShifted);
