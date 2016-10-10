@@ -1742,7 +1742,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       _mTDau1.push_back (mT2);
       _mTDau2.push_back (mT1);
     }
-
+    
     // do not read pair charge: sometimes taus have charge +/- 3 and this spoils the pair charge
     //if(fabs(cand.charge())>0.5)_isOSCand.push_back(false);
     //else _isOSCand.push_back(true);

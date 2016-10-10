@@ -188,7 +188,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (unsigned int itau = 0; itau < tauHandle->size(); ++itau){
     //---Clone the pat::Tau
     pat::Tau l(*((*tauHandle)[itau].get()));
-    
+
     // Nominal TES Correction
     double Shift = 1.+NominalTESCorrection/100.;
     double shiftP = 1.;
