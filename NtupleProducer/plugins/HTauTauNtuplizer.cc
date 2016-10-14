@@ -1865,12 +1865,12 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     		jetid++;
     		jetid++; //TIGHT and LOOSE are the same in this eta region
     		}
-    	}
-    } else {
+    	} else {
       if(NEMF<0.90 && NumNeutralParticles>10 ){
         jetid++;
         jetid++; //TIGHT and LOOSE are the same in this eta region
       }
+    }
     }
     _jetID.push_back(jetid);
     float jecFactor = ijet->jecFactor("Uncorrected") ;
