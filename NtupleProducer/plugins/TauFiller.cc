@@ -148,6 +148,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   tauFloatDiscrims_ =
   {
     "byCombinedIsolationDeltaBetaCorrRaw3Hits",
+    "byIsolationMVArun2v1DBoldDMwLTraw",
     "byIsolationMVA3oldDMwoLTraw",
     "byIsolationMVA3oldDMwLTraw",
     "byIsolationMVA3newDMwoLTraw",
