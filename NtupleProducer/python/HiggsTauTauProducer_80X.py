@@ -539,28 +539,28 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 # )
 #print process.pileupJetIdUpdated.dumpConfig()
 
-# # apply new jet energy corrections
-# from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-# jecLevels = None
-# if IsMC:
-#     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
-# else:
-#     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
-# process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-#     src = cms.InputTag("slimmedJets"),
-#     levels = jecLevels,
-#     payload = 'AK4PFchs' # Make sure to choose the appropriate levels and payload here!
-# )
-# from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-# process.patJetsReapplyJEC = patJetsUpdated.clone(
-#     jetSource = cms.InputTag("slimmedJets"),
-#     jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
-# )
-# process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+# apply new jet energy corrections
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+jecLevels = None
+if IsMC:
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
+else:
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
+
+updateJetCollection(
+   process,
+   jetSource = cms.InputTag('slimmedJets'),
+   labelName = 'UpdatedJEC',
+   jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None')
+)
+
+process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 
 process.jets = cms.EDFilter("PATJetRefSelector",
-    src = cms.InputTag("slimmedJets"),
-    cut = cms.string(JETCUT)
+                            #src = cms.InputTag("slimmedJets"),
+                            src = cms.InputTag("updatedPatJetsUpdatedJEC"),
+                            cut = cms.string(JETCUT)
 )
 ##
 ## Build ll candidates (here OS)
@@ -707,7 +707,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
-                      JECset = cms.untracked.string("patJetCorrFactors"),
+                      #JECset = cms.untracked.string("patJetCorrFactors"),
+                      JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC"),
                       ak8jetCollection = cms.InputTag("slimmedJetsAK8"),
                       lepCollection = cms.InputTag("softLeptons"),
                       lheCollection = cms.InputTag("LHEEventProduct"),
@@ -766,8 +767,8 @@ process.Candidates = cms.Sequence(
     process.taus              + 
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
-    # process.pileupJetIdUpdated + process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.jets +
-    process.jets              +
+    #process.jets              +
+    process.jecSequence + process.jets + 
     process.METSequence       +
     process.geninfo           +
     process.SVFit             
