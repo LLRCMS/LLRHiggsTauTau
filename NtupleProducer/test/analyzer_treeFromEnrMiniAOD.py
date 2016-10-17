@@ -41,7 +41,7 @@ MUCUT="isLooseMuon && pt>5"
 ELECUT="pt>7"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
 TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
 JETCUT="pt>10"
-LLCUT="mass>0"
+LLCUT="mass>0 && ditau_deltaR>0"
 BCUT="pt>5"
 
 # ------------------------
