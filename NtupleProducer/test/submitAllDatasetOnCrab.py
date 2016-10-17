@@ -89,9 +89,39 @@ import re
 # tag = "data_2016_21Giu"
 # datasetsFile = "datasets.txt"
 
+# PROCESS = ["DATA2016RESUB"]
+# tag = "data_2016_21Giu_resubSingleEle"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["MCDY80XRESUB"]
+# tag = "MC_2016_24Giu_resubDY_VeryLong"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["MC80XMOREV2"]
+# tag = "MC_2016_27Giu_WAndRadionSub2"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA2016"]
+# tag = "data_2016_22giuJSON_diff_16giuJSON"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA2016RESUB"]
+# tag = "data_2016_22giuJSON_diff_16giuJSON_Tauresub"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA2016"]
+# tag = "data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA2016"]
+# tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD"
+# datasetsFile = "datasets.txt"
+
 PROCESS = ["DATA2016RESUB"]
-tag = "data_2016_21Giu_resubSingleEle"
+tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD_resSEle"
 datasetsFile = "datasets.txt"
+
+
 
 isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
@@ -110,11 +140,21 @@ isMC = False
 # lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Reprocessing/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver.txt"
 
 # 16 giu Golden JSON 2016
-lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274443_13TeV_PromptReco_Collisions16_JSON.txt"
+# lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274443_13TeV_PromptReco_Collisions16_JSON.txt"
 
+# 22 giu Golden JSON 2016 -- 3.99/fb
+#lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt"
+
+# # 22 giu Golden JSON 2016 MINUS 16 giu Golden JSON 2016
+# lumiMaskFileName = "22giuJSON_diff_16giuJSON.txt"
+
+## 8 lug JSON MINUS 22 giu JSON
+# compareJSON.py --sub /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275783_13TeV_PromptReco_Collisions16_JSON.txt /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt 8lugJSON_diff_22giuJSON.txt
+# lumiMaskFileName = "15lug_NoL1TJSON_diff_8lugJSON.txt"
+lumiMaskFileName = "20lug_NoL1TJSON_diff_15lug_NoL1TJSON.txt"
 
 FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
-VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
+VeryLong = True # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
 
