@@ -564,7 +564,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_chHEF;
   std::vector<Float_t> _jets_nEmEF;
   std::vector<Float_t> _jets_nHEF;
-  std::vector<Int_t> _jets_chMult;
+  std::vector<Float_t> _jets_MUF;
+  std::vector<Int_t>   _jets_neMult;
+  std::vector<Int_t>   _jets_chMult;
   std::vector<Float_t> _jets_jecUnc;
 
   std::vector<Float_t> _ak8jets_px;
@@ -986,6 +988,8 @@ void HTauTauNtuplizer::Initialize(){
   _jets_chHEF.clear();
   _jets_nEmEF.clear();
   _jets_nHEF.clear();
+  _jets_MUF.clear();
+  _jets_neMult.clear();
   _jets_chMult.clear();
   _jets_Flavour.clear();
   _jets_HadronFlavour.clear();
@@ -1322,6 +1326,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_chHEF"  , &_jets_chHEF);
   myTree->Branch("jets_nEmEF"  , &_jets_nEmEF);
   myTree->Branch("jets_nHEF"   , &_jets_nHEF);
+  myTree->Branch("jets_MUF"    , &_jets_MUF);
+  myTree->Branch("jets_neMult" , &_jets_neMult);
   myTree->Branch("jets_chMult" , &_jets_chMult);
   myTree->Branch("jets_jecUnc" , &_jets_jecUnc);
 
@@ -1825,6 +1831,8 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_nEmEF  .push_back(NEMF);
     _jets_nHEF   .push_back(NHF);
     _jets_chMult .push_back(chargedMult);  
+    _jets_neMult .push_back(NumNeutralParticles);  
+    _jets_MUF    .push_back(MUF);  
 
     int jetid=0; 
     //PHYS14
@@ -1835,20 +1843,46 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     }
     */
     //Spring15
-    if(absjeta<=3.0){
-      if((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ){
-        jetid++;
-        if( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ) {
-          jetid++;
-          if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)) jetid++;
-        }
-      }
-    }else{
-      if(NEMF<0.90 && NumNeutralParticles>10 ){
-        jetid++;
-        jetid++; //TIGHT and LOOSE are the same in this eta region
-      }
-    }    
+    // if(absjeta<=3.0){
+    //   if((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ){
+    //     jetid++;
+    //     if( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ) {
+    //       jetid++;
+    //       if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)) jetid++;
+    //     }
+    //   }
+    // }else{
+    //   if(NEMF<0.90 && NumNeutralParticles>10 ){
+    //     jetid++;
+    //     jetid++; //TIGHT and LOOSE are the same in this eta region
+    //   }
+    // }  
+    
+    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
+    bool looseJetID = false;
+    bool tightJetID = false;
+    bool tightLepVetoJetID = false;
+
+    if (absjeta <= 2.7)
+    {
+      looseJetID = ( (NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
+      tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
+      tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
+    }
+    else if (absjeta <= 3.0)
+    {
+      looseJetID = (NEMF<0.90 && NumNeutralParticles>2 ) ;
+      tightJetID = looseJetID;
+    }
+    else
+    {
+      looseJetID = (NEMF<0.90 && NumNeutralParticles>10 );
+      tightJetID = looseJetID;   
+    }
+    if (looseJetID) ++jetid;
+    if (tightJetID) ++jetid;
+    if (tightLepVetoJetID) ++jetid;
+
     _jetID.push_back(jetid);
     float jecFactor = ijet->jecFactor("Uncorrected") ;
     float jetRawPt = jecFactor * ijet->pt();
