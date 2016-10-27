@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
-    parser.add_option('-q', '--queue'         ,    dest='queue'              , help='batch queue'                                        , default='cms')
+    parser.add_option('-q', '--queue'         ,    dest='queue'              , help='batch queue'                                        , default='short')
     parser.add_option('-s', '--sample'        ,    dest='samplefile'         , help='python file names'                                  , default='TTJets_files.py')
     parser.add_option('-n', '--njobs'         ,    dest='njobs'              , help='number of jobs'                                     , default=1,  type=int)
     parser.add_option('-w', '--wholefile'     ,    dest='wholefile'          , help='use whole files [false]'                            , default=False)
@@ -160,5 +160,5 @@ if __name__ == "__main__":
         if opt.queue=='':
             os.system('%s/runJob_%d.sh'%(jobsDir.jobSeed))
         else:
-            os.system("/opt/exp_soft/cms/t3/t3submit -q cms \'%s/runJob_%d.sh\'"%(jobsDir,n))
+            os.system("/opt/exp_soft/cms/t3/t3submit_new -%s \'%s/runJob_%d.sh\'"%(opt.queue,jobsDir,n))
     
