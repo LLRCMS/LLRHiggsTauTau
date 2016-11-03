@@ -659,7 +659,7 @@ bool SVfitInterface::IsInteresting (const reco::Candidate *l1, const reco::Candi
     if (dau2->pt() < 20.)
       return false;
 
-    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)
+    if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1) // decayModeFinding == decayModeFindingOldDMs
       return false;
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
@@ -682,7 +682,7 @@ bool SVfitInterface::IsInteresting (const reco::Candidate *l1, const reco::Candi
     if (dau2->pt() < 20.)
       return false;
 
-    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)
+    if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
@@ -705,10 +705,10 @@ bool SVfitInterface::IsInteresting (const reco::Candidate *l1, const reco::Candi
     if (dau2->pt() < 30.)
       return false;
     
-    if (userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs") != 1)
+    if (userdatahelpers::getUserInt(l1,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
     
-    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)
+    if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
     bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
