@@ -60,6 +60,7 @@ class SVfitInterface : public edm::EDProducer {
   svFitStandalone::kDecayType GetDecayTypeFlag (int pdgId);
   bool Switch (svFitStandalone::kDecayType type1, double pt1, svFitStandalone::kDecayType type2, double pt2);
   double GetMass (svFitStandalone::kDecayType type, double candMass);
+  bool IsInteresting (const reco::Candidate *l1, const reco::Candidate *l2); // if true, compute SVFit
 
   edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
   // std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
@@ -70,6 +71,19 @@ class SVfitInterface : public edm::EDProducer {
   bool _computeForUpDownTES;
   TFile* inputFile_visPtResolution_;
   
+  // 6,7,8 are expected to be unused
+  enum pairType {
+    kMuHad  = 0,
+    kEHad   = 1,
+    kHadHad = 2,
+    kMuMu   = 3,
+    kEE     = 4,
+    kEMu    = 5,
+    kEEPrompt = 6, // prompt Z->ee/mumu decays
+    kMuMuPrompt = 7,
+    kOther  = 8 // for e.g. h->bb
+  };
+
 };
 
 // ------------------------------------------------------------------
@@ -203,8 +217,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // if (l1Type == svFitStandalone::kTauToMuDecay && l2Type == svFitStandalone::kTauToMuDecay) isGoodPairType = false;
 
     // do not compute SVfit if the two pairs are too close one to the other
-    bool isGoodDR = true;
-    if (deltaR(l1->p4(), l2->p4()) < 0.25) isGoodDR = false;
+    // bool isGoodDR = true;
+    // if (deltaR(l1->p4(), l2->p4()) < 0.25) isGoodDR = false;
     
     bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
   
@@ -354,60 +368,61 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double SVMETPhiTauDown = -999.;
 
     // minimal acceptance on the *nominal* pair in order to process SVFit
-    Bool_t GoodPairFlag = kTRUE;
+    // Bool_t GoodPairFlag = kTRUE;
 
-    Bool_t isMuTau = kFALSE;
-    Bool_t isTauMu = kFALSE;
-    Bool_t isElecTau = kFALSE;
-    Bool_t isTauElec = kFALSE;
-    Bool_t isTauTau = kFALSE;
-    Bool_t isElecMu = kFALSE;
-    Bool_t isMuElec = kFALSE;
+    // Bool_t isMuTau = kFALSE;
+    // Bool_t isTauMu = kFALSE;
+    // Bool_t isElecTau = kFALSE;
+    // Bool_t isTauElec = kFALSE;
+    // Bool_t isTauTau = kFALSE;
+    // Bool_t isElecMu = kFALSE;
+    // Bool_t isMuElec = kFALSE;
 
-    if(l1Type == svFitStandalone::kTauToMuDecay && l2Type == svFitStandalone::kTauToHadDecay) isMuTau = kTRUE;
-    else if(l2Type == svFitStandalone::kTauToMuDecay && l1Type == svFitStandalone::kTauToHadDecay) isTauMu = kTRUE;
-    else if(l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToHadDecay) isElecTau = kTRUE;
-    else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToHadDecay) isTauElec = kTRUE;
-    else if(l1Type == svFitStandalone::kTauToHadDecay && l2Type == svFitStandalone::kTauToHadDecay) isTauTau = kTRUE;
-    else if(l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToMuDecay) isElecMu = kTRUE;
-    else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToMuDecay) isMuElec = kTRUE;
-    else GoodPairFlag = kFALSE;
+    // if(l1Type == svFitStandalone::kTauToMuDecay && l2Type == svFitStandalone::kTauToHadDecay) isMuTau = kTRUE;
+    // else if(l2Type == svFitStandalone::kTauToMuDecay && l1Type == svFitStandalone::kTauToHadDecay) isTauMu = kTRUE;
+    // else if(l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToHadDecay) isElecTau = kTRUE;
+    // else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToHadDecay) isTauElec = kTRUE;
+    // else if(l1Type == svFitStandalone::kTauToHadDecay && l2Type == svFitStandalone::kTauToHadDecay) isTauTau = kTRUE;
+    // else if(l1Type == svFitStandalone::kTauToElecDecay && l2Type == svFitStandalone::kTauToMuDecay) isElecMu = kTRUE;
+    // else if(l2Type == svFitStandalone::kTauToElecDecay && l1Type == svFitStandalone::kTauToMuDecay) isMuElec = kTRUE;
+    // else GoodPairFlag = kFALSE;
 
-    //MuTau or TauMu
-    //mu leg
-    if(isMuTau && l1->pt()< 17.) GoodPairFlag = kFALSE;
-    if(isTauMu && l2->pt()< 17.) GoodPairFlag = kFALSE;
-    //tau leg
-    if(isMuTau && l2->pt()< 19.) GoodPairFlag = kFALSE;
-    if(isTauMu && l1->pt()< 19.) GoodPairFlag = kFALSE;
+    // //MuTau or TauMu
+    // //mu leg
+    // if(isMuTau && l1->pt()< 17.) GoodPairFlag = kFALSE;
+    // if(isTauMu && l2->pt()< 17.) GoodPairFlag = kFALSE;
+    // //tau leg
+    // if(isMuTau && l2->pt()< 19.) GoodPairFlag = kFALSE;
+    // if(isTauMu && l1->pt()< 19.) GoodPairFlag = kFALSE;
 
-    //ElecTau or TauElec
-    //elec leg
-    if(isElecTau && l1->pt()< 17.) GoodPairFlag = kFALSE;
-    if(isTauElec && l2->pt()< 17.) GoodPairFlag = kFALSE;
-    //tau leg
-    if(isElecTau && l2->pt()< 19.) GoodPairFlag = kFALSE;
-    if(isTauElec && l1->pt()< 19.) GoodPairFlag = kFALSE;
+    // //ElecTau or TauElec
+    // //elec leg
+    // if(isElecTau && l1->pt()< 17.) GoodPairFlag = kFALSE;
+    // if(isTauElec && l2->pt()< 17.) GoodPairFlag = kFALSE;
+    // //tau leg
+    // if(isElecTau && l2->pt()< 19.) GoodPairFlag = kFALSE;
+    // if(isTauElec && l1->pt()< 19.) GoodPairFlag = kFALSE;
 
-    //Cuts to be applied on any lepton which is a tau
-    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserFloat(l1,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>7.)  GoodPairFlag = kFALSE;
-    if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs") != 1)  GoodPairFlag = kFALSE;
-    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserFloat(l2,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>7.)  GoodPairFlag = kFALSE;
-    if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)  GoodPairFlag = kFALSE;
+    // //Cuts to be applied on any lepton which is a tau
+    // if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserFloat(l1,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>7.)  GoodPairFlag = kFALSE;
+    // if(l1Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs") != 1)  GoodPairFlag = kFALSE;
+    // if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserFloat(l2,"byCombinedIsolationDeltaBetaCorrRaw3Hits")>7.)  GoodPairFlag = kFALSE;
+    // if(l2Type==svFitStandalone::kTauToHadDecay && userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)  GoodPairFlag = kFALSE;
 
-    //TauTau
-    if(isTauTau && (l1->pt()< 30. || l2->pt()< 30.)) GoodPairFlag = kFALSE;
+    // //TauTau
+    // if(isTauTau && (l1->pt()< 30. || l2->pt()< 30.)) GoodPairFlag = kFALSE;
 
-    //ElecMu or MuElec
-    //elec leg
-    if(isElecMu && l1->pt()< 13.) GoodPairFlag = kFALSE;
-    if(isElecMu && l2->pt()< 10.) GoodPairFlag = kFALSE;
-    //mu leg
-    if(isMuElec && l2->pt()< 13.) GoodPairFlag = kFALSE;
-    if(isMuElec && l1->pt()< 10.) GoodPairFlag = kFALSE;    
+    // //ElecMu or MuElec
+    // //elec leg
+    // if(isElecMu && l1->pt()< 13.) GoodPairFlag = kFALSE;
+    // if(isElecMu && l2->pt()< 10.) GoodPairFlag = kFALSE;
+    // //mu leg
+    // if(isMuElec && l2->pt()< 13.) GoodPairFlag = kFALSE;
+    // if(isMuElec && l1->pt()< 10.) GoodPairFlag = kFALSE;    
 
     // only run SVfit if taus are passing discriminator, skip mumu and ee pairs, apply very loose quality cuts on objects
-    if (isGoodDR && GoodPairFlag)
+    // if (isGoodDR && GoodPairFlag)
+    if (IsInteresting(l1, l2))
     {
       SVfitStandaloneAlgorithm algo(measuredTauLeptons, METx, METy, covMET, verbosity);
       algo.addLogM(false); // in general, keep it false when using VEGAS integration
@@ -596,6 +611,131 @@ double SVfitInterface::GetMass (svFitStandalone::kDecayType type, double candMas
     return candMass; // for tauh and all exceptions return cand mass
 }
 
+bool SVfitInterface::IsInteresting (const reco::Candidate *l1, const reco::Candidate *l2)
+{
+  int apdg1 = abs(l1->pdgId());
+  int apdg2 = abs(l2->pdgId());
+
+  int nmu = 0;
+  int nele = 0;
+  int ntau = 0;
+
+  if (apdg1 == 13) nmu++;
+  if (apdg1 == 11) nele++;
+  if (apdg1 == 15) ntau++;
+
+  if (apdg2 == 13) nmu++;
+  if (apdg2 == 11) nele++;
+  if (apdg2 == 15) ntau++;
+
+  pairType pType = kOther;
+  if (nmu == 1 && nele == 0 && ntau == 1) pType = kMuHad;
+  if (nmu == 0 && nele == 1 && ntau == 1) pType = kEHad;
+  if (nmu == 0 && nele == 0 && ntau == 2) pType = kHadHad;
+  if (nmu == 2 && nele == 0 && ntau == 0) pType = kMuMu;
+  if (nmu == 0 && nele == 2 && ntau == 0) pType = kEE;
+  if (nmu == 1 && nele == 1 && ntau == 0) pType = kEMu;
+
+  ///////
+
+  // switch to apply different requirements to the objects
+  if (deltaR(l1->p4(), l2->p4()) < 0.1)
+    return false; // for overlap removal
+
+  ///////
+
+  // create pointers with usual pair ordering -- easier to apply cuts later
+  const reco::Candidate* dau1;
+  const reco::Candidate* dau2;
+
+  if (pType == kMuHad)
+  {
+    dau1 = (apdg1 == 13 ? l1 : l2);
+    dau2 = (apdg1 == 13 ? l2 : l1);
+
+    if (dau1->pt() < 17.)
+      return false;
+
+    if (dau2->pt() < 20.)
+      return false;
+
+    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)
+      return false;
+
+    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+
+    if (!iso1 || !iso2) 
+      return false;
+
+    return true; // passed all requirements
+  }
+
+  else if (pType == kEHad)
+  {
+    dau1 = (apdg1 == 11 ? l1 : l2);
+    dau2 = (apdg1 == 11 ? l2 : l1);
+
+    if (dau1->pt() < 19.)
+      return false;
+
+    if (dau2->pt() < 20.)
+      return false;
+
+    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)
+      return false;
+
+    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+
+    if (!iso1 || !iso2) 
+      return false;
+
+    return true; // passed all requirements
+  }
+
+  else if (pType == kHadHad)
+  {
+    dau1 = ((l1->pt() > l2->pt()) ? l1 : l2);
+    dau2 = ((l1->pt() > l2->pt()) ? l2 : l1);
+
+    if (dau1->pt() < 30.)
+      return false;
+    
+    if (dau2->pt() < 30.)
+      return false;
+    
+    if (userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs") != 1)
+      return false;
+    
+    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)
+      return false;
+
+    bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+
+    if (!iso1 || !iso2) 
+      return false;
+
+    return true; // passed all requirements
+  }
+
+  else if (pType == kMuMu)
+    return false;
+  
+  else if (pType == kEE)
+    return false;
+  
+  else if (pType == kEMu)
+    return false;
+  
+  else
+  {
+    // should never happen
+    edm::LogWarning("Unrecognised pair") << "(SVfitInterface) Warning! could not assess the pair type, won't compute SVFit";
+    return false;
+  }
+}
 
 
 #include <FWCore/Framework/interface/MakerMacros.h>
