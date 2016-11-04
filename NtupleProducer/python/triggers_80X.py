@@ -274,7 +274,15 @@ HLTLIST = cms.VPSet(
         path2 = cms.vstring (""),
         leg1 = cms.int32(11),
         leg2 = cms.int32(11)
-        )
+        ),
+### === single tau triggers
+    cms.PSet (
+        HLT = cms.string("HLT_VLooseIsoPFTau140_Trk50_eta2p1_v"),
+        path1 = cms.vstring ("hltPFTau140TrackPt50LooseAbsOrRelVLooseIso"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(999)
+        ),
     )
 
 #now I create the trigger list for HLTconfig
