@@ -9,6 +9,8 @@ Modules and plugins are called by python/HiggsTauTauProducer.py
 	This module creates AF/OS and AF/SS pairs, runs the SVfit on the pairs and store the useful variables in a TNtuple
 The stored variables are set in plugins/HTauTauNtupleMaker.cc
 
+<details>
+<summary>Instructions for older releases</summary>
 ### Instructions for 7_2_X
 
 ```
@@ -148,6 +150,7 @@ git checkout HIG-16-006
 cd -
 scram b -j 4
 ```
+</details>
 
 ### Instructions for 8_0_20
 
