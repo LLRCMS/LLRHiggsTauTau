@@ -632,10 +632,22 @@ if USEPAIRMET:
 else:
     print "Using event pfMET (same MET for all pairs)"
 
-## always compute met significance
-process.load("RecoMET.METProducers.METSignificance_cfi")
-process.load("RecoMET.METProducers.METSignificanceParams_cfi")
-process.METSequence += cms.Sequence(process.METSignificance)
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+    runMetCorAndUncFromMiniAOD(
+      process,
+      isData= (not IsMC),
+    )
+    # patch to get a standalone MET significance collection
+    process.METSignificance = cms.EDProducer ("ExtractMETSignificance",
+                                                  srcMET=cms.InputTag("slimmedMETs","","TEST")
+                                                  )
+    process.METSequence += process.fullPatMetSequence
+    process.METSequence += process.METSignificance
+
+# ## always compute met significance
+# process.load("RecoMET.METProducers.METSignificance_cfi")
+# process.load("RecoMET.METProducers.METSignificanceParams_cfi")
+# process.METSequence += cms.Sequence(process.METSignificance)
 
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
