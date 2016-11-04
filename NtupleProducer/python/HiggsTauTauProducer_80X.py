@@ -679,7 +679,7 @@ srcMETTag = None
 if USEPAIRMET:
   srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
 else:
-  srcMETTag = cms.InputTag(PFMetName)
+  srcMETTag = cms.InputTag(PFMetName, "", "TEST")
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -744,7 +744,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
 else: 
-    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs")
+    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs", "", "TEST") # use TEST so that I get the corrected one
 
 if SVFITBYPASS:
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
