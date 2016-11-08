@@ -310,7 +310,7 @@ bool GenFiller::IsInteresting (const GenParticle& p)
     
     // case of b quarks, just save first one (too many showering products)
     bool IsFirst = genhelper::IsFirstCopy(p, true);
-    if ((APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21 || APdgId==25) && IsFirst) return true; // for b, save also the first copy in the list
+    if ((APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 6 || APdgId == 21 || APdgId==25) && IsFirst) return true; // for b, save also the first copy in the list
     // if (APdgId == 5 && IsFirst) return true; // for b, save also the first copy in the list
                                              // check abs id to avoid problems if b -> (b bar) b as the bbar woudl result as first
 
@@ -345,7 +345,7 @@ int GenFiller::makeFlagVector (const GenParticle* p)
 bool GenFiller::isVBFParton(const GenParticle& p)
 {
   int APdgId = abs(p.pdgId());
-  bool IsVBFPartonPdgId = (APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 6 || APdgId == 21);// quark or gluon
+  bool IsVBFPartonPdgId = (APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21);// quark or gluon
   bool FoundHiggs = false;
   
   if(IsVBFPartonPdgId)
