@@ -345,7 +345,7 @@ int GenFiller::makeFlagVector (const GenParticle* p)
 bool GenFiller::isVBFParton(const GenParticle& p)
 {
   int APdgId = abs(p.pdgId());
-  bool IsVBFPartonPdgId = (APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 21);// quark or gluon
+  bool IsVBFPartonPdgId = (APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 6 || APdgId == 21);// quark or gluon
   bool FoundHiggs = false;
   
   if(IsVBFPartonPdgId)
