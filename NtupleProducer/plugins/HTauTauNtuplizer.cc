@@ -275,6 +275,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _mothers_py;
   std::vector<Float_t> _mothers_pz;
   std::vector<Float_t> _mothers_e;
+  std::vector<Long64_t> _mothers_trgSeparateMatch; // are the two legs matched to different HLT objs?
+                                                   // stored bitwise for HLT paths as done for daughters_trgMatch
+
   
   // reco leptons
   //std::vector<TLorentzVector> _daughters;
@@ -605,6 +608,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<Float_t> _genH_py;
   //std::vector<Float_t> _genH_pz;
   //std::vector<Float_t> _genH_e;
+
+  // not a output tree branch, but used to assess object overlap in trg match
+  // use as vTrgMatchedToDau_idx.at(idaughter).at(idxHLTPath)
+  std::vector<std::vector<int>> vTrgMatchedToDau_idx;
 };
 
 const int HTauTauNtuplizer::ntauIds; // definition of static member
@@ -712,6 +719,7 @@ void HTauTauNtuplizer::Initialize(){
   _mothers_py.clear();
   _mothers_pz.clear();
   _mothers_e.clear();
+  _mothers_trgSeparateMatch.clear();
   
   //_daughters.clear();
   if(DEBUG){
@@ -1028,6 +1036,9 @@ void HTauTauNtuplizer::Initialize(){
   //_genH_py.clear();
   //_genH_pz.clear();
   //_genH_e.clear();
+
+  // not a tree var, but has to be filled once per daughter - reset here
+  vTrgMatchedToDau_idx.clear();
 }
 
 void HTauTauNtuplizer::beginJob(){
@@ -1061,6 +1072,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("mothers_py",&_mothers_py);
   myTree->Branch("mothers_pz",&_mothers_pz);
   myTree->Branch("mothers_e",&_mothers_e);
+  myTree->Branch("mothers_trgSeparateMatch", &_mothers_trgSeparateMatch);
   if(DEBUG){
   myTree->Branch("trigger_name",&_trigger_name);
   myTree->Branch("trigger_accept",&_trigger_accept);
@@ -1764,6 +1776,24 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _mothers_pz.push_back( (float) candp4.Z());
     _mothers_e.push_back( (float) candp4.T());
     
+    // use info computed in FillSoftLeptons to check if legs are matched to separate trigger objects for each trigger
+    Long64_t trgSeparateMatch = 0;
+    vector<int> vMatchesDau1 = vTrgMatchedToDau_idx.at(_indexDau1.back());
+    vector<int> vMatchesDau2 = vTrgMatchedToDau_idx.at(_indexDau2.back());
+
+    for (uint trgidx = 0; trgidx < vMatchesDau1.size(); ++trgidx)
+    {
+      int match1 = vMatchesDau1.at(trgidx) ;
+      int match2 = vMatchesDau2.at(trgidx) ;
+
+      if (match1 != match2 || match1 == -1)
+        trgSeparateMatch |= ((Long64_t) 1 << trgidx);
+    }
+    _mothers_trgSeparateMatch.push_back(trgSeparateMatch);
+    // cout << "Mother: " << _mothers_trgSeparateMatch.size() -1 << " " << trgSeparateMatch << endl;
+
+
+
     /*   float fillArray[nOutVars]={
     (float)event.id().run(),
     (float)event.id().event(),
@@ -2416,7 +2446,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     Long64_t trgMatched = 0;
     Long64_t triggertypeIsGood = 0;
     float hltpt=0;
-    for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
+    
+    // list of indexes of all TO standalone that are matched to this specific daughter and pass HLT filter(s)
+    // use as: toStandaloneMatched.at(idxHLT).at(idx tostadalone)
+    vector<vector<int>> toStandaloneMatched (myTriggerHelper->GetNTriggers(), vector<int>(0));
+
+    // for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
+    for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
+    {
+      pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
+      
       //check if the trigger object matches cand
       bool triggerType=false;
 
@@ -2515,8 +2554,11 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           }
           else istrgMatched = false;
           // FIXME: should I check type? --> no, multiple filters should be enough
-          if(istrgMatched) trgMatched |= (long(1) <<triggerbit);
-
+          if(istrgMatched)
+          {
+            trgMatched |= (long(1) <<triggerbit);
+            toStandaloneMatched.at(triggerbit).push_back(idxto);
+          }
           // cout << "istrgMatched ? " << istrgMatched << endl;
 
         } // loop on triggerbit from 0 to GetNTriggers()
@@ -2529,6 +2571,21 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
     _daughters_trgMatched.push_back(trgMatched);    
     _daughters_HLTpt.push_back(hltpt);
+
+    vector<int> vTrgMatchedIdx;
+    for (int idxHLT = 0; idxHLT < myTriggerHelper->GetNTriggers(); ++idxHLT)
+    {
+      // if I have more than 1 match, I will be sure that different hlt objects are matched in a pair,
+      // so I don't care and I put a value of -1
+      // if I have no match, I don't care so I put -1 as well
+      if (toStandaloneMatched.at(idxHLT).size() != 1) 
+        vTrgMatchedIdx.push_back(-1);
+      // if I have exactly 1 match, I store the Trigger Object index.
+      // I will compare it later for the two legs of the pair and see if I matched separate objects
+      else
+        vTrgMatchedIdx.push_back(toStandaloneMatched.at(idxHLT).at(0));
+    }
+    vTrgMatchedToDau_idx.push_back(vTrgMatchedIdx);
 
 
     // L1 candidate matching -- to correct for the missing seed
