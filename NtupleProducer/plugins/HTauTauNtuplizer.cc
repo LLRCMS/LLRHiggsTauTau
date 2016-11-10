@@ -1786,7 +1786,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       int match1 = vMatchesDau1.at(trgidx) ;
       int match2 = vMatchesDau2.at(trgidx) ;
 
-      if (match1 != match2 || match1 == -1)
+      if (match1 != match2 || match1 == -1) // if all good (different match) store 1 in the corresp hlt bit
         trgSeparateMatch |= ((Long64_t) 1 << trgidx);
     }
     _mothers_trgSeparateMatch.push_back(trgSeparateMatch);
