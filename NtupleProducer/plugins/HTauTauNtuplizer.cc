@@ -2779,6 +2779,14 @@ void HTauTauNtuplizer::FillGenJetInfo(const edm::Event& event)
 
       _genjet_partonFlavour.push_back(partFlav);
       _genjet_hadronFlavour.push_back(hadrFlav);
+
+      // cout << igj << " " << genJet.pdgId() << endl;
+      // only mesons and barions in the list, but no B to infer the jet flavour    
+      // for (uint ic = 0; ic < genJet.numberOfDaughters(); ++ic)
+      // {
+      //   const reco::Candidate* cand = genJet.daughter(ic);
+      //   cout << ic << " " << cand->pdgId() << " " << cand->pt() << " " << endl;
+      // }
     }
 
     return;
