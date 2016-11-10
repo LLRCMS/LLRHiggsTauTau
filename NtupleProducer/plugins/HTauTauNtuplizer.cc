@@ -255,6 +255,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _lheHt;
   Int_t   _lheNOutPartons;
   Int_t   _lheNOutB;
+  Int_t   _lheNOutC;
   Float_t _npu;
   Int_t   _PUNumInteractions;
   Float_t _PUReweight;
@@ -963,6 +964,7 @@ void HTauTauNtuplizer::Initialize(){
   _lheHt=0;
   _lheNOutPartons=0;
   _lheNOutB=0;
+  _lheNOutC=0;
   _npu=0.;
   _PUNumInteractions=0;
   _PUReweight=0.;
@@ -1130,6 +1132,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("lheNOutPartons", &_lheNOutPartons, "lheNOutPartons/I");
     myTree->Branch("lheNOutB", &_lheNOutB, "lheNOutB/I");
+    myTree->Branch("lheNOutC", &_lheNOutC, "lheNOutC/I");
     myTree->Branch("aMCatNLOweight",&_aMCatNLOweight,"aMCatNLOweight/F");    
     myTree->Branch("genpart_px", &_genpart_px);
     myTree->Branch("genpart_py", &_genpart_py);
@@ -1463,6 +1466,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       double lheHt = 0.;
       int lheNOutPartons = 0;
       int lheNOutB = 0;
+      int lheNOutC = 0;
       size_t numParticles = lheParticles.size();
       for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
         int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
@@ -1472,11 +1476,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
             lheHt += TMath::Sqrt((lheParticles[idxParticle][0])*(lheParticles[idxParticle][0]) + (lheParticles[idxParticle][1])*(lheParticles[idxParticle][1])); // first entry is px, second py
             ++lheNOutPartons;
             if (absPdgId == 5) ++lheNOutB ;
+            if (absPdgId == 4) ++lheNOutC ;
         }
       }
        _lheHt = lheHt;
        _lheNOutPartons = lheNOutPartons;
        _lheNOutB = lheNOutB;
+       _lheNOutC = lheNOutC;
      //cout<<"lheHt = "<<lheHt<<endl;
     }
     //else cout << "LHE product not found" << endl;
