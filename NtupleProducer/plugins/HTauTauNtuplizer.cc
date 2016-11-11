@@ -3042,15 +3042,20 @@ bool HTauTauNtuplizer::ComparePairsbyPt(pat::CompositeCandidate i, pat::Composit
 
 float HTauTauNtuplizer::ComputeMT (math::XYZTLorentzVector visP4, float METx, float METy)
 {
-    float MET = TMath::Sqrt (METx*METx + METy*METy);
-    math::XYZTLorentzVector METP4 (METx, METy, 0, MET);
+    math::XYZTLorentzVector METP4 (METx, METy, 0, 0); // I only care about transverse plane
+    double dphi = deltaPhi(visP4.phi(), METP4.phi());
+    return sqrt(2.*visP4.Pt()*METP4.Pt()*(1.-cos(dphi)));
+
+    // this code is equivalent, but can give NaN and rounding errors when met and lepton are very collinear
+    // float MET = TMath::Sqrt (METx*METx + METy*METy);
+    // math::XYZTLorentzVector METP4 (METx, METy, 0, MET);
     
-    float scalSum = MET + visP4.pt();
-    math::XYZTLorentzVector vecSum (visP4);
-    vecSum += METP4;
-    float vecSumPt = vecSum.pt();
+    // float scalSum = MET + visP4.pt();
+    // math::XYZTLorentzVector vecSum (visP4);
+    // vecSum += METP4;
+    // float vecSumPt = vecSum.pt();
     
-    return TMath::Sqrt (scalSum*scalSum - vecSumPt*vecSumPt);
+    // return TMath::Sqrt (scalSum*scalSum - vecSumPt*vecSumPt);
 }
 
 /////////////////////////////////////////////////////////////////
