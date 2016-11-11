@@ -192,6 +192,13 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(11),
         leg2 = cms.int32(15)
         ), ### ok
+    cms.PSet (
+        HLT = cms.string("HLT_Ele24_eta2p1_WPLoose_Gsf_LooseIsoPFTau30_v"),
+        path1 = cms.vstring ("hltEle24WPLooseL1IsoEG22erIsoTau26erGsfTrackIsoFilter", "hltOverlapFilterIsoEle24WPLooseGsfLooseIsoPFTau30"),
+        path2 = cms.vstring ("hltPFTau30TrackLooseIso", "hltOverlapFilterIsoEle24WPLooseGsfLooseIsoPFTau30"),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(15)
+        ), ### ok
 ### === tauh tauh triggers
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumIsoPFTau32_Trk1_eta2p1_Reg_v"),
