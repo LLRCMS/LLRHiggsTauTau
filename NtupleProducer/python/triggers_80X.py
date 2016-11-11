@@ -55,6 +55,34 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(13),
         leg2 = cms.int32(999)
         ), ### ok
+    cms.PSet (
+        HLT = cms.string("HLT_IsoTkMu22_eta2p1_"),
+        path1 = cms.vstring ("hltL3fL1sMu20erL1f0Tkf22QL3trkIsoFiltered0p09"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoTkMu24_v"),
+        path1 = cms.vstring ("hltL3fL1sMu22L1f0Tkf24QL3trkIsoFiltered0p09"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoTkMu24_eta2p1_v"),
+        path1 = cms.vstring ("hltL3fL1sMu22erL1f0Tkf24QL3trkIsoFiltered0p09"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoTkMu27_v"),
+        path1 = cms.vstring ("hltL3fL1sMu22Or25L1f0Tkf27QL3trkIsoFiltered0p09"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(999)
+        ),
 ### === Single electron triggers
     cms.PSet (
         HLT = cms.string("HLT_Ele25_WPTight_Gsf_v"),
@@ -183,6 +211,27 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v"),
         path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
         path2 = cms.vstring ("hltDoublePFTau40TrackPt1MediumIsolationDz02Reg"),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_DoubleMediumCombinedIsoPFTau35_Trk1_eta2p1_Reg_v"),
+        path1 = cms.vstring ("hltDoublePFTau35TrackPt1MediumCombinedIsolationDz02Reg"),
+        path2 = cms.vstring ("hltDoublePFTau35TrackPt1MediumCombinedIsolationDz02Reg"),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_Reg_v"),
+        path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumCombinedIsolationDz02Reg"),
+        path2 = cms.vstring ("hltDoublePFTau40TrackPt1MediumCombinedIsolationDz02Reg"),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_DoubleMediumCombinedIsoPFTau40_Trk1_eta2p1_v"),
+        path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumCombinedIsolationDz02"),
+        path2 = cms.vstring ("hltDoublePFTau40TrackPt1MediumCombinedIsolationDz02"),
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
