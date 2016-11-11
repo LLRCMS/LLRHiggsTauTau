@@ -197,7 +197,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     float PFPhotonIso       = l.photonIso();
 
     //float fSCeta = fabs(l.eta()); 
-    float fSCeta = fabs(l.superCluster()->eta());
+    float fSCeta = l.superCluster()->eta();
 
     float combRelIsoPF = (l.pfIsolationVariables().sumChargedHadronPt + max(l.pfIsolationVariables().sumNeutralHadronEt +l.pfIsolationVariables().sumPhotonEt - 0.5 * l.pfIsolationVariables().sumPUPt, 0.0)) / l.pt();
 //LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, l);
@@ -270,8 +270,9 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("eleMVAvalue",eleMVAvalue);
     l.addUserFloat("BDT",eleMVAvalue); //I know, it's duplicated, but I don't want to change to change all the downstream code...
     bool isBDT = false;
-    if(fSCeta < 2.4){
-      if (fSCeta <0.8){
+    float afSCeta = fabs(fSCeta);
+    if(afSCeta < 2.4){
+      if (afSCeta <0.8){
         if (l.pt()>10) isBDT = (eleMVAvalue>0.913286);
         else isBDT = (eleMVAvalue>-0.083313);
       } else{
