@@ -10,7 +10,7 @@
 #include <iostream>
 #include "LLRHiggsTauTau/NtupleProducer/interface/GenHelper.h"
 #include <DataFormats/Candidate/interface/Candidate.h>
-
+#include <DataFormats/HepMCCandidate/interface/GenStatusFlags.h>
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 
 bool genhelper::IsLastCopy (const reco::GenParticle& part)
@@ -113,6 +113,11 @@ const reco::Candidate* genhelper::GetLastCopy (const reco::Candidate* part)
         const reco::Candidate * Dau = part->daughter( iDau );
         if (id == Dau->pdgId())
         {
+            // check gen flags - if pdgId is the same but this particle isFirst(), then it means it is a X -> X+gamma -> X + (XX) process
+            const reco::GenParticle* gpDau = static_cast<const reco::GenParticle*>(Dau);
+            const reco::GenStatusFlags& fl = gpDau->statusFlags();
+            if (fl.isFirstCopy()) continue;
+
             cloneInd = iDau;
             break;
         }
