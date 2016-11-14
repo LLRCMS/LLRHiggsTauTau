@@ -496,6 +496,7 @@ process.taus=cms.Sequence(process.bareTaus + process.softTaus)
 ### ----------------------------------------------------------------------
 process.genInfo = cms.EDProducer("GenFiller",
          src = cms.InputTag("prunedGenParticles"),
+         storeLightFlavAndGlu = cms.bool(True) # if True, store also udcs and gluons (first copy)
  )                
 if IsMC : process.geninfo = cms.Sequence(process.genInfo)
 else : process.geninfo = cms.Sequence()

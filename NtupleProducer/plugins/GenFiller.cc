@@ -49,12 +49,14 @@ class GenFiller : public edm::EDProducer {
   std::vector<const reco::Candidate *> cands_;
   //std::vector<reco::GenParticle> tauHadcands_; // gen H tau build in this class
   std::vector<int> tauHadcandsMothers_; // contains the index in the cands_ vector of the tauh mother
+  const bool storeLightFlavAndGlu_;
 };
 
 // ------------------------------------------------------------------
 
 GenFiller::GenFiller(const edm::ParameterSet& iConfig):
-src_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("src")))
+src_(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("src"))),
+storeLightFlavAndGlu_(iConfig.getParameter<bool>("storeLightFlavAndGlu"))
 {
     //src_ = iConfig.getParameter<InputTag>("src");
     produces<pat::GenericParticleCollection>();
@@ -301,7 +303,7 @@ bool GenFiller::IsInteresting (const GenParticle& p)
 
     bool IsLast = genhelper::IsLastCopy(p);
     bool GoodPdgId = (APdgId == 25 || APdgId == 36 || APdgId == 23 || APdgId == 24 ||// bosons
-		      APdgId == 6 || // quarks
+                      APdgId == 6  || // quarks
                       APdgId == 11 || APdgId == 12 || APdgId == 13 || APdgId == 14 || APdgId == 15 || APdgId == 16); // leptons
 
     if(isVBFParton(p)) return true ;
@@ -310,7 +312,13 @@ bool GenFiller::IsInteresting (const GenParticle& p)
     
     // case of b quarks, just save first one (too many showering products)
     bool IsFirst = genhelper::IsFirstCopy(p, true);
-    if ((APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 6 || APdgId == 11 || APdgId == 13 || APdgId == 15 || APdgId == 21 || APdgId==25) && IsFirst) return true; // for b, save also the first copy in the list
+    bool GoodFirstPdg = (APdgId == 5 || APdgId == 6 || APdgId == 11 || APdgId == 13 || APdgId == 15 || APdgId==25);
+    if (storeLightFlavAndGlu_) // also light flavors and quarks
+        GoodFirstPdg = (GoodFirstPdg || APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 21);
+    
+    if (GoodFirstPdg && IsFirst) return true;
+
+    // if ((APdgId == 1 || APdgId == 2 || APdgId == 3 || APdgId == 4 || APdgId == 5 || APdgId == 6 || APdgId == 11 || APdgId == 13 || APdgId == 15 || APdgId == 21 || APdgId==25) && IsFirst) return true; // for b, save also the first copy in the list
     // if (APdgId == 5 && IsFirst) return true; // for b, save also the first copy in the list
                                              // check abs id to avoid problems if b -> (b bar) b as the bbar woudl result as first
 
