@@ -1405,8 +1405,7 @@ Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0)
 void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
   Initialize();
-
-  findPrimaryVertices(event, eSetup);
+  if (doCPVariables) findPrimaryVertices(event, eSetup);
   
   Handle<vector<reco::Vertex> >  vertexs;
   //event.getByLabel("offlineSlimmedPrimaryVertices",vertex);
@@ -1607,8 +1606,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _numberOfJets = 0;
   if(writeJets)_numberOfJets = FillJet(jets, event, &jecUnc);
   if(writeFatJets) FillFatJet(fatjets, event);
-     
-
+       
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
   for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
@@ -1781,7 +1779,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _mothers_py.push_back( (float) candp4.Y());
     _mothers_pz.push_back( (float) candp4.Z());
     _mothers_e.push_back( (float) candp4.T());
-    
+
     // use info computed in FillSoftLeptons to check if legs are matched to separate trigger objects for each trigger
     Long64_t trgSeparateMatch = 0;
     vector<int> vMatchesDau1 = vTrgMatchedToDau_idx.at(_indexDau1.back());
