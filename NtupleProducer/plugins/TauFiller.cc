@@ -132,18 +132,9 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "againstElectronLooseMVA6",
     "againstElectronMediumMVA6",
     "againstElectronTightMVA6",
-    "againstElectronVTightMVA6",
+    "againstElectronVTightMVA6"
 
-    "numChargedParticlesSignalCone",
-    "numNeutralHadronsSignalCone",
-    "numPhotonsSignalCone",
-    "numParticlesSignalCone",
-    "numChargedParticlesIsoCone",
-    "numNeutralHadronsIsoCone",
-    "numPhotonsIsoCone",
-    "numParticlesIsoCone"
   };
-
 
   tauFloatDiscrims_ =
   {
@@ -152,7 +143,6 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byIsolationMVA3oldDMwoLTraw",
     "byIsolationMVA3oldDMwLTraw",
     "byIsolationMVA3newDMwoLTraw",
-    "byIsolationMVArun2v1DBoldDMwLTraw",
     "againstElectronMVA5raw",
     "byPhotonPtSumOutsideSignalCone",
     "byPileupWeightedIsolationRaw3Hits",
