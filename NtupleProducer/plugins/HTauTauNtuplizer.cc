@@ -214,9 +214,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<LHEEventProduct> theLHETag;
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
   edm::EDGetTokenT<pat::METCollection> theMetTag;
-  edm::EDGetTokenT<pat::METCollection> the
-	  
-	  MetTag;
+  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
   edm::EDGetTokenT<math::Error<2>::type> thePFMETCovTag;
   edm::EDGetTokenT<double> thePFMETSignifTag;
   edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
