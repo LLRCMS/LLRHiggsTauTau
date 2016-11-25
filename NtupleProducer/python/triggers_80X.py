@@ -56,7 +56,7 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(999)
         ), ### ok
     cms.PSet (
-        HLT = cms.string("HLT_IsoTkMu22_eta2p1_"),
+        HLT = cms.string("HLT_IsoTkMu22_eta2p1_v"),
         path1 = cms.vstring ("hltL3fL1sMu20erL1f0Tkf22QL3trkIsoFiltered0p09"),
         path2 = cms.vstring (""),
         leg1 = cms.int32(13),

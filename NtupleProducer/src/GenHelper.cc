@@ -76,6 +76,7 @@ int genhelper::GetTauDecay (const reco::Candidate* part)
 
 int genhelper::GetTauDecay (const reco::GenParticle& part)
 {
+    if ( !(part.statusFlags().isLastCopy()) ) return -1; // only for last copies
     const reco::Candidate* p = &part;
     return genhelper::GetTauDecay(p);
 }
