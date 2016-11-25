@@ -120,6 +120,7 @@
    bool writeFatJets = true;
    bool writeSoftLep = false;
    bool DEBUG = false;
+   int DETAIL=0;
  }
 
 using namespace std;
@@ -1057,9 +1058,17 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
-  myTree->Branch("metphi",&_metphi,"metphi/F");  
-  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
-  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");  
+  myTree->Branch("metphi",&_metphi,"metphi/F");
+  if(DETAIL>=1){  
+    myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
+    myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
+    myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
+    myTree->Branch("daughters_hOverE",&_daughters_hOverE);
+    myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
+    myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
+    myTree->Branch("daughters_IoEmIoP",&_daughters_IoEmIoP);
+    myTree->Branch("daughters_IoEmIoP_ttH",&_daughters_IoEmIoP_ttH);
+  }
   myTree->Branch("PFMETCov00",&_PFMETCov00,"PFMETCov00/F");
   myTree->Branch("PFMETCov01",&_PFMETCov01,"PFMETCov01/F");
   myTree->Branch("PFMETCov10",&_PFMETCov10,"PFMETCov10/F");
@@ -1076,8 +1085,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("mothers_e",&_mothers_e);
   myTree->Branch("mothers_trgSeparateMatch", &_mothers_trgSeparateMatch);
   if(DEBUG){
-  myTree->Branch("trigger_name",&_trigger_name);
-  myTree->Branch("trigger_accept",&_trigger_accept);
+    myTree->Branch("trigger_name",&_trigger_name);
+    myTree->Branch("trigger_accept",&_trigger_accept);
   }
   myTree->Branch("daughters_px",&_daughters_px);
   myTree->Branch("daughters_py",&_daughters_py);
@@ -1097,20 +1106,20 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("daughters_neutral_e",&_daughters_neutral_e);
   }
 
-  myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
-  myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
-  myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
-  myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
-  myTree->Branch("daughters_e_TauUp",&_daughters_e_TauUp);
-
-  myTree->Branch("daughters_TauDownExists",&_daughters_TauDownExists);
-  myTree->Branch("daughters_px_TauDown",&_daughters_px_TauDown);
-  myTree->Branch("daughters_py_TauDown",&_daughters_py_TauDown);
-  myTree->Branch("daughters_pz_TauDown",&_daughters_pz_TauDown);
-  myTree->Branch("daughters_e_TauDown",&_daughters_e_TauDown);
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
+      myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
+      myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
+      myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
+      myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
+      myTree->Branch("daughters_e_TauUp",&_daughters_e_TauUp);
+
+      myTree->Branch("daughters_TauDownExists",&_daughters_TauDownExists);
+      myTree->Branch("daughters_px_TauDown",&_daughters_px_TauDown);
+      myTree->Branch("daughters_py_TauDown",&_daughters_py_TauDown);
+      myTree->Branch("daughters_pz_TauDown",&_daughters_pz_TauDown);
+      myTree->Branch("daughters_e_TauDown",&_daughters_e_TauDown);
     //myTree->Branch("genDaughters",&_genDaughters);
     //myTree->Branch("quarks_px",&_bquarks_px);
     //myTree->Branch("quarks_py",&_bquarks_py);
@@ -1168,48 +1177,39 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genjet_hadronFlavour" , &_genjet_hadronFlavour);
 
     myTree->Branch("NUP", &_nup,"NUP/I");
-  }
+    myTree->Branch("SVfit_fitMETPhiTauUp", &_SVMetPhiTauUp);
+    myTree->Branch("SVfit_fitMETPhiTauDown", &_SVMetPhiTauDown);
+    myTree->Branch("SVfit_fitMETRhoTauUp", &_SVMetRhoTauUp);
+    myTree->Branch("SVfit_fitMETRhoTauDown", &_SVMetRhoTauDown);
+    myTree->Branch("SVfit_phiUncTauUp", &_SVphiUncTauUp);
+    myTree->Branch("SVfit_phiUncTauDown", &_SVphiUncTauDown);
+    myTree->Branch("SVfit_phiTauUp", &_SVphiTauUp);
+    myTree->Branch("SVfit_phiTauDown", &_SVphiTauDown);
+    myTree->Branch("SVfit_etaUncTauUp", &_SVetaUncTauUp);
+    myTree->Branch("SVfit_etaUncTauDown", &_SVetaUncTauDown);
+    myTree->Branch("SVfit_etaTauUp", &_SVetaTauUp);
+    myTree->Branch("SVfit_etaTauDown", &_SVetaTauDown);
+    myTree->Branch("SVfit_ptUncTauUp", &_SVptUncTauUp);
+    myTree->Branch("SVfit_ptUncTauDown", &_SVptUncTauDown);
+    myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
+    myTree->Branch("SVfit_ptTauDown", &_SVptTauDown);
+    myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
+    myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
+    myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
+    myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
+  }// end if isMC
   //myTree->Branch("daughters2",&_daughter2);
+
   myTree->Branch("SVfitMass",&_SVmass);
-  myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
-  myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
-
   myTree->Branch("SVfitTransverseMass",&_SVmassTransverse);
-  myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
-  myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
-
   myTree->Branch("SVfit_pt", &_SVpt);
-  myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
-  myTree->Branch("SVfit_ptTauDown", &_SVptTauDown);
-
   myTree->Branch("SVfit_ptUnc", &_SVptUnc);
-  myTree->Branch("SVfit_ptUncTauUp", &_SVptUncTauUp);
-  myTree->Branch("SVfit_ptUncTauDown", &_SVptUncTauDown);
-
   myTree->Branch("SVfit_eta", &_SVeta);
-  myTree->Branch("SVfit_etaTauUp", &_SVetaTauUp);
-  myTree->Branch("SVfit_etaTauDown", &_SVetaTauDown);
-
   myTree->Branch("SVfit_etaUnc", &_SVetaUnc);
-  myTree->Branch("SVfit_etaUncTauUp", &_SVetaUncTauUp);
-  myTree->Branch("SVfit_etaUncTauDown", &_SVetaUncTauDown);
-
   myTree->Branch("SVfit_phi", &_SVphi);
-  myTree->Branch("SVfit_phiTauUp", &_SVphiTauUp);
-  myTree->Branch("SVfit_phiTauDown", &_SVphiTauDown);
-
   myTree->Branch("SVfit_phiUnc", &_SVphiUnc);
-  myTree->Branch("SVfit_phiUncTauUp", &_SVphiUncTauUp);
-  myTree->Branch("SVfit_phiUncTauDown", &_SVphiUncTauDown);
-
   myTree->Branch("SVfit_fitMETRho", &_SVMetRho);
-  myTree->Branch("SVfit_fitMETRhoTauUp", &_SVMetRhoTauUp);
-  myTree->Branch("SVfit_fitMETRhoTauDown", &_SVMetRhoTauDown);
-
   myTree->Branch("SVfit_fitMETPhi", &_SVMetPhi);
-  myTree->Branch("SVfit_fitMETPhiTauUp", &_SVMetPhiTauUp);
-  myTree->Branch("SVfit_fitMETPhiTauDown", &_SVMetPhiTauDown);
-
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
@@ -1247,17 +1247,11 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("combreliso03",& _combreliso03);
-  myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
-  myTree->Branch("daughters_hOverE",&_daughters_hOverE);
-  myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
-  myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
-  myTree->Branch("daughters_IoEmIoP",&_daughters_IoEmIoP);
-  myTree->Branch("daughters_IoEmIoP_ttH",&_daughters_IoEmIoP_ttH);
-  myTree->Branch("daughters_SCeta",&_daughters_SCeta);
   myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
   myTree->Branch("daughters_decayModeFindingOldDMs", &_daughters_decayModeFindingOldDMs);
+  myTree->Branch("daughters_SCeta",&_daughters_SCeta);  
 
   myTree->Branch("againstElectronMVA5category",&_daughters_againstElectronMVA5category);
   myTree->Branch("againstElectronMVA5raw",&_daughters_againstElectronMVA5raw);
@@ -1303,6 +1297,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_jetPtRatio",&_daughters_jetPtRatio);
   myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
   myTree->Branch("daughters_lepMVA_mvaId",&_daughters_lepMVA_mvaId);
+
   if(doCPVariables){
     myTree->Branch("daughters_pca_x",&_daughters_pca_x);
     myTree->Branch("daughters_pca_y",&_daughters_pca_y);
