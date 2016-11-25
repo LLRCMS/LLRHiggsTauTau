@@ -120,7 +120,7 @@
    bool writeFatJets = true;
    bool writeSoftLep = false;
    bool DEBUG = false;
-   int DETAIL=0;
+   int DETAIL=1;
  }
 
 using namespace std;
@@ -214,7 +214,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<LHEEventProduct> theLHETag;
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
   edm::EDGetTokenT<pat::METCollection> theMetTag;
-  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
+  edm::EDGetTokenT<pat::METCollection> the
+	  
+	  MetTag;
   edm::EDGetTokenT<math::Error<2>::type> thePFMETCovTag;
   edm::EDGetTokenT<double> thePFMETSignifTag;
   edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
@@ -1059,9 +1061,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");
+  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
+  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
   if(DETAIL>=1){  
-    myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
-    myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
     myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
     myTree->Branch("daughters_hOverE",&_daughters_hOverE);
     myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
