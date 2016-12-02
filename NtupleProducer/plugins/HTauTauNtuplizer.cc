@@ -477,6 +477,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byVTightIsolationMVArun2v1DBdR03oldDMwLT"
   };
   std::vector<Float_t> _daughters_IetaIeta;
+  std::vector<Float_t> _daughters_full5x5_IetaIeta;
   std::vector<Float_t> _daughters_hOverE;
   std::vector<Float_t> _daughters_deltaEtaSuperClusterTrackAtVtx;
   std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
@@ -756,6 +757,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_charge.clear();
   _daughters_genindex.clear();
   _daughters_IetaIeta.clear();
+  _daughters_full5x5_IetaIeta.clear();
   _daughters_hOverE.clear();
   _daughters_deltaEtaSuperClusterTrackAtVtx.clear();
   _daughters_deltaPhiSuperClusterTrackAtVtx.clear();
@@ -1247,6 +1249,14 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("combreliso03",& _combreliso03);
+  myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
+  myTree->Branch("daughters_full5x5_IetaIeta",&_daughters_full5x5_IetaIeta);
+  myTree->Branch("daughters_hOverE",&_daughters_hOverE);
+  myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
+  myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
+  myTree->Branch("daughters_IoEmIoP",&_daughters_IoEmIoP);
+  myTree->Branch("daughters_IoEmIoP_ttH",&_daughters_IoEmIoP_ttH);
+  myTree->Branch("daughters_SCeta",&_daughters_SCeta);
   myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
@@ -2208,7 +2218,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     bool iselechargeconsistent=false;
 
     int decay=-1;
-    float ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
+    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
@@ -2269,6 +2279,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     }else if(type==ParticleType::ELECTRON){
       discr=userdatahelpers::getUserFloat(cand,"BDT");
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
+      full5x5_ieta=userdatahelpers::getUserFloat(cand,"full5x5_sigmaIetaIeta");
       hOverE=userdatahelpers::getUserFloat(cand,"hOverE");
       etasuperatvtx=userdatahelpers::getUserFloat(cand,"deltaEtaSuperClusterTrackAtVtx");
       phisuperatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
@@ -2374,6 +2385,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
     _decayType.push_back(decay);
     _daughters_IetaIeta.push_back(ieta);
+    _daughters_full5x5_IetaIeta.push_back(full5x5_ieta);
     _daughters_hOverE.push_back(hOverE);
     _daughters_deltaEtaSuperClusterTrackAtVtx.push_back(etasuperatvtx);
     _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(phisuperatvtx);
