@@ -1065,6 +1065,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
   if(DETAIL>=1){  
     myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
+    myTree->Branch("daughters_full5x5_IetaIeta",&_daughters_full5x5_IetaIeta);
     myTree->Branch("daughters_hOverE",&_daughters_hOverE);
     myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
     myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
@@ -1249,14 +1250,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("combreliso03",& _combreliso03);
-  myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
-  myTree->Branch("daughters_full5x5_IetaIeta",&_daughters_full5x5_IetaIeta);
-  myTree->Branch("daughters_hOverE",&_daughters_hOverE);
-  myTree->Branch("daughters_deltaEtaSuperClusterTrackAtVtx",&_daughters_deltaEtaSuperClusterTrackAtVtx);
-  myTree->Branch("daughters_deltaPhiSuperClusterTrackAtVtx",&_daughters_deltaPhiSuperClusterTrackAtVtx);
-  myTree->Branch("daughters_IoEmIoP",&_daughters_IoEmIoP);
-  myTree->Branch("daughters_IoEmIoP_ttH",&_daughters_IoEmIoP_ttH);
-  myTree->Branch("daughters_SCeta",&_daughters_SCeta);
   myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
