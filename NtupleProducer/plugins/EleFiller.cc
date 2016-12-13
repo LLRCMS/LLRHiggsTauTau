@@ -247,6 +247,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserInt("isGsfCtfScPixChargeConsistent",(isGsfCtfScPixChargeConsistent ? 1 : 0));
     l.addUserInt("isGsfScPixChargeConsistent",(isGsfScPixChargeConsistent ? 1 : 0));
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
+    l.addUserFloat("full5x5_sigmaIetaIeta",l.full5x5_sigmaIetaIeta());
     l.addUserFloat("hOverE",l.hcalOverEcal());
     l.addUserFloat("deltaEtaSuperClusterTrackAtVtx",l.deltaEtaSuperClusterTrackAtVtx());
     l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
