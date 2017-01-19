@@ -10,6 +10,7 @@ config.General.workArea = 'DefaultCrab3Area'
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'analyzer.py' # to produce LLR ntuples or EnrichedMiniAOD according to the RunNtuplizer bool
+config.JobType.sendExternalFolder = True #Needed until the PR including the Spring16 ele MVA ID is integrated in CMSSW/cms-data.
 
 config.section_("Data")
 config.Data.inputDataset = '/my/precious/dataset'
