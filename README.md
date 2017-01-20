@@ -160,6 +160,13 @@ cd CMSSW_8_0_20/src
 cmsenv
 # MET Recipe for ICHEP dataset
 git cms-merge-topic cms-met:METRecipe_8020
+# Spring-16 Electron MVA ID
+git cms-merge-topic ikrav:egm_id_80X_v2
+cd $CMSSW_BASE/external/$SCRAM_ARCH
+git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
+cd data/RecoEgamma/ElectronIdentification/data
+git checkout egm_id_80X_v1
+cd $CMSSW_BASE/src
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
@@ -185,5 +192,4 @@ scram b -j 4
 
 ### Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
-Please note that since 7_4_7 we switched to a new eleID recipe and we are not using anymore git cms-merge-topic sregnard:Phys14ElectronMvaIdFor745
-
+Please note that the MVA Spring 16 Electron ID is now available and used by default
