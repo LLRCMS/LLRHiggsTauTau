@@ -162,8 +162,7 @@ cmsenv
 git cms-merge-topic cms-met:METRecipe_8020
 # Spring-16 Electron MVA ID
 git cms-merge-topic ikrav:egm_id_80X_v2
-cd $CMSSW_BASE/external
-cd slc6_amd64_gcc530/ #May depend on actual architecture used
+cd $CMSSW_BASE/external/$SCRAM_ARCH
 git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
 cd data/RecoEgamma/ElectronIdentification/data
 git checkout egm_id_80X_v1
