@@ -437,6 +437,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<bool> _daughters_iseleWP80; //isBDT for ele
   std::vector<bool> _daughters_iseleWP90; //isBDT for ele
   std::vector<Float_t> _daughters_eleMVAnt; //isBDT for ele
+  std::vector<Float_t> _daughters_eleMVA_HZZ; //isBDT for ele
   std::vector<bool> _daughters_passConversionVeto; //isBDT for ele
   std::vector<int>  _daughters_eleMissingHits;
   std::vector<bool>  _daughters_iseleChargeConsistent;
@@ -816,6 +817,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_iseleWP80.clear();
   _daughters_iseleWP90.clear();
   _daughters_eleMVAnt.clear();
+  _daughters_eleMVA_HZZ.clear();
   _daughters_passConversionVeto.clear();
   _daughters_eleMissingHits.clear();
   _daughters_iseleChargeConsistent.clear();
@@ -1242,6 +1244,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_iseleWP80",&_daughters_iseleWP80);
   myTree->Branch("daughters_iseleWP90",&_daughters_iseleWP90);
   myTree->Branch("daughters_eleMVAnt",&_daughters_eleMVAnt);
+  myTree->Branch("daughters_eleMVA_HZZ",&_daughters_eleMVA_HZZ);
   myTree->Branch("daughters_passConversionVeto",&_daughters_passConversionVeto);
   myTree->Branch("daughters_eleMissingHits",&_daughters_eleMissingHits);
   myTree->Branch("daughters_iseleChargeConsistent",&_daughters_iseleChargeConsistent);
@@ -1512,7 +1515,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(theJetTag,jetHandle);
   event.getByToken(theFatJetTag,fatjetHandle);
   event.getByToken(theLepTag,dauHandle);
-  
   event.getByToken(theMetTag,metHandle);
   event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   event.getByToken(thePFMETCovTag,covHandle);
@@ -2206,6 +2208,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     bool isele80=false;
     bool isele90=false;
     float elemva=-2;
+    float elemva_HZZ=-2;
     bool isconversionveto=false;
     int elemissinghits = 999;
     bool iselechargeconsistent=false;
@@ -2283,6 +2286,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       if(userdatahelpers::getUserInt(cand,"isEleID80") == 1) isele80=true;
       if(userdatahelpers::getUserInt(cand,"isEleID90") == 1) isele90=true;
       elemva=(userdatahelpers::getUserFloat(cand,"eleMVAvalue"));
+      elemva_HZZ=(userdatahelpers::getUserFloat(cand,"HZZeleMVAvalue"));
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
@@ -2300,7 +2304,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");      
 
-      lepMVA_mvaId = elemva;
+      lepMVA_mvaId = elemva_HZZ;
 
     }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
@@ -2370,7 +2374,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_iseleBDT.push_back(isgood);
     _daughters_iseleWP80.push_back(isele80);
     _daughters_iseleWP90.push_back(isele90);
-    _daughters_eleMVAnt.push_back(elemva);
+    _daughters_eleMVAnt.push_back(elemva); 
+    _daughters_eleMVA_HZZ.push_back(elemva_HZZ);     
     _daughters_passConversionVeto.push_back(isconversionveto);
     _daughters_eleMissingHits.push_back(elemissinghits);
     _daughters_iseleChargeConsistent.push_back(iselechargeconsistent);

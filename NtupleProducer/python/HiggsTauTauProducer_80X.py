@@ -49,7 +49,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_miniAODv2_v1'
+    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6'
 else :
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0' # ICHEP
     process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v4' # Run B-G sept rereco 2016
@@ -71,7 +71,12 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+#process.load("RecoMET.METFilters.python.badGlobalMuonTaggersMiniAOD_cff")
+#process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool( True ),
+    #SkipEvent = cms.untracked.vstring('ProductNotFound')
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -128,9 +133,28 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
 
+#Re-Reco2016 fix from G. Petrucciani
+#process.load("RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff")
+process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
+    muons = cms.InputTag("slimmedMuons"),
+    vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    muonPtCut = cms.double(20),
+    selectClones = cms.bool(False),
+)
+process.cloneGlobalMuonTagger = process.badGlobalMuonTagger.clone(
+    selectClones = True
+)
+
+process.noBadGlobalMuons = cms.Sequence(~process.cloneGlobalMuonTagger + ~process.badGlobalMuonTagger)
+
+#process.softLeptons = cms.EDProducer("CandViewMerger",
+#    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
+#    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
+#)
+
 ### Mu Ghost cleaning
 process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
-                                   src = cms.InputTag("slimmedMuons"),
+                                   src = cms.InputTag("noBadGlobalMuons"),
                                    preselection = cms.string("track.isNonnull"),
                                    passthrough = cms.string("isGlobalMuon && numberOfMatches >= 2"),
                                    fractionOfSharedSegments = cms.double(0.499))
@@ -175,7 +199,7 @@ process.softMuons = cms.EDProducer("MuFiller",
 )
 
 # process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process.softMuons)
-process.muons =  cms.Sequence(process.bareSoftMuons+ process.softMuons)    
+process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons)    
 
 ###
 ### Electrons
@@ -244,6 +268,8 @@ my_id_modules =[
 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',    # 25 ns trig
 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_50ns_Trig_V1_cff',    # 50 ns trig
 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',   #Spring16
+'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',   #Spring16 HZZ
+
 ] 
 #['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_'+nanosec+'ns_V1_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff']
 #Add them to the VID producer
@@ -292,6 +318,8 @@ process.softElectrons = cms.EDProducer("EleFiller",
    eleTightIdMap  = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80"),
    mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
    mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Categories"),
+   HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
+
 
 #    cut = cms.string("userFloat('SIP')<100"),
 #   cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
