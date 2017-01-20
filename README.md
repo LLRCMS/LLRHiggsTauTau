@@ -152,16 +152,18 @@ scram b -j 4
 ```
 </details>
 
-### Instructions for 8_0_20
+### Instructions for 8_0_25
 
 ```
-cmsrel CMSSW_8_0_20
-cd CMSSW_8_0_20/src
+cmsrel CMSSW_8_0_25
+cd CMSSW_8_0_25/src
 cmsenv
 # MET Recipe for ICHEP dataset
 git cms-merge-topic cms-met:METRecipe_8020
 # Spring-16 Electron MVA ID
 git cms-merge-topic ikrav:egm_id_80X_v2
+#ReReco muons fix
+git cms-merge-topic gpetruc:badMuonFilters_80X
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
@@ -182,13 +184,12 @@ git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalon
 cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
 cd -
-scram b -j 4
-
 cd $CMSSW_BASE/external/$SCRAM_ARCH
 git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
 cd data/RecoEgamma/ElectronIdentification/data
 git checkout egm_id_80X_v1
 cd $CMSSW_BASE/src
+scram b -j 4
 ```
 
 ### Quick usage:
