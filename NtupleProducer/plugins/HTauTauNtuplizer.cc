@@ -1356,8 +1356,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("pfCombinedMVAV2BJetTags",&_bdiscr3);
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
-  myTree->Branch("jets_QGdiscr" , &_jets_QGdiscr);
-
+  if (computeQGVar) myTree->Branch("jets_QGdiscr" , &_jets_QGdiscr);
   myTree->Branch("ak8jets_px", &_ak8jets_px);
   myTree->Branch("ak8jets_py", &_ak8jets_py);
   myTree->Branch("ak8jets_pz", &_ak8jets_pz);
