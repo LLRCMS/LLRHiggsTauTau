@@ -28,6 +28,7 @@ BUILDONLYOS=False #If true don't create the collection of SS candidates (and thu
 APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
 COMPUTEUPDOWNSVFIT = True # compute SVfit for up/down TES variation
 doCPVariables=False # compute CP variables and PV refit
+COMPUTEQGVAR = False # compute QG Tagger for jets
 IsMC=False
 Is25ns=True
 HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.
