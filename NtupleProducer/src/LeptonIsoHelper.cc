@@ -9,7 +9,7 @@
 #include <Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h>
 //#include <EGamma/EGammaAnalysisTools/interface/ElectronEffectiveArea.h>
 #include <LLRHiggsTauTau/NtupleProducer/interface/CustomElectronEffectiveArea.h>
-
+#include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 #include <DataFormats/PatCandidates/interface/PackedCandidate.h>
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -277,6 +277,7 @@ float LeptonIsoHelper::isoSumRaw(const reco::Candidate* cand, const std::vector<
 	  {
 	     continue;
         }
+
         // add to sum
         isosum += (*icand)->pt();
     }
@@ -296,9 +297,10 @@ float LeptonIsoHelper::PfIsoCharged(const reco::Candidate* cand, const std::vect
   if(cand->isElectron()){
 
     float innerR_Ch = .0;
-    if ( fabs(cand->eta()) < 1.479 ) { innerR_Ch = 0.0; }
+
+    if( userdatahelpers::getUserInt(cand,"isEB") ) { innerR_Ch = 0.0; }
     else { innerR_Ch = 0.015; }
-    
+
     result = isoSumRaw(cand,pfCands_charged,miniIsoR,innerR_Ch,0.0,SelfVetoPolicy::selfVetoNone);
 
   }
@@ -323,7 +325,7 @@ float LeptonIsoHelper::PfIsoNeutral(const reco::Candidate* cand, const std::vect
   if(cand->isElectron()){
 
     float innerR_N = .0;
-    if ( fabs(cand->eta()) < 1.479 ) { innerR_N = 0.0; }
+    if( userdatahelpers::getUserInt(cand,"isEB") ) { innerR_N = 0.0; }
     else { innerR_N = 0.08; }
     
     float result1 = isoSumRaw(cand,pfCands_neutral,miniIsoR,innerR_N,0.0,SelfVetoPolicy::selfVetoNone,22 );
