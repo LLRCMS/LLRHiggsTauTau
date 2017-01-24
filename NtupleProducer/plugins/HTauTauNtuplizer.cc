@@ -180,6 +180,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   bool theFSR;
   Bool_t theisMC;
   Bool_t doCPVariables;
+  Bool_t computeQGVar;
   string theJECName;
   // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
@@ -210,6 +211,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::View<pat::CompositeCandidate>> theCandTag;
   edm::EDGetTokenT<edm::View<pat::Jet>> theJetTag;
   edm::EDGetTokenT<edm::View<pat::Jet>> theFatJetTag;
+  edm::EDGetTokenT<edm::ValueMap<float>> theQGTaggerTag;
   edm::EDGetTokenT<edm::View<reco::Candidate>> theLepTag;
   edm::EDGetTokenT<LHEEventProduct> theLHETag;
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
@@ -576,6 +578,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t>   _jets_chMult;
   std::vector<Float_t> _jets_jecUnc;
 
+  std::vector<Float_t> _jets_QGdiscr;
+
   std::vector<Float_t> _ak8jets_px;
   std::vector<Float_t> _ak8jets_py;
   std::vector<Float_t> _ak8jets_pz;
@@ -634,6 +638,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theCandTag           (consumes<edm::View<pat::CompositeCandidate>>     (pset.getParameter<edm::InputTag>("candCollection"))),
   theJetTag            (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("jetCollection"))),
   theFatJetTag         (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("ak8jetCollection"))),
+  theQGTaggerTag       (consumes<edm::ValueMap<float>>                   (pset.getParameter<edm::InputTag>("QGTagger"))),
   theLepTag            (consumes<edm::View<reco::Candidate>>             (pset.getParameter<edm::InputTag>("lepCollection"))),
   theLHETag            (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lheCollection"))),
   theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
@@ -653,6 +658,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
   doCPVariables = pset.getParameter<bool>("doCPVariables");
+  computeQGVar = pset.getParameter<bool>("computeQGVar");
   theJECName = pset.getUntrackedParameter<string>("JECset");
   // theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
@@ -1010,6 +1016,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
   _jets_jecUnc.clear();
+  _jets_QGdiscr.clear();
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -1352,7 +1359,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("pfCombinedMVAV2BJetTags",&_bdiscr3);
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
-
+  if (computeQGVar) myTree->Branch("jets_QGdiscr" , &_jets_QGdiscr);
   myTree->Branch("ak8jets_px", &_ak8jets_px);
   myTree->Branch("ak8jets_py", &_ak8jets_py);
   myTree->Branch("ak8jets_pz", &_ak8jets_pz);
@@ -1500,6 +1507,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<reco::Candidate>>dauHandle;
   edm::Handle<edm::View<pat::Jet>>jetHandle;
   edm::Handle<edm::View<pat::Jet>>fatjetHandle;
+  edm::Handle<edm::ValueMap<float>>qgTaggerHandle;
   edm::Handle<pat::METCollection> metHandle;
   edm::Handle<pat::METCollection> PUPPImetHandle;
   edm::Handle<math::Error<2>::type> covHandle;
@@ -1513,6 +1521,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   event.getByToken(theCandTag,candHandle);
   event.getByToken(theJetTag,jetHandle);
+  if(computeQGVar)
+    event.getByToken(theQGTaggerTag,qgTaggerHandle);
   event.getByToken(theFatJetTag,fatjetHandle);
   event.getByToken(theLepTag,dauHandle);
   event.getByToken(theMetTag,metHandle);
@@ -1604,7 +1614,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
   _numberOfJets = 0;
-  if(writeJets)_numberOfJets = FillJet(jets, event, &jecUnc);
+  if(writeJets){
+    _numberOfJets = FillJet(jets, event, &jecUnc);
+
+    if(computeQGVar){ //Needs jetHandle + qgTaggerHandle
+      for(auto jet = jetHandle->begin(); jet != jetHandle->end(); ++jet){
+	edm::RefToBase<pat::Jet> jetRef(edm::Ref<edm::View<pat::Jet> >(jetHandle, jet - jetHandle->begin()));
+	float qgLikelihood = (*qgTaggerHandle)[jetRef];
+	_jets_QGdiscr.push_back(qgLikelihood);
+      }
+    }
+    
+  }
   if(writeFatJets) FillFatJet(fatjets, event);
        
   //Loop on pairs

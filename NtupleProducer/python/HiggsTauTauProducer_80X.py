@@ -598,6 +598,41 @@ process.jets = cms.EDFilter("PATJetRefSelector",
                             src = cms.InputTag("updatedPatJetsUpdatedJEC"),
                             cut = cms.string(JETCUT)
 )
+
+
+##
+## QG tagging for jets
+##
+if COMPUTEQGVAR:
+    qgDatabaseVersion = 'v1' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
+
+    from CondCore.DBCommon.CondDBSetup_cfi import *
+    QGPoolDBESSource = cms.ESSource("PoolDBESSource",
+                                    CondDBSetup,
+                                    toGet = cms.VPSet(),
+                                    connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
+    )
+    
+    for type in ['AK4PFchs']:
+        QGPoolDBESSource.toGet.extend(cms.VPSet(cms.PSet(
+                    record = cms.string('QGLikelihoodRcd'),
+                    tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_'+type),
+                    label  = cms.untracked.string('QGL_'+type)
+                    )))
+
+
+    process.load('RecoJets.JetProducers.QGTagger_cfi')
+    process.QGTagger.srcJets          = cms.InputTag("jets")    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
+    process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
+    process.jetSequence = cms.Sequence(process.jets * process.QGTagger)
+
+else:
+    process.jetSequence = cms.Sequence(process.jets)
+
+
+
+
+
 ##
 ## Build ll candidates (here OS)
 ##
@@ -757,6 +792,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       jetCollection = cms.InputTag("jets"),
                       #JECset = cms.untracked.string("patJetCorrFactors"),
                       JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC"),
+                      computeQGVar = cms.bool(COMPUTEQGVAR),
+                      QGTagger = cms.InputTag("QGTagger", "qgLikelihood"),
                       ak8jetCollection = cms.InputTag("slimmedJetsAK8"),
                       lepCollection = cms.InputTag("softLeptons"),
                       lheCollection = cms.InputTag("LHEEventProduct"),
@@ -816,7 +853,7 @@ process.Candidates = cms.Sequence(
     process.fsrSequence       +
     process.softLeptons       + process.barellCand +
     #process.jets              +
-    process.jecSequence + process.jets + 
+    process.jecSequence + process.jetSequence + #process.jets + 
     process.METSequence       +
     process.geninfo           +
     process.SVFit             
