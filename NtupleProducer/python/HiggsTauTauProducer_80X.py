@@ -140,12 +140,26 @@ process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
     vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
     muonPtCut = cms.double(20),
     selectClones = cms.bool(False),
+    taggingMode = cms.bool(True),
+    verbose     = cms.untracked.bool(False)
 )
 process.cloneGlobalMuonTagger = process.badGlobalMuonTagger.clone(
-    selectClones = True
+    selectClones = cms.bool(True)
 )
 
-process.noBadGlobalMuons = cms.Sequence(~process.cloneGlobalMuonTagger + ~process.badGlobalMuonTagger)
+process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
+    input = cms.InputTag("slimmedMuons"),
+    toremove = cms.InputTag("badGlobalMuonTagger", "bad"),
+    toremove2 = cms.InputTag("cloneGlobalMuonTagger", "bad")
+)
+
+# process.removeCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
+#     input = cms.InputTag("removeBadGlobalMuons"),
+#     toremove = cms.InputTag("cloneGlobalMuonTagger")
+# )
+
+# process.noBadGlobalMuons = cms.Sequence(~process.cloneGlobalMuonTagger + ~process.badGlobalMuonTagger)
+process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
 
 #process.softLeptons = cms.EDProducer("CandViewMerger",
 #    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
@@ -153,20 +167,21 @@ process.noBadGlobalMuons = cms.Sequence(~process.cloneGlobalMuonTagger + ~proces
 #)
 
 ### Mu Ghost cleaning
-process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
-                                   src = cms.InputTag("noBadGlobalMuons"),
-                                   preselection = cms.string("track.isNonnull"),
-                                   passthrough = cms.string("isGlobalMuon && numberOfMatches >= 2"),
-                                   fractionOfSharedSegments = cms.double(0.499))
+# process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
+#                                    src = cms.InputTag("cloneGlobalMuonTagger"),
+#                                    preselection = cms.string("track.isNonnull"),
+#                                    passthrough = cms.string("isGlobalMuon && numberOfMatches >= 2"),
+#                                    fractionOfSharedSegments = cms.double(0.499))
 
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
-    src = cms.InputTag("slimmedMuons"),
+    src = cms.InputTag("removeBadAndCloneGlobalMuons"),
     cut = cms.string(MUCUT)
 #    Lowering pT cuts
 #    cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
 #                     "pt>3 && p>3.5 && abs(eta)<2.4")
 )
+
 
 
 # # MC matching. As the genParticles are no more available in cmg, we re-match with prunedGenParticles.
@@ -812,7 +827,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer"),
-                      beamSpot = cms.InputTag("offlineBeamSpot")               
+                      beamSpot = cms.InputTag("offlineBeamSpot"),
+                      nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons")               
                       )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")

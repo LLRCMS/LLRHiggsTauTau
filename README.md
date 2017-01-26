@@ -163,7 +163,7 @@ git cms-merge-topic cms-met:METRecipe_8020
 # Spring-16 Electron MVA ID
 git cms-merge-topic ikrav:egm_id_80X_v2
 #ReReco muons fix
-git cms-merge-topic gpetruc:badMuonFilters_80X
+git cms-merge-topic gpetruc:badMuonFilters_80X_v2
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
