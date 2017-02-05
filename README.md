@@ -183,7 +183,8 @@ cd -
 git clone https://github.com/veelken/SVfit_standalone TauAnalysis/SVfitStandalone
 cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
-cd -
+cd $CMSSW_BASE/src
+scram b -j 4
 cd $CMSSW_BASE/external/$SCRAM_ARCH
 git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
 cd data/RecoEgamma/ElectronIdentification/data
