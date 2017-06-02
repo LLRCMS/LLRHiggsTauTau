@@ -60,7 +60,11 @@ class ProcDataset:
 #path = "crab3_MC_2016_24Giu_resubDY_VeryLong"
 #path = "crab3_MC_2016_27Giu_WAndRadionSub2"
 #path = "crab3_data_2016_08lugJSON_diff_22giuJSON_runBrunC"
-path = "crab3_data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD"
+#path = "crab3_data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD"
+
+#path = "crab3_MC_Summer16"
+#path = "crab3_Data_23SepReReco_8Feb2017_res"
+path = "crab3_MC_gravitons_24Apr2017"
 
 if not os.path.isdir(path):
     print "Folder %s does not exist" % path

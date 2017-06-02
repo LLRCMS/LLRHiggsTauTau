@@ -117,13 +117,51 @@ import re
 # tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD"
 # datasetsFile = "datasets.txt"
 
-PROCESS = ["DATA2016RESUB"]
-tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD_resSEle"
+# PROCESS = ["DATA2016RESUB"]
+# tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD_resSEle"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["MC80XSUMMER16LUCA"]
+# tag = "MC_Summer16"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA80XRERECOSETLUCARESUB"]
+# tag = "Data_23SepReReco_8Feb2017_res2"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA80XRERECOSETLUCARESUBMORE"]
+# tag = "Data_23SepReReco_8Feb2017_res4"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA7FEBH"]
+# tag = "Data_03FEB2017ReReco_22Feb2017_runH"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA7FEBBG"]
+# tag = "Data_03FEB2017ReReco_22Feb2017_runBG"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA7FEBBGRESUB"]
+# tag = "Data_03FEB2017ReReco_22Feb2017_runBG_res"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["DATA7FEBHRESUB"]
+# tag = "Data_03FEB2017ReReco_22Feb2017_runH_res"
+# datasetsFile = "datasets.txt"
+
+# PROCESS = ["SUSYSAMPLE"]
+# tag = "MCSUSY_2Apr2017"
+# datasetsFile = "datasets.txt"
+
+#PROCESS = ["MC80XGRAVITON"]
+#tag = "MC_gravitons_24Apr2017"
+#datasetsFile = "datasets.txt"
+
+PROCESS = ["MC80XRSGRAVITON"]
+tag = "MC_gravitonsRS_29Apr2017"
 datasetsFile = "datasets.txt"
 
-
-
-isMC = False
+isMC = True
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -151,7 +189,8 @@ isMC = False
 ## 8 lug JSON MINUS 22 giu JSON
 # compareJSON.py --sub /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275783_13TeV_PromptReco_Collisions16_JSON.txt /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt 8lugJSON_diff_22giuJSON.txt
 # lumiMaskFileName = "15lug_NoL1TJSON_diff_8lugJSON.txt"
-lumiMaskFileName = "20lug_NoL1TJSON_diff_15lug_NoL1TJSON.txt"
+# lumiMaskFileName = "20lug_NoL1TJSON_diff_15lug_NoL1TJSON.txt"
+lumiMaskFileName = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 
 FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = True # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time

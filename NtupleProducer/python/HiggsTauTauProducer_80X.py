@@ -52,7 +52,8 @@ if IsMC:
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6'
 else :
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0' # ICHEP
-    process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-H 
+    process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-G
+    # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v16' # Run H  
 print process.GlobalTag.globaltag
 
 nanosec="25"
@@ -827,7 +828,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
-                      nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons")               
+                      nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons"),
+                      genLumiHeaderTag = cms.InputTag("generator")
                       )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
@@ -858,7 +860,7 @@ process.PVfilter = cms.Path(process.goodPrimaryVertices)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
-    #process.printTree         + # just for debug, print MC particles
+    # process.printTree         + # just for debug, print MC particles
     process.nEventsTotal      +
     #process.hltFilter         + 
     process.nEventsPassTrigger+

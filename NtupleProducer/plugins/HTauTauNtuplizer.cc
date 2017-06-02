@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -226,6 +227,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<LHEEventProduct> theLHEPTag;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag;
   edm::EDGetTokenT<int> theNBadMuTag;
+  edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
   //flags
   //static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
@@ -612,6 +614,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
   std::vector<Float_t> _jetrawf;
 
+  // SUSY info
+  TString _susyModel;
+
   //genH
   //std::vector<Float_t> _genH_px;
   //std::vector<Float_t> _genH_py;
@@ -653,7 +658,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   thePassTag           (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("passCollection"))),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection"))),
   beamSpotTag          (consumes<reco::BeamSpot>                         (pset.getParameter<edm::InputTag>("beamSpot"))),
-  theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu")))
+  theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))),
+  genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag")))
 
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
@@ -718,6 +724,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   */
 
   Initialize();
+  _susyModel = ""; // not to initialize at every event, as updated ni new lumi block
 }
 
 HTauTauNtuplizer::~HTauTauNtuplizer(){
@@ -1049,6 +1056,7 @@ void HTauTauNtuplizer::Initialize(){
   _subjets_ak8MotherIdx.clear();
 
 
+
   //_genH_px.clear();
   //_genH_py.clear();
   //_genH_pz.clear();
@@ -1363,6 +1371,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("pfCombinedMVAV2BJetTags",&_bdiscr3);
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
+  myTree->Branch("susyModel",&_susyModel);
   if (computeQGVar) myTree->Branch("jets_QGdiscr" , &_jets_QGdiscr);
   myTree->Branch("ak8jets_px", &_ak8jets_px);
   myTree->Branch("ak8jets_py", &_ak8jets_py);
@@ -2941,7 +2950,20 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 
 void HTauTauNtuplizer::endRun(edm::Run const&, edm::EventSetup const&){
 }
-void HTauTauNtuplizer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){
+void HTauTauNtuplizer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup){
+  if (theisMC)
+  {
+    // try {event.getByToken(theLHEPTag, lheEventProduct);} catch (...) {;}
+    // if (lheEventProduct.isValid())
+    edm::Handle<GenLumiInfoHeader> gen_header;
+    iLumi.getByToken(genLumiHeaderTag, gen_header);
+    if (gen_header.isValid())
+    { 
+      string model = gen_header->configDescription(); 
+      // cout<<model<<endl;  // prints, e.g. T1tttt_1500_100
+      _susyModel = model;
+    }
+  }
 }
 void HTauTauNtuplizer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup)
 {
