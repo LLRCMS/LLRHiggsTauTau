@@ -105,7 +105,8 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(theCandidateTag, genHandle);
 
   // Output collection
-  auto_ptr<pat::GenericParticleCollection> result( new pat::GenericParticleCollection() );
+  //auto_ptr<pat::GenericParticleCollection> result( new pat::GenericParticleCollection() );
+  std::unique_ptr<pat::GenericParticleCollection> result( new pat::GenericParticleCollection() );
   //  printf("size %d\n",genHandle->size());
   //for(GenParticleCollection::const_iterator genp = genHandle->begin();genp != genHandle->end(); ++ genp ) {  // loop over GEN particles
   for (unsigned int i = 0; i< genHandle->size(); ++i){
@@ -183,7 +184,8 @@ void bFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
 
   }//end isb
-  iEvent.put(result);
+  //iEvent.put(result);
+  iEvent.put(std::move(result));
 }//end loop over genParticles
 
 // ------------ method called once each job just before starting event loop  ------------

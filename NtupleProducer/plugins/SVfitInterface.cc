@@ -181,7 +181,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   // Output collection
-  auto_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
+  //auto_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
+  std::unique_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
 
   // loop on all the pairs
   for (unsigned int i = 0; i < pairNumber; ++i)
@@ -599,7 +600,8 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     result->push_back(pair);     
   }
   
-  iEvent.put(result);
+  //iEvent.put(result);
+  iEvent.put(std::move(result));
 }
 
 

@@ -71,8 +71,9 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     tauHadcandsMothers_.clear();
     
     // output collection
-    auto_ptr<pat::GenericParticleCollection> result( new pat::GenericParticleCollection );
-    
+    //auto_ptr<pat::GenericParticleCollection> result( new pat::GenericParticleCollection );
+	std::unique_ptr<pat::GenericParticleCollection> result( new pat::GenericParticleCollection );
+	
     unsigned int Ngen = genHandle->size();
 
     // fill vector of interesting Candidate* object, also used later for indexes
@@ -293,7 +294,8 @@ void GenFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         result->push_back (tauH);
 	result->push_back (tauH_neutral);
     }        
-    iEvent.put(result);
+    //iEvent.put(result);
+	iEvent.put(std::move(result));
 }
 
 // set of requirement(s) defining which particle must be saved

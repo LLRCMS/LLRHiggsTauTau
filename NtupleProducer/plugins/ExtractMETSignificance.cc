@@ -56,16 +56,20 @@ void ExtractMETSignificance::produce(edm::Event& iEvent, const edm::EventSetup& 
     const reco::METCovMatrix cov = patMET.getSignificanceMatrix();
     double sig = patMET.significance();
 
-    std::auto_ptr<double> significance (new double);
-    (*significance) = sig;
+    //std::auto_ptr<double> significance (new double);
+    std::unique_ptr<double> significance (new double);
+	(*significance) = sig;
 
-    std::auto_ptr<math::Error<2>::type> covPtr(new math::Error<2>::type());
-    (*covPtr)(0,0) = cov(0,0);
+    //std::auto_ptr<math::Error<2>::type> covPtr(new math::Error<2>::type());
+	std::unique_ptr<math::Error<2>::type> covPtr(new math::Error<2>::type());
+	(*covPtr)(0,0) = cov(0,0);
     (*covPtr)(1,0) = cov(1,0);
     (*covPtr)(1,1) = cov(1,1);
 
-    iEvent.put( covPtr, "METCovariance" );
-    iEvent.put( significance, "METSignificance" );
+    //iEvent.put( covPtr, "METCovariance" );
+    //iEvent.put( significance, "METSignificance" );
+	iEvent.put( std::move(covPtr), "METCovariance" );
+	iEvent.put( std::move(significance), "METSignificance" );
 }
 
 #include <FWCore/Framework/interface/MakerMacros.h>
