@@ -51,12 +51,17 @@ DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are sa
 STORE_ENRICHEMENT_ONLY=True # When True and DO_ENRICHED=True only collection additional to MiniAOD standard are stored. They can be used to reproduce ntuples when used together with oryginal MiniAOD with two-file-solution
 # ------------------------
 
+is92X = True if 'CMSSW_9' in os.environ['CMSSW_VERSION'] else False# True to run in 92X (2017), False to run in 80X (2016) or 76X (2015)
+print "is92X: " , is92X
 is80X = True if 'CMSSW_8' in os.environ['CMSSW_VERSION'] else False# True to run in 80X (2016), False to run in 76X (2015)
 print "is80X: " , is80X
+
 ##
 ## Standard sequence
 ##
 
+if is92X:
+    execfile(PyFilePath+"python/HiggsTauTauProducer_92X.py")
 if is80X:
     execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
 else :
