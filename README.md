@@ -150,7 +150,6 @@ git checkout HIG-16-006
 cd -
 scram b -j 4
 ```
-</details>
 
 ### Legacy Instructions (2016 data)
 ```
@@ -238,6 +237,53 @@ cd data/RecoEgamma/ElectronIdentification/data
 git checkout egm_id_80X_v1
 cd $CMSSW_BASE/src
 scram b -j 4
+```
+
+</details>
+
+### Instructions for 92X
+
+```
+cmsrel CMSSW_9_2_3_patch2
+cd CMSSW_9_2_3_patch2/src/
+cmsenv
+
+# Z-recoil corrections
+git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
+
+git clone https://github.com/LLRCMS/LLRHiggsTauTau
+cd LLRHiggsTauTau
+git checkout master
+git remote add my-LLR https://github.com/francescobrivio/LLRHiggsTauTau.git
+git checkout 92X
+cd -
+
+git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
+cd Muon/MuonAnalysisTools
+git checkout master -- interface/MuonEffectiveArea.h
+cd -
+
+git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
+cd EGamma/EGammaAnalysisTools
+git checkout c0db796 -- interface/ElectronEffectiveArea.h
+cd -
+
+# FSR corrections
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+cd UFHZZAnalysisRun2
+git checkout master FSRPhotons
+# need to fix: - FSRPhotons/plugins/FSRPhotonProducer.cc
+#              - FSRPhotons/plugins/PhotonPFIsoCalculator.cc
+# replace 'std::auto_ptr' with 'std::unique_ptr' 
+# search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
+
+# SVfit
+git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
+cd TauAnalysis/SVfitStandalone
+git checkout HIG-16-006
+
+cd $CMSSW_BASE/src
+scram b -j 8
 ```
 
 ### Quick usage:
