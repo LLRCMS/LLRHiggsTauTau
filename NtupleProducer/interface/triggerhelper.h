@@ -38,13 +38,13 @@ class triggerhelper {
   int FindTriggerNumberMET(string triggername);
   int FindTriggerNumberTrig(string triggername);
   
-  bool IsTriggerFired(int triggerbit, int triggerNumber,bool istrigger=true);
+  bool IsTriggerFired(Long64_t triggerbit, int triggerNumber,bool istrigger=true);
   
-  bool IsTriggerFired(int triggerbit, string triggerName,bool istrigger=true){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
+  bool IsTriggerFired(Long64_t triggerbit, string triggerName,bool istrigger=true){return IsTriggerFired(triggerbit, FindTriggerNumber(triggerName));}
 
-  int printFiredPaths(int triggerbit,bool istrigger=true);
-  int printFiredPathsMET(int triggerbit);
-  int printFiredPathsTrig(int triggerbit);
+  int printFiredPaths(Long64_t triggerbit,bool istrigger=true);
+  int printFiredPathsMET(Long64_t triggerbit);
+  int printFiredPathsTrig(Long64_t triggerbit);
 
 
   triggerMapper GetTriggerMap(string trigger);
