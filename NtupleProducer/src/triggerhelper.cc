@@ -205,20 +205,21 @@ int triggerhelper::FindTriggerNumberTrig (string triggername)
 }
 
 
-bool triggerhelper::IsTriggerFired(int triggerbit, int triggernumber, bool isTrigger){ 
+bool triggerhelper::IsTriggerFired(Long64_t triggerbit, int triggernumber, bool isTrigger){ 
   int nLoop = triggerlist.size();
+  Long64_t bitdigit = 1;
   if(!isTrigger)nLoop = nMETs;
-  if(triggernumber>=0 && triggernumber<nLoop) return triggerbit & (1 << triggernumber);
+  if(triggernumber>=0 && triggernumber<nLoop) return triggerbit & (bitdigit << triggernumber);
   return false;
 }
 
 
-int triggerhelper::printFiredPaths(int triggerbit, bool isTrigger){
+int triggerhelper::printFiredPaths(Long64_t triggerbit, bool isTrigger){
   if (isTrigger) return printFiredPathsTrig (triggerbit);
   else return printFiredPathsMET (triggerbit);
 }
 
-int triggerhelper::printFiredPathsMET(int triggerbit)
+int triggerhelper::printFiredPathsMET(Long64_t triggerbit)
 {
   int nFired = 0;
   for (unsigned int it = 0; it < nMETs; it++)
@@ -229,7 +230,7 @@ int triggerhelper::printFiredPathsMET(int triggerbit)
   return nFired;
 }
 
-int triggerhelper::printFiredPathsTrig(int triggerbit)
+int triggerhelper::printFiredPathsTrig(Long64_t triggerbit)
 {
   int nFired = 0;
   for (unsigned int it = 0; it < triggerlist.size(); it++)
