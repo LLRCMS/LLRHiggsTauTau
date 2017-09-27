@@ -62,7 +62,7 @@ print "is80X: " , is80X
 
 if is92X:
     execfile(PyFilePath+"python/HiggsTauTauProducer_92X.py")
-if is80X:
+elif is80X:
     execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
 else :
     execfile(PyFilePath+"python/HiggsTauTauProducer.py")
