@@ -93,8 +93,10 @@ LeptonPhotonMatcher::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   // Output collections
-  auto_ptr<pat::MuonCollection> resultMu( new pat::MuonCollection() );
-  auto_ptr<pat::ElectronCollection> resultEle( new pat::ElectronCollection() );
+  //auto_ptr<pat::MuonCollection> resultMu( new pat::MuonCollection() );
+  //auto_ptr<pat::ElectronCollection> resultEle( new pat::ElectronCollection() );
+  std::unique_ptr<pat::MuonCollection> resultMu( new pat::MuonCollection() );
+  std::unique_ptr<pat::ElectronCollection> resultEle( new pat::ElectronCollection() );
 
   // Associate a vector of Ptr<Photon> to lepton pointers
   typedef map<const reco::Candidate*, PhotonPtrVector> PhotonLepMap;
@@ -217,8 +219,10 @@ LeptonPhotonMatcher::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   //Put the result in the event
-  iEvent.put(resultMu,"muons");
-  iEvent.put(resultEle,"electrons");
+  //iEvent.put(resultMu,"muons");
+  //iEvent.put(resultEle,"electrons");
+  iEvent.put(std::move(resultMu),"muons");
+  iEvent.put(std::move(resultEle),"electrons");
 }
 
 

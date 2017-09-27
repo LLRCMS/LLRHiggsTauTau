@@ -183,7 +183,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 
 
   // Output collection
-  auto_ptr<pat::ElectronCollection> result( new pat::ElectronCollection() );
+  //auto_ptr<pat::ElectronCollection> result( new pat::ElectronCollection() );
+  std::unique_ptr<pat::ElectronCollection> result( new pat::ElectronCollection() );
 
   //unsigned int i=0;
   //for (unsigned int i = 0; i< electronHandle->size(); ++i){
@@ -351,7 +352,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     result->push_back(l);
     //i++;
   }
-  iEvent.put(result);
+  //iEvent.put(result);
+  iEvent.put(std::move(result));
 }
 
 
