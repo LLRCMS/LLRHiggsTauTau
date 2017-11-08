@@ -186,6 +186,7 @@ cd -
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 cd UFHZZAnalysisRun2
 git checkout master FSRPhotons
+cd -
 
 # SVfit
 git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
