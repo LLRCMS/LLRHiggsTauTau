@@ -50,10 +50,12 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
     process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6' # FIXME !!!!!!!!
+    #process.GlobalTag.globaltag = '92X_dataRun2_2017Repro_v4'               # 12Sept2017 MC
 else :
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0' # ICHEP            # FIXME !!!!!!!!
-    process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-G                # FIXME !!!!!!!!
+    #process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-G               # FIXME !!!!!!!!
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v16' # Run H                      # FIXME !!!!!!!!
+    process.GlobalTag.globaltag = '92X_dataRun2_Prompt_v4'                                 # 2017 Data
 print process.GlobalTag.globaltag
 
 nanosec="25"
@@ -97,8 +99,15 @@ process.hltFilter = hlt.hltHighLevel.clone(
     TriggerResultsTag = cms.InputTag("TriggerResults","",HLTProcessName),
     HLTPaths = TRIGGERLIST,
     andOr = cms.bool(True), # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
-    throw = cms.bool(False) #if True: throws exception if a trigger path is invalid  
+    throw = cms.bool(False) #if True: throws exception if a trigger path is invalid
 )
+
+# Trigger Unpacker Module
+#process.patTriggerUnpacker = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
+#                                            patTriggerObjectsStandAlone = cms.InputTag("slimmedPatTrigger"),
+#                                            triggerResults = cms.InputTag("TriggerResults","",HLTProcessName),
+#                                            unpackFilterLabels = cms.bool(True)
+#)
 
 #MC stuff
 
@@ -141,7 +150,7 @@ process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
     muonPtCut = cms.double(20),
     selectClones = cms.bool(False),
     taggingMode = cms.bool(True),
-    verbose     = cms.untracked.bool(False)
+    verbose     = cms.untracked.bool(False),
 )
 process.cloneGlobalMuonTagger = process.badGlobalMuonTagger.clone(
     selectClones = cms.bool(True)
@@ -176,7 +185,7 @@ process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("removeBadAndCloneGlobalMuons"),
-    cut = cms.string(MUCUT)
+    cut = cms.string(MUCUT),
 #    Lowering pT cuts
 #    cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
 #                     "pt>3 && p>3.5 && abs(eta)<2.4")
@@ -420,7 +429,7 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ##
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
    src = cms.InputTag("slimmedTaus"),
-   cut = cms.string(TAUCUT)
+   cut = cms.string(TAUCUT),
    )
 
 ##NOT USED FOR NOW, TBD Later
@@ -611,7 +620,7 @@ process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process
 process.jets = cms.EDFilter("PATJetRefSelector",
                             #src = cms.InputTag("slimmedJets"),
                             src = cms.InputTag("updatedPatJetsUpdatedJEC"),
-                            cut = cms.string(JETCUT)
+                            cut = cms.string(JETCUT),
 )
 
 
@@ -800,6 +809,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       IsMC = cms.bool(IsMC),
                       doCPVariables = cms.bool(doCPVariables),               
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                      secVtxCollection = cms.InputTag("slimmedSecondaryVertices"), # FRA
                       puCollection = cms.InputTag("slimmedAddPileupInfo"),
                       rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
                       rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
@@ -819,7 +829,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       passCollection = cms.InputTag("nEventsPassTrigger"),
                       lhepCollection = cms.InputTag("externalLHEProducer"),
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", HLTProcessName), #Different names for MiniAODv2 at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.                      
-                      triggerSet = cms.InputTag("selectedPatTrigger"),
+                      #triggerSet = cms.InputTag("selectedPatTrigger"), # FRA
+                      triggerSet = cms.InputTag("slimmedPatTrigger"),    # FRA
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
                       PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
@@ -861,19 +872,19 @@ process.PVfilter = cms.Path(process.goodPrimaryVertices)
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
     # process.printTree         + # just for debug, print MC particles
-    process.nEventsTotal      +
+    process.nEventsTotal       +
     #process.hltFilter         + 
-    process.nEventsPassTrigger+
-    process.muons             +
-    process.electrons         + process.cleanSoftElectrons +
-    process.taus              + 
-    process.fsrSequence       +
-    process.softLeptons       + process.barellCand +
+    process.nEventsPassTrigger +
+    process.muons              +
+    process.electrons          + process.cleanSoftElectrons +
+    process.taus               +
+    process.fsrSequence        +
+    process.softLeptons        + process.barellCand +
     #process.jets              +
     process.jecSequence + process.jetSequence + #process.jets + 
-    process.METSequence       +
-    process.geninfo           +
-    process.SVFit             
+    process.METSequence        +
+    process.geninfo            +
+    process.SVFit
     )
 # always run ntuplizer
 process.trees = cms.EndPath(process.HTauTauTree)# + process.HTauTauTreeTauUp + process.HTauTauTreeTauDown)

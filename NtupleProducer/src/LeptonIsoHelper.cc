@@ -186,6 +186,13 @@ int LeptonIsoHelper::jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet 
   for (unsigned int i = 0, n = jet.numberOfSourceCandidatePtrs(); i < n; ++i) {
       
     const pat::PackedCandidate &dau_jet = dynamic_cast<const pat::PackedCandidate &>(*(jet.sourceCandidatePtr(i)));
+    
+    if (!dau_jet.bestTrack()) //FRA 
+    {
+      //std::cout << " ------ Skipping.." << std::endl;
+      continue;
+    }
+
     float dR = deltaR(jet,dau_jet);
     
     bool isgoodtrk = false;
@@ -199,7 +206,6 @@ int LeptonIsoHelper::jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet 
        std::fabs(trk.dxy(vtx_position))<0.2 &&
        std::fabs(trk.dz(vtx_position))<17
        ) isgoodtrk = true;
-    
     
     if( dR<=0.4 && dau_jet.charge()!=0 && dau_jet.fromPV()>1 && isgoodtrk)
       jetNDauCharged++;

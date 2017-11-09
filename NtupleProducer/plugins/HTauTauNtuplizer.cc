@@ -49,6 +49,7 @@
 #include <DataFormats/JetReco/interface/PFJet.h>
 #include <DataFormats/JetReco/interface/PFJetCollection.h>
 #include <DataFormats/PatCandidates/interface/PackedCandidate.h>
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 #include <DataFormats/Math/interface/LorentzVector.h>
 #include <DataFormats/VertexReco/interface/Vertex.h>
@@ -205,6 +206,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<edm::TriggerResults> metFilterBits_;
   edm::EDGetTokenT<vector<Vertex>> theVtxTag;
+  edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> theSecVtxTag; //FRA
   edm::EDGetTokenT<double> theRhoTag;
   edm::EDGetTokenT<double> theRhoMiniRelIsoTag;
   edm::EDGetTokenT<vector<PileupSummaryInfo>> thePUTag;
@@ -637,6 +639,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   triggerBits_         (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
   metFilterBits_       (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("metFilters"))),
   theVtxTag            (consumes<vector<Vertex>>                         (pset.getParameter<edm::InputTag>("vtxCollection"))),
+  theSecVtxTag         (consumes<edm::View<reco::VertexCompositePtrCandidate>> (pset.getParameter<edm::InputTag>("secVtxCollection"))), //FRA
   theRhoTag            (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoCollection"))),
   theRhoMiniRelIsoTag  (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoMiniRelIsoCollection"))),
   thePUTag             (consumes<vector<PileupSummaryInfo>>              (pset.getParameter<edm::InputTag>("puCollection"))),
@@ -1427,7 +1430,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 {
   Initialize();
   if (doCPVariables) findPrimaryVertices(event, eSetup);
-  
+    
   Handle<vector<reco::Vertex> >  vertexs;
   //event.getByLabel("offlineSlimmedPrimaryVertices",vertex);
   event.getByToken(theVtxTag,vertexs);
@@ -1618,7 +1621,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   }
   //Loop of softleptons and fill them
   FillSoftLeptons(daus,event,eSetup,theFSR,jets);
-
+  
   //Loop on Jets
 
   // Accessing the JEC uncertainties 
@@ -1633,15 +1636,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     if(computeQGVar){ //Needs jetHandle + qgTaggerHandle
       for(auto jet = jetHandle->begin(); jet != jetHandle->end(); ++jet){
-	edm::RefToBase<pat::Jet> jetRef(edm::Ref<edm::View<pat::Jet> >(jetHandle, jet - jetHandle->begin()));
-	float qgLikelihood = (*qgTaggerHandle)[jetRef];
-	_jets_QGdiscr.push_back(qgLikelihood);
+        edm::RefToBase<pat::Jet> jetRef(edm::Ref<edm::View<pat::Jet> >(jetHandle, jet - jetHandle->begin()));
+        float qgLikelihood = (*qgTaggerHandle)[jetRef];
+        _jets_QGdiscr.push_back(qgLikelihood);
       }
     }
     
   }
   if(writeFatJets) FillFatJet(fatjets, event);
-       
+    
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
   for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
@@ -1858,8 +1861,24 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
 //Fill jets quantities
 int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
+  
+  // Getting the primary Vertex (FRA 2017)
+  Handle<vector<reco::Vertex> >  vertexs;
+  event.getByToken(theVtxTag,vertexs);
+  const auto & pv = (*vertexs)[0]; // get the firstPV
+  
+  // Getting the secondaryVertexCollection (FRA 2017)
+  Handle<edm::View<reco::VertexCompositePtrCandidate>> secVtxsHandle;
+  event.getByToken(theSecVtxTag,secVtxsHandle);
+  if (!secVtxsHandle.isValid())
+  {
+    throw cms::Exception("ProductNotValid") << "slimmedSecondaryVertices product not valid";
+  }
+  const edm::View<reco::VertexCompositePtrCandidate> * secVtxs = secVtxsHandle.product();
+
+
   int nJets=0;
-  vector <pair<float, int>> softLeptInJet; // pt, idx 
+  vector <pair<float, int>> softLeptInJet; // pt, idx
   for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet){
     nJets++;
     _jets_px.push_back( (float) ijet->px());
@@ -1871,13 +1890,48 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _jets_PUJetIDupdated.push_back(ijet->hasUserFloat("pileupJetIdUpdated:fullDiscriminant") ? ijet->userFloat("pileupJetIdUpdated:fullDiscriminant") : -999);
-    float vtxPx = ijet->userFloat ("vtxPx");
-    float vtxPy = ijet->userFloat ("vtxPy");
-    _jets_vtxPt.  push_back(TMath::Sqrt(vtxPx*vtxPx + vtxPy*vtxPy));
-    _jets_vtxMass.push_back(ijet->userFloat("vtxMass"));
-    _jets_vtx3dL. push_back(ijet->userFloat("vtx3DVal"));
-    _jets_vtxNtrk.push_back(ijet->userFloat("vtxNtracks"));
-    _jets_vtx3deL.push_back(ijet->userFloat("vtx3DSig"));
+    
+    //float vtxPx = ijet->userFloat ("vtxPx");                      //FRA: not anymore available in 2017
+    //float vtxPy = ijet->userFloat ("vtxPy");                      //FRA: not anymore available in 2017
+    //_jets_vtxMass.push_back(ijet->userFloat("vtxMass"));          //FRA: not anymore available in 2017
+    //_jets_vtx3dL. push_back(ijet->userFloat("vtx3DVal"));         //FRA: not anymore available in 2017
+    //_jets_vtxNtrk.push_back(ijet->userFloat("vtxNtracks"));       //FRA: not anymore available in 2017
+    //_jets_vtx3deL.push_back(ijet->userFloat("vtx3DSig"));         //FRA: not anymore available in 2017
+
+    // FRA: new way to access these variables (in 2017)
+    Float_t vtxPt   = 0.0;
+    Float_t vtxMass = 0.0;
+    Float_t vtx3dL  = 0.0;
+    Float_t vtxNtrk = 0.0;
+    Float_t vtx3deL = 0.0;
+    
+    VertexDistance3D vdist;
+    float maxFoundSignificance=0;
+    for(edm::View<reco::VertexCompositePtrCandidate>::const_iterator isv = secVtxs->begin(); isv!=secVtxs->end(); ++isv)
+    {
+      GlobalVector flightDir(isv->vertex().x() - pv.x(), isv->vertex().y() - pv.y(), isv->vertex().z() - pv.z());
+	  GlobalVector jetDir(ijet->px(),ijet->py(),ijet->pz());
+      if( deltaR2( flightDir, jetDir ) < 0.09 )
+      {
+        Measurement1D dl= vdist.distance(pv,VertexState(RecoVertex::convertPos(isv->position()),RecoVertex::convertError(isv->error())));
+		if(dl.significance() > maxFoundSignificance)
+        {
+		  maxFoundSignificance=dl.significance();
+		  vtxPt   = isv->pt();
+		  vtxMass = isv->p4().M();
+		  vtx3dL  = dl.value();
+		  vtx3deL = dl.error();
+		  vtxNtrk = isv->numberOfSourceCandidatePtrs();
+		}
+      }
+    }
+    
+    _jets_vtxPt.  push_back(vtxPt);
+    _jets_vtxMass.push_back(vtxMass);
+    _jets_vtx3dL. push_back(vtx3dL);
+    _jets_vtxNtrk.push_back(vtxNtrk);
+    _jets_vtx3deL.push_back(vtx3deL);
+    
 
     _bdiscr.push_back(ijet->bDiscriminator("pfJetProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
@@ -1901,7 +1955,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_nHEF   .push_back(NHF);
     _jets_chMult .push_back(chargedMult);  
     _jets_neMult .push_back(NumNeutralParticles);  
-    _jets_MUF    .push_back(MUF);  
+    _jets_MUF    .push_back(MUF);
 
     int jetid=0; 
     //PHYS14
@@ -2023,7 +2077,6 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     jecUnc->setJetPt(ijet->pt()); // here you must use the CORRECTED jet pt
     _jets_jecUnc.push_back(jecUnc->getUncertainty(true));
   }
-
 
   if ( theisMC )
   {
@@ -2495,21 +2548,25 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     // use as: toStandaloneMatched.at(idxHLT).at(idx tostadalone)
     vector<vector<int>> toStandaloneMatched (myTriggerHelper->GetNTriggers(), vector<int>(0));
 
-    // for (pat::TriggerObjectStandAlone obj : *triggerObjects) { 
+    // for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
     for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
     {
       pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
+      
+      // unpacking Filter Labels
+      obj.unpackFilterLabels(event,*triggerBits); //FRA
       
       //check if the trigger object matches cand
       bool triggerType=false;
 
       if(deltaR2(obj,*cand)<0.25){
       
-	//cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
+	    //cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of pt = " << cand->pt() << " HLT obj pt " << obj.pt() << endl;
 
         if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
         if (type==ParticleType::ELECTRON && (obj.hasTriggerObjectType(trigger::TriggerElectron) || obj.hasTriggerObjectType(trigger::TriggerPhoton)))triggerType=true;
         if (type==ParticleType::MUON && (obj.hasTriggerObjectType(trigger::TriggerMuon)))triggerType=true;
+        
         //check fired paths
         obj.unpackPathNames(names);
         std::vector<std::string> pathNamesAll  = obj.pathNames(false);
@@ -2519,7 +2576,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
           int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
           if (triggerbit < 0) continue ; // not a path I want to save
-          bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); 
+          bool isLF   = obj.hasPathName( pathNamesAll[h], true, false );
           bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
 
           triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
@@ -3134,6 +3191,8 @@ bool HTauTauNtuplizer::refitPV(const edm::Event & iEvent, const edm::EventSetup 
   for(size_t i=0; i<cands->size(); ++i){
     if((*cands)[i].charge()==0 || (*cands)[i].vertexRef().isNull()) continue;
     if(!(*cands)[i].bestTrack()) continue;
+    //if(!(*cands)[i].trackHighPurity()) continue;  // FRA
+    //if((*cands)[i].pt()<=0.5) continue;           // FRA
     
     unsigned int key = (*cands)[i].vertexRef().key();
     int quality = (*cands)[i].pvAssociationQuality();
