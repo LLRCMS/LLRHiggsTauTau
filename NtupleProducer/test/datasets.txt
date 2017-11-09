@@ -589,3 +589,25 @@
 /GluGluToRSGravitonToHHTo2B2Tau_M-300_narrow_13TeV-madgraph/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM
 /GluGluToRSGravitonToHHTo2B2Tau_M-650_narrow_13TeV-madgraph/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM
 /GluGluToRSGravitonToHHTo2B2Tau_M-900_narrow_13TeV-madgraph/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM
+
+
+=== DATA2017 ===
+/SingleMuon/Run2017B-PromptReco-v1/MINIAOD
+/SingleMuon/Run2017B-PromptReco-v2/MINIAOD
+/SingleMuon/Run2017C-PromptReco-v1/MINIAOD
+/SingleMuon/Run2017C-PromptReco-v2/MINIAOD
+/SingleMuon/Run2017C-PromptReco-v3/MINIAOD
+/SingleMuon/Run2017D-PromptReco-v1/MINIAOD
+/SingleElectron/Run2017B-PromptReco-v1/MINIAOD
+/SingleElectron/Run2017B-PromptReco-v2/MINIAOD
+/SingleElectron/Run2017C-PromptReco-v1/MINIAOD
+/SingleElectron/Run2017C-PromptReco-v2/MINIAOD
+/SingleElectron/Run2017C-PromptReco-v3/MINIAOD
+/SingleElectron/Run2017D-PromptReco-v1/MINIAOD
+/Tau/Run2017B-PromptReco-v1/MINIAOD
+/Tau/Run2017B-PromptReco-v2/MINIAOD
+/Tau/Run2017C-PromptReco-v1/MINIAOD
+/Tau/Run2017C-PromptReco-v2/MINIAOD
+/Tau/Run2017C-PromptReco-v3/MINIAOD
+/Tau/Run2017D-PromptReco-v1/MINIAOD
+
