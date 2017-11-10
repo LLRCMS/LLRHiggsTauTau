@@ -150,7 +150,6 @@ git checkout HIG-16-006
 cd -
 scram b -j 4
 ```
-</details>
 
 ### Instructions for 8_0_25
 
@@ -191,6 +190,52 @@ cd data/RecoEgamma/ElectronIdentification/data
 git checkout egm_id_80X_v1
 cd $CMSSW_BASE/src
 scram b -j 4
+```
+</details>
+
+### Instructions for 8_0_26_patch1 (miniAOD 2016)
+```cmsrel CMSSW_8_0_26_patch1
+cd CMSSW_8_0_26_patch1/src/
+cmsenv
+
+# MET Recipe
+git cms-merge-topic cms-met:METRecipe_8020 -u
+git cms-merge-topic cms-met:METRecipe_80X_part2 -u
+
+#ReReco muons fix
+git cms-merge-topic gpetruc:badMuonFilters_80X_v2
+
+# Z-recoil corrections
+git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
+
+git clone https://github.com/LLRCMS/LLRHiggsTauTau
+cd LLRHiggsTauTau
+git checkout master
+cd -
+
+git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
+cd Muon/MuonAnalysisTools
+git checkout master -- interface/MuonEffectiveArea.h
+cd -
+
+git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
+cd EGamma/EGammaAnalysisTools
+git checkout c0db796 -- interface/ElectronEffectiveArea.h
+cd -
+
+# FSR corrections
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+cd UFHZZAnalysisRun2
+git checkout master FSRPhotons
+cd -
+
+# SVfit
+git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
+cd TauAnalysis/SVfitStandalone
+git checkout d115239192d3eb7531e213767e02ef4777b3fbfe
+
+cd $CMSSW_BASE/src
+scram b -j 8
 ```
 
 ### Quick usage:
