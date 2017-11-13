@@ -779,14 +779,26 @@ else:
 ## ----------------------------------------------------------------------
 ## SV fit
 ## ----------------------------------------------------------------------
-process.SVllCand = cms.EDProducer("SVfitInterface",
-                                  srcPairs   = cms.InputTag("barellCand"),
-                                  srcSig     = cms.InputTag("METSignificance", "METSignificance"),
-                                  srcCov     = cms.InputTag("METSignificance", "METCovariance"),
-                                  usePairMET = cms.bool(USEPAIRMET),
-                                  srcMET     = srcMETTag,
-                                  computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
-)
+if USECLASSICSVFIT:
+    print "Using CLASSIC_SV_FIT"
+    process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
+                                      srcPairs   = cms.InputTag("barellCand"),
+                                      srcSig     = cms.InputTag("METSignificance", "METSignificance"),
+                                      srcCov     = cms.InputTag("METSignificance", "METCovariance"),
+                                      usePairMET = cms.bool(USEPAIRMET),
+                                      srcMET     = srcMETTag,
+                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
+    )
+else:
+    print "Using STANDALONE_SV_FIT"
+    process.SVllCand = cms.EDProducer("SVfitInterface",
+                                      srcPairs   = cms.InputTag("barellCand"),
+                                      srcSig     = cms.InputTag("METSignificance", "METSignificance"),
+                                      srcCov     = cms.InputTag("METSignificance", "METCovariance"),
+                                      usePairMET = cms.bool(USEPAIRMET),
+                                      srcMET     = srcMETTag,
+                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
+    )
 
 ## ----------------------------------------------------------------------
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass)
