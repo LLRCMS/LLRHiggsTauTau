@@ -349,9 +349,9 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     double SVMETRhoTauUp = -999.;   // fitted MET
     double SVMETRhoTauDown = -999.; // fitted MET
 
-    double SVMETPhi = -999.;
-    double SVMETPhiTauUp = -999.;
-    double SVMETPhiTauDown = -999.;
+    double SVMETPhi = -999.;        // fitted MET
+    double SVMETPhiTauUp = -999.;   // fitted MET
+    double SVMETPhiTauDown = -999.; // fitted MET
 
     
     // only run SVfit if taus are passing discriminator, skip mumu and ee pairs, apply very loose quality cuts on objects
@@ -375,12 +375,13 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         SVphiUnc            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
         SVfitTransverseMass = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
         
-        /*ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > fittedDiTauSystem(SVpt, SVeta, SVphi, SVfitMass);
-        Vector fittedMET = (fittedDiTauSystem.Vect() - (algo.measuredDiTauSystem()).Vect());
+        ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1(l1->pt(), l1->eta(), l1->phi(), mass1);
+        ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2(l2->pt(), l2->eta(), l2->phi(), mass2);
+        ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredDiTauSystem = measuredTau1 + measuredTau2;
+        ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> fittedDiTauSystem(SVpt, SVeta, SVphi, SVfitMass);
+        Vector fittedMET = (fittedDiTauSystem.Vect() - measuredDiTauSystem.Vect());
         SVMETRho = fittedMET.Rho();
-        SVMETPhi = fittedMET.Phi();*/ // FRA: for now just dummy values - To be fixed
-        SVMETRho = -999.0;
-        SVMETPhi = -999.0;
+        SVMETPhi = fittedMET.Phi();
       }
       else
         SVfitMass = -111; // -111: SVfit failed (cfr: -999: SVfit not computed)
@@ -405,13 +406,14 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
           SVetaUncTauUp            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
           SVphiUncTauUp            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
           SVfitTransverseMassTauUp = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
-
-          /*ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > fittedDiTauSystemUp(SVptTauUp, SVetaTauUp, SVphiTauUp, SVfitMassTauUp);
-          Vector fittedMETUp = (fittedDiTauSystemUp.Vect() - (algoTauUp.measuredDiTauSystem()).Vect());
+          
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1Up(l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2Up(l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredDiTauSystemUp = measuredTau1Up + measuredTau2Up;
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> fittedDiTauSystemUp(SVptTauUp, SVetaTauUp, SVphiTauUp, SVfitMassTauUp);
+          Vector fittedMETUp = (fittedDiTauSystemUp.Vect() - measuredDiTauSystemUp.Vect());
           SVMETRhoTauUp = fittedMETUp.Rho();
-          SVMETPhiTauUp = fittedMETUp.Phi();*/ // FRA: for now just dummy values - To be fixed
-          SVMETRhoTauUp = -999.0;
-          SVMETPhiTauUp = -999.0;
+          SVMETPhiTauUp = fittedMETUp.Phi();
         }
         else
           SVfitMassTauUp = -111; // -111: SVfit failed (cfr: -999: SVfit not computed)
@@ -434,12 +436,13 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
           SVphiUncTauDown            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
           SVfitTransverseMassTauDown = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
 
-          /*ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > fittedDiTauSystemDown(SVptTauDown, SVetaTauDown, SVphiTauDown, SVfitMassTauDown);
-          Vector fittedMETDown = (fittedDiTauSystemDown.Vect() - (algoTauDown.measuredDiTauSystem()).Vect());
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1Down(l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2Down(l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredDiTauSystemDown = measuredTau1Down + measuredTau2Down;
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> fittedDiTauSystemDown(SVptTauDown, SVetaTauDown, SVphiTauDown, SVfitMassTauDown);
+          Vector fittedMETDown = (fittedDiTauSystemDown.Vect() - measuredDiTauSystemDown.Vect());
           SVMETRhoTauDown = fittedMETDown.Rho();
-          SVMETPhiTauDown = fittedMETDown.Phi();*/ // FRA: for now just dummy values - To be fixed
-          SVMETRhoTauDown = -999.0;
-          SVMETPhiTauDown = -999.0;
+          SVMETPhiTauDown = fittedMETDown.Phi();
         }
         else
           SVfitMassTauDown = -111; // -111: SVfit failed (cfr: -999: SVfit not computed)
