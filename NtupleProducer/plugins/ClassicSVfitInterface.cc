@@ -353,13 +353,44 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     double SVMETPhiTauUp = -999.;   // fitted MET
     double SVMETPhiTauDown = -999.; // fitted MET
 
+
+    // assessing pair type
+    int apdg1 = abs(l1->pdgId());
+    int apdg2 = abs(l2->pdgId());
+
+    int nmu = 0;
+    int nele = 0;
+    int ntau = 0;
+
+    if (apdg1 == 13) nmu++;
+    if (apdg1 == 11) nele++;
+    if (apdg1 == 15) ntau++;
+
+    if (apdg2 == 13) nmu++;
+    if (apdg2 == 11) nele++;
+    if (apdg2 == 15) ntau++;
+
+    pairType pType = kOther;
+    if (nmu == 1 && nele == 0 && ntau == 1) pType = kMuHad;
+    if (nmu == 0 && nele == 1 && ntau == 1) pType = kEHad;
+    if (nmu == 0 && nele == 0 && ntau == 2) pType = kHadHad;
+    if (nmu == 2 && nele == 0 && ntau == 0) pType = kMuMu;
+    if (nmu == 0 && nele == 2 && ntau == 0) pType = kEE;
+    if (nmu == 1 && nele == 1 && ntau == 0) pType = kEMu;
+
+    // Define the k factor
+    double kappa; // use 3 for emu, 4 for etau and mutau, 5 for tautau channel
+    if      (pType == kMuHad ) kappa = 4.;  // mutau
+    else if (pType == kEHad  ) kappa = 4.;  // etau
+    else if (pType == kHadHad) kappa = 5.;  // tautau
+    else                       kappa = -1.; // not interesting channels (ee, emu, mumu)
     
     // only run SVfit if taus are passing discriminator, skip mumu and ee pairs, apply very loose quality cuts on objects
     // if (isGoodDR && GoodPairFlag)
     if (IsInteresting(l1, l2))
     {
       ClassicSVfit algo(verbosity);
-      algo.addLogM_fixed(false);                           // in general, keep it false when using VEGAS integration
+      algo.addLogM_fixed(true, kappa);
       algo.setLikelihoodFileName("testClassicSVfit.root"); //ROOT file to store histograms of di-tau pT, eta, phi, mass and transverse mass, comment if you don't want it
       //algo.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
       algo.integrate(measuredTauLeptons, METx, METy, covMET);
@@ -392,7 +423,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         
         // UP
         ClassicSVfit algoTauUp(verbosity);
-        algoTauUp.addLogM_fixed(false);                           // in general, keep it false when using VEGAS integration
+        algoTauUp.addLogM_fixed(true, kappa);
         //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         algoTauUp.integrate(measuredTauLeptonsTauUp, METx, METy, covMET);
         
@@ -420,7 +451,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
         // DOWN
         ClassicSVfit algoTauDown(verbosity);
-        algoTauDown.addLogM_fixed(false);                           // in general, keep it false when using VEGAS integration
+        algoTauDown.addLogM_fixed(true, kappa);
         //algoTauDown.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         algoTauDown.integrate(measuredTauLeptonsTauDown, METx, METy, covMET);
 
