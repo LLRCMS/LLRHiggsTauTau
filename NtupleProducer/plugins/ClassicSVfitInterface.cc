@@ -383,7 +383,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     if      (pType == kMuHad ) kappa = 4.;  // mutau
     else if (pType == kEHad  ) kappa = 4.;  // etau
     else if (pType == kHadHad) kappa = 5.;  // tautau
-    else                       kappa = -1.; // not interesting channels (ee, emu, mumu)
+    else                       kappa = 3.;  // ee, emu, mumu
     
     // only run SVfit if taus are passing discriminator, skip mumu and ee pairs, apply very loose quality cuts on objects
     // if (isGoodDR && GoodPairFlag)
@@ -391,7 +391,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     {
       ClassicSVfit algo(verbosity);
       algo.addLogM_fixed(true, kappa);
-      algo.setLikelihoodFileName("testClassicSVfit.root"); //ROOT file to store histograms of di-tau pT, eta, phi, mass and transverse mass, comment if you don't want it
+      //algo.setLikelihoodFileName("testClassicSVfit.root"); //ROOT file to store histograms of di-tau pT, eta, phi, mass and transverse mass, comment if you don't want it
       //algo.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
       algo.integrate(measuredTauLeptons, METx, METy, covMET);
       
