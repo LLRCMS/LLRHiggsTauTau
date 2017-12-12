@@ -277,8 +277,11 @@ git checkout master FSRPhotons
 #              - FSRPhotons/plugins/PhotonPFIsoCalculator.cc
 # replace 'std::auto_ptr' with 'std::unique_ptr' 
 # search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
+cd -
 
 # SVfit
+git clone https://github.com/svfit/ClassicSVfit TauAnalysis/ClassicSVfit 
+git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
 cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
