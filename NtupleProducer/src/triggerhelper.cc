@@ -107,6 +107,22 @@ void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string
   triggerMap.push_back(map);
 }
 
+//FRA : added path3 and path4 for VBF matching with jets
+void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string> path2, vector<string> path3, vector<string> path4, int leg1ID, int leg2ID)
+{
+
+  if (find(triggerlist.begin(), triggerlist.end(), hlt) != triggerlist.end() )
+  {
+    cout << "** triggerHelper :: Warning: path " << hlt << " already added, skipping" << endl;
+    return;
+  }
+
+  triggerlist.push_back(hlt);
+  triggerMapper map(hlt, path1, path2, path3, path4, leg1ID, leg2ID);
+  triggerMap.push_back(map);
+}
+
+
 Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths, const edm::Handle<edm::TriggerResults>& triggerResults){
   
   Long64_t bit =0;
@@ -168,9 +184,13 @@ int triggerhelper::FindMETBit(const edm::Event& event, edm::EDGetTokenT<edm::Tri
 }
 
 triggerMapper triggerhelper::GetTriggerMap(string path){
+
   for(int i=0;i<(int)triggerMap.size();i++){
     //if(triggerMap.at(i).GetHLTPath().compare(path)==0)return triggerMap.at(i); // full name comparison
-    if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos) return triggerMap.at(i); // use av equivalent of "contains" for versioning wildcard
+    if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos)
+    {
+      return triggerMap.at(i); // use av equivalent of "contains" for versioning wildcard
+    }
   }
   cout << "** trigger mapper : error : path " << path << " not found in triggerMap stored , return empty map" << endl;
   return triggerMapper();

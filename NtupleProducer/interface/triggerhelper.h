@@ -31,6 +31,7 @@ class triggerhelper {
 
   void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int channel);
   void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, int leg1ID, int leg2ID);
+  void addTriggerMap(string hlt,vector<string> path1, vector<string> path2, vector<string> path3, vector<string> path4, int leg1ID, int leg2ID); //FRA
   Long64_t FindTriggerBit(const edm::Event&, const vector<string>, const vector<int>, const edm::Handle<edm::TriggerResults>& triggerResults);
   int FindMETBit(const edm::Event&, edm::EDGetTokenT<edm::TriggerResults> metFilterBitsToken);
   

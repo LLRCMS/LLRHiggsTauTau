@@ -18,6 +18,7 @@
 #include <vector>
 #include <sstream>
 #include <utility>
+#include <iostream> //FRA
 
 using namespace std;
 
@@ -29,13 +30,17 @@ class triggerMapper {
   triggerMapper(const triggerMapper& trigMap);
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int);
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int theleg1ID, int theleg2ID);
+  triggerMapper(string, std::vector<std::string>,std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, int theleg1ID, int theleg2ID); //FRA
   //triggerMapper(TString, TString*,TString*,int,int);
   triggerMapper(string, string, string, int);
   
   string GetHLTPath(){return HLT;}
   int GetNfiltersleg1(){return filter_leg1.size();}
   int GetNfiltersleg2(){return filter_leg2.size();}
+  int GetNfiltersleg3(){return filter_leg3.size();} //FRA
+  int GetNfiltersleg4(){return filter_leg4.size();} //FRA
   string Getfilter(bool isleg1, int iFilter);
+  string GetfilterVBF(bool isleg3, int iFilter); //FRA
   std::vector<std::string> Getfilters(bool isleg1){return (isleg1 ? filter_leg1 : filter_leg2); };
   int GetTriggerChannel(){return channel;}
   pair <int, int> GetTriggerLegsID(){return make_pair(leg1ID, leg2ID);}
@@ -47,6 +52,8 @@ class triggerMapper {
   string HLT;
   std::vector<string> filter_leg1;
   std::vector<string> filter_leg2;
+  std::vector<string> filter_leg3; //FRA
+  std::vector<string> filter_leg4; //FRA
   int channel; // final decay channel: mu tau, ele tau, ...
   int leg1ID; //  abs(pdgID) of leg 1
   int leg2ID; //  abs(pdgID) of leg 2

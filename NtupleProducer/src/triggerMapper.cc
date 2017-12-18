@@ -34,6 +34,8 @@ triggerMapper::triggerMapper(const triggerMapper& trigMap)
   HLT = trigMap.HLT;
   filter_leg1 = trigMap.filter_leg1;
   filter_leg2 = trigMap.filter_leg2;
+  filter_leg3 = trigMap.filter_leg3; //FRA
+  filter_leg4 = trigMap.filter_leg4; //FRA
   channel = trigMap.channel;
   leg1ID = trigMap.leg1ID;
   leg2ID = trigMap.leg2ID;
@@ -41,6 +43,7 @@ triggerMapper::triggerMapper(const triggerMapper& trigMap)
 
 
 triggerMapper::triggerMapper(string HLTtrigger, std::vector<string> filters1, std::vector<string> filters2, int c){
+
   HLT=HLTtrigger;
   int n1 = filters1.size();
   int n2 = filters2.size();
@@ -106,6 +109,32 @@ triggerMapper::triggerMapper(string HLTtrigger, std::vector<std::string> filters
 
 }
 
+//FRA : adding filters3 and 4 for VBF matching
+triggerMapper::triggerMapper(string HLTtrigger, std::vector<std::string> filters1, std::vector<std::string> filters2, std::vector<std::string> filters3, std::vector<std::string> filters4, int theleg1ID, int theleg2ID)
+{
+  HLT=HLTtrigger;
+  int n1 = filters1.size();
+  int n2 = filters2.size();
+  int n3 = filters3.size();
+  int n4 = filters4.size();
+    
+  for(int i=0;i<n1;i++){filter_leg1.push_back(filters1.at(i));}
+  for(int i=0;i<n2;i++){filter_leg2.push_back(filters2.at(i));}
+  for(int i=0;i<n3;i++){filter_leg3.push_back(filters3.at(i));}
+  for(int i=0;i<n4;i++){filter_leg4.push_back(filters4.at(i));}
+
+  leg1ID = theleg1ID;
+  leg2ID = theleg2ID;
+
+  if      (leg1ID == (int) kele && leg2ID == (int) kmu)  channel = (int) kemu;
+  else if (leg1ID == (int) kele && leg2ID == (int) ktau) channel = (int) ketau;
+  else if (leg1ID == (int) kmu  && leg2ID == (int) ktau) channel = (int) kmutau;
+  else if (leg1ID == (int) ktau && leg2ID == (int) ktau) channel = (int) ktautau;
+  else if (leg1ID == (int) kmu  && leg2ID == (int) kmu)  channel = (int) kmumu;
+  else if (leg1ID == (int) kele && leg2ID == (int) kele) channel = (int) kee;
+  else channel = 999;
+
+}
 
 triggerMapper::triggerMapper(string HLTtrigger, string filter1, string filter2, int c){
   HLT=HLTtrigger;
@@ -153,7 +182,10 @@ triggerMapper::~triggerMapper(){
   //HLT="";//delete HLT;
   filter_leg1.clear();
   filter_leg2.clear();
+  filter_leg3.clear(); //FRA
+  filter_leg4.clear(); //FRA
 }
+
 
 string triggerMapper::Getfilter(bool isleg1,int iFilter){
   string result("");
@@ -163,6 +195,18 @@ string triggerMapper::Getfilter(bool isleg1,int iFilter){
   }else {
     if(iFilter>(int)(filter_leg2.size()))cout<<"TRIGGER MAPPER ERROR NFILTER "<<iFilter<<endl;
     else result=filter_leg2.at(iFilter);
+  }
+  return result;
+}
+
+string triggerMapper::GetfilterVBF(bool isleg3,int iFilter){
+  string result("");
+  if(isleg3){
+    if(iFilter>(int)(filter_leg3.size()))cout<<"TRIGGER MAPPER ERROR NFILTER "<<iFilter<<endl;
+    else result=filter_leg3.at(iFilter);
+  }else {
+    if(iFilter>(int)(filter_leg4.size()))cout<<"TRIGGER MAPPER ERROR NFILTER "<<iFilter<<endl;
+    else result=filter_leg4.at(iFilter);
   }
   return result;
 }

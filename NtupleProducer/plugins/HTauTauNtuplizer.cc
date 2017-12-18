@@ -18,6 +18,7 @@
 #include <map>
 #include <utility>
 #include <TNtuple.h>
+#include <bitset>
 //#include <XYZTLorentzVector.h>
 
 // user include files
@@ -159,6 +160,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets);
+  void VBFtrigMatch(const edm::View<pat::Jet>* jet, const edm::Event&); //FRA
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
@@ -556,6 +558,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Jets variables
   Int_t _numberOfJets;
   //std::vector<TLorentzVector> _jets;
+  std::vector<std::vector<Long64_t>> _jets_VBFfirstTrigMatch; //FRA
+  std::vector<std::vector<Long64_t>> _jets_VBFsecondTrigMatch; //FRA
   std::vector<Float_t> _jets_px;
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
@@ -701,17 +705,16 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
     const std::string& hlt = iPSet->getParameter<std::string>("HLT");
     const std::vector<std::string>& path1 = iPSet->getParameter<std::vector<std::string>>("path1");
     const std::vector<std::string>& path2 = iPSet->getParameter<std::vector<std::string>>("path2");
+    const std::vector<std::string>& path3 = iPSet->getParameter<std::vector<std::string>>("path3"); //FRA
+    const std::vector<std::string>& path4 = iPSet->getParameter<std::vector<std::string>>("path4"); //FRA
     const int& leg1 = iPSet->getParameter<int>("leg1");
     const int& leg2 = iPSet->getParameter<int>("leg2");
     // Build the mape
-    myTriggerHelper->addTriggerMap(hlt,path1,path2,leg1,leg2);
+    //myTriggerHelper->addTriggerMap(hlt,path1,path2,leg1,leg2);
+    myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2); //FRA
   }
 
-
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
-
-
-
 
   /*
   // init map for flags
@@ -1000,6 +1003,8 @@ void HTauTauNtuplizer::Initialize(){
   _MC_weight_scale_muR2=0.;
 
 //  _jets.clear();
+  _jets_VBFfirstTrigMatch.clear(); //FRA
+  _jets_VBFsecondTrigMatch.clear(); //FRA
   _jets_px.clear();
   _jets_py.clear();
   _jets_pz.clear();
@@ -1339,6 +1344,8 @@ void HTauTauNtuplizer::beginJob(){
   }
 
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
+  myTree->Branch("jets_VBFfirstTrigMatch",&_jets_VBFfirstTrigMatch); //FRA
+  myTree->Branch("jets_VBFsecondTrigMatch",&_jets_VBFsecondTrigMatch); //FRA
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
@@ -1514,6 +1521,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath,triggerBits);
   _metfilterbit = myTriggerHelper->FindMETBit(event, metFilterBits_);
   Long64_t tbit = _triggerbit;
+  //std::cout << " -- tbit: " << std::bitset<64>(tbit) << std::endl;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
   }
@@ -1644,6 +1652,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     
   }
   if(writeFatJets) FillFatJet(fatjets, event);
+  
+  //FRA: Matching jets with trigger filters for VBF
+  VBFtrigMatch(jets, event);
     
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
@@ -1859,6 +1870,148 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //return;
 }
 
+//FRA: VBF trigger matching for jets in the VBF topology
+void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm::Event& event){
+
+  edm::Handle<edm::TriggerResults> triggerBits;
+  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+
+  event.getByToken(triggerObjects_, triggerObjects);
+  event.getByToken(triggerBits_, triggerBits);
+  const edm::TriggerNames &names = event.triggerNames(*triggerBits);
+
+  // Variables for storing the result
+  std::vector<Long64_t> VBFfirstTrigMatched;
+  std::vector<Long64_t> VBFsecondTrigMatched;
+  
+  //int numero = 0;
+  
+  // Loop on the jets in the event
+  for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet)
+  {
+    //numero = numero+1; //FRA
+    //std::cout << "Jet " << numero << std::endl; //FRA
+    
+    // For each jet, check all the trigger objects, both 'path3' and 'path4'
+    Long64_t firstJetMatched  = 0;
+    Long64_t secondJetMatched = 0;
+  
+    // Loop on the Trigger Objects in the event
+    for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
+    {
+      pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
+    
+      // DeltaR2 match between jet and trigger object
+      if(deltaR2(obj,*ijet)<0.25)
+      {
+        // Unpacking Filter Labels
+        obj.unpackFilterLabels(event,*triggerBits);
+        
+        // Unpacking Path Names
+        obj.unpackPathNames(names);
+        std::vector<std::string> pathNamesAll  = obj.pathNames(false);
+        std::vector<std::string> pathNamesLast = obj.pathNames(true);
+        
+        // TO filter labels //FRA
+        //const std::vector<std::string>& VLabels = obj.filterLabels(); //FRA
+        //printing TO labels //FRA
+        //std::cout << "  VLabels for TO "<< idxto << ": " << std::endl; //FRA
+        //for (uint ll = 0; ll < VLabels.size(); ++ll) cout << "    -- " << VLabels.at(ll) << endl; //FRA
+        
+        // Loop on the HLT path names in the Trigger Object
+        for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h)
+        {
+          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+          if (triggerbit < 0) continue ; // not a path I want to save
+          
+          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
+          
+          /*if (trgmap.GetNfiltersleg3() > 0)
+          {
+            std::cout << "HLTPath: " << trgmap.GetHLTPath() << std::endl;
+            std::cout << "trgmap.GetNfiltersleg3(): " << trgmap.GetNfiltersleg3() << std::endl;
+            std::cout << "trgmap.GetNfiltersleg4(): " << trgmap.GetNfiltersleg4() << std::endl;
+            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++) std::cout << " - Leg 1 : " << trgmap.Getfilter(true,ifilt) << std::endl;
+            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++) std::cout << " - Leg 2 : " << trgmap.Getfilter(false,ifilt) << std::endl;
+            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg3();ifilt++) std::cout << " - Leg 3 : " << trgmap.GetfilterVBF(true,ifilt) << std::endl;
+            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg4();ifilt++) std::cout << " - Leg 4 : " << trgmap.GetfilterVBF(false,ifilt) << std::endl;
+          }*/
+          
+          bool VBFfirstMatch = true;
+          bool VBFsecondMatch = true;
+          
+          // TO filter labels
+          const std::vector<std::string>& vLabels = obj.filterLabels();
+        
+          // Loop on Leg3 filter (2 jets with pt40)
+          if (trgmap.GetNfiltersleg3()>0)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg3();ifilt++) //change to leg3
+            {
+              string label = trgmap.GetfilterVBF(true,ifilt);
+              //std::cout << " ---------------------------------------------- @@ leg 3 looking for " << label << std::endl;
+              if (label.empty()) {VBFfirstMatch=false; continue;}
+              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) VBFfirstMatch=false;
+            }
+          }
+          else VBFfirstMatch = false;
+          //std::cout << "VBFfirstMatch: " << VBFfirstMatch << std::endl; //FRA
+          
+          // Loop on Leg4 filter (1 jet with pt115)
+          if (trgmap.GetNfiltersleg4()>0)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg4();ifilt++) //change to leg4
+            {
+              string label = trgmap.GetfilterVBF(false,ifilt);
+              //std::cout << " ---------------------------------------------- @@ leg 4 looking for " << label << std::endl;
+              if (label.empty()) {VBFsecondMatch=false; continue;}
+              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) VBFsecondMatch=false;
+            }
+          }
+          else VBFsecondMatch = false;
+          //std::cout << "VBFsecondMatch: " << VBFsecondMatch << std::endl; //FRA
+
+          
+          // If two jets matching the VBF filters are found, the events has
+          // the event has fired the VBF HLT path
+          //std::cout << "first: " << VBFfirstMatch << " - second: " << VBFsecondMatch << std::endl;
+          if(VBFfirstMatch)
+          {
+            //std::cout << " ###### GOOD FIRST VBF MATCH ######" << std::endl; //FRA
+            //std::cout << " ***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
+            //std::cout << " --> triggerbit: " << triggerbit << std::endl; //FRA
+            //std::cout << "TO filters: " << std::endl;
+            //for (unsigned int kj=0;kj<vLabels.size();kj++) std::cout << " - filter : " << vLabels[kj] << std::endl;
+            firstJetMatched |= (long(1) <<triggerbit);
+          }
+          
+          if(VBFsecondMatch)
+          {
+            //std::cout << " ###### GOOD SECOND VBF MATCH ######" << std::endl; //FRA
+            //std::cout << " ***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
+            //std::cout << " --> triggerbit: " << triggerbit << std::endl; //FRA
+            //std::cout << "TO filters: " << std::endl;
+            //for (unsigned int kj=0;kj<vLabels.size();kj++) std::cout << " - filter : " << vLabels[kj] << std::endl;
+            secondJetMatched |= (long(1) <<triggerbit);
+          }
+        } // Loop on HLT paths
+        
+      } // DeltaR2 match
+      
+    } // Loop on Trigger Objects
+    
+    VBFfirstTrigMatched.push_back(firstJetMatched);
+    VBFsecondTrigMatched.push_back(secondJetMatched);
+    
+  } // Loop on jets
+  
+  // Fill the tree variable
+  _jets_VBFfirstTrigMatch.push_back(VBFfirstTrigMatched);
+  _jets_VBFsecondTrigMatch.push_back(VBFsecondTrigMatched);
+
+}
+
+
 //Fill jets quantities
 int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
   
@@ -1898,7 +2051,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     //_jets_vtxNtrk.push_back(ijet->userFloat("vtxNtracks"));       //FRA: not anymore available in 2017
     //_jets_vtx3deL.push_back(ijet->userFloat("vtx3DSig"));         //FRA: not anymore available in 2017
 
-    // FRA: new way to access these variables (in 2017)
+    //FRA: new way to access these variables (in 2017)
     Float_t vtxPt   = 0.0;
     Float_t vtxMass = 0.0;
     Float_t vtx3dL  = 0.0;
@@ -2657,8 +2810,18 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           // FIXME: should I check type? --> no, multiple filters should be enough
           if(istrgMatched)
           {
+            std::cout << " ###### GOOD MATCH ######" << std::endl; //FRA
+            std::cout << "***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
+            //std::cout << "--> triggerbit: " << triggerbit << std::endl; //FRA
+            //std::cout << "--> label: " << label << std::endl; //FRA
+            //std::cout << "--> BEFORE trgMatched: " << std::bitset<64>(trgMatched) << std::endl; //FRA
+            
+            //printing TO labels //FRA
+            for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "    -- " << vLabels.at(ll) << endl; //FRA
+            
             trgMatched |= (long(1) <<triggerbit);
             toStandaloneMatched.at(triggerbit).push_back(idxto);
+            //std::cout << "--> AFTER  trgMatched: " << std::bitset<64>(trgMatched) << std::endl; //FRA
           }
           // cout << "istrgMatched ? " << istrgMatched << endl;
 
