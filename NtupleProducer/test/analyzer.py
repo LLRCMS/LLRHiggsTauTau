@@ -28,7 +28,7 @@ USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SV
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=False # shift the central value of the tau energy scale before computing up/down variations
-COMPUTEUPDOWNSVFIT=True # compute SVfit for up/down TES variation
+COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = False # compute QG Tagger for jets
 IsMC=True
@@ -100,7 +100,7 @@ process.source = cms.Source("PoolSource",
     
     # MC 2017 - GT:92X_upgrade2017_realistic_v10
     #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/0080A67C-FBA4-E711-A8FE-00259029E84C.root',
-    '/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/0678C84B-F49E-E711-B561-A0369FC51AD4.root',
+    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/0678C84B-F49E-E711-B561-A0369FC51AD4.root',
     #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/088CC59F-F39C-E711-8124-549F35AF44E3.root',
     
     # 2017 embedded samples - GT: 92X_dataRun2_Prompt_v4
@@ -108,13 +108,17 @@ process.source = cms.Source("PoolSource",
     #'/store/user/pahrens/gc_storage/MuTau_data_2017_CMSSW923p2_freiburg_v7/TauEmbedding_MuTau_data_2017_CMSSW923p2_Run2017B/merged/1/merged_100.root',  # 715 evts
     #'/store/user/pahrens/gc_storage/MuTau_data_2017_CMSSW923p2_freiburg_v7/TauEmbedding_MuTau_data_2017_CMSSW923p2_Run2017B/merged/1/merged_1000.root', # 657 evts
     
+    
+    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/92X_upgrade2017_realistic_v10-v2/50000/02098EBB-029C-E711-8FED-441EA1714E4C.root'
+    '/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/92X_upgrade2017_realistic_v10-v2/50000/2A50557C-829D-E711-9331-10983627C3CE.root',
     )
 )
 
 # process.source.skipEvents = cms.untracked.uint32(968)
+#process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 100
+process.maxEvents.input = 10 # FRA
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
@@ -169,7 +173,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'

@@ -1891,6 +1891,8 @@ void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm:
   {
     //numero = numero+1; //FRA
     //std::cout << "Jet " << numero << std::endl; //FRA
+    //std::cout << " -- pt:  " << ijet->pt() << std::endl; //FRA
+    //std::cout << " -- phi: " << ijet->phi() << std::endl; //FRA
     
     // For each jet, check all the trigger objects, both 'path3' and 'path4'
     Long64_t firstJetMatched  = 0;
@@ -1900,6 +1902,9 @@ void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm:
     for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
     {
       pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
+      
+      // Check if the TO type is a jet, otherwise continue with next TO
+      if (obj.type(85) != true ) continue;
     
       // DeltaR2 match between jet and trigger object
       if(deltaR2(obj,*ijet)<0.25)
@@ -1912,11 +1917,14 @@ void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm:
         std::vector<std::string> pathNamesAll  = obj.pathNames(false);
         std::vector<std::string> pathNamesLast = obj.pathNames(true);
         
-        // TO filter labels //FRA
-        //const std::vector<std::string>& VLabels = obj.filterLabels(); //FRA
-        //printing TO labels //FRA
-        //std::cout << "  VLabels for TO "<< idxto << ": " << std::endl; //FRA
-        //for (uint ll = 0; ll < VLabels.size(); ++ll) cout << "    -- " << VLabels.at(ll) << endl; //FRA
+       // debug: checking TO filter labels //FRA
+       //if ( obj.type(85))
+       //{
+         //const std::vector<std::string>& VLabels = obj.filterLabels(); //FRA
+         ////printing TO labels //FRA
+         //std::cout << " -- VLabels for TO "<< idxto << " - pt: " << obj.pt() << " - phi: " << obj.phi() << std::endl; //FRA
+         //for (uint ll = 0; ll < VLabels.size(); ++ll) cout << "    -- " << VLabels.at(ll) << endl; //FRA
+       //}
         
         // Loop on the HLT path names in the Trigger Object
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h)
