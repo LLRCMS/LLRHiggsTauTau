@@ -1917,14 +1917,14 @@ void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm:
         std::vector<std::string> pathNamesAll  = obj.pathNames(false);
         std::vector<std::string> pathNamesLast = obj.pathNames(true);
         
-       // debug: checking TO filter labels //FRA
-       //if ( obj.type(85))
-       //{
-         //const std::vector<std::string>& VLabels = obj.filterLabels(); //FRA
-         ////printing TO labels //FRA
-         //std::cout << " -- VLabels for TO "<< idxto << " - pt: " << obj.pt() << " - phi: " << obj.phi() << std::endl; //FRA
-         //for (uint ll = 0; ll < VLabels.size(); ++ll) cout << "    -- " << VLabels.at(ll) << endl; //FRA
-       //}
+        // debug: checking TO filter labels //FRA
+        //if ( obj.type(85))
+        //{
+          //const std::vector<std::string>& VLabels = obj.filterLabels(); //FRA
+          //printing TO labels //FRA
+          //std::cout << " -- VLabels for TO "<< idxto << " - pt: " << obj.pt() << " - phi: " << obj.phi() << std::endl; //FRA
+          //for (uint ll = 0; ll < VLabels.size(); ++ll) cout << "    -- " << VLabels.at(ll) << endl; //FRA
+        //}
         
         // Loop on the HLT path names in the Trigger Object
         for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h)
@@ -2818,14 +2818,14 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           // FIXME: should I check type? --> no, multiple filters should be enough
           if(istrgMatched)
           {
-            std::cout << " ###### GOOD MATCH ######" << std::endl; //FRA
-            std::cout << "***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
+            //std::cout << " ###### GOOD MATCH ######" << std::endl; //FRA
+            //std::cout << "***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
             //std::cout << "--> triggerbit: " << triggerbit << std::endl; //FRA
             //std::cout << "--> label: " << label << std::endl; //FRA
             //std::cout << "--> BEFORE trgMatched: " << std::bitset<64>(trgMatched) << std::endl; //FRA
             
             //printing TO labels //FRA
-            for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "    -- " << vLabels.at(ll) << endl; //FRA
+            //for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "    -- " << vLabels.at(ll) << endl; //FRA
             
             trgMatched |= (long(1) <<triggerbit);
             toStandaloneMatched.at(triggerbit).push_back(idxto);

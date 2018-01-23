@@ -245,8 +245,8 @@ scram b -j 4
 ### Instructions for 92X
 
 ```
-cmsrel CMSSW_9_2_3_patch2
-cd CMSSW_9_2_3_patch2/src/
+cmsrel CMSSW_9_2_8
+cd CMSSW_9_2_8/src/
 cmsenv
 
 # Z-recoil corrections
@@ -255,7 +255,7 @@ git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/Recoil
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau
 git checkout master
-git remote add my-LLR https://github.com/francescobrivio/LLRHiggsTauTau.git
+# git remote add my-LLR https://github.com/francescobrivio/LLRHiggsTauTau.git
 git checkout 92X
 cd -
 

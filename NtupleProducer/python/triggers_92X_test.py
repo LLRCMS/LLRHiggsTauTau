@@ -82,24 +82,24 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
-    cms.PSet (
-        HLT = cms.string("HLT_VBF_DoubleMediumChargedIsoPFTau20_Trk1_eta2p1_Reg_v"),
-        path1 = cms.vstring ("hltDoublePFTau20TrackPt1MediumChargedIsolationReg"),                    # hadronic tau
-        path2 = cms.vstring ("hltDoublePFTau20TrackPt1MediumChargedIsolationReg"),                    # hadronic tau
-        path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumChargedIsoPFTau20"), # 2 jets with pt>40
-        path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleMediumChargedIsoPFTau20"),  # 1 jet with pt>115
-        leg1 = cms.int32(15),
-        leg2 = cms.int32(15)
-        ),
-    cms.PSet (
-        HLT = cms.string("HLT_VBF_DoubleTightChargedIsoPFTau20_Trk1_eta2p1_Reg_v"),
-        path1 = cms.vstring ("hltDoublePFTau20TrackPt1TightChargedIsolationReg"),                    # hadronic tau
-        path2 = cms.vstring ("hltDoublePFTau20TrackPt1TightChargedIsolationReg"),                    # hadronic tau
-        path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleTightChargedIsoPFTau20"), # 2 jets with pt>40
-        path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleTightChargedIsoPFTau20"),  # 1 jet with pt>115
-        leg1 = cms.int32(15),
-        leg2 = cms.int32(15)
-        ),
+    #cms.PSet (
+    #    HLT = cms.string("HLT_VBF_DoubleMediumChargedIsoPFTau20_Trk1_eta2p1_Reg_v"),
+    #    path1 = cms.vstring ("hltDoublePFTau20TrackPt1MediumChargedIsolationReg"),                    # hadronic tau
+    #    path2 = cms.vstring ("hltDoublePFTau20TrackPt1MediumChargedIsolationReg"),                    # hadronic tau
+    #    path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumChargedIsoPFTau20"), # 2 jets with pt>40
+    #    path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleMediumChargedIsoPFTau20"),  # 1 jet with pt>115
+    #    leg1 = cms.int32(15),
+    #    leg2 = cms.int32(15)
+    #    ),
+    #cms.PSet (
+    #    HLT = cms.string("HLT_VBF_DoubleTightChargedIsoPFTau20_Trk1_eta2p1_Reg_v"),
+    #    path1 = cms.vstring ("hltDoublePFTau20TrackPt1TightChargedIsolationReg"),                    # hadronic tau
+    #    path2 = cms.vstring ("hltDoublePFTau20TrackPt1TightChargedIsolationReg"),                    # hadronic tau
+    #    path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleTightChargedIsoPFTau20"), # 2 jets with pt>40
+    #    path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleTightChargedIsoPFTau20"),  # 1 jet with pt>115
+    #    leg1 = cms.int32(15),
+    #    leg2 = cms.int32(15)
+    #    ),
 ## === 4 jets (for VBF)
     cms.PSet (
         HLT = cms.string("HLT_QuadPFJet103_88_75_15_BTagCSV_p013_VBF2_v7"), #FIXME

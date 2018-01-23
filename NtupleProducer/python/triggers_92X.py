@@ -17,6 +17,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_IsoMu27_v"),
         path1 = cms.vstring ("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07"),
         path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(13),
         leg2 = cms.int32(999)
         ),
@@ -24,6 +26,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_IsoMu24_v"), # ---------- it's prescaled: TO BE REMOVED
         path1 = cms.vstring ("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"),
         path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(13),
         leg2 = cms.int32(999)
         ),
@@ -32,6 +36,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_Ele32_WPTight_Gsf_v"),
         path1 = cms.vstring ("hltEle32WPTightGsfTrackIsoFilter"),
         path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(11),
         leg2 = cms.int32(999)
         ),
@@ -39,6 +45,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_Ele35_WPTight_Gsf_v"),
         path1 = cms.vstring ("hltEle35noerWPTightGsfTrackIsoFilter"),
         path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(11),
         leg2 = cms.int32(999)
         ),
@@ -47,6 +55,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v"),
         path1 = cms.vstring ("hltSelectedPFTau27LooseChargedIsolationAgainstMuonL1HLTMatched","hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"),
         path2 = cms.vstring ("hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(13),
         leg2 = cms.int32(15)
         ),
@@ -54,6 +64,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v"),
         path1 = cms.vstring ("hltL3crIsoL1sSingleMu22erL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu24LooseChargedIsoPFTau20"),
         path2 = cms.vstring ("hltPFTau20TrackLooseChargedIsoAgainstMuon","hltOverlapFilterIsoMu24LooseChargedIsoPFTau20"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(13),
         leg2 = cms.int32(15)
         ),
@@ -62,6 +74,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v"),
         path1 = cms.vstring ("hltEle24erWPTightGsfTrackIsoFilterForTau","hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30"),
         path2 = cms.vstring ("hltSelectedPFTau30LooseChargedIsolationL1HLTMatched","hltOverlapFilterIsoEle24WPTightGsfLooseIsoPFTau30"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(11),
         leg2 = cms.int32(15)
         ),
@@ -70,6 +84,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v"), # ---------- it's prescaled: TO BE REMOVED
         path1 = cms.vstring ("hltDoublePFTau35TrackPt1MediumChargedIsolationDz02Reg"),
         path2 = cms.vstring ("hltDoublePFTau35TrackPt1MediumChargedIsolationDz02Reg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
@@ -77,6 +93,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v"),
         path1 = cms.vstring ("hltDoublePFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsDz02Reg"),
         path2 = cms.vstring ("hltDoublePFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsDz02Reg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
@@ -84,6 +102,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v"),
         path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg"),
         path2 = cms.vstring ("hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
@@ -91,6 +111,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v"),
         path1 = cms.vstring ("hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg"),
         path2 = cms.vstring ("hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
@@ -205,6 +227,8 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v"),     # Do we need this?? probably not...
         path1 = cms.vstring ("hltSelectedPFTau180MediumChargedIsolationL1HLTMatched"),
         path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(15),
         leg2 = cms.int32(999)
         ),
@@ -212,31 +236,58 @@ HLTLIST = cms.VPSet(
         HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v"), # Do we need this?? probably not...
         path1 = cms.vstring ("hltSelectedPFTau180MediumChargedIsolationL1HLTMatched1Prong"),
         path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(15),
         leg2 = cms.int32(999)
         ),
 ## === VBF + double-tau triggers
     cms.PSet (
         HLT = cms.string("HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_Reg_v"),
-        path1 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTau20"),
-        path2 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTau20"),
+        path1 = cms.vstring ("hltDoublePFTau20TrackPt1LooseChargedIsolationReg"),                    # hadronic tau
+        path2 = cms.vstring ("hltDoublePFTau20TrackPt1LooseChargedIsolationReg"),                    # hadronic tau
+        path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleLooseChargedIsoPFTau20"), # 2 jets with pt>40
+        path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTau20"),  # 1 jet with pt>115
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_VBF_DoubleMediumChargedIsoPFTau20_Trk1_eta2p1_Reg_v"), #FIXME
-        path1 = cms.vstring (""),
-        path2 = cms.vstring (""),
+        HLT = cms.string("HLT_VBF_DoubleMediumChargedIsoPFTau20_Trk1_eta2p1_Reg_v"),
+        path1 = cms.vstring ("hltDoublePFTau20TrackPt1MediumChargedIsolationReg"),                    # hadronic tau
+        path2 = cms.vstring ("hltDoublePFTau20TrackPt1MediumChargedIsolationReg"),                    # hadronic tau
+        path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumChargedIsoPFTau20"), # 2 jets with pt>40
+        path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleMediumChargedIsoPFTau20"),  # 1 jet with pt>115
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_VBF_DoubleTightChargedIsoPFTau20_Trk1_eta2p1_Reg_v"), #FIXME
-        path1 = cms.vstring (""),
-        path2 = cms.vstring (""),
+        HLT = cms.string("HLT_VBF_DoubleTightChargedIsoPFTau20_Trk1_eta2p1_Reg_v"),
+        path1 = cms.vstring ("hltDoublePFTau20TrackPt1TightChargedIsolationReg"),                    # hadronic tau
+        path2 = cms.vstring ("hltDoublePFTau20TrackPt1TightChargedIsolationReg"),                    # hadronic tau
+        path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleTightChargedIsoPFTau20"), # 2 jets with pt>40
+        path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleTightChargedIsoPFTau20"),  # 1 jet with pt>115
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
+## === 4 jets (for VBF) # FILTERS TO BE FIXED
+    #cms.PSet (
+    #    HLT = cms.string("HLT_QuadPFJet103_88_75_15_BTagCSV_p013_VBF2_v7"), #FIXME
+    #    path1 = cms.vstring (""), # tau filters
+    #    path2 = cms.vstring (""), # tau filters
+    #    path3 = cms.vstring ("hltVBFPFJetCSVSortedMqq460Detaqq3p5"), # 4 jets
+    #    path4 = cms.vstring (""),
+    #    leg1 = cms.int32(999),
+    #    leg2 = cms.int32(999)
+    #    ),
+    #cms.PSet (
+    #    HLT = cms.string("HLT_QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1_v7"),  #FIXME
+    #    path1 = cms.vstring (""), # tau filters
+    #    path2 = cms.vstring (""), # tau filters
+    #    path3 = cms.vstring ("hltVBFPFJetCSVSortedMqq200Detaqq1p5"), # 6 jets
+    #    path4 = cms.vstring (""),  # 1 jet with pt>115
+    #    leg1 = cms.int32(999),
+    #    leg2 = cms.int32(999)
+    #    ),
     )
 
 #now I create the trigger list for HLTconfig
