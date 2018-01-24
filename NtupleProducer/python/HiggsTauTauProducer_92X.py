@@ -592,13 +592,13 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 #
 
 # # add latest pileup jet ID
-# process.load("RecoJets.JetProducers.PileupJetID_cfi")
-# process.pileupJetIdUpdated = process.pileupJetId.clone(
-#   jets = cms.InputTag("slimmedJets"),
-#   inputIsCorrected = True,
-#   applyJec = True,
-#   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-# )
+process.load("RecoJets.JetProducers.PileupJetID_cfi")
+process.pileupJetIdUpdated = process.pileupJetId.clone(
+   jets = cms.InputTag("slimmedJets"),
+   inputIsCorrected = True,
+   applyJec = True,
+   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+)
 #print process.pileupJetIdUpdated.dumpConfig()
 
 # apply new jet energy corrections
@@ -617,7 +617,10 @@ updateJetCollection(
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None')
 )
 
-process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+process.updatedPatJetsUpdatedJEC.userData.userInts.src    += ['pileupJetIdUpdated:fullId']
+process.jecSequence = cms.Sequence(process.pileupJetIdUpdated + process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+#process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 
 process.jets = cms.EDFilter("PATJetRefSelector",
                             #src = cms.InputTag("slimmedJets"),
