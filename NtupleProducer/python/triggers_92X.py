@@ -99,18 +99,18 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(15)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v"),
-        path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg"),
-        path2 = cms.vstring ("hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg"),
+        HLT = cms.string("HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v"),
+        path1 = cms.vstring ("hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg"),
+        path2 = cms.vstring ("hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg"),
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v"),
-        path1 = cms.vstring ("hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg"),
-        path2 = cms.vstring ("hltDoublePFTau40TrackPt1TightChargedIsolationDz02Reg"),
+        HLT = cms.string("HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v"),
+        path1 = cms.vstring ("hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg"),
+        path2 = cms.vstring ("hltDoublePFTau40TrackPt1MediumChargedIsolationAndTightOOSCPhotonsDz02Reg"),
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
@@ -266,6 +266,16 @@ HLTLIST = cms.VPSet(
         path2 = cms.vstring ("hltDoublePFTau20TrackPt1TightChargedIsolationReg"),                    # hadronic tau
         path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleTightChargedIsoPFTau20"), # 2 jets with pt>40
         path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleTightChargedIsoPFTau20"),  # 1 jet with pt>115
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(15)
+        ),
+## === Tau + MET
+    cms.PSet (
+        HLT = cms.string("HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET90_v"),
+        path1 = cms.vstring ("hltPFTau50TrackPt30MediumAbsOrRelIso1Prong", "hltSelectedPFTau50MediumChargedIsolationL1HLTMatched"),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),

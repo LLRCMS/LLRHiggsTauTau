@@ -52,12 +52,12 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if IsMC:
     #process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6' # FIXME !!!!!!!!
     #process.GlobalTag.globaltag = '92X_dataRun2_2017Repro_v4'               # 12Sept2017 MC
-    process.GlobalTag.globaltag = '92X_upgrade2017_realistic_v10'            # 2017 MC 
+    process.GlobalTag.globaltag = '94X_mc2017_realistic_v10'                 # 2017 MC
 else :
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0' # ICHEP            # FIXME !!!!!!!!
     #process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-G               # FIXME !!!!!!!!
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v16' # Run H                      # FIXME !!!!!!!!
-    process.GlobalTag.globaltag = '92X_dataRun2_Prompt_v4'                                 # 2017 Data
+    process.GlobalTag.globaltag = '94X_dataRun2_ReReco17_forValidation'                    # 2017 Data
 print process.GlobalTag.globaltag
 
 nanosec="25"
