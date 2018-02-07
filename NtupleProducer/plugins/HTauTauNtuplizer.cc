@@ -619,6 +619,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _bdiscr;
   std::vector<Float_t> _bdiscr2;
   std::vector<Float_t> _bdiscr3;
+  std::vector<Float_t> _bdiscr4;
+  std::vector<Float_t> _bdiscr5;
   std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
   std::vector<Float_t> _jetrawf;
 
@@ -1043,6 +1045,8 @@ void HTauTauNtuplizer::Initialize(){
   _bdiscr.clear();
   _bdiscr2.clear();
   _bdiscr3.clear();
+  _bdiscr4.clear();
+  _bdiscr5.clear();
   _jetID.clear();
   _jetrawf.clear();
 
@@ -1385,6 +1389,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
   myTree->Branch("pfCombinedMVAV2BJetTags",&_bdiscr3);
+  myTree->Branch("bDeepCSV_prob_b",&_bdiscr4);
+  myTree->Branch("bDeepCSV_prob_bb",&_bdiscr5);
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
   myTree->Branch("susyModel",&_susyModel);
@@ -2105,6 +2111,8 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _bdiscr.push_back(ijet->bDiscriminator("pfJetProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
     _bdiscr3.push_back(ijet->bDiscriminator("pfCombinedMVAV2BJetTags"));
+    _bdiscr4.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probb")); //FRA
+    _bdiscr5.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probbb")); //FRA
 
     //PF jet ID
     float NHF = ijet->neutralHadronEnergyFraction();

@@ -737,7 +737,7 @@ updateJetCollection(
    process,
    jetSource = cms.InputTag('slimmedJets'),
    labelName = 'UpdatedJEC',
-   jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None')
+   jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
 )
 
 process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
