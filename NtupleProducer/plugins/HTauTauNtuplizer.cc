@@ -513,7 +513,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_byIsolationMVA3newDMwoLTraw;
   std::vector<Float_t> _daughters_byIsolationMVA3newDMwLTraw;
   std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTraw;
-  std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew; //FRA
+  std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew;
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
   std::vector<Float_t> _daughters_puCorrPtSum;
@@ -616,11 +616,26 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _jets_Flavour; // parton flavour
   std::vector<Int_t> _jets_HadronFlavour; // hadron flavour
   std::vector<Int_t> _jets_genjetIndex; // index of matched gen jet in genjet vector
+
   std::vector<Float_t> _bdiscr;
-  std::vector<Float_t> _bdiscr2;
+  std::vector<Float_t> _bdiscr2; //CSVv2
   std::vector<Float_t> _bdiscr3;
-  std::vector<Float_t> _bdiscr4;
-  std::vector<Float_t> _bdiscr5;
+  
+  std::vector<Float_t> _bdiscr4; //DeepCSV_probb
+  std::vector<Float_t> _bdiscr5; //DeepCSV_probbb
+  std::vector<Float_t> _bdiscr6; //DeepCSV_probudsg
+  std::vector<Float_t> _bdiscr7; //DeepCSV_probc
+  std::vector<Float_t> _bdiscr8; //DeepCSV_probcc
+  
+  std::vector<Float_t> _bdiscr9;  //DeepFlavor_probb
+  std::vector<Float_t> _bdiscr10; //DeepFlavor_probbb
+  std::vector<Float_t> _bdiscr11; //DeepFlavor_problepb
+  std::vector<Float_t> _bdiscr12; //DeepFlavor_probc
+  std::vector<Float_t> _bdiscr13; //DeepFlavor_probuds
+  std::vector<Float_t> _bdiscr14; //DeepFlavor_probg
+  
+
+    
   std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
   std::vector<Float_t> _jetrawf;
 
@@ -1047,6 +1062,16 @@ void HTauTauNtuplizer::Initialize(){
   _bdiscr3.clear();
   _bdiscr4.clear();
   _bdiscr5.clear();
+  _bdiscr6.clear();
+  _bdiscr7.clear();
+  _bdiscr8.clear();
+  _bdiscr9.clear();
+  _bdiscr10.clear();
+  _bdiscr11.clear();
+  _bdiscr12.clear();
+  _bdiscr13.clear();
+  _bdiscr14.clear();
+  
   _jetID.clear();
   _jetrawf.clear();
 
@@ -1308,7 +1333,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_byIsolationMVA3newDMwoLTraw",&_daughters_byIsolationMVA3newDMwoLTraw);
   myTree->Branch("daughters_byIsolationMVA3newDMwLTraw",&_daughters_byIsolationMVA3newDMwLTraw);
   myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTraw",&_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
-  myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTrawNew",&_daughters_byIsolationMVArun2v1DBoldDMwLTrawNew); //FRA
+  myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTrawNew",&_daughters_byIsolationMVArun2v1DBoldDMwLTrawNew);
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
   myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
@@ -1389,8 +1414,19 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
   myTree->Branch("pfCombinedMVAV2BJetTags",&_bdiscr3);
-  myTree->Branch("bDeepCSV_prob_b",&_bdiscr4);
-  myTree->Branch("bDeepCSV_prob_bb",&_bdiscr5);
+  myTree->Branch("bDeepCSV_probb",&_bdiscr4);
+  myTree->Branch("bDeepCSV_probbb",&_bdiscr5);
+  myTree->Branch("bDeepCSV_probudsg",&_bdiscr6);
+  myTree->Branch("bDeepCSV_probc",&_bdiscr7);
+  myTree->Branch("bDeepCSV_probcc",&_bdiscr8);
+  myTree->Branch("bDeepFlavor_probb",&_bdiscr9);
+  myTree->Branch("bDeepFlavor_probbb",&_bdiscr10);
+  myTree->Branch("bDeepFlavor_problepb",&_bdiscr11);
+  myTree->Branch("bDeepFlavor_probc",&_bdiscr12);
+  myTree->Branch("bDeepFlavor_probuds",&_bdiscr13);
+  myTree->Branch("bDeepFlavor_probg",&_bdiscr14);
+  
+  
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
   myTree->Branch("susyModel",&_susyModel);
@@ -2111,8 +2147,21 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _bdiscr.push_back(ijet->bDiscriminator("pfJetProbabilityBJetTags"));
     _bdiscr2.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
     _bdiscr3.push_back(ijet->bDiscriminator("pfCombinedMVAV2BJetTags"));
-    _bdiscr4.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probb")); //FRA
-    _bdiscr5.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probbb")); //FRA
+    
+    // DeepCSV
+    _bdiscr4.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probb"));
+    _bdiscr5.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probbb"));
+    _bdiscr6.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probudsg"));
+    _bdiscr7.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probc"));
+    _bdiscr8.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probcc"));
+    
+    // DeepFlavor
+    _bdiscr9.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probb"));
+    _bdiscr10.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probbb"));
+    _bdiscr11.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:problepb"));
+    _bdiscr12.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probc"));
+    _bdiscr13.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probuds"));
+    _bdiscr14.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probg"));
 
     //PF jet ID
     float NHF = ijet->neutralHadronEnergyFraction();
@@ -2504,7 +2553,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
     float leadChargedParticlePt=-1., trackRefPt=-1.;
     int typeOfMuon=0;
-    float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTrawNew=-1; //, byLooseIsolationMVArun2v1DBoldDMwLTNew=-1; //FRA
+    float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTrawNew=-1;
     Long64_t tauIDflag = 0;
     float   
     againstElectronMVA5category,
@@ -2615,8 +2664,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       byIsolationMVA3newDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwoLTraw");
       byIsolationMVA3newDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwLTraw");
       byIsolationMVArun2v1DBoldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTraw");
-      byIsolationMVArun2v1DBoldDMwLTrawNew=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
-      //byLooseIsolationMVArun2v1DBoldDMwLTNew=userdatahelpers::getUserFloat (cand, "byLooseIsolationMVArun2v1DBoldDMwLTNew"); //FRA
+      byIsolationMVArun2v1DBoldDMwLTrawNew=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTrawNew");
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
@@ -2690,8 +2738,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_byIsolationMVA3newDMwoLTraw.push_back(byIsolationMVA3newDMwoLTraw);
     _daughters_byIsolationMVA3newDMwLTraw.push_back(byIsolationMVA3newDMwLTraw);
     _daughters_byIsolationMVArun2v1DBoldDMwLTraw.push_back(byIsolationMVArun2v1DBoldDMwLTraw);
-    _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew.push_back(byIsolationMVArun2v1DBoldDMwLTrawNew); //FRA
-    //_daughters_byLooseIsolationMVArun2v1DBoldDMwLTNew.push_back(byLooseIsolationMVArun2v1DBoldDMwLTNew); //FRA
+    _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew.push_back(byIsolationMVArun2v1DBoldDMwLTrawNew);
     _daughters_numChargedParticlesSignalCone.push_back(numChargedParticlesSignalCone);
     _daughters_numNeutralHadronsSignalCone.push_back(numNeutralHadronsSignalCone);
     _daughters_numPhotonsSignalCone.push_back(numPhotonsSignalCone);
@@ -3279,10 +3326,10 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   //byCombinedIsolationDeltaBetaCorrRaw3Hits
   isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"combRelIsoPF");
-  //if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTraw"); //FRA
-  //if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTraw"); //FRA
-  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
-  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
+  //if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
+  //if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
+  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTrawNew");
+  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTrawNew");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
@@ -3294,10 +3341,10 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   //step 3, leg 2 ISO
   isoi=userdatahelpers::getUserFloat(i.daughter(1-cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"combRelIsoPF");
-  //if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTraw"); //FRA
-  //if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTraw"); //FRA
-  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
-  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
+  //if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
+  //if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
+  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTrawNew");
+  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTrawNew");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
