@@ -135,7 +135,6 @@ process.maxEvents.input = -1
 ##
 ## Output file
 ##
-
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
 
 # L1 trigger objects (as suggested on: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information )
