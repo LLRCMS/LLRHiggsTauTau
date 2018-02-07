@@ -252,7 +252,6 @@ cmsenv
 # MVA EleID Fall 2017
 git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3
 scram b -j 8
-
 cd $CMSSW_BASE/external
 # below, you may have a different architecture, this is just one example from lxplus (same on polui)
 cd slc6_amd64_gcc630/
@@ -264,8 +263,8 @@ cd slc6_amd64_gcc630/
 git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
 cd data/RecoEgamma/ElectronIdentification/data
 git checkout CMSSW_9_4_0_pre3_TnP
-# Go back to the src/
-cd $CMSSW_BASE/srcbuildafter externalthe externalin 
+cd $CMSSW_BASE/src
+
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
