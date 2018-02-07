@@ -226,6 +226,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     bool isconversionveto=l.passConversionVeto();
     
     //-- Missing hit  
+    //int missinghit = l.gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
     int missinghit = l.gsfTrack()->hitPattern().numberOfAllHits(HitPattern::MISSING_INNER_HITS);
 
     //--- 3 charge assignement

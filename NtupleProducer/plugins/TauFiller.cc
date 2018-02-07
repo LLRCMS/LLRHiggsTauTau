@@ -132,8 +132,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "againstElectronLooseMVA6",
     "againstElectronMediumMVA6",
     "againstElectronTightMVA6",
-    "againstElectronVTightMVA6"
-
+    "againstElectronVTightMVA6",
   };
 
   tauFloatDiscrims_ =
@@ -153,6 +152,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "chargedIsoPtSum",
     "neutralIsoPtSum",
     "puCorrPtSum",
+    "byIsolationMVArun2v1DBoldDMwLTrawNew", //FRA
   };
 
 
