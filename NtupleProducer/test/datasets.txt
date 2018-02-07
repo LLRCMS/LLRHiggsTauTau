@@ -611,3 +611,16 @@
 /Tau/Run2017C-PromptReco-v3/MINIAOD
 /Tau/Run2017D-PromptReco-v1/MINIAOD
 
+
+=== EMBEDDED2017 ===
+/EmbeddingRun2017B/MuTauFinalState-imputDoubleMu_miniAOD-v1/USER
+/EmbeddingRun2017C/MuTauFinalState-imputDoubleMu_miniAOD-v1/USER
+/EmbeddingRun2017D/MuTauFinalState-imputDoubleMu_miniAOD-v1/USER
+
+/EmbeddingRun2017B/ElTauFinalState-imputDoubleMu_miniAOD-v1/USER 
+/EmbeddingRun2017C/ElTauFinalState-imputDoubleMu_miniAOD-v1/USER 
+/EmbeddingRun2017D/ElTauFinalState-imputDoubleMu_miniAOD-v1/USER 
+
+/EmbeddingRun2017B/TauTauFinalState-imputDoubleMu_miniAOD-v1/USER
+/EmbeddingRun2017C/TauTauFinalState-imputDoubleMu_miniAOD-v1/USER
+/EmbeddingRun2017D/TauTauFinalState-imputDoubleMu_miniAOD-v1/USER

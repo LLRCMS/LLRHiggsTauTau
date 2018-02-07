@@ -26,12 +26,12 @@ USE_NOHFMET = False # True to exclude HF and run on silver json
 SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
-BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
-APPLYTESCORRECTION=False # shift the central value of the tau energy scale before computing up/down variations
-COMPUTEUPDOWNSVFIT=True # compute SVfit for up/down TES variation
+BUILDONLYOS=True #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
+APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
+COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = False # compute QG Tagger for jets
-IsMC=False
+IsMC=True
 Is25ns=True
 HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.
 if not IsMC:
@@ -89,20 +89,42 @@ process.source = cms.Source("PoolSource",
     # 2017 Data
     # B_v1
     #'/store/data/Run2017B/SingleMuon/MINIAOD/PromptReco-v1/000/297/046/00000/32AC3177-7A56-E711-BE34-02163E019D73.root',
-    '/store/data/Run2017B/SingleElectron/MINIAOD/PromptReco-v1/000/297/046/00000/02CBE6D1-4456-E711-82F5-02163E019D97.root',
+    #'/store/data/Run2017B/SingleElectron/MINIAOD/PromptReco-v1/000/297/046/00000/02CBE6D1-4456-E711-82F5-02163E019D97.root', # 5000   evts
+    #'/store/data/Run2017B/SingleElectron/MINIAOD/PromptReco-v1/000/297/050/00000/166F7BB0-3C56-E711-BD8B-02163E0145C5.root',  # 147000 evts
     #'/store/data/Run2017B/Tau/MINIAOD/PromptReco-v1/000/297/046/00000/B600F102-4856-E711-839A-02163E01411B.root',
     # C_v3
     #'/store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/742/00000/0AC61DCE-457E-E711-9CAE-02163E014217.root',
     # root://cms-xrd-global.cern.ch//store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/742/00000/240BA088-597E-E711-ADE4-02163E019C30.root
     #'/store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/742/00000/240BA088-597E-E711-ADE4-02163E019C30.root',
     #'/store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/742/00000/425DFEF6-5D7E-E711-8F2F-02163E01A1DD.root',
+    
+    # MC 2017 - GT:92X_upgrade2017_realistic_v10
+    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/0080A67C-FBA4-E711-A8FE-00259029E84C.root',
+    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/0678C84B-F49E-E711-B561-A0369FC51AD4.root',
+    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/088CC59F-F39C-E711-8124-549F35AF44E3.root',
+    
+    # 2017 embedded samples - GT: 92X_dataRun2_Prompt_v4
+    #'/store/user/pahrens/gc_storage/MuTau_data_2017_CMSSW923p2_freiburg_v7/TauEmbedding_MuTau_data_2017_CMSSW923p2_Run2017B/merged/1/merged_0.root',    # 688 evts
+    #'/store/user/pahrens/gc_storage/MuTau_data_2017_CMSSW923p2_freiburg_v7/TauEmbedding_MuTau_data_2017_CMSSW923p2_Run2017B/merged/1/merged_100.root',  # 715 evts
+    #'/store/user/pahrens/gc_storage/MuTau_data_2017_CMSSW923p2_freiburg_v7/TauEmbedding_MuTau_data_2017_CMSSW923p2_Run2017B/merged/1/merged_1000.root', # 657 evts
+    
+    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/92X_upgrade2017_realistic_v10-v2/50000/02098EBB-029C-E711-8FED-441EA1714E4C.root'
+    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/92X_upgrade2017_realistic_v10-v2/50000/2A50557C-829D-E711-9331-10983627C3CE.root',
+    
+    # Samples for SyncFeb2018
+    # Signal
+     '/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/128F2EAF-6905-E811-810E-44A842BECCD8.root',
+    # Data
+    #'/store/data/Run2017B/Tau/MINIAOD/17Nov2017-v1/40000/02D49C45-F8DD-E711-9ACC-001E675043AD.root',
+    
     )
 )
 
 # process.source.skipEvents = cms.untracked.uint32(968)
+#process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 1000
+process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
@@ -115,6 +137,12 @@ process.maxEvents.input = 1000
 ##
 
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+
+# L1 trigger objects (as suggested on: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information )
+#  ----> TO BE FIXED <----
+#process.out.outputCommands.append('keep *_caloStage2Digis_*_*') #FRA
+#process.out.outputCommands.append('keep *_gmtStage2Digis_*_*')  #FRA
+
 
 if DO_ENRICHED:
     process.out = cms.OutputModule("PoolOutputModule",
@@ -151,7 +179,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'

@@ -18,6 +18,7 @@
 #include <map>
 #include <utility>
 #include <TNtuple.h>
+#include <bitset>
 //#include <XYZTLorentzVector.h>
 
 // user include files
@@ -159,6 +160,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets);
+  void VBFtrigMatch(const edm::View<pat::Jet>* jet, const edm::Event&); //FRA
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
@@ -482,7 +484,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
    "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
    "byTightIsolationMVArun2v1DBdR03oldDMwLT",
-   "byVTightIsolationMVArun2v1DBdR03oldDMwLT"
+   "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
   };
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_full5x5_IetaIeta;
@@ -511,6 +513,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_byIsolationMVA3newDMwoLTraw;
   std::vector<Float_t> _daughters_byIsolationMVA3newDMwLTraw;
   std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTraw;
+  std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew; //FRA
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
   std::vector<Float_t> _daughters_puCorrPtSum;
@@ -556,6 +559,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Jets variables
   Int_t _numberOfJets;
   //std::vector<TLorentzVector> _jets;
+  std::vector<std::vector<Long64_t>> _jets_VBFfirstTrigMatch; //FRA
+  std::vector<std::vector<Long64_t>> _jets_VBFsecondTrigMatch; //FRA
   std::vector<Float_t> _jets_px;
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
@@ -565,6 +570,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
   std::vector<Float_t> _jets_PUJetIDupdated;
+  std::vector<Int_t>   _jets_PUJetIDupdated_WP;
   std::vector<Float_t> _jets_vtxPt;
   std::vector<Float_t> _jets_vtxMass;
   std::vector<Float_t> _jets_vtx3dL;
@@ -701,17 +707,16 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
     const std::string& hlt = iPSet->getParameter<std::string>("HLT");
     const std::vector<std::string>& path1 = iPSet->getParameter<std::vector<std::string>>("path1");
     const std::vector<std::string>& path2 = iPSet->getParameter<std::vector<std::string>>("path2");
+    const std::vector<std::string>& path3 = iPSet->getParameter<std::vector<std::string>>("path3"); //FRA
+    const std::vector<std::string>& path4 = iPSet->getParameter<std::vector<std::string>>("path4"); //FRA
     const int& leg1 = iPSet->getParameter<int>("leg1");
     const int& leg2 = iPSet->getParameter<int>("leg2");
     // Build the mape
-    myTriggerHelper->addTriggerMap(hlt,path1,path2,leg1,leg2);
+    //myTriggerHelper->addTriggerMap(hlt,path1,path2,leg1,leg2);
+    myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2); //FRA
   }
 
-
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
-
-
-
 
   /*
   // init map for flags
@@ -793,6 +798,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_byIsolationMVA3oldDMwLTraw.clear();
   _daughters_byIsolationMVA3newDMwoLTraw.clear();
   _daughters_byIsolationMVArun2v1DBoldDMwLTraw.clear();
+  _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew.clear(); //FRA
 
   _daughters_againstElectronMVA5category.clear();
   _daughters_againstElectronMVA5raw.clear();
@@ -1000,6 +1006,8 @@ void HTauTauNtuplizer::Initialize(){
   _MC_weight_scale_muR2=0.;
 
 //  _jets.clear();
+  _jets_VBFfirstTrigMatch.clear(); //FRA
+  _jets_VBFsecondTrigMatch.clear(); //FRA
   _jets_px.clear();
   _jets_py.clear();
   _jets_pz.clear();
@@ -1009,6 +1017,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_mT.clear();
   _jets_PUJetID.clear();
   _jets_PUJetIDupdated.clear();
+  _jets_PUJetIDupdated_WP.clear();
   _jets_vtxPt.clear();
   _jets_vtxMass.clear();
   _jets_vtx3dL.clear();
@@ -1295,6 +1304,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_byIsolationMVA3newDMwoLTraw",&_daughters_byIsolationMVA3newDMwoLTraw);
   myTree->Branch("daughters_byIsolationMVA3newDMwLTraw",&_daughters_byIsolationMVA3newDMwLTraw);
   myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTraw",&_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
+  myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTrawNew",&_daughters_byIsolationMVArun2v1DBoldDMwLTrawNew); //FRA
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
   myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
@@ -1339,6 +1349,8 @@ void HTauTauNtuplizer::beginJob(){
   }
 
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
+  myTree->Branch("jets_VBFfirstTrigMatch",&_jets_VBFfirstTrigMatch); //FRA
+  myTree->Branch("jets_VBFsecondTrigMatch",&_jets_VBFsecondTrigMatch); //FRA
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
@@ -1351,6 +1363,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
   myTree->Branch("jets_PUJetIDupdated",&_jets_PUJetIDupdated);
+  myTree->Branch("jets_PUJetIDupdated_WP",&_jets_PUJetIDupdated_WP);
   myTree->Branch("jets_vtxPt", &_jets_vtxPt);
   myTree->Branch("jets_vtxMass", &_jets_vtxMass);
   myTree->Branch("jets_vtx3dL", &_jets_vtx3dL);
@@ -1514,6 +1527,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _triggerbit = myTriggerHelper->FindTriggerBit(event,foundPaths,indexOfPath,triggerBits);
   _metfilterbit = myTriggerHelper->FindMETBit(event, metFilterBits_);
   Long64_t tbit = _triggerbit;
+  //std::cout << " -- tbit: " << std::bitset<64>(tbit) << std::endl;
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
   }
@@ -1644,6 +1658,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     
   }
   if(writeFatJets) FillFatJet(fatjets, event);
+  
+  //FRA: Matching jets with trigger filters for VBF
+  VBFtrigMatch(jets, event);
     
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
@@ -1859,6 +1876,156 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //return;
 }
 
+//FRA: VBF trigger matching for jets in the VBF topology
+void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm::Event& event){
+
+  edm::Handle<edm::TriggerResults> triggerBits;
+  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+
+  event.getByToken(triggerObjects_, triggerObjects);
+  event.getByToken(triggerBits_, triggerBits);
+  const edm::TriggerNames &names = event.triggerNames(*triggerBits);
+
+  // Variables for storing the result
+  std::vector<Long64_t> VBFfirstTrigMatched;
+  std::vector<Long64_t> VBFsecondTrigMatched;
+  
+  //int numero = 0;
+  
+  // Loop on the jets in the event
+  for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet)
+  {
+    //numero = numero+1; //FRA
+    //std::cout << "Jet " << numero << std::endl; //FRA
+    //std::cout << " -- pt:  " << ijet->pt() << std::endl; //FRA
+    //std::cout << " -- phi: " << ijet->phi() << std::endl; //FRA
+    
+    // For each jet, check all the trigger objects, both 'path3' and 'path4'
+    Long64_t firstJetMatched  = 0;
+    Long64_t secondJetMatched = 0;
+  
+    // Loop on the Trigger Objects in the event
+    for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
+    {
+      pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
+      
+      // Check if the TO type is a jet, otherwise continue with next TO
+      if (obj.type(85) != true ) continue;
+    
+      // DeltaR2 match between jet and trigger object
+      if(deltaR2(obj,*ijet)<0.25)
+      {
+        // Unpacking Filter Labels
+        obj.unpackFilterLabels(event,*triggerBits);
+        
+        // Unpacking Path Names
+        obj.unpackPathNames(names);
+        std::vector<std::string> pathNamesAll  = obj.pathNames(false);
+        std::vector<std::string> pathNamesLast = obj.pathNames(true);
+        
+        // debug: checking TO filter labels //FRA
+        //if ( obj.type(85))
+        //{
+          //const std::vector<std::string>& VLabels = obj.filterLabels(); //FRA
+          //printing TO labels //FRA
+          //std::cout << " -- VLabels for TO "<< idxto << " - pt: " << obj.pt() << " - phi: " << obj.phi() << std::endl; //FRA
+          //for (uint ll = 0; ll < VLabels.size(); ++ll) cout << "    -- " << VLabels.at(ll) << endl; //FRA
+        //}
+        
+        // Loop on the HLT path names in the Trigger Object
+        for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h)
+        {
+          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+          if (triggerbit < 0) continue ; // not a path I want to save
+          
+          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
+          
+          /*if (trgmap.GetNfiltersleg3() > 0)
+          {
+            std::cout << "HLTPath: " << trgmap.GetHLTPath() << std::endl;
+            std::cout << "trgmap.GetNfiltersleg3(): " << trgmap.GetNfiltersleg3() << std::endl;
+            std::cout << "trgmap.GetNfiltersleg4(): " << trgmap.GetNfiltersleg4() << std::endl;
+            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++) std::cout << " - Leg 1 : " << trgmap.Getfilter(true,ifilt) << std::endl;
+            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++) std::cout << " - Leg 2 : " << trgmap.Getfilter(false,ifilt) << std::endl;
+            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg3();ifilt++) std::cout << " - Leg 3 : " << trgmap.GetfilterVBF(true,ifilt) << std::endl;
+            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg4();ifilt++) std::cout << " - Leg 4 : " << trgmap.GetfilterVBF(false,ifilt) << std::endl;
+          }*/
+          
+          bool VBFfirstMatch = true;
+          bool VBFsecondMatch = true;
+          
+          // TO filter labels
+          const std::vector<std::string>& vLabels = obj.filterLabels();
+        
+          // Loop on Leg3 filter (2 jets with pt40)
+          if (trgmap.GetNfiltersleg3()>0)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg3();ifilt++) //change to leg3
+            {
+              string label = trgmap.GetfilterVBF(true,ifilt);
+              //std::cout << " ---------------------------------------------- @@ leg 3 looking for " << label << std::endl;
+              if (label.empty()) {VBFfirstMatch=false; continue;}
+              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) VBFfirstMatch=false;
+            }
+          }
+          else VBFfirstMatch = false;
+          //std::cout << "VBFfirstMatch: " << VBFfirstMatch << std::endl; //FRA
+          
+          // Loop on Leg4 filter (1 jet with pt115)
+          if (trgmap.GetNfiltersleg4()>0)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg4();ifilt++) //change to leg4
+            {
+              string label = trgmap.GetfilterVBF(false,ifilt);
+              //std::cout << " ---------------------------------------------- @@ leg 4 looking for " << label << std::endl;
+              if (label.empty()) {VBFsecondMatch=false; continue;}
+              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) VBFsecondMatch=false;
+            }
+          }
+          else VBFsecondMatch = false;
+          //std::cout << "VBFsecondMatch: " << VBFsecondMatch << std::endl; //FRA
+
+          
+          // If two jets matching the VBF filters are found, the events has
+          // the event has fired the VBF HLT path
+          //std::cout << "first: " << VBFfirstMatch << " - second: " << VBFsecondMatch << std::endl;
+          if(VBFfirstMatch)
+          {
+            //std::cout << " ###### GOOD FIRST VBF MATCH ######" << std::endl; //FRA
+            //std::cout << " ***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
+            //std::cout << " --> triggerbit: " << triggerbit << std::endl; //FRA
+            //std::cout << "TO filters: " << std::endl;
+            //for (unsigned int kj=0;kj<vLabels.size();kj++) std::cout << " - filter : " << vLabels[kj] << std::endl;
+            firstJetMatched |= (long(1) <<triggerbit);
+          }
+          
+          if(VBFsecondMatch)
+          {
+            //std::cout << " ###### GOOD SECOND VBF MATCH ######" << std::endl; //FRA
+            //std::cout << " ***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
+            //std::cout << " --> triggerbit: " << triggerbit << std::endl; //FRA
+            //std::cout << "TO filters: " << std::endl;
+            //for (unsigned int kj=0;kj<vLabels.size();kj++) std::cout << " - filter : " << vLabels[kj] << std::endl;
+            secondJetMatched |= (long(1) <<triggerbit);
+          }
+        } // Loop on HLT paths
+        
+      } // DeltaR2 match
+      
+    } // Loop on Trigger Objects
+    
+    VBFfirstTrigMatched.push_back(firstJetMatched);
+    VBFsecondTrigMatched.push_back(secondJetMatched);
+    
+  } // Loop on jets
+  
+  // Fill the tree variable
+  _jets_VBFfirstTrigMatch.push_back(VBFfirstTrigMatched);
+  _jets_VBFsecondTrigMatch.push_back(VBFsecondTrigMatched);
+
+}
+
+
 //Fill jets quantities
 int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
   
@@ -1890,6 +2057,8 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _jets_PUJetIDupdated.push_back(ijet->hasUserFloat("pileupJetIdUpdated:fullDiscriminant") ? ijet->userFloat("pileupJetIdUpdated:fullDiscriminant") : -999);
+    _jets_PUJetIDupdated_WP.push_back(ijet->hasUserInt("pileupJetIdUpdated:fullId") ? ijet->userInt("pileupJetIdUpdated:fullId") : -999);
+
     
     //float vtxPx = ijet->userFloat ("vtxPx");                      //FRA: not anymore available in 2017
     //float vtxPy = ijet->userFloat ("vtxPy");                      //FRA: not anymore available in 2017
@@ -1898,7 +2067,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     //_jets_vtxNtrk.push_back(ijet->userFloat("vtxNtracks"));       //FRA: not anymore available in 2017
     //_jets_vtx3deL.push_back(ijet->userFloat("vtx3DSig"));         //FRA: not anymore available in 2017
 
-    // FRA: new way to access these variables (in 2017)
+    //FRA: new way to access these variables (in 2017)
     Float_t vtxPt   = 0.0;
     Float_t vtxMass = 0.0;
     Float_t vtx3dL  = 0.0;
@@ -1982,27 +2151,46 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     // }  
     
     // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
-    bool looseJetID = false;
+    // bool looseJetID = false;
+    // bool tightJetID = false;
+    // bool tightLepVetoJetID = false;
+    // if (absjeta <= 2.7)
+    // {
+    //   looseJetID = ( (NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
+    //   tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
+    //   tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
+    // }
+    // else if (absjeta <= 3.0)
+    // {
+    //   looseJetID = (NEMF<0.90 && NumNeutralParticles>2 ) ;
+    //   tightJetID = looseJetID;
+    // }
+    // else
+    // {
+    //   looseJetID = (NEMF<0.90 && NumNeutralParticles>10 );
+    //   tightJetID = looseJetID;
+    // }
+    // if (looseJetID) ++jetid;
+    // if (tightJetID) ++jetid;
+    // if (tightLepVetoJetID) ++jetid;
+
+    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13TeVRun2017
+    // Since the tight JetID efficiency is > 99% everywhere, loose is not recommended anymore
     bool tightJetID = false;
     bool tightLepVetoJetID = false;
-
     if (absjeta <= 2.7)
     {
-      looseJetID = ( (NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
-      tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
-      tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
+      tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0) || absjeta>2.4) );
+      tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.80) || absjeta>2.4) );
     }
     else if (absjeta <= 3.0)
     {
-      looseJetID = (NEMF<0.90 && NumNeutralParticles>2 ) ;
-      tightJetID = looseJetID;
+      tightJetID = (NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
     }
     else
     {
-      looseJetID = (NEMF<0.90 && NumNeutralParticles>10 );
-      tightJetID = looseJetID;   
+      tightJetID = (NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 );
     }
-    if (looseJetID) ++jetid;
     if (tightJetID) ++jetid;
     if (tightLepVetoJetID) ++jetid;
 
@@ -2308,7 +2496,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
     float leadChargedParticlePt=-1., trackRefPt=-1.;
     int typeOfMuon=0;
-    float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTraw=-1;
+    float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTrawNew=-1; //, byLooseIsolationMVArun2v1DBoldDMwLTNew=-1; //FRA
     Long64_t tauIDflag = 0;
     float   
     againstElectronMVA5category,
@@ -2419,6 +2607,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       byIsolationMVA3newDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwoLTraw");
       byIsolationMVA3newDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwLTraw");
       byIsolationMVArun2v1DBoldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTraw");
+      byIsolationMVArun2v1DBoldDMwLTrawNew=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
+      //byLooseIsolationMVArun2v1DBoldDMwLTNew=userdatahelpers::getUserFloat (cand, "byLooseIsolationMVArun2v1DBoldDMwLTNew"); //FRA
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
@@ -2492,6 +2682,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_byIsolationMVA3newDMwoLTraw.push_back(byIsolationMVA3newDMwoLTraw);
     _daughters_byIsolationMVA3newDMwLTraw.push_back(byIsolationMVA3newDMwLTraw);
     _daughters_byIsolationMVArun2v1DBoldDMwLTraw.push_back(byIsolationMVArun2v1DBoldDMwLTraw);
+    _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew.push_back(byIsolationMVArun2v1DBoldDMwLTrawNew); //FRA
+    //_daughters_byLooseIsolationMVArun2v1DBoldDMwLTNew.push_back(byLooseIsolationMVArun2v1DBoldDMwLTNew); //FRA
     _daughters_numChargedParticlesSignalCone.push_back(numChargedParticlesSignalCone);
     _daughters_numNeutralHadronsSignalCone.push_back(numNeutralHadronsSignalCone);
     _daughters_numPhotonsSignalCone.push_back(numPhotonsSignalCone);
@@ -2657,8 +2849,18 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           // FIXME: should I check type? --> no, multiple filters should be enough
           if(istrgMatched)
           {
+            //std::cout << " ###### GOOD MATCH ######" << std::endl; //FRA
+            //std::cout << "***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
+            //std::cout << "--> triggerbit: " << triggerbit << std::endl; //FRA
+            //std::cout << "--> label: " << label << std::endl; //FRA
+            //std::cout << "--> BEFORE trgMatched: " << std::bitset<64>(trgMatched) << std::endl; //FRA
+            
+            //printing TO labels //FRA
+            //for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "    -- " << vLabels.at(ll) << endl; //FRA
+            
             trgMatched |= (long(1) <<triggerbit);
             toStandaloneMatched.at(triggerbit).push_back(idxto);
+            //std::cout << "--> AFTER  trgMatched: " << std::bitset<64>(trgMatched) << std::endl; //FRA
           }
           // cout << "istrgMatched ? " << istrgMatched << endl;
 
@@ -3069,8 +3271,10 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   //byCombinedIsolationDeltaBetaCorrRaw3Hits
   isoi=userdatahelpers::getUserFloat(i.daughter(cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"combRelIsoPF");
-  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
-  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
+  //if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTraw"); //FRA
+  //if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTraw"); //FRA
+  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
+  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
@@ -3082,8 +3286,10 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   //step 3, leg 2 ISO
   isoi=userdatahelpers::getUserFloat(i.daughter(1-cand1i),"combRelIsoPF");
   isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"combRelIsoPF");
-  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
-  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
+  //if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTraw"); //FRA
+  //if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTraw"); //FRA
+  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
+  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTrawNew"); //FRA
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
