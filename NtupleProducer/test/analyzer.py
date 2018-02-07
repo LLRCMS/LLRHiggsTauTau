@@ -124,7 +124,7 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 100 # FRA
+process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
@@ -135,8 +135,7 @@ process.maxEvents.input = 100 # FRA
 ##
 ## Output file
 ##
-
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_TEST.root'))
+process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
 
 # L1 trigger objects (as suggested on: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information )
 #  ----> TO BE FIXED <----

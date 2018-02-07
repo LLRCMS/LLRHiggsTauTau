@@ -245,17 +245,32 @@ scram b -j 4
 ### Instructions for 92X
 
 ```
-cmsrel CMSSW_9_2_8
-cd CMSSW_9_2_8/src/
+cmsrel CMSSW_9_4_0
+cd CMSSW_9_4_0/src/
 cmsenv
+
+# MVA EleID Fall 2017
+git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3
+scram b -j 8
+cd $CMSSW_BASE/external
+# below, you may have a different architecture, this is just one example from lxplus (same on polui)
+cd slc6_amd64_gcc630/
+git clone https://github.com/lsoffi/RecoEgamma-PhotonIdentification.git data/RecoEgamma/PhotonIdentification/data
+cd data/RecoEgamma/PhotonIdentification/data
+git checkout CMSSW_9_4_0_pre3_TnP
+cd $CMSSW_BASE/external
+cd slc6_amd64_gcc630/
+git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
+cd data/RecoEgamma/ElectronIdentification/data
+git checkout CMSSW_9_4_0_pre3_TnP
+cd $CMSSW_BASE/src
 
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
+# LLRHiggsTauTau framework
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau
-git checkout master
-# git remote add my-LLR https://github.com/francescobrivio/LLRHiggsTauTau.git
 git checkout 92X
 cd -
 
@@ -285,6 +300,8 @@ git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
 cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
+# need to fix: TauAnalysis/SVfitStandalone/src/SVfitStandaloneQuantities.cc 
+# add '#include <numeric>'
 
 cd $CMSSW_BASE/src
 scram b -j 8
@@ -292,4 +309,4 @@ scram b -j 8
 
 ### Quick usage:
 Define the files you want to run in analyzer.py and run cmsRun analyzer.py
-Please note that the MVA Spring 16 Electron ID is now available and used by default
+
