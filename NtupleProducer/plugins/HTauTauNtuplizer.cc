@@ -603,6 +603,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _ak8jets_tau2; // subjettiness
   std::vector<Float_t> _ak8jets_tau3; // subjettiness
   std::vector<Float_t> _ak8jets_CSV; // CSV score
+  std::vector<Float_t> _ak8jets_deepCSV_probb; // CSV score
+  std::vector<Float_t> _ak8jets_deepCSV_probbb; // CSV score
   std::vector<Int_t>   _ak8jets_nsubjets;
 
   // subjets of ak8 -- store ALL subjets, and link them with an idx to the ak8 jet vectors
@@ -611,6 +613,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _subjets_pz;
   std::vector<Float_t> _subjets_e;
   std::vector<Float_t> _subjets_CSV;
+  std::vector<Float_t> _subjets_deepCSV_probb;
+  std::vector<Float_t> _subjets_deepCSV_probbb;
   std::vector<Int_t>   _subjets_ak8MotherIdx;
 
   std::vector<Int_t> _jets_Flavour; // parton flavour
@@ -1087,6 +1091,8 @@ void HTauTauNtuplizer::Initialize(){
   _ak8jets_tau2.clear();
   _ak8jets_tau3.clear();
   _ak8jets_CSV.clear();
+  _ak8jets_deepCSV_probb.clear();
+  _ak8jets_deepCSV_probbb.clear();
   _ak8jets_nsubjets.clear();
 
   _subjets_px.clear();
@@ -1094,6 +1100,8 @@ void HTauTauNtuplizer::Initialize(){
   _subjets_pz.clear();
   _subjets_e.clear();
   _subjets_CSV.clear();
+  _subjets_deepCSV_probb.clear();
+  _subjets_deepCSV_probbb.clear();
   _subjets_ak8MotherIdx.clear();
 
 
@@ -1443,6 +1451,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("ak8jets_tau2", &_ak8jets_tau2);
   myTree->Branch("ak8jets_tau3", &_ak8jets_tau3);
   myTree->Branch("ak8jets_CSV", &_ak8jets_CSV);
+  myTree->Branch("ak8jets_deepCSV_probb", &_ak8jets_deepCSV_probb);
+  myTree->Branch("ak8jets_deepCSV_probbb", &_ak8jets_deepCSV_probbb);
   myTree->Branch("ak8jets_nsubjets", &_ak8jets_nsubjets);
 
   myTree->Branch("subjets_px", &_subjets_px);
@@ -1450,6 +1460,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("subjets_pz", &_subjets_pz);
   myTree->Branch("subjets_e", &_subjets_e);
   myTree->Branch("subjets_CSV", &_subjets_CSV);
+  myTree->Branch("subjets_deepCSV_probb", &_subjets_deepCSV_probb);
+  myTree->Branch("subjets_deepCSV_probbb", &_subjets_deepCSV_probbb);
   myTree->Branch("subjets_ak8MotherIdx", &_subjets_ak8MotherIdx);
 
 
@@ -2368,6 +2380,8 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_tau2.push_back         (ijet->hasUserFloat("NjettinessAK8:tau2")       ? ijet->userFloat("NjettinessAK8:tau2")       : -999 );
       _ak8jets_tau3.push_back         (ijet->hasUserFloat("NjettinessAK8:tau3")       ? ijet->userFloat("NjettinessAK8:tau3")       : -999 );
       _ak8jets_CSV.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+      _ak8jets_deepCSV_probb.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probb"));
+      _ak8jets_deepCSV_probbb.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probbb"));
 
       // store subjets for soft drop
       int nsubj = 0;
@@ -2383,6 +2397,8 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
           _subjets_pz.push_back((*isubj)->pz());
           _subjets_e.push_back((*isubj)->energy());
           _subjets_CSV.push_back((*isubj)->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+          _subjets_deepCSV_probb.push_back((*isubj)->bDiscriminator("pfDeepCSVJetTags:probb"));
+          _subjets_deepCSV_probbb.push_back((*isubj)->bDiscriminator("pfDeepCSVJetTags:probbb"));
           _subjets_ak8MotherIdx.push_back(ijet - fatjets->begin()); // idx of fatjet in fatjet vector
           // cout << " * " << (*isubj)->pt() << " " << isubj - subj.begin() << endl;
         }
