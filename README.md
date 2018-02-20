@@ -265,6 +265,13 @@ cd data/RecoEgamma/ElectronIdentification/data
 git checkout CMSSW_9_4_0_pre3_TnP
 cd $CMSSW_BASE/src
 
+# Remove some of the unused weights (otherwise the crab tarball is too big for submission)
+cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/ElectronIdentification/data
+rm -r PHYS14 Spring15 
+cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/PhotonIdentification/data
+rm -r PHYS14 Spring15 Spring16
+cd $CMSSW_BASE/src
+
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
