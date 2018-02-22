@@ -443,6 +443,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_rel_error_trackpt;
   std::vector<Float_t> _SIP;
   std::vector<bool> _daughters_iseleBDT; //isBDT for ele
+  std::vector<bool> _daughters_iseleWPLoose; //isBDT for ele
   std::vector<bool> _daughters_iseleWP80; //isBDT for ele
   std::vector<bool> _daughters_iseleWP90; //isBDT for ele
   std::vector<Float_t> _daughters_eleMVAnt; //isBDT for ele
@@ -859,6 +860,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_lepMVA_mvaId.clear();
 
   _daughters_iseleBDT.clear();
+  _daughters_iseleWPLoose.clear();
   _daughters_iseleWP80.clear();
   _daughters_iseleWP90.clear();
   _daughters_eleMVAnt.clear();
@@ -1309,6 +1311,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_rel_error_trackpt",&_daughters_rel_error_trackpt);
   myTree->Branch("SIP",&_SIP);
   myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
+  myTree->Branch("daughters_iseleWPLoose",&_daughters_iseleWPLoose);
   myTree->Branch("daughters_iseleWP80",&_daughters_iseleWP80);
   myTree->Branch("daughters_iseleWP90",&_daughters_iseleWP90);
   myTree->Branch("daughters_eleMVAnt",&_daughters_eleMVAnt);
@@ -2554,6 +2557,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float discr=-1.;
     int muIDflag = 0;
     bool isgood = false;
+    bool iseleLoose = false;
     bool isele80=false;
     bool isele90=false;
     float elemva=-2;
@@ -2632,6 +2636,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       IoEmIoP_ttH=userdatahelpers::getUserFloat(cand,"IoEmIoP_ttH");
       SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
       if(userdatahelpers::getUserInt(cand,"isBDT") == 1)isgood=true;
+      if(userdatahelpers::getUserInt(cand,"isEleIDLoose") == 1) iseleLoose=true;
       if(userdatahelpers::getUserInt(cand,"isEleID80") == 1) isele80=true;
       if(userdatahelpers::getUserInt(cand,"isEleID90") == 1) isele90=true;
       elemva=(userdatahelpers::getUserFloat(cand,"eleMVAvalue"));
@@ -2722,6 +2727,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     _daughters_charge.push_back(cand->charge());
     _daughters_iseleBDT.push_back(isgood);
+    _daughters_iseleWPLoose.push_back(iseleLoose);
     _daughters_iseleWP80.push_back(isele80);
     _daughters_iseleWP90.push_back(isele90);
     _daughters_eleMVAnt.push_back(elemva); 
