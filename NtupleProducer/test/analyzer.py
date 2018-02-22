@@ -23,7 +23,7 @@ USEPAIRMET=False # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusio
 APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil corrections for MVA MET response and resolution
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
-SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=True #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
@@ -113,7 +113,9 @@ process.source = cms.Source("PoolSource",
     
     # Samples for SyncFeb2018
     # Signal
-     '/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/128F2EAF-6905-E811-810E-44A842BECCD8.root',
+    #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/128F2EAF-6905-E811-810E-44A842BECCD8.root',
+    #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/F89C5A80-6905-E811-9A3F-FA163ED3ED08.root',
+    '/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/34715D6D-6905-E811-9843-44A842CFD5BE.root',
     # Data
     #'/store/data/Run2017B/Tau/MINIAOD/17Nov2017-v1/40000/02D49C45-F8DD-E711-9ACC-001E675043AD.root',
     
@@ -135,12 +137,12 @@ process.maxEvents.input = -1
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_Graviton450_3_bis.root'))
 
 # L1 trigger objects (as suggested on: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information )
 #  ----> TO BE FIXED <----
 #process.out.outputCommands.append('keep *_caloStage2Digis_*_*') #FRA
-#process.out.outputCommands.append('keep *_gmtStage2Digis_*_*')  #FRA
+#process.out.outputCommands.append('keep *_gmtStage2Digis_*_*')  #FRA 
 
 
 if DO_ENRICHED:
@@ -178,7 +180,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'
