@@ -2900,7 +2900,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           // cout << "***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << endl;
           // cout << "all this object labels: ID " << IDsearch << " --> leg position : " << legPosition << endl;
           // cout << "Nfilters . 1 : " << trgmap.GetNfiltersleg1() << " || 2 : " << trgmap.GetNfiltersleg2() << endl;
-          // for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "   -- " << vLabels.at(ll) << endl; 
+          // for (uint ll = 0; ll < vLabels.size(); ++ll) cout << "   -- " << vLabels.at(ll) << endl;
 
           if (legPosition == 1)
           {

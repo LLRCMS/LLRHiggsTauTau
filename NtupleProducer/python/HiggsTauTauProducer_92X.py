@@ -789,6 +789,10 @@ else:
 
 
 
+# il primo legge la collezione dei leptoni e stampa quali sono
+#process.beforeLLcombiner = cms.EDFilter("beforeCombiner",
+#    src = cms.InputTag("softLeptons")
+#)
 
 ##
 ## Build ll candidates (here OS)
@@ -803,6 +807,11 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     cut = cms.string(LLCUT),
                                     checkCharge = cms.bool(checkcharge)
 )
+
+#il seconod legge le pairs e stampa quali sono e da chi sono composti
+#process.afterLLcombiner = cms.EDFilter("afterCombiner",
+#    srcPairs = cms.InputTag("barellCand")
+#)
 
 ## ----------------------------------------------------------------------
 ## MVA MET
