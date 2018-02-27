@@ -346,8 +346,9 @@ process.softElectrons = cms.EDProducer("EleFiller",
    #mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
    #mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Categories"),
    #HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
+   eleLooseIdMap  = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wpLoose"),
    eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp90"),
-   eleTightIdMap  = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp80"),
+   eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp80"),
    mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values"),
    mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Categories"),
    HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
@@ -788,6 +789,10 @@ else:
 
 
 
+# il primo legge la collezione dei leptoni e stampa quali sono
+#process.beforeLLcombiner = cms.EDFilter("beforeCombiner",
+#    src = cms.InputTag("softLeptons")
+#)
 
 ##
 ## Build ll candidates (here OS)
@@ -802,6 +807,11 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     cut = cms.string(LLCUT),
                                     checkCharge = cms.bool(checkcharge)
 )
+
+#il seconod legge le pairs e stampa quali sono e da chi sono composti
+#process.afterLLcombiner = cms.EDFilter("afterCombiner",
+#    srcPairs = cms.InputTag("barellCand")
+#)
 
 ## ----------------------------------------------------------------------
 ## MVA MET

@@ -78,6 +78,7 @@ class EleFiller : public edm::EDProducer {
   edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
@@ -105,6 +106,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   electronLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronLooseIdMap"))),
   electronMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronMediumIdMap"))),
   electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
+  eleLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
   eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
   mvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaValuesMap"))),
@@ -168,8 +170,10 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 
 //*********************
   //Handle<edm::View<reco::GenParticle> > genParticles;
+  edm::Handle<edm::ValueMap<bool> > loose_id_decisions2;
   edm::Handle<edm::ValueMap<bool> > medium_id_decisions2;
   edm::Handle<edm::ValueMap<bool> > tight_id_decisions2; 
+  iEvent.getByToken(eleLooseIdMapToken_,loose_id_decisions2);
   iEvent.getByToken(eleMediumIdMapToken_,medium_id_decisions2);
   iEvent.getByToken(eleTightIdMapToken_,tight_id_decisions2);
   edm::Handle<edm::ValueMap<float> > mvaValues;
@@ -269,10 +273,12 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     if((*tight_id_decisions)[ elPtr ])eleCUT |= 1 << 3;
     l.addUserInt("isCUT",eleCUT);
 
-    int isEleID80 = (*medium_id_decisions2)[ele];
-    int  isEleID90  = (*tight_id_decisions2)[ele];
+    int isEleIDLoose = (*loose_id_decisions2)[ele];
+    int isEleID90 = (*medium_id_decisions2)[ele];
+    int isEleID80  = (*tight_id_decisions2)[ele];
     //std::cout<<(*medium_id_decisions2)[ele]<<isEleID90<<endl;
     float eleMVAvalue=(*mvaValues)[ele];
+    l.addUserInt("isEleIDLoose",isEleIDLoose);
     l.addUserInt("isEleID80",isEleID80);
     l.addUserInt("isEleID90",isEleID90);
     l.addUserFloat("eleMVAvalue",eleMVAvalue);

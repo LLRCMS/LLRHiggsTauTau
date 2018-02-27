@@ -26,12 +26,24 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   //cout << "nTriggers: " << nTriggers << endl;
   triggerlist=HLTPaths;
   string tmpMETfilters[nMETs]={
+    /* //FRA: 2016 data 80X
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_CSCTightHalo2015Filter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_goodVertices",
-    "Flag_eeBadScFilter"
+    "Flag_eeBadScFilter"*/
+    
+    //FRA: Fall17 94X
+    "Flag_goodVertices",
+    "Flag_HBHENoiseFilter",
+    "Flag_HBHENoiseIsoFilter",
+    "Flag_EcalDeadCellTriggerPrimitiveFilter",
+    "Flag_globalTightHalo2016Filter",
+    "Flag_BadPFMuonFilter",
+    "Flag_BadChargedCandidateFilter",
+    "Flag_eeBadScFilter",
+    "Flag_ecalBadCalibFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -46,12 +58,24 @@ triggerhelper::triggerhelper(TH1F* hCounter){
   }
 
   string tmpMETfilters[nMETs]={
+    /* //FRA: 2016 data 80X
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_CSCTightHalo2015Filter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_goodVertices",
-    "Flag_eeBadScFilter"
+    "Flag_eeBadScFilter"*/
+    
+    //FRA: Fall17 94X
+    "Flag_goodVertices",
+    "Flag_HBHENoiseFilter",
+    "Flag_HBHENoiseIsoFilter",
+    "Flag_EcalDeadCellTriggerPrimitiveFilter",
+    "Flag_globalTightHalo2016Filter",
+    "Flag_BadPFMuonFilter",
+    "Flag_BadChargedCandidateFilter",
+    "Flag_eeBadScFilter",
+    "Flag_ecalBadCalibFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -61,12 +85,24 @@ triggerhelper::triggerhelper(TH1F* hCounter){
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
+    /* //FRA: 2016 data 80X
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_CSCTightHalo2015Filter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_goodVertices",
-    "Flag_eeBadScFilter"
+    "Flag_eeBadScFilter"*/
+    
+    //FRA: Fall17 94X
+    "Flag_goodVertices",
+    "Flag_HBHENoiseFilter",
+    "Flag_HBHENoiseIsoFilter",
+    "Flag_EcalDeadCellTriggerPrimitiveFilter",
+    "Flag_globalTightHalo2016Filter",
+    "Flag_BadPFMuonFilter",
+    "Flag_BadChargedCandidateFilter",
+    "Flag_eeBadScFilter",
+    "Flag_ecalBadCalibFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
