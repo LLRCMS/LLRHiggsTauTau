@@ -274,8 +274,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserInt("isCUT",eleCUT);
 
     int isEleIDLoose = (*loose_id_decisions2)[ele];
-    int isEleID80 = (*medium_id_decisions2)[ele];
-    int  isEleID90  = (*tight_id_decisions2)[ele];
+    int isEleID90 = (*medium_id_decisions2)[ele];
+    int isEleID80  = (*tight_id_decisions2)[ele];
     //std::cout<<(*medium_id_decisions2)[ele]<<isEleID90<<endl;
     float eleMVAvalue=(*mvaValues)[ele];
     l.addUserInt("isEleIDLoose",isEleIDLoose);
