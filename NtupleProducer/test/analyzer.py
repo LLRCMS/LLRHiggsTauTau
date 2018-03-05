@@ -27,7 +27,7 @@ SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy user
 USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
-APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
+APPLYTESCORRECTION=False # shift the central value of the tau energy scale before computing up/down variations
 COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = False # compute QG Tagger for jets
