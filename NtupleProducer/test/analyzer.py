@@ -41,9 +41,9 @@ print "HLTProcessName: ",HLTProcessName
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
-MUCUT="isLooseMuon && pt>5"
-ELECUT="pt>7"#"gsfTrack.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
-TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
+MUCUT="isLooseMuon && pt>10"#"isLooseMuon && pt>5"
+ELECUT="pt>10"#"pt>7"#"gsfTracsk.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
+TAUCUT="pt>20"#"tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
 JETCUT="pt>10"
 LLCUT="mass>-99999"
 BCUT="pt>5"
