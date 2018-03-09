@@ -733,9 +733,12 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
     const std::vector<std::string>& path4 = iPSet->getParameter<std::vector<std::string>>("path4"); //FRA
     const int& leg1 = iPSet->getParameter<int>("leg1");
     const int& leg2 = iPSet->getParameter<int>("leg2");
+    const double& pt1 = iPSet->getParameter<double>("pt1"); //FRA
+    const double& pt2 = iPSet->getParameter<double>("pt2"); //FRA
     // Build the mape
     //myTriggerHelper->addTriggerMap(hlt,path1,path2,leg1,leg2);
-    myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2); //FRA
+    //myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2); //FRA
+    myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2, pt1, pt2); //FRA
   }
 
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
@@ -2821,7 +2824,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
     {
       pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
-      
+
       // unpacking Filter Labels
       obj.unpackFilterLabels(event,*triggerBits); //FRA
       
@@ -2875,7 +2878,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
             }
           }
           else isfilterGood = false;
-
+          
           //_isFilterFiredLast;
           if(isfilterGood)filterFired |= long(1) <<triggerbit;
           if(triggerType) triggertypeIsGood |= long(1) << triggerbit;
@@ -2889,6 +2892,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
         for (int triggerbit = 0; triggerbit < myTriggerHelper->GetNTriggers(); ++triggerbit)
         {
           triggerMapper trgmap = myTriggerHelper->GetTriggerMap(triggerbit);
+            
           bool istrgMatched = true;
           int IDsearch = 0;
           if (type==ParticleType::ELECTRON)  IDsearch = 11;
@@ -2923,6 +2927,20 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
             }
           }
           else istrgMatched = false;
+          
+          // Check the pT of the candidate for leg1 and 2 //FRA
+          if (legPosition == 1)
+          {
+            if ( cand->pt() < trgmap.GetPtCut1() ) istrgMatched=false;
+          }
+          else if (legPosition == 2)
+          {
+            if ( cand->pt() < trgmap.GetPtCut2() ) istrgMatched=false;
+          }
+          else
+            istrgMatched=false;
+          
+          
           // FIXME: should I check type? --> no, multiple filters should be enough
           if(istrgMatched)
           {

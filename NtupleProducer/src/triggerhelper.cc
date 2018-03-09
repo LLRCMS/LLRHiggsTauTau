@@ -158,6 +158,20 @@ void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string
   triggerMap.push_back(map);
 }
 
+//FRA : added pt cuts for leg1 and leg2
+void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string> path2, vector<string> path3, vector<string> path4, int leg1ID, int leg2ID, double pt1, double pt2)
+{
+
+  if (find(triggerlist.begin(), triggerlist.end(), hlt) != triggerlist.end() )
+  {
+    cout << "** triggerHelper :: Warning: path " << hlt << " already added, skipping" << endl;
+    return;
+  }
+  
+  triggerlist.push_back(hlt);
+  triggerMapper map(hlt, path1, path2, path3, path4, leg1ID, leg2ID, pt1, pt2);
+  triggerMap.push_back(map);
+}
 
 Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths, const edm::Handle<edm::TriggerResults>& triggerResults){
   
