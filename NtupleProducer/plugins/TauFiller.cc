@@ -133,6 +133,12 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "againstElectronMediumMVA6",
     "againstElectronTightMVA6",
     "againstElectronVTightMVA6",
+    
+    "byVLooseIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
+    "byLooseIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
+    "byMediumIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
+    "byTightIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
+    "byVTightIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
   };
 
   tauFloatDiscrims_ =

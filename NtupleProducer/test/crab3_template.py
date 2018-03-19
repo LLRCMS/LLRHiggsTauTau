@@ -23,4 +23,7 @@ config.Data.publication = True
 config.Data.outputDatasetTag = 'DefaultPublishName'
 
 config.section_("Site")
-config.Site.storageSite = 'T2_FR_GRIF_LLR'
+# PARIGI
+#config.Site.storageSite = 'T2_FR_GRIF_LLR'
+# MILANO
+config.Site.storageSite = 'T3_IT_MIB'

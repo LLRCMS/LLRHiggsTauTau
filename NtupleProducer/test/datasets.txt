@@ -624,3 +624,9 @@
 /EmbeddingRun2017B/TauTauFinalState-imputDoubleMu_miniAOD-v1/USER
 /EmbeddingRun2017C/TauTauFinalState-imputDoubleMu_miniAOD-v1/USER
 /EmbeddingRun2017D/TauTauFinalState-imputDoubleMu_miniAOD-v1/USER
+
+
+=== TTFall17 ===
+/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v2/MINIAODSIM
+/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1/MINIAODSIM
+/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/RunIIFall17MiniAOD-94X_mc2017_realistic_v10-v1/MINIAODSIM

@@ -157,9 +157,14 @@ import re
 #tag = "MC_gravitons_24Apr2017"
 #datasetsFile = "datasets.txt"
 
-PROCESS = ["MC80XRSGRAVITON"]
-tag = "MC_gravitonsRS_29Apr2017"
+#PROCESS = ["MC80XRSGRAVITON"]
+#tag = "MC_gravitonsRS_29Apr2017"
+#datasetsFile = "datasets.txt"
+
+PROCESS = ["TTFall17"]
+tag = "MC_Fall17"
 datasetsFile = "datasets.txt"
+
 
 isMC = True
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
@@ -191,7 +196,8 @@ isMC = True
 # lumiMaskFileName = "15lug_NoL1TJSON_diff_8lugJSON.txt"
 # lumiMaskFileName = "20lug_NoL1TJSON_diff_15lug_NoL1TJSON.txt"
 #lumiMaskFileName = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
-lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PromptReco/Cert_294927-302663_13TeV_PromptReco_Collisions17_JSON.txt'
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PromptReco/Cert_294927-302663_13TeV_PromptReco_Collisions17_JSON.txt'
+lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
 
 FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = True # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
@@ -292,7 +298,8 @@ for dtset in dtsetToLaunch:
     command += " General.requestName=%s" % (shortName + "_" + str(counter))
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
-    command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
+    #command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
+    command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
