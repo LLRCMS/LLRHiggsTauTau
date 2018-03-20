@@ -454,7 +454,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 30;
+  static const int ntauIds = 35;
   TString tauIDStrings[ntauIds] = {
    "byLoosePileupWeightedIsolation3Hits",
    "byMediumPileupWeightedIsolation3Hits",
@@ -486,6 +486,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
    "byTightIsolationMVArun2v1DBdR03oldDMwLT",
    "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
+    "byVLooseIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
+    "byLooseIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
+    "byMediumIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
+    "byTightIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
+    "byVTightIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
   };
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_full5x5_IetaIeta;

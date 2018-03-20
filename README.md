@@ -245,8 +245,8 @@ scram b -j 4
 ### Instructions for 92X
 
 ```
-cmsrel CMSSW_9_4_0
-cd CMSSW_9_4_0/src/
+cmsrel CMSSW_9_4_4
+cd CMSSW_9_4_4/src/
 cmsenv
 
 # MVA EleID Fall 2017
@@ -302,7 +302,7 @@ git checkout master FSRPhotons
 cd -
 
 # SVfit
-git clone https://github.com/svfit/ClassicSVfit TauAnalysis/ClassicSVfit 
+git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
 git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
 cd TauAnalysis/SVfitStandalone
