@@ -2676,7 +2676,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       for (uint itau =0; itau<ntauIds; itau++){
         int id = userdatahelpers::getUserInt (cand,  tauIDStrings[itau]);
         if(id>0){
-          tauIDflag |= (1 << itau);
+          tauIDflag |= (Long64_t(1) << itau);
           hTauIDs->Fill(id);
         }
       }
