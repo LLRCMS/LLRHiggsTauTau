@@ -57,7 +57,7 @@ else :
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0' # ICHEP            # FIXME !!!!!!!!
     #process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-G               # FIXME !!!!!!!!
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v16' # Run H                      # FIXME !!!!!!!!
-    process.GlobalTag.globaltag = '94X_dataRun2_ReReco17_forValidation'                    # 2017 Data
+    process.GlobalTag.globaltag = '94X_dataRun2_v6'                    # 2017 Data
 print process.GlobalTag.globaltag
 
 nanosec="25"
