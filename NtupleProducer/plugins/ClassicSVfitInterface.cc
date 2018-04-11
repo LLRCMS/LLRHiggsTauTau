@@ -390,7 +390,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     if (IsInteresting(l1, l2))
     {
       ClassicSVfit algo(verbosity);
-      algo.addLogM_fixed(true, kappa);
+      algo.addLogM_fixed(false, kappa);
       //algo.setLikelihoodFileName("testClassicSVfit.root"); //ROOT file to store histograms of di-tau pT, eta, phi, mass and transverse mass, comment if you don't want it
       //algo.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
       algo.integrate(measuredTauLeptons, METx, METy, covMET);
@@ -423,7 +423,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         
         // UP
         ClassicSVfit algoTauUp(verbosity);
-        algoTauUp.addLogM_fixed(true, kappa);
+        algoTauUp.addLogM_fixed(false, kappa);
         //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         algoTauUp.integrate(measuredTauLeptonsTauUp, METx, METy, covMET);
         
@@ -451,7 +451,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
         // DOWN
         ClassicSVfit algoTauDown(verbosity);
-        algoTauDown.addLogM_fixed(true, kappa);
+        algoTauDown.addLogM_fixed(false, kappa);
         //algoTauDown.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         algoTauDown.integrate(measuredTauLeptonsTauDown, METx, METy, covMET);
 
