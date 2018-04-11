@@ -380,13 +380,22 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Bool_t>  _daughters_isL1IsoTau28Matched;
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
+
   std::vector<Float_t> _SVmass;
   std::vector<Float_t> _SVmassTauUp;
   std::vector<Float_t> _SVmassTauDown;
 
+  std::vector<Float_t> _SVmassUnc;
+  std::vector<Float_t> _SVmassUncTauUp;
+  std::vector<Float_t> _SVmassUncTauDown;
+
   std::vector<Float_t> _SVmassTransverse;
   std::vector<Float_t> _SVmassTransverseTauUp;
   std::vector<Float_t> _SVmassTransverseTauDown;
+
+  std::vector<Float_t> _SVmassTransverseUnc;
+  std::vector<Float_t> _SVmassTransverseUncTauUp;
+  std::vector<Float_t> _SVmassTransverseUncTauDown;
 
   std::vector<Float_t> _SVpt;
   std::vector<Float_t> _SVptTauUp;
@@ -1030,13 +1039,22 @@ void HTauTauNtuplizer::Initialize(){
   _indexDau1.clear();
   _indexDau2.clear();
   _pdgdau.clear();
+
   _SVmass.clear();
   _SVmassTauUp.clear();
   _SVmassTauDown.clear();
 
+  _SVmassUnc.clear();
+  _SVmassUncTauUp.clear();
+  _SVmassUncTauDown.clear();
+
   _SVmassTransverse.clear();
   _SVmassTransverseTauUp.clear();
   _SVmassTransverseTauDown.clear();
+
+  _SVmassTransverseUnc.clear();
+  _SVmassTransverseUncTauUp.clear();
+  _SVmassTransverseUncTauDown.clear();
 
   _SVpt.clear();
   _SVptTauUp.clear();
@@ -1434,15 +1452,21 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("SVfit_ptUncTauDown", &_SVptUncTauDown);
     myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
     myTree->Branch("SVfit_ptTauDown", &_SVptTauDown);
+    myTree->Branch("SVfitTransverseMassUncTauUp",&_SVmassTransverseUncTauUp);
+    myTree->Branch("SVfitTransverseMassUncTauDown",&_SVmassTransverseUncTauDown);
     myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
     myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
+    myTree->Branch("SVfitMassUncTauUp",&_SVmassUncTauUp);
+    myTree->Branch("SVfitMassUncTauDown",&_SVmassUncTauDown);
     myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
     myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
   }// end if isMC
   //myTree->Branch("daughters2",&_daughter2);
 
   myTree->Branch("SVfitMass",&_SVmass);
+  myTree->Branch("SVfitMassUnc",&_SVmassUnc);
   myTree->Branch("SVfitTransverseMass",&_SVmassTransverse);
+  myTree->Branch("SVfitTransverseMassUnc",&_SVmassTransverseUnc);
   myTree->Branch("SVfit_pt", &_SVpt);
   myTree->Branch("SVfit_ptUnc", &_SVptUnc);
   myTree->Branch("SVfit_eta", &_SVeta);
@@ -2044,9 +2068,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _SVmassTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
     _SVmassTauDown.push_back( (hasDown ? cand.userFloat("SVfitMassTauDown") : -999. ));
 
+    _SVmassUnc.push_back(cand.userFloat("SVfitMassUnc"));
+    _SVmassUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassUncTauUp")   : -999. ));
+    _SVmassUncTauDown.push_back( (hasDown ? cand.userFloat("SVfitMassUncTauDown") : -999. ));
+
     _SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
     _SVmassTransverseTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitTransverseMassTauUp")  : -999. ));
     _SVmassTransverseTauDown.push_back( (hasDown ? cand.userFloat("SVfitTransverseMassTauDown"): -999. ));
+
+    _SVmassTransverseUnc.push_back(cand.userFloat("SVfitTransverseMassUnc"));
+    _SVmassTransverseUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitTransverseMassUncTauUp")  : -999. ));
+    _SVmassTransverseUncTauDown.push_back( (hasDown ? cand.userFloat("SVfitTransverseMassUncTauDown"): -999. ));
 
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
     _SVptTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_ptTauUp")  : -999. ));
