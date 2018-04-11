@@ -23,7 +23,7 @@ USEPAIRMET=False # input to SVfit: true: MVA pair MET; false: PFmet (HF inclusio
 APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil corrections for MVA MET response and resolution
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
-SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
@@ -63,7 +63,8 @@ print "is80X: " , is80X
 ##
 
 if is92X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_92X.py")
+    #execfile(PyFilePath+"python/HiggsTauTauProducer_92X.py")
+    execfile(PyFilePath+"python/HiggsTauTauProducer_94X.py")
 elif is80X:
     execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
 else :

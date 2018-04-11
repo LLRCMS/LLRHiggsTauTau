@@ -134,11 +134,16 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "againstElectronTightMVA6",
     "againstElectronVTightMVA6",
     
-    "byVLooseIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
-    "byLooseIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
-    "byMediumIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
-    "byTightIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
-    "byVTightIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
+    "byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    "byLooseIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
+    "byMediumIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
+    "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    "byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    "byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+    "byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    "byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+    "byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
   };
 
   tauFloatDiscrims_ =
@@ -158,7 +163,8 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "chargedIsoPtSum",
     "neutralIsoPtSum",
     "puCorrPtSum",
-    "byIsolationMVArun2v1DBoldDMwLTrawNew", //FRA
+    "byIsolationMVArun2017v1DBoldDMwLTraw2017", //FRA syncApr2018
+    "byIsolationMVArun2017v2DBoldDMwLTraw2017", //FRA syncApr2018
   };
 
 
