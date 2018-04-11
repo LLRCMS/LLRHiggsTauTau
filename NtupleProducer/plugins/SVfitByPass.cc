@@ -155,6 +155,8 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("SVfit_pt",  -999);
     pair.addUserFloat("SVfit_eta", -999);
     pair.addUserFloat("SVfit_phi", -999);
+    pair.addUserFloat("SVfitMassUnc", -999);
+    pair.addUserFloat("SVfitTransverseMassUnc", -999);
     pair.addUserFloat("SVfit_ptUnc",  -999);
     pair.addUserFloat("SVfit_etaUnc",  -999);
     pair.addUserFloat("SVfit_phiUnc",  -999);
