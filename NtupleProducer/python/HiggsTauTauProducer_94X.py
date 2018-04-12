@@ -669,11 +669,10 @@ process.jets = cms.EDFilter("PATJetRefSelector",
 ## QG tagging for jets
 ##
 if COMPUTEQGVAR:
-    qgDatabaseVersion = 'v1' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
+    qgDatabaseVersion = 'v2b' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
 
-    from CondCore.DBCommon.CondDBSetup_cfi import *
+    from CondCore.CondDB.CondDB_cfi import *
     QGPoolDBESSource = cms.ESSource("PoolDBESSource",
-                                    CondDBSetup,
                                     toGet = cms.VPSet(),
                                     connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
     )
