@@ -468,11 +468,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 40; //35;
+  static const int ntauIds = 39;
   TString tauIDStrings[ntauIds] = {
-   "byLoosePileupWeightedIsolation3Hits",
-   "byMediumPileupWeightedIsolation3Hits",
-   "byTightPileupWeightedIsolation3Hits",
    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
    "byTightCombinedIsolationDeltaBetaCorr3Hits",
@@ -493,9 +490,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byMediumIsolationMVArun2v1DBnewDMwLT",
    "byTightIsolationMVArun2v1DBnewDMwLT",
    "byVTightIsolationMVArun2v1DBnewDMwLT",
-   "byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",
-   "byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",
-   "byTightCombinedIsolationDeltaBetaCorr3HitsdR03",
    "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
    "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
    "byTightIsolationMVArun2v1DBdR03oldDMwLT",
@@ -510,6 +504,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byMediumIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
    "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
    "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+   "byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+   "byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+   "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+   "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+   "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
   };
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_full5x5_IetaIeta;
@@ -523,23 +522,15 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
   std::vector<Int_t> _daughters_decayModeFindingOldDMs;
-
-  std::vector<Float_t> _daughters_againstElectronMVA5category;
-  std::vector<Float_t> _daughters_againstElectronMVA5raw;
-  std::vector<Float_t> _daughters_byPileupWeightedIsolationRaw3Hits;
   std::vector<Float_t> _daughters_footprintCorrection;
   std::vector<Float_t> _daughters_neutralIsoPtSumWeight;
   std::vector<Float_t> _daughters_photonPtSumOutsideSignalCone;
-
   std::vector<Int_t> _daughters_decayModeFindingNewDMs;
   std::vector<Float_t> _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
-  std::vector<Float_t> _daughters_byIsolationMVA3oldDMwoLTraw;
-  std::vector<Float_t> _daughters_byIsolationMVA3oldDMwLTraw;
-  std::vector<Float_t> _daughters_byIsolationMVA3newDMwoLTraw;
-  std::vector<Float_t> _daughters_byIsolationMVA3newDMwLTraw;
   std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTraw;
   std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //FRA
   std::vector<Float_t> _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //FRA
+  std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017; //FRA
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
   std::vector<Float_t> _daughters_puCorrPtSum;
@@ -932,21 +923,13 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_decayModeFindingOldDMs.clear();
   _daughters_decayModeFindingNewDMs.clear();
   _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits.clear();
-  _daughters_byIsolationMVA3oldDMwoLTraw.clear();
-  _daughters_byIsolationMVA3oldDMwLTraw.clear();
-  _daughters_byIsolationMVA3newDMwoLTraw.clear();
   _daughters_byIsolationMVArun2v1DBoldDMwLTraw.clear();
-  _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.clear(); //FRA
-  _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.clear(); //FRA
-
-  _daughters_againstElectronMVA5category.clear();
-  _daughters_againstElectronMVA5raw.clear();
-  _daughters_byPileupWeightedIsolationRaw3Hits.clear();
+  _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.clear();      //FRA
+  _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.clear();      //FRA
+  _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.clear(); //FRA
   _daughters_footprintCorrection.clear();
   _daughters_neutralIsoPtSumWeight.clear();
   _daughters_photonPtSumOutsideSignalCone.clear();
-
-  _daughters_byIsolationMVA3newDMwLTraw.clear();
   _daughters_chargedIsoPtSum.clear();
   _daughters_neutralIsoPtSum.clear();
   _daughters_puCorrPtSum.clear();
@@ -1525,24 +1508,16 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
   myTree->Branch("daughters_decayModeFindingOldDMs", &_daughters_decayModeFindingOldDMs);
-  myTree->Branch("daughters_SCeta",&_daughters_SCeta);  
-
-  myTree->Branch("againstElectronMVA5category",&_daughters_againstElectronMVA5category);
-  myTree->Branch("againstElectronMVA5raw",&_daughters_againstElectronMVA5raw);
-  myTree->Branch("byPileupWeightedIsolationRaw3Hits",&_daughters_byPileupWeightedIsolationRaw3Hits);
+  myTree->Branch("daughters_SCeta",&_daughters_SCeta);
   myTree->Branch("footprintCorrection",&_daughters_footprintCorrection);
   myTree->Branch("neutralIsoPtSumWeight",&_daughters_neutralIsoPtSumWeight);
   myTree->Branch("photonPtSumOutsideSignalCone",&_daughters_photonPtSumOutsideSignalCone);
-
   myTree->Branch("daughters_decayModeFindingNewDMs", &_daughters_decayModeFindingNewDMs);
   myTree->Branch("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
-  myTree->Branch("daughters_byIsolationMVA3oldDMwoLTraw",&_daughters_byIsolationMVA3oldDMwoLTraw);
-  myTree->Branch("daughters_byIsolationMVA3oldDMwLTraw",&_daughters_byIsolationMVA3oldDMwLTraw);
-  myTree->Branch("daughters_byIsolationMVA3newDMwoLTraw",&_daughters_byIsolationMVA3newDMwoLTraw);
-  myTree->Branch("daughters_byIsolationMVA3newDMwLTraw",&_daughters_byIsolationMVA3newDMwLTraw);
   myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTraw",&_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
   myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
   myTree->Branch("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
+  myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
   myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
@@ -2943,15 +2918,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
     float leadChargedParticlePt=-1., trackRefPt=-1.;
     int typeOfMuon=0;
-    float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1;; //FRA TEST
+    float byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1, byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=-1; //FRA
     Long64_t tauIDflag = 0;
-    float   
-    againstElectronMVA5category,
-    againstElectronMVA5raw,
-    byPileupWeightedIsolationRaw3Hits,
-    footprintCorrection,
-    neutralIsoPtSumWeight,
-    photonPtSumOutsideSignalCone;
+    float footprintCorrection, neutralIsoPtSumWeight, photonPtSumOutsideSignalCone;
 
     float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1., error_trackpt=-1.;
     int jetNDauChargedMVASel = -1;
@@ -3042,21 +3011,15 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           hTauIDs->Fill(id);
         }
       }
-      //againstElectronMVA5category = userdatahelpers::getUserFloat (cand, "againstElectronMVA5category");
-      againstElectronMVA5raw = userdatahelpers::getUserFloat (cand, "againstElectronMVA5raw");
-      byPileupWeightedIsolationRaw3Hits = userdatahelpers::getUserFloat (cand, "byPileupWeightedIsolationRaw3Hits");
       footprintCorrection = userdatahelpers::getUserFloat (cand, "footprintCorrection");
       neutralIsoPtSumWeight = userdatahelpers::getUserFloat (cand, "neutralIsoPtSumWeight");
       photonPtSumOutsideSignalCone = userdatahelpers::getUserFloat (cand, "photonPtSumOutsideSignalCone");
 
       byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
-      byIsolationMVA3oldDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwoLTraw");
-      byIsolationMVA3oldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwLTraw");
-      byIsolationMVA3newDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwoLTraw");
-      byIsolationMVA3newDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwLTraw");
       byIsolationMVArun2v1DBoldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTraw");
       byIsolationMVArun2017v2DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMwLTraw2017"); //FRA
       byIsolationMVArun2017v1DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v1DBoldDMwLTraw2017"); //FRA
+      byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017"); //FRA
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
@@ -3089,9 +3052,6 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_typeOfMuon.push_back(typeOfMuon);
     _daughters_muonID.push_back(muIDflag);
     _daughters_tauID.push_back(tauIDflag);
-    _daughters_againstElectronMVA5category.push_back(againstElectronMVA5category);
-    _daughters_againstElectronMVA5raw.push_back(againstElectronMVA5raw);
-    _daughters_byPileupWeightedIsolationRaw3Hits.push_back(byPileupWeightedIsolationRaw3Hits);
     _daughters_footprintCorrection.push_back(footprintCorrection);
     _daughters_neutralIsoPtSumWeight.push_back(neutralIsoPtSumWeight);
     _daughters_photonPtSumOutsideSignalCone.push_back(photonPtSumOutsideSignalCone);
@@ -3126,13 +3086,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_chargedIsoPtSum.push_back(chargedIsoPtSum);
     _daughters_neutralIsoPtSum.push_back(neutralIsoPtSum);
     _daughters_puCorrPtSum.push_back(puCorrPtSum);
-    _daughters_byIsolationMVA3oldDMwoLTraw.push_back(byIsolationMVA3oldDMwoLTraw);
-    _daughters_byIsolationMVA3oldDMwLTraw.push_back(byIsolationMVA3oldDMwLTraw);
-    _daughters_byIsolationMVA3newDMwoLTraw.push_back(byIsolationMVA3newDMwoLTraw);
-    _daughters_byIsolationMVA3newDMwLTraw.push_back(byIsolationMVA3newDMwLTraw);
     _daughters_byIsolationMVArun2v1DBoldDMwLTraw.push_back(byIsolationMVArun2v1DBoldDMwLTraw);
     _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
     _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
+    _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
     _daughters_numChargedParticlesSignalCone.push_back(numChargedParticlesSignalCone);
     _daughters_numNeutralHadronsSignalCone.push_back(numNeutralHadronsSignalCone);
     _daughters_numPhotonsSignalCone.push_back(numPhotonsSignalCone);

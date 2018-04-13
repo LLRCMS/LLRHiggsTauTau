@@ -438,29 +438,9 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 from LLRHiggsTauTau.NtupleProducer.runTauIdMVA import *
 na = TauIDEmbedder(process, cms, # pass tour process object
     debug=True,
-    toKeep = ["2017v1", "2017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1"]
+    toKeep = ["2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1"]
 )
 na.runTauID()
-
-# 2017_v2
-byIsolationMVArun2017v2DBoldDMwLTraw2017 = cms.string('byIsolationMVArun2017v2DBoldDMwLTraw2017'),
-byVVLooseIsolationMVArun2017v2DBoldDMwLT2017 = cms.string('byVVLooseIsolationMVArun2017v2DBoldDMwLT2017'),
-byVLooseIsolationMVArun2017v2DBoldDMwLT2017 = cms.string('byVLooseIsolationMVArun2017v2DBoldDMwLT2017'),
-byLooseIsolationMVArun2017v2DBoldDMwLT2017 = cms.string('byLooseIsolationMVArun2017v2DBoldDMwLT2017'),
-byMediumIsolationMVArun2017v2DBoldDMwLT2017 = cms.string('byMediumIsolationMVArun2017v2DBoldDMwLT2017'),
-byTightIsolationMVArun2017v2DBoldDMwLT2017 = cms.string('byTightIsolationMVArun2017v2DBoldDMwLT2017'),
-byVTightIsolationMVArun2017v2DBoldDMwLT2017 = cms.string('byVTightIsolationMVArun2017v2DBoldDMwLT2017'),
-byVVTightIsolationMVArun2017v2DBoldDMwLT2017 = cms.string('byVVTightIsolationMVArun2017v2DBoldDMwLT2017')
-
-# 2017_v1
-byIsolationMVArun2017v1DBoldDMwLTraw2017 = cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1raw')
-byVVLooseIsolationMVArun2017v1DBoldDMwLT2017 = cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VVLoose')
-byVLooseIsolationMVArun2017v1DBoldDMwLT2017 = cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VLoose')
-byLooseIsolationMVArun2017v1DBoldDMwLT2017 = cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1Loose')
-byMediumIsolationMVArun2017v1DBoldDMwLT2017 = cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1Medium')
-byTightIsolationMVArun2017v1DBoldDMwLT2017 = cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1Tight')
-byVTightIsolationMVArun2017v1DBoldDMwLT2017 = cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VTight')
-byVVTightIsolationMVArun2017v1DBoldDMwLT2017 = cms.InputTag('rerunDiscriminationByIsolationOldDMMVArun2017v1VVTight')
 
 # old sequence starts here
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
