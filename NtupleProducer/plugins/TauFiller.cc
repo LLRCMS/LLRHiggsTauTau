@@ -101,30 +101,6 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byTightIsolationMVArun2v1DBdR03oldDMwLT",
     "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
     
-    "byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",
-    "byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",
-    "byTightCombinedIsolationDeltaBetaCorr3HitsdR03",
-
-    "againstElectronMVA5category",
-    
-    "byLooseIsolationMVA3newDMwLT",
-    "byLooseIsolationMVA3oldDMwLT",
-    "byLoosePileupWeightedIsolation3Hits",
-    "byMediumIsolationMVA3newDMwLT",
-    "byMediumIsolationMVA3oldDMwLT",
-    "byMediumPileupWeightedIsolation3Hits",
-    "byTightIsolationMVA3newDMwLT",
-    "byTightIsolationMVA3oldDMwLT",
-    "byTightPileupWeightedIsolation3Hits",
-    
-    "byVLooseIsolationMVA3newDMwLT",
-    "byVTightIsolationMVA3newDMwLT",
-    "byVVTightIsolationMVA3newDMwLT",
-
-    "byVLooseIsolationMVA3oldDMwLT",
-    "byVTightIsolationMVA3oldDMwLT",
-    "byVVTightIsolationMVA3oldDMwLT",
-
     "againstMuonLoose3",
     "againstMuonTight3",
 
@@ -134,31 +110,39 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "againstElectronTightMVA6",
     "againstElectronVTightMVA6",
     
-    "byVLooseIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
-    "byLooseIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
-    "byMediumIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
-    "byTightIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
-    "byVTightIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
+    "byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    "byLooseIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
+    "byMediumIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
+    "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    
+    "byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    "byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+    "byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    "byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+    "byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    
+    "byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+    "byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+    "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+    "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+    "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
   };
 
   tauFloatDiscrims_ =
   {
     "byCombinedIsolationDeltaBetaCorrRaw3Hits",
     "byIsolationMVArun2v1DBoldDMwLTraw",
-    "byIsolationMVA3oldDMwoLTraw",
-    "byIsolationMVA3oldDMwLTraw",
-    "byIsolationMVA3newDMwoLTraw",
-    "againstElectronMVA5raw",
     "byPhotonPtSumOutsideSignalCone",
-    "byPileupWeightedIsolationRaw3Hits",
     "footprintCorrection",
     "neutralIsoPtSumWeight",
     "photonPtSumOutsideSignalCone",
-    "byIsolationMVA3newDMwLTraw",
     "chargedIsoPtSum",
     "neutralIsoPtSum",
     "puCorrPtSum",
-    "byIsolationMVArun2v1DBoldDMwLTrawNew", //FRA
+    "byIsolationMVArun2017v1DBoldDMwLTraw2017",      //FRA syncApr2018
+    "byIsolationMVArun2017v2DBoldDMwLTraw2017",      //FRA syncApr2018
+    "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", //FRA syncApr2018
   };
 
 

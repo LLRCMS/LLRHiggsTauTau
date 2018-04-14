@@ -333,6 +333,14 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     double SVphiTauUp = -999.;
     double SVphiTauDown = -999.;
 
+    double SVfitMassUnc = -999.;
+    double SVfitMassUncTauUp = -999.;
+    double SVfitMassUncTauDown = -999.;
+    
+    double SVfitTransverseMassUnc = -999.;
+    double SVfitTransverseMassUncTauUp = -999.;
+    double SVfitTransverseMassUncTauDown = -999.;
+
     double SVptUnc = -999.;
     double SVptUncTauUp = -999.;
     double SVptUncTauDown = -999.;
@@ -390,21 +398,23 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     if (IsInteresting(l1, l2))
     {
       ClassicSVfit algo(verbosity);
-      algo.addLogM_fixed(true, kappa);
+      algo.addLogM_fixed(false, kappa);
       //algo.setLikelihoodFileName("testClassicSVfit.root"); //ROOT file to store histograms of di-tau pT, eta, phi, mass and transverse mass, comment if you don't want it
       //algo.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
       algo.integrate(measuredTauLeptons, METx, METy, covMET);
       
       if ( algo.isValidSolution() )
       {
-        SVfitMass           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMass(); // full mass of tau lepton pair in units of GeV
-        SVpt                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPt();
-        SVeta               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEta();
-        SVphi               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhi();
-        SVptUnc             = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
-        SVetaUnc            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
-        SVphiUnc            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
-        SVfitTransverseMass = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
+        SVfitMass              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMass(); // full mass of tau lepton pair in units of GeV
+        SVfitTransverseMass    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
+        SVpt                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPt();
+        SVeta                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEta();
+        SVphi                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhi();
+        SVfitMassUnc           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMassErr();
+        SVfitTransverseMassUnc = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMassErr();
+        SVptUnc                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
+        SVetaUnc               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
+        SVphiUnc               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
         
         ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1(l1->pt(), l1->eta(), l1->phi(), mass1);
         ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2(l2->pt(), l2->eta(), l2->phi(), mass2);
@@ -423,20 +433,22 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         
         // UP
         ClassicSVfit algoTauUp(verbosity);
-        algoTauUp.addLogM_fixed(true, kappa);
+        algoTauUp.addLogM_fixed(false, kappa);
         //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         algoTauUp.integrate(measuredTauLeptonsTauUp, METx, METy, covMET);
         
         if ( algoTauUp.isValidSolution() )
         {
-          SVfitMassTauUp           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMass();
-          SVptTauUp                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPt();
-          SVetaTauUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEta();
-          SVphiTauUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhi();
-          SVptUncTauUp             = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
-          SVetaUncTauUp            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
-          SVphiUncTauUp            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
-          SVfitTransverseMassTauUp = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
+          SVfitMassTauUp              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMass();
+          SVfitTransverseMassTauUp    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
+          SVptTauUp                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPt();
+          SVetaTauUp                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEta();
+          SVphiTauUp                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhi();
+          SVfitMassUncTauUp           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMassErr();
+          SVfitTransverseMassUncTauUp = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMassErr();
+          SVptUncTauUp                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
+          SVetaUncTauUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
+          SVphiUncTauUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
           
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1Up(l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1);
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2Up(l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2);
@@ -451,21 +463,23 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
         // DOWN
         ClassicSVfit algoTauDown(verbosity);
-        algoTauDown.addLogM_fixed(true, kappa);
+        algoTauDown.addLogM_fixed(false, kappa);
         //algoTauDown.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         algoTauDown.integrate(measuredTauLeptonsTauDown, METx, METy, covMET);
 
         if ( algoTauDown.isValidSolution() )
         {
         
-          SVfitMassTauDown           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMass();
-          SVptTauDown                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPt();
-          SVetaTauDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEta();
-          SVphiTauDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhi();
-          SVptUncTauDown             = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
-          SVetaUncTauDown            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
-          SVphiUncTauDown            = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
-          SVfitTransverseMassTauDown = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
+          SVfitMassTauDown              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMass();
+          SVfitTransverseMassTauDown    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
+          SVptTauDown                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPt();
+          SVetaTauDown                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEta();
+          SVphiTauDown                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhi();
+          SVfitMassUncTauDown           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMassErr();
+          SVfitTransverseMassUncTauDown = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMassErr();
+          SVptUncTauDown                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
+          SVetaUncTauDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
+          SVphiUncTauDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
 
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1Down(l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1);
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2Down(l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2);
@@ -481,15 +495,17 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
       else if (_computeForUpDownTES) // if I asked to have UP/DOWN variation, but this pair has not tau shifted, simply put central value. 
       {                              // instead, if I dindn't ask for up/down, I get -999 everywhere to remember my mistakes
           SVfitMassTauUp = SVfitMassTauDown = SVfitMass ;
+          SVfitTransverseMassTauUp = SVfitTransverseMassTauDown = SVfitTransverseMass ;
           SVptTauUp = SVptTauDown = SVpt ;
           SVetaTauUp = SVetaTauDown = SVeta ;
           SVphiTauUp = SVphiTauDown = SVphi ;
+          SVfitMassUncTauUp = SVfitMassUncTauDown = SVfitMassUnc ;
+          SVfitTransverseMassUncTauUp = SVfitTransverseMassUncTauDown = SVfitTransverseMassUnc ;
           SVptUncTauUp = SVptUncTauDown = SVptUnc ;
           SVetaUncTauUp = SVetaUncTauDown = SVetaUnc ;
           SVphiUncTauUp = SVphiUncTauDown = SVphiUnc ;
           SVMETRhoTauUp = SVMETRhoTauDown = SVMETRho ;
           SVMETPhiTauUp = SVMETPhiTauDown = SVMETPhi ;
-          SVfitTransverseMassTauUp = SVfitTransverseMassTauDown = SVfitTransverseMass ;
       }
     } // end of quality checks IF
     
@@ -513,6 +529,14 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     pair.addUserFloat("SVfit_phi", (float) SVphi);
     pair.addUserFloat("SVfit_phiTauUp", (float) SVphiTauUp);
     pair.addUserFloat("SVfit_phiTauDown", (float) SVphiTauDown);
+
+    pair.addUserFloat("SVfitMassUnc", (float) SVfitMassUnc);
+    pair.addUserFloat("SVfitMassUncTauUp", (float) SVfitMassUncTauUp);
+    pair.addUserFloat("SVfitMassUncTauDown", (float) SVfitMassUncTauDown);
+
+    pair.addUserFloat("SVfitTransverseMassUnc", (float) SVfitTransverseMassUnc);
+    pair.addUserFloat("SVfitTransverseMassUncTauUp", (float) SVfitTransverseMassUncTauUp);
+    pair.addUserFloat("SVfitTransverseMassUncTauDown", (float) SVfitTransverseMassUncTauDown);
 
     pair.addUserFloat("SVfit_ptUnc", (float) SVptUnc);
     pair.addUserFloat("SVfit_ptUncTauUp", (float) SVptUncTauUp);
@@ -644,7 +668,8 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
       return false;
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
     if (!iso1 || !iso2) 
       return false;
@@ -667,7 +692,8 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
       return false;
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
     if (!iso1 || !iso2) 
       return false;
@@ -692,8 +718,10 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
-    bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
     if (!iso1 || !iso2) 
       return false;

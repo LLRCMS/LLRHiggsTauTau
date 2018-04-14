@@ -332,9 +332,17 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double SVfitMassTauUp = -999.;
     double SVfitMassTauDown = -999.;
 
+    double SVfitMassUnc = -999.;
+    double SVfitMassUncTauUp = -999.;
+    double SVfitMassUncTauDown = -999.;
+
     double SVfitTransverseMass = -999.;
     double SVfitTransverseMassTauUp = -999.;
     double SVfitTransverseMassTauDown = -999.;
+
+    double SVfitTransverseMassUnc = -999.;
+    double SVfitTransverseMassUncTauUp = -999.;
+    double SVfitTransverseMassUncTauDown = -999.;
 
     double SVpt = -999.;
     double SVptTauUp = -999.;
@@ -434,13 +442,15 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ( algo.isValidSolution() )
       {
         SVfitMass = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getMass(); // full mass of tau lepton pair in units of GeV
+        SVfitTransverseMass = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getTransverseMass();
         SVpt      = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getPt();
         SVeta     = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getEta();
         SVphi     = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getPhi();
+        SVfitMassUnc = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getMassUncert();
+        SVfitTransverseMassUnc = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getTransverseMassUncert();
         SVptUnc   = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getPtUncert();
         SVetaUnc  = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getEtaUncert();
         SVphiUnc  = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getPhiUncert();
-        SVfitTransverseMass = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algo.getMCQuantitiesAdapter())->getTransverseMass();
         ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > fittedDiTauSystem(SVpt, SVeta, SVphi, SVfitMass);
         Vector fittedMET = (fittedDiTauSystem.Vect() - (algo.measuredDiTauSystem()).Vect());
         SVMETRho = fittedMET.Rho();
@@ -463,13 +473,15 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if ( algoTauUp.isValidSolution() )
         {    
           SVfitMassTauUp = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getMass(); // full mass of tau lepton pair in units of GeV
+          SVfitTransverseMassTauUp = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getTransverseMass();
           SVptTauUp      = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getPt();
           SVetaTauUp     = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getEta();
           SVphiTauUp     = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getPhi();
+          SVfitMassUncTauUp = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getMassUncert();
+          SVfitTransverseMassUncTauUp = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getTransverseMassUncert();
           SVptUncTauUp   = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getPtUncert();
           SVetaUncTauUp  = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getEtaUncert();
           SVphiUncTauUp  = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getPhiUncert();
-          SVfitTransverseMassTauUp = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauUp.getMCQuantitiesAdapter())->getTransverseMass();
 
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > fittedDiTauSystemUp(SVptTauUp, SVetaTauUp, SVphiTauUp, SVfitMassTauUp);
           Vector fittedMETUp = (fittedDiTauSystemUp.Vect() - (algoTauUp.measuredDiTauSystem()).Vect());
@@ -489,13 +501,15 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if ( algoTauDown.isValidSolution() )
         {    
           SVfitMassTauDown = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getMass(); // full mass of tau lepton pair in units of GeV
+          SVfitTransverseMassTauDown = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getTransverseMass();
           SVptTauDown      = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getPt();
           SVetaTauDown     = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getEta();
           SVphiTauDown     = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getPhi();
+          SVfitMassUncTauDown = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getMassUncert();
+          SVfitTransverseMassUncTauDown = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getTransverseMassUncert();
           SVptUncTauDown   = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getPtUncert();
           SVetaUncTauDown  = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getEtaUncert();
           SVphiUncTauDown  = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getPhiUncert();
-          SVfitTransverseMassTauDown = static_cast<svFitStandalone::MCPtEtaPhiMassAdapter*>(algoTauDown.getMCQuantitiesAdapter())->getTransverseMass();
 
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > fittedDiTauSystemDown(SVptTauDown, SVetaTauDown, SVphiTauDown, SVfitMassTauDown);
           Vector fittedMETDown = (fittedDiTauSystemDown.Vect() - (algoTauDown.measuredDiTauSystem()).Vect());
@@ -508,15 +522,17 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       else if (_computeForUpDownTES) // if I asked to have UP/DOWN variation, but this pair has not tau shifted, simply put central value. 
       {                              // instead, if I dindn't ask for up/down, I get -999 everywhere to remember my mistakes
           SVfitMassTauUp = SVfitMassTauDown = SVfitMass ;
+          SVfitTransverseMassTauUp = SVfitTransverseMassTauDown = SVfitTransverseMass ;
           SVptTauUp = SVptTauDown = SVpt ;
           SVetaTauUp = SVetaTauDown = SVeta ;
           SVphiTauUp = SVphiTauDown = SVphi ;
+          SVfitMassUncTauUp = SVfitMassUncTauDown = SVfitMassUnc ;
+          SVfitTransverseMassUncTauUp = SVfitTransverseMassUncTauDown = SVfitTransverseMassUnc ;
           SVptUncTauUp = SVptUncTauDown = SVptUnc ;
           SVetaUncTauUp = SVetaUncTauDown = SVetaUnc ;
           SVphiUncTauUp = SVphiUncTauDown = SVphiUnc ;
           SVMETRhoTauUp = SVMETRhoTauDown = SVMETRho ;
           SVMETPhiTauUp = SVMETPhiTauDown = SVMETPhi ;
-          SVfitTransverseMassTauUp = SVfitTransverseMassTauDown = SVfitTransverseMass ;
       }
     } // end of quality checks IF
     
@@ -540,6 +556,14 @@ void SVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("SVfit_phi", (float) SVphi);
     pair.addUserFloat("SVfit_phiTauUp", (float) SVphiTauUp);
     pair.addUserFloat("SVfit_phiTauDown", (float) SVphiTauDown);
+
+    pair.addUserFloat("SVfitMassUnc", (float) SVfitMassUnc);
+    pair.addUserFloat("SVfitMassUncTauUp", (float) SVfitMassUncTauUp);
+    pair.addUserFloat("SVfitMassUncTauDown", (float) SVfitMassUncTauDown);
+
+    pair.addUserFloat("SVfitTransverseMassUnc", (float) SVfitTransverseMassUnc);
+    pair.addUserFloat("SVfitTransverseMassUncTauUp", (float) SVfitTransverseMassUncTauUp);
+    pair.addUserFloat("SVfitTransverseMassUncTauDown", (float) SVfitTransverseMassUncTauDown);
 
     pair.addUserFloat("SVfit_ptUnc", (float) SVptUnc);
     pair.addUserFloat("SVfit_ptUncTauUp", (float) SVptUncTauUp);
@@ -672,7 +696,8 @@ bool SVfitInterface::IsInteresting (const reco::Candidate *l1, const reco::Candi
       return false;
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
     if (!iso1 || !iso2) 
       return false;
@@ -695,7 +720,8 @@ bool SVfitInterface::IsInteresting (const reco::Candidate *l1, const reco::Candi
       return false;
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
     if (!iso1 || !iso2) 
       return false;
@@ -720,8 +746,10 @@ bool SVfitInterface::IsInteresting (const reco::Candidate *l1, const reco::Candi
     if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
-    bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); // FRA 2017
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); // FRA 2017
 
     if (!iso1 || !iso2) 
       return false;

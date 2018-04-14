@@ -105,6 +105,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -130,6 +131,8 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
+// Map for JEC uncertainty sources
+typedef std::map<std::string, std::unique_ptr<JetCorrectionUncertainty>> myJECMap;
 
 // class declaration
 
@@ -157,7 +160,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //----To implement here-----
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
-  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
+  //int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
+  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, edm::EventSetup const&, JetCorrectionUncertainty*, myJECMap*);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets);
   void VBFtrigMatch(const edm::View<pat::Jet>* jet, const edm::Event&); //FRA
@@ -211,6 +215,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> theSecVtxTag; //FRA
   edm::EDGetTokenT<double> theRhoTag;
   edm::EDGetTokenT<double> theRhoMiniRelIsoTag;
+  edm::EDGetTokenT<double> theRhoForJERTag;
   edm::EDGetTokenT<vector<PileupSummaryInfo>> thePUTag;
   edm::EDGetTokenT<edm::View<pat::PackedCandidate>> thePFCandTag;
   edm::EDGetTokenT<edm::View<pat::CompositeCandidate>> theCandTag;
@@ -375,13 +380,22 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Bool_t>  _daughters_isL1IsoTau28Matched;
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
+
   std::vector<Float_t> _SVmass;
   std::vector<Float_t> _SVmassTauUp;
   std::vector<Float_t> _SVmassTauDown;
 
+  std::vector<Float_t> _SVmassUnc;
+  std::vector<Float_t> _SVmassUncTauUp;
+  std::vector<Float_t> _SVmassUncTauDown;
+
   std::vector<Float_t> _SVmassTransverse;
   std::vector<Float_t> _SVmassTransverseTauUp;
   std::vector<Float_t> _SVmassTransverseTauDown;
+
+  std::vector<Float_t> _SVmassTransverseUnc;
+  std::vector<Float_t> _SVmassTransverseUncTauUp;
+  std::vector<Float_t> _SVmassTransverseUncTauDown;
 
   std::vector<Float_t> _SVpt;
   std::vector<Float_t> _SVptTauUp;
@@ -454,11 +468,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 35;
+  static const int ntauIds = 39;
   TString tauIDStrings[ntauIds] = {
-   "byLoosePileupWeightedIsolation3Hits",
-   "byMediumPileupWeightedIsolation3Hits",
-   "byTightPileupWeightedIsolation3Hits",
    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
    "byTightCombinedIsolationDeltaBetaCorr3Hits",
@@ -479,18 +490,25 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byMediumIsolationMVArun2v1DBnewDMwLT",
    "byTightIsolationMVArun2v1DBnewDMwLT",
    "byVTightIsolationMVArun2v1DBnewDMwLT",
-   "byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",
-   "byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",
-   "byTightCombinedIsolationDeltaBetaCorr3HitsdR03",
    "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
    "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
    "byTightIsolationMVArun2v1DBdR03oldDMwLT",
    "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
-    "byVLooseIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
-    "byLooseIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
-    "byMediumIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
-    "byTightIsolationMVArun2v1DBoldDMwLTNew",  //FRA syncFeb2018
-    "byVTightIsolationMVArun2v1DBoldDMwLTNew", //FRA syncFeb2018
+   "byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+   "byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+   "byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+   "byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+   "byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+   "byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+   "byLooseIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
+   "byMediumIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+   "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
+   "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+   "byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+   "byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+   "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+   "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+   "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
   };
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_full5x5_IetaIeta;
@@ -504,22 +522,15 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
   std::vector<Int_t> _daughters_decayModeFindingOldDMs;
-
-  std::vector<Float_t> _daughters_againstElectronMVA5category;
-  std::vector<Float_t> _daughters_againstElectronMVA5raw;
-  std::vector<Float_t> _daughters_byPileupWeightedIsolationRaw3Hits;
   std::vector<Float_t> _daughters_footprintCorrection;
   std::vector<Float_t> _daughters_neutralIsoPtSumWeight;
   std::vector<Float_t> _daughters_photonPtSumOutsideSignalCone;
-
   std::vector<Int_t> _daughters_decayModeFindingNewDMs;
   std::vector<Float_t> _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
-  std::vector<Float_t> _daughters_byIsolationMVA3oldDMwoLTraw;
-  std::vector<Float_t> _daughters_byIsolationMVA3oldDMwLTraw;
-  std::vector<Float_t> _daughters_byIsolationMVA3newDMwoLTraw;
-  std::vector<Float_t> _daughters_byIsolationMVA3newDMwLTraw;
   std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTraw;
-  std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew;
+  std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //FRA
+  std::vector<Float_t> _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //FRA
+  std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017; //FRA
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
   std::vector<Float_t> _daughters_puCorrPtSum;
@@ -595,6 +606,93 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t>   _jets_chMult;
   std::vector<Float_t> _jets_jecUnc;
 
+  // JEC uncertainty sources
+  std::vector<Float_t> _jets_jetUnc_AbsoluteFlavMap_up; // up variations
+  std::vector<Float_t> _jets_jetUnc_AbsoluteMPFBias_up;
+  std::vector<Float_t> _jets_jetUnc_AbsoluteScale_up;
+  std::vector<Float_t> _jets_jetUnc_AbsoluteStat_up;
+  std::vector<Float_t> _jets_jetUnc_FlavorQCD_up;
+  std::vector<Float_t> _jets_jetUnc_Fragmentation_up;
+  std::vector<Float_t> _jets_jetUnc_PileUpDataMC_up;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtBB_up;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtEC1_up;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtEC2_up;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtHF_up;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtRef_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeBal_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeFSR_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeJEREC1_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeJEREC2_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeJERHF_up;
+  std::vector<Float_t> _jets_jetUnc_RelativePtBB_up;
+  std::vector<Float_t> _jets_jetUnc_RelativePtEC1_up;
+  std::vector<Float_t> _jets_jetUnc_RelativePtEC2_up;
+  std::vector<Float_t> _jets_jetUnc_RelativePtHF_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeStatEC_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeStatFSR_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeStatHF_up;
+  std::vector<Float_t> _jets_jetUnc_SinglePionECAL_up;
+  std::vector<Float_t> _jets_jetUnc_SinglePionHCAL_up;
+  std::vector<Float_t> _jets_jetUnc_TimePtEta_up;
+  std::vector<Float_t> _jets_jetUnc_AbsoluteFlavMap_dw; // down variations
+  std::vector<Float_t> _jets_jetUnc_AbsoluteMPFBias_dw;
+  std::vector<Float_t> _jets_jetUnc_AbsoluteScale_dw;
+  std::vector<Float_t> _jets_jetUnc_AbsoluteStat_dw;
+  std::vector<Float_t> _jets_jetUnc_FlavorQCD_dw;
+  std::vector<Float_t> _jets_jetUnc_Fragmentation_dw;
+  std::vector<Float_t> _jets_jetUnc_PileUpDataMC_dw;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtBB_dw;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtEC1_dw;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtEC2_dw;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtHF_dw;
+  std::vector<Float_t> _jets_jetUnc_PileUpPtRef_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeBal_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeFSR_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeJEREC1_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeJEREC2_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeJERHF_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativePtBB_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativePtEC1_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativePtEC2_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativePtHF_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeStatEC_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeStatFSR_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeStatHF_dw;
+  std::vector<Float_t> _jets_jetUnc_SinglePionECAL_dw;
+  std::vector<Float_t> _jets_jetUnc_SinglePionHCAL_dw;
+  std::vector<Float_t> _jets_jetUnc_TimePtEta_dw;
+  myJECMap jecSourceUncProviders;
+  std::vector<std::string> m_jec_sources = {
+    "AbsoluteFlavMap",
+    "AbsoluteMPFBias",
+    "AbsoluteScale",
+    "AbsoluteStat",
+    "FlavorQCD",
+    "Fragmentation",
+    "PileUpDataMC",
+    "PileUpPtBB",
+    "PileUpPtEC1",
+    "PileUpPtEC2",
+    "PileUpPtHF",
+    "PileUpPtRef",
+    "RelativeBal",
+    "RelativeFSR",
+    "RelativeJEREC1",
+    "RelativeJEREC2",
+    "RelativeJERHF",
+    "RelativePtBB",
+    "RelativePtEC1",
+    "RelativePtEC2",
+    "RelativePtHF",
+    "RelativeStatEC",
+    "RelativeStatFSR",
+    "RelativeStatHF",
+    "SinglePionECAL",
+    "SinglePionHCAL",
+    "TimePtEta" };
+  std::map<std::string, std::vector<Float_t>> _SourceUncVal_up;
+  std::map<std::string, std::vector<Float_t>> _SourceUncVal_dw;
+
   std::vector<Float_t> _jets_QGdiscr;
 
   std::vector<Float_t> _ak8jets_px;
@@ -644,10 +742,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _bdiscr13; //DeepFlavor_probuds
   std::vector<Float_t> _bdiscr14; //DeepFlavor_probg
   
-
-    
   std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
   std::vector<Float_t> _jetrawf;
+
+  std::vector<Float_t> _jets_JER; // Jet Energy Resolution
 
   // SUSY info
   TString _susyModel;
@@ -675,6 +773,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theSecVtxTag         (consumes<edm::View<reco::VertexCompositePtrCandidate>> (pset.getParameter<edm::InputTag>("secVtxCollection"))), //FRA
   theRhoTag            (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoCollection"))),
   theRhoMiniRelIsoTag  (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoMiniRelIsoCollection"))),
+  theRhoForJERTag      (consumes<double>                                 (pset.getParameter<edm::InputTag>("rhoForJER"))), //FRA
   thePUTag             (consumes<vector<PileupSummaryInfo>>              (pset.getParameter<edm::InputTag>("puCollection"))),
   thePFCandTag         (consumes<edm::View<pat::PackedCandidate>>        (pset.getParameter<edm::InputTag>("PFCandCollection"))),
   theCandTag           (consumes<edm::View<pat::CompositeCandidate>>     (pset.getParameter<edm::InputTag>("candCollection"))),
@@ -824,20 +923,13 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_decayModeFindingOldDMs.clear();
   _daughters_decayModeFindingNewDMs.clear();
   _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits.clear();
-  _daughters_byIsolationMVA3oldDMwoLTraw.clear();
-  _daughters_byIsolationMVA3oldDMwLTraw.clear();
-  _daughters_byIsolationMVA3newDMwoLTraw.clear();
   _daughters_byIsolationMVArun2v1DBoldDMwLTraw.clear();
-  _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew.clear(); //FRA
-
-  _daughters_againstElectronMVA5category.clear();
-  _daughters_againstElectronMVA5raw.clear();
-  _daughters_byPileupWeightedIsolationRaw3Hits.clear();
+  _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.clear();      //FRA
+  _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.clear();      //FRA
+  _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.clear(); //FRA
   _daughters_footprintCorrection.clear();
   _daughters_neutralIsoPtSumWeight.clear();
   _daughters_photonPtSumOutsideSignalCone.clear();
-
-  _daughters_byIsolationMVA3newDMwLTraw.clear();
   _daughters_chargedIsoPtSum.clear();
   _daughters_neutralIsoPtSum.clear();
   _daughters_puCorrPtSum.clear();
@@ -937,13 +1029,22 @@ void HTauTauNtuplizer::Initialize(){
   _indexDau1.clear();
   _indexDau2.clear();
   _pdgdau.clear();
+
   _SVmass.clear();
   _SVmassTauUp.clear();
   _SVmassTauDown.clear();
 
+  _SVmassUnc.clear();
+  _SVmassUncTauUp.clear();
+  _SVmassUncTauDown.clear();
+
   _SVmassTransverse.clear();
   _SVmassTransverseTauUp.clear();
   _SVmassTransverseTauDown.clear();
+
+  _SVmassTransverseUnc.clear();
+  _SVmassTransverseUncTauUp.clear();
+  _SVmassTransverseUncTauDown.clear();
 
   _SVpt.clear();
   _SVptTauUp.clear();
@@ -1069,6 +1170,70 @@ void HTauTauNtuplizer::Initialize(){
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
   _jets_jecUnc.clear();
+  // JEC uncertainty sources
+  _jets_jetUnc_AbsoluteFlavMap_up.clear(); //up variations
+  _jets_jetUnc_AbsoluteMPFBias_up.clear();
+  _jets_jetUnc_AbsoluteScale_up.clear();
+  _jets_jetUnc_AbsoluteStat_up.clear();
+  _jets_jetUnc_FlavorQCD_up.clear();
+  _jets_jetUnc_Fragmentation_up.clear();
+  _jets_jetUnc_PileUpDataMC_up.clear();
+  _jets_jetUnc_PileUpPtBB_up.clear();
+  _jets_jetUnc_PileUpPtEC1_up.clear();
+  _jets_jetUnc_PileUpPtEC2_up.clear();
+  _jets_jetUnc_PileUpPtHF_up.clear();
+  _jets_jetUnc_PileUpPtRef_up.clear();
+  _jets_jetUnc_RelativeBal_up.clear();
+  _jets_jetUnc_RelativeFSR_up.clear();
+  _jets_jetUnc_RelativeJEREC1_up.clear();
+  _jets_jetUnc_RelativeJEREC2_up.clear();
+  _jets_jetUnc_RelativeJERHF_up.clear();
+  _jets_jetUnc_RelativePtBB_up.clear();
+  _jets_jetUnc_RelativePtEC1_up.clear();
+  _jets_jetUnc_RelativePtEC2_up.clear();
+  _jets_jetUnc_RelativePtHF_up.clear();
+  _jets_jetUnc_RelativeStatEC_up.clear();
+  _jets_jetUnc_RelativeStatFSR_up.clear();
+  _jets_jetUnc_RelativeStatHF_up.clear();
+  _jets_jetUnc_SinglePionECAL_up.clear();
+  _jets_jetUnc_SinglePionHCAL_up.clear();
+  _jets_jetUnc_TimePtEta_up.clear();
+  _jets_jetUnc_AbsoluteFlavMap_dw.clear(); // down variations
+  _jets_jetUnc_AbsoluteMPFBias_dw.clear();
+  _jets_jetUnc_AbsoluteScale_dw.clear();
+  _jets_jetUnc_AbsoluteStat_dw.clear();
+  _jets_jetUnc_FlavorQCD_dw.clear();
+  _jets_jetUnc_Fragmentation_dw.clear();
+  _jets_jetUnc_PileUpDataMC_dw.clear();
+  _jets_jetUnc_PileUpPtBB_dw.clear();
+  _jets_jetUnc_PileUpPtEC1_dw.clear();
+  _jets_jetUnc_PileUpPtEC2_dw.clear();
+  _jets_jetUnc_PileUpPtHF_dw.clear();
+  _jets_jetUnc_PileUpPtRef_dw.clear();
+  _jets_jetUnc_RelativeBal_dw.clear();
+  _jets_jetUnc_RelativeFSR_dw.clear();
+  _jets_jetUnc_RelativeJEREC1_dw.clear();
+  _jets_jetUnc_RelativeJEREC2_dw.clear();
+  _jets_jetUnc_RelativeJERHF_dw.clear();
+  _jets_jetUnc_RelativePtBB_dw.clear();
+  _jets_jetUnc_RelativePtEC1_dw.clear();
+  _jets_jetUnc_RelativePtEC2_dw.clear();
+  _jets_jetUnc_RelativePtHF_dw.clear();
+  _jets_jetUnc_RelativeStatEC_dw.clear();
+  _jets_jetUnc_RelativeStatFSR_dw.clear();
+  _jets_jetUnc_RelativeStatHF_dw.clear();
+  _jets_jetUnc_SinglePionECAL_dw.clear();
+  _jets_jetUnc_SinglePionHCAL_dw.clear();
+  _jets_jetUnc_TimePtEta_dw.clear();
+  for (std::map<std::string, std::vector<Float_t> >::iterator it=_SourceUncVal_up.begin(); it!=_SourceUncVal_up.end(); ++it)
+    {
+      it->second.clear();
+    }
+  for (std::map<std::string, std::vector<Float_t> >::iterator it=_SourceUncVal_dw.begin(); it!=_SourceUncVal_dw.end(); ++it)
+    {
+      it->second.clear();
+    }
+
   _jets_QGdiscr.clear();
   _numberOfJets=0;
   _bdiscr.clear();
@@ -1088,6 +1253,7 @@ void HTauTauNtuplizer::Initialize(){
   
   _jetID.clear();
   _jetrawf.clear();
+  _jets_JER.clear(); // Jet Energy Resolution
 
   _ak8jets_px.clear();
   _ak8jets_py.clear();
@@ -1276,15 +1442,21 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("SVfit_ptUncTauDown", &_SVptUncTauDown);
     myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
     myTree->Branch("SVfit_ptTauDown", &_SVptTauDown);
+    myTree->Branch("SVfitTransverseMassUncTauUp",&_SVmassTransverseUncTauUp);
+    myTree->Branch("SVfitTransverseMassUncTauDown",&_SVmassTransverseUncTauDown);
     myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
     myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
+    myTree->Branch("SVfitMassUncTauUp",&_SVmassUncTauUp);
+    myTree->Branch("SVfitMassUncTauDown",&_SVmassUncTauDown);
     myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
     myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
   }// end if isMC
   //myTree->Branch("daughters2",&_daughter2);
 
   myTree->Branch("SVfitMass",&_SVmass);
+  myTree->Branch("SVfitMassUnc",&_SVmassUnc);
   myTree->Branch("SVfitTransverseMass",&_SVmassTransverse);
+  myTree->Branch("SVfitTransverseMassUnc",&_SVmassTransverseUnc);
   myTree->Branch("SVfit_pt", &_SVpt);
   myTree->Branch("SVfit_ptUnc", &_SVptUnc);
   myTree->Branch("SVfit_eta", &_SVeta);
@@ -1336,23 +1508,16 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
   myTree->Branch("daughters_decayModeFindingOldDMs", &_daughters_decayModeFindingOldDMs);
-  myTree->Branch("daughters_SCeta",&_daughters_SCeta);  
-
-  myTree->Branch("againstElectronMVA5category",&_daughters_againstElectronMVA5category);
-  myTree->Branch("againstElectronMVA5raw",&_daughters_againstElectronMVA5raw);
-  myTree->Branch("byPileupWeightedIsolationRaw3Hits",&_daughters_byPileupWeightedIsolationRaw3Hits);
+  myTree->Branch("daughters_SCeta",&_daughters_SCeta);
   myTree->Branch("footprintCorrection",&_daughters_footprintCorrection);
   myTree->Branch("neutralIsoPtSumWeight",&_daughters_neutralIsoPtSumWeight);
   myTree->Branch("photonPtSumOutsideSignalCone",&_daughters_photonPtSumOutsideSignalCone);
-
   myTree->Branch("daughters_decayModeFindingNewDMs", &_daughters_decayModeFindingNewDMs);
   myTree->Branch("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
-  myTree->Branch("daughters_byIsolationMVA3oldDMwoLTraw",&_daughters_byIsolationMVA3oldDMwoLTraw);
-  myTree->Branch("daughters_byIsolationMVA3oldDMwLTraw",&_daughters_byIsolationMVA3oldDMwLTraw);
-  myTree->Branch("daughters_byIsolationMVA3newDMwoLTraw",&_daughters_byIsolationMVA3newDMwoLTraw);
-  myTree->Branch("daughters_byIsolationMVA3newDMwLTraw",&_daughters_byIsolationMVA3newDMwLTraw);
   myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTraw",&_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
-  myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTrawNew",&_daughters_byIsolationMVArun2v1DBoldDMwLTrawNew);
+  myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
+  myTree->Branch("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
+  myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
   myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
@@ -1429,6 +1594,61 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_neMult" , &_jets_neMult);
   myTree->Branch("jets_chMult" , &_jets_chMult);
   myTree->Branch("jets_jecUnc" , &_jets_jecUnc);
+  // JEC Uncertainty sources
+  myTree->Branch("jets_jetUnc_AbsoluteFlavMap_up" , &_SourceUncVal_up["AbsoluteFlavMap"]); // up variations
+  myTree->Branch("jets_jetUnc_AbsoluteMPFBias_up"  , &_SourceUncVal_up["AbsoluteMPFBias"]);
+  myTree->Branch("jets_jetUnc_AbsoluteScale_up"    , &_SourceUncVal_up["AbsoluteScale"]);
+  myTree->Branch("jets_jetUnc_AbsoluteStat_up"     , &_SourceUncVal_up["AbsoluteStat"]);
+  myTree->Branch("jets_jetUnc_FlavorQCD_up"        , &_SourceUncVal_up["FlavorQCD"]);
+  myTree->Branch("jets_jetUnc_Fragmentation_up"    , &_SourceUncVal_up["Fragmentation"]);
+  myTree->Branch("jets_jetUnc_PileUpDataMC_up"     , &_SourceUncVal_up["PileUpDataMC"]);
+  myTree->Branch("jets_jetUnc_PileUpPtBB_up"       , &_SourceUncVal_up["PileUpPtBB"]);
+  myTree->Branch("jets_jetUnc_PileUpPtEC1_up"      , &_SourceUncVal_up["PileUpPtEC1"]);
+  myTree->Branch("jets_jetUnc_PileUpPtEC2_up"      , &_SourceUncVal_up["PileUpPtEC2"]);
+  myTree->Branch("jets_jetUnc_PileUpPtHF_up"       , &_SourceUncVal_up["PileUpPtHF"]);
+  myTree->Branch("jets_jetUnc_PileUpPtRef_up"      , &_SourceUncVal_up["PileUpPtRef"]);
+  myTree->Branch("jets_jetUnc_RelativeBal_up"      , &_SourceUncVal_up["RelativeBal"]);
+  myTree->Branch("jets_jetUnc_RelativeFSR_up"      , &_SourceUncVal_up["RelativeFSR"]);
+  myTree->Branch("jets_jetUnc_RelativeJEREC1_up"   , &_SourceUncVal_up["RelativeJEREC1"]);
+  myTree->Branch("jets_jetUnc_RelativeJEREC2_up"   , &_SourceUncVal_up["RelativeJEREC2"]);
+  myTree->Branch("jets_jetUnc_RelativeJERHF_up"    , &_SourceUncVal_up["RelativeJERHF"]);
+  myTree->Branch("jets_jetUnc_RelativePtBB_up"     , &_SourceUncVal_up["RelativePtBB"]);
+  myTree->Branch("jets_jetUnc_RelativePtEC1_up"    , &_SourceUncVal_up["RelativePtEC1"]);
+  myTree->Branch("jets_jetUnc_RelativePtEC2_up"    , &_SourceUncVal_up["RelativePtEC2"]);
+  myTree->Branch("jets_jetUnc_RelativePtHF_up"     , &_SourceUncVal_up["RelativePtHF"]);
+  myTree->Branch("jets_jetUnc_RelativeStatEC_up"   , &_SourceUncVal_up["RelativeStatEC"]);
+  myTree->Branch("jets_jetUnc_RelativeStatFSR_up"  , &_SourceUncVal_up["RelativeStatFSR"]);
+  myTree->Branch("jets_jetUnc_RelativeStatHF_up"   , &_SourceUncVal_up["RelativeStatHF"]);
+  myTree->Branch("jets_jetUnc_SinglePionECAL_up"   , &_SourceUncVal_up["SinglePionECAL"]);
+  myTree->Branch("jets_jetUnc_SinglePionHCAL_up"   , &_SourceUncVal_up["SinglePionHCAL"]);
+  myTree->Branch("jets_jetUnc_TimePtEta_up"        , &_SourceUncVal_up["TimePtEta"]);
+  myTree->Branch("jets_jetUnc_AbsoluteFlavMap_dw" , &_SourceUncVal_dw["AbsoluteFlavMap"]); // down variations
+  myTree->Branch("jets_jetUnc_AbsoluteMPFBias_dw"  , &_SourceUncVal_dw["AbsoluteMPFBias"]);
+  myTree->Branch("jets_jetUnc_AbsoluteScale_dw"    , &_SourceUncVal_dw["AbsoluteScale"]);
+  myTree->Branch("jets_jetUnc_AbsoluteStat_dw"     , &_SourceUncVal_dw["AbsoluteStat"]);
+  myTree->Branch("jets_jetUnc_FlavorQCD_dw"        , &_SourceUncVal_dw["FlavorQCD"]);
+  myTree->Branch("jets_jetUnc_Fragmentation_dw"    , &_SourceUncVal_dw["Fragmentation"]);
+  myTree->Branch("jets_jetUnc_PileUpDataMC_dw"     , &_SourceUncVal_dw["PileUpDataMC"]);
+  myTree->Branch("jets_jetUnc_PileUpPtBB_dw"       , &_SourceUncVal_dw["PileUpPtBB"]);
+  myTree->Branch("jets_jetUnc_PileUpPtEC1_dw"      , &_SourceUncVal_dw["PileUpPtEC1"]);
+  myTree->Branch("jets_jetUnc_PileUpPtEC2_dw"      , &_SourceUncVal_dw["PileUpPtEC2"]);
+  myTree->Branch("jets_jetUnc_PileUpPtHF_dw"       , &_SourceUncVal_dw["PileUpPtHF"]);
+  myTree->Branch("jets_jetUnc_PileUpPtRef_dw"      , &_SourceUncVal_dw["PileUpPtRef"]);
+  myTree->Branch("jets_jetUnc_RelativeBal_dw"      , &_SourceUncVal_dw["RelativeBal"]);
+  myTree->Branch("jets_jetUnc_RelativeFSR_dw"      , &_SourceUncVal_dw["RelativeFSR"]);
+  myTree->Branch("jets_jetUnc_RelativeJEREC1_dw"   , &_SourceUncVal_dw["RelativeJEREC1"]);
+  myTree->Branch("jets_jetUnc_RelativeJEREC2_dw"   , &_SourceUncVal_dw["RelativeJEREC2"]);
+  myTree->Branch("jets_jetUnc_RelativeJERHF_dw"    , &_SourceUncVal_dw["RelativeJERHF"]);
+  myTree->Branch("jets_jetUnc_RelativePtBB_dw"     , &_SourceUncVal_dw["RelativePtBB"]);
+  myTree->Branch("jets_jetUnc_RelativePtEC1_dw"    , &_SourceUncVal_dw["RelativePtEC1"]);
+  myTree->Branch("jets_jetUnc_RelativePtEC2_dw"    , &_SourceUncVal_dw["RelativePtEC2"]);
+  myTree->Branch("jets_jetUnc_RelativePtHF_dw"     , &_SourceUncVal_dw["RelativePtHF"]);
+  myTree->Branch("jets_jetUnc_RelativeStatEC_dw"   , &_SourceUncVal_dw["RelativeStatEC"]);
+  myTree->Branch("jets_jetUnc_RelativeStatFSR_dw"  , &_SourceUncVal_dw["RelativeStatFSR"]);
+  myTree->Branch("jets_jetUnc_RelativeStatHF_dw"   , &_SourceUncVal_dw["RelativeStatHF"]);
+  myTree->Branch("jets_jetUnc_SinglePionECAL_dw"   , &_SourceUncVal_dw["SinglePionECAL"]);
+  myTree->Branch("jets_jetUnc_SinglePionHCAL_dw"   , &_SourceUncVal_dw["SinglePionHCAL"]);
+  myTree->Branch("jets_jetUnc_TimePtEta_dw"        , &_SourceUncVal_dw["TimePtEta"]);
 
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -1445,9 +1665,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("bDeepFlavor_probuds",&_bdiscr13);
   myTree->Branch("bDeepFlavor_probg",&_bdiscr14);
   
-  
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
+  myTree->Branch("jets_JER",&_jets_JER);
+
   myTree->Branch("susyModel",&_susyModel);
   if (computeQGVar) myTree->Branch("jets_QGdiscr" , &_jets_QGdiscr);
   myTree->Branch("ak8jets_px", &_ak8jets_px);
@@ -1513,6 +1734,64 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //event.getByLabel("offlineSlimmedPrimaryVertices",vertex);
   event.getByToken(theVtxTag,vertexs);
   
+  // JEC fill map with "sourceName, var"
+  // Up variations
+  _SourceUncVal_up.emplace("AbsoluteFlavMap" ,_jets_jetUnc_AbsoluteFlavMap_up);
+  _SourceUncVal_up.emplace("AbsoluteMPFBias" ,_jets_jetUnc_AbsoluteMPFBias_up);
+  _SourceUncVal_up.emplace("AbsoluteScale"   ,_jets_jetUnc_AbsoluteScale_up);
+  _SourceUncVal_up.emplace("AbsoluteStat"    ,_jets_jetUnc_AbsoluteStat_up);
+  _SourceUncVal_up.emplace("FlavorQCD"       ,_jets_jetUnc_FlavorQCD_up);
+  _SourceUncVal_up.emplace("Fragmentation"   ,_jets_jetUnc_Fragmentation_up);
+  _SourceUncVal_up.emplace("PileUpDataMC"    ,_jets_jetUnc_PileUpDataMC_up);
+  _SourceUncVal_up.emplace("PileUpPtBB"      ,_jets_jetUnc_PileUpPtBB_up);
+  _SourceUncVal_up.emplace("PileUpPtEC1"     ,_jets_jetUnc_PileUpPtEC1_up);
+  _SourceUncVal_up.emplace("PileUpPtEC2"     ,_jets_jetUnc_PileUpPtEC2_up);
+  _SourceUncVal_up.emplace("PileUpPtHF"      ,_jets_jetUnc_PileUpPtHF_up);
+  _SourceUncVal_up.emplace("PileUpPtRef"     ,_jets_jetUnc_PileUpPtRef_up);
+  _SourceUncVal_up.emplace("RelativeBal"     ,_jets_jetUnc_RelativeBal_up);
+  _SourceUncVal_up.emplace("RelativeFSR"     ,_jets_jetUnc_RelativeFSR_up);
+  _SourceUncVal_up.emplace("RelativeJEREC1"  ,_jets_jetUnc_RelativeJEREC1_up);
+  _SourceUncVal_up.emplace("RelativeJEREC2"  ,_jets_jetUnc_RelativeJEREC2_up);
+  _SourceUncVal_up.emplace("RelativeJERHF"   ,_jets_jetUnc_RelativeJERHF_up);
+  _SourceUncVal_up.emplace("RelativePtBB"    ,_jets_jetUnc_RelativePtBB_up);
+  _SourceUncVal_up.emplace("RelativePtEC1"   ,_jets_jetUnc_RelativePtEC1_up);
+  _SourceUncVal_up.emplace("RelativePtEC2"   ,_jets_jetUnc_RelativePtEC2_up);
+  _SourceUncVal_up.emplace("RelativePtHF"    ,_jets_jetUnc_RelativePtHF_up);
+  _SourceUncVal_up.emplace("RelativeStatEC"  ,_jets_jetUnc_RelativeStatEC_up);
+  _SourceUncVal_up.emplace("RelativeStatFSR" ,_jets_jetUnc_RelativeStatFSR_up);
+  _SourceUncVal_up.emplace("RelativeStatHF"  ,_jets_jetUnc_RelativeStatHF_up);
+  _SourceUncVal_up.emplace("SinglePionECAL"  ,_jets_jetUnc_SinglePionECAL_up);
+  _SourceUncVal_up.emplace("SinglePionHCAL"  ,_jets_jetUnc_SinglePionHCAL_up);
+  _SourceUncVal_up.emplace("TimePtEta"       ,_jets_jetUnc_TimePtEta_up);
+  // Down variations
+  _SourceUncVal_dw.emplace("AbsoluteFlavMap" ,_jets_jetUnc_AbsoluteFlavMap_dw);
+  _SourceUncVal_dw.emplace("AbsoluteMPFBias" ,_jets_jetUnc_AbsoluteMPFBias_dw);
+  _SourceUncVal_dw.emplace("AbsoluteScale"   ,_jets_jetUnc_AbsoluteScale_dw);
+  _SourceUncVal_dw.emplace("AbsoluteStat"    ,_jets_jetUnc_AbsoluteStat_dw);
+  _SourceUncVal_dw.emplace("FlavorQCD"       ,_jets_jetUnc_FlavorQCD_dw);
+  _SourceUncVal_dw.emplace("Fragmentation"   ,_jets_jetUnc_Fragmentation_dw);
+  _SourceUncVal_dw.emplace("PileUpDataMC"    ,_jets_jetUnc_PileUpDataMC_dw);
+  _SourceUncVal_dw.emplace("PileUpPtBB"      ,_jets_jetUnc_PileUpPtBB_dw);
+  _SourceUncVal_dw.emplace("PileUpPtEC1"     ,_jets_jetUnc_PileUpPtEC1_dw);
+  _SourceUncVal_dw.emplace("PileUpPtEC2"     ,_jets_jetUnc_PileUpPtEC2_dw);
+  _SourceUncVal_dw.emplace("PileUpPtHF"      ,_jets_jetUnc_PileUpPtHF_dw);
+  _SourceUncVal_dw.emplace("PileUpPtRef"     ,_jets_jetUnc_PileUpPtRef_dw);
+  _SourceUncVal_dw.emplace("RelativeBal"     ,_jets_jetUnc_RelativeBal_dw);
+  _SourceUncVal_dw.emplace("RelativeFSR"     ,_jets_jetUnc_RelativeFSR_dw);
+  _SourceUncVal_dw.emplace("RelativeJEREC1"  ,_jets_jetUnc_RelativeJEREC1_dw);
+  _SourceUncVal_dw.emplace("RelativeJEREC2"  ,_jets_jetUnc_RelativeJEREC2_dw);
+  _SourceUncVal_dw.emplace("RelativeJERHF"   ,_jets_jetUnc_RelativeJERHF_dw);
+  _SourceUncVal_dw.emplace("RelativePtBB"    ,_jets_jetUnc_RelativePtBB_dw);
+  _SourceUncVal_dw.emplace("RelativePtEC1"   ,_jets_jetUnc_RelativePtEC1_dw);
+  _SourceUncVal_dw.emplace("RelativePtEC2"   ,_jets_jetUnc_RelativePtEC2_dw);
+  _SourceUncVal_dw.emplace("RelativePtHF"    ,_jets_jetUnc_RelativePtHF_dw);
+  _SourceUncVal_dw.emplace("RelativeStatEC"  ,_jets_jetUnc_RelativeStatEC_dw);
+  _SourceUncVal_dw.emplace("RelativeStatFSR" ,_jets_jetUnc_RelativeStatFSR_dw);
+  _SourceUncVal_dw.emplace("RelativeStatHF"  ,_jets_jetUnc_RelativeStatHF_dw);
+  _SourceUncVal_dw.emplace("SinglePionECAL"  ,_jets_jetUnc_SinglePionECAL_dw);
+  _SourceUncVal_dw.emplace("SinglePionHCAL"  ,_jets_jetUnc_SinglePionHCAL_dw);
+  _SourceUncVal_dw.emplace("TimePtEta"       ,_jets_jetUnc_TimePtEta_dw);
+
   //----------------------------------------------------------------------
   // Analyze MC history. THIS HAS TO BE DONE BEFORE ANY RETURN STATEMENT
   // (eg skim or trigger), in order to update the gen counters correctly!!!
@@ -1706,12 +1985,32 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // Accessing the JEC uncertainties 
   //ak4  
   edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl); 
+  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
+
+  // Accessing the JEC uncertainties sources - !! FIXME !! - seems like uncertainty sources are all the same for MC and DATA (all eras)
+  if(theisMC)
+  {
+    for (const auto& source: m_jec_sources) {
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V6_MC_UncertaintySources_AK4PFchs.txt", source);
+      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+      jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+    }
+  }
+  else
+  {
+    for (const auto& source: m_jec_sources) {
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V6_DATA_UncertaintySources_AK4PFchs.txt", source);
+      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+      jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+    }
+  }
+
   _numberOfJets = 0;
   if(writeJets){
-    _numberOfJets = FillJet(jets, event, &jecUnc);
+    //_numberOfJets = FillJet(jets, event, &jecUnc);
+    _numberOfJets = FillJet(jets, event, eSetup, &jecUnc, &jecSourceUncProviders);
 
     if(computeQGVar){ //Needs jetHandle + qgTaggerHandle
       for(auto jet = jetHandle->begin(); jet != jetHandle->end(); ++jet){
@@ -1752,9 +2051,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _SVmassTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
     _SVmassTauDown.push_back( (hasDown ? cand.userFloat("SVfitMassTauDown") : -999. ));
 
+    _SVmassUnc.push_back(cand.userFloat("SVfitMassUnc"));
+    _SVmassUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassUncTauUp")   : -999. ));
+    _SVmassUncTauDown.push_back( (hasDown ? cand.userFloat("SVfitMassUncTauDown") : -999. ));
+
     _SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
     _SVmassTransverseTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitTransverseMassTauUp")  : -999. ));
     _SVmassTransverseTauDown.push_back( (hasDown ? cand.userFloat("SVfitTransverseMassTauDown"): -999. ));
+
+    _SVmassTransverseUnc.push_back(cand.userFloat("SVfitTransverseMassUnc"));
+    _SVmassTransverseUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitTransverseMassUncTauUp")  : -999. ));
+    _SVmassTransverseUncTauDown.push_back( (hasDown ? cand.userFloat("SVfitTransverseMassUncTauDown"): -999. ));
 
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
     _SVptTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_ptTauUp")  : -999. ));
@@ -2092,7 +2399,8 @@ void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm:
 
 
 //Fill jets quantities
-int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
+//int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
+int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, edm::EventSetup const& iSetup, JetCorrectionUncertainty* jecUnc, myJECMap* jecSourceUncProviders){
   
   // Getting the primary Vertex (FRA 2017)
   Handle<vector<reco::Vertex> >  vertexs;
@@ -2108,6 +2416,12 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
   }
   const edm::View<reco::VertexCompositePtrCandidate> * secVtxs = secVtxsHandle.product();
 
+  // Getting the Rho for Jet Enegy Resolution
+  edm::Handle<double> rhoJERHandle;
+  event.getByToken(theRhoForJERTag, rhoJERHandle);
+
+  // Initialize Jet Energy Resolution (FRA 2017)
+  JME::JetResolution JERresolution = JME::JetResolution::get(iSetup, "AK4PFchs_pt");
 
   int nJets=0;
   vector <pair<float, int>> softLeptInJet; // pt, idx
@@ -2344,6 +2658,29 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     jecUnc->setJetEta(ijet->eta());
     jecUnc->setJetPt(ijet->pt()); // here you must use the CORRECTED jet pt
     _jets_jecUnc.push_back(jecUnc->getUncertainty(true));
+
+    // JEC uncertainties sources
+    for (myJECMap::iterator it=jecSourceUncProviders->begin(); it!=jecSourceUncProviders->end(); ++it)
+    {
+      // up variations
+      it->second->setJetEta(ijet->eta());
+      it->second->setJetPt(ijet->pt());
+      float uncertainty_up = it->second->getUncertainty(true);
+      _SourceUncVal_up[it->first].push_back(uncertainty_up);
+
+      // down variations
+      it->second->setJetEta(ijet->eta());
+      it->second->setJetPt(ijet->pt());
+      float uncertainty_dw = it->second->getUncertainty(false);
+      _SourceUncVal_dw[it->first].push_back(uncertainty_dw);
+    }
+
+    // Jet Energy Resolution
+    JME::JetParameters JER_parameters;
+    JER_parameters.setJetPt(ijet->pt());
+    JER_parameters.setJetEta(ijet->eta());
+    JER_parameters.setRho(*rhoJERHandle);
+    _jets_JER.push_back( JERresolution.getResolution(JER_parameters) * ijet->energy() ); // JER*energy beacuse cmssw gives the % of JER, while KinFit wants resolution in GeV
   }
 
   if ( theisMC )
@@ -2581,15 +2918,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
     float leadChargedParticlePt=-1., trackRefPt=-1.;
     int typeOfMuon=0;
-    float byIsolationMVA3oldDMwoLTraw=-1, byIsolationMVA3oldDMwLTraw=-1,  byIsolationMVA3newDMwoLTraw=-1,byIsolationMVA3newDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2v1DBoldDMwLTrawNew=-1;
+    float byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1, byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=-1; //FRA
     Long64_t tauIDflag = 0;
-    float   
-    againstElectronMVA5category,
-    againstElectronMVA5raw,
-    byPileupWeightedIsolationRaw3Hits,
-    footprintCorrection,
-    neutralIsoPtSumWeight,
-    photonPtSumOutsideSignalCone;
+    float footprintCorrection, neutralIsoPtSumWeight, photonPtSumOutsideSignalCone;
 
     float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1., error_trackpt=-1.;
     int jetNDauChargedMVASel = -1;
@@ -2680,20 +3011,15 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           hTauIDs->Fill(id);
         }
       }
-      //againstElectronMVA5category = userdatahelpers::getUserFloat (cand, "againstElectronMVA5category");
-      againstElectronMVA5raw = userdatahelpers::getUserFloat (cand, "againstElectronMVA5raw");
-      byPileupWeightedIsolationRaw3Hits = userdatahelpers::getUserFloat (cand, "byPileupWeightedIsolationRaw3Hits");
       footprintCorrection = userdatahelpers::getUserFloat (cand, "footprintCorrection");
       neutralIsoPtSumWeight = userdatahelpers::getUserFloat (cand, "neutralIsoPtSumWeight");
       photonPtSumOutsideSignalCone = userdatahelpers::getUserFloat (cand, "photonPtSumOutsideSignalCone");
 
       byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
-      byIsolationMVA3oldDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwoLTraw");
-      byIsolationMVA3oldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3oldDMwLTraw");
-      byIsolationMVA3newDMwoLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwoLTraw");
-      byIsolationMVA3newDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVA3newDMwLTraw");
       byIsolationMVArun2v1DBoldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTraw");
-      byIsolationMVArun2v1DBoldDMwLTrawNew=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTrawNew");
+      byIsolationMVArun2017v2DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMwLTraw2017"); //FRA
+      byIsolationMVArun2017v1DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v1DBoldDMwLTraw2017"); //FRA
+      byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017"); //FRA
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
@@ -2726,9 +3052,6 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_typeOfMuon.push_back(typeOfMuon);
     _daughters_muonID.push_back(muIDflag);
     _daughters_tauID.push_back(tauIDflag);
-    _daughters_againstElectronMVA5category.push_back(againstElectronMVA5category);
-    _daughters_againstElectronMVA5raw.push_back(againstElectronMVA5raw);
-    _daughters_byPileupWeightedIsolationRaw3Hits.push_back(byPileupWeightedIsolationRaw3Hits);
     _daughters_footprintCorrection.push_back(footprintCorrection);
     _daughters_neutralIsoPtSumWeight.push_back(neutralIsoPtSumWeight);
     _daughters_photonPtSumOutsideSignalCone.push_back(photonPtSumOutsideSignalCone);
@@ -2763,12 +3086,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_chargedIsoPtSum.push_back(chargedIsoPtSum);
     _daughters_neutralIsoPtSum.push_back(neutralIsoPtSum);
     _daughters_puCorrPtSum.push_back(puCorrPtSum);
-    _daughters_byIsolationMVA3oldDMwoLTraw.push_back(byIsolationMVA3oldDMwoLTraw);
-    _daughters_byIsolationMVA3oldDMwLTraw.push_back(byIsolationMVA3oldDMwLTraw);
-    _daughters_byIsolationMVA3newDMwoLTraw.push_back(byIsolationMVA3newDMwoLTraw);
-    _daughters_byIsolationMVA3newDMwLTraw.push_back(byIsolationMVA3newDMwLTraw);
     _daughters_byIsolationMVArun2v1DBoldDMwLTraw.push_back(byIsolationMVArun2v1DBoldDMwLTraw);
-    _daughters_byIsolationMVArun2v1DBoldDMwLTrawNew.push_back(byIsolationMVArun2v1DBoldDMwLTrawNew);
+    _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
+    _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
+    _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
     _daughters_numChargedParticlesSignalCone.push_back(numChargedParticlesSignalCone);
     _daughters_numNeutralHadronsSignalCone.push_back(numNeutralHadronsSignalCone);
     _daughters_numPhotonsSignalCone.push_back(numPhotonsSignalCone);
@@ -3373,8 +3694,8 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   isoj=userdatahelpers::getUserFloat(j.daughter(cand1j),"combRelIsoPF");
   //if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
   //if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
-  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2v1DBoldDMwLTrawNew");
-  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2v1DBoldDMwLTrawNew");
+  if (!i.daughter(cand1i)->isMuon() && !i.daughter(cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(cand1i),"byIsolationMVArun2017v2DBoldDMwLTraw2017");
+  if (!j.daughter(cand1j)->isMuon() && !j.daughter(cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(cand1j),"byIsolationMVArun2017v2DBoldDMwLTraw2017");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
@@ -3388,8 +3709,8 @@ bool HTauTauNtuplizer::ComparePairsbyIso(pat::CompositeCandidate i, pat::Composi
   isoj=userdatahelpers::getUserFloat(j.daughter(1-cand1j),"combRelIsoPF");
   //if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTraw");
   //if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTraw");
-  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2v1DBoldDMwLTrawNew");
-  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2v1DBoldDMwLTrawNew");
+  if (!i.daughter(1-cand1i)->isMuon() && !i.daughter(1-cand1i)->isElectron()) isoi= -userdatahelpers::getUserFloat(i.daughter(1-cand1i),"byIsolationMVArun2017v2DBoldDMwLTraw2017");
+  if (!j.daughter(1-cand1j)->isMuon() && !j.daughter(1-cand1j)->isElectron()) isoj= -userdatahelpers::getUserFloat(j.daughter(1-cand1j),"byIsolationMVArun2017v2DBoldDMwLTraw2017");
 
   if (isoi<isoj)return true;
   else if(isoi>isoj)return false;
