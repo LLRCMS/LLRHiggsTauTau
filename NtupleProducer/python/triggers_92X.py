@@ -456,7 +456,7 @@ HLTLIST = cms.VPSet(
 ### === single tau triggers - OK
     cms.PSet (
         HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v"),     # Do we need this?? probably not...
-        path1 = cms.vstring ("hltSelectedPFTau180MediumChargedIsolationL1HLTMatched"),
+        path1 = cms.vstring ("hltSelectedPFTau180MediumChargedIsolationL1HLTMatched","hltPFTau180TrackPt50LooseAbsOrRelMediumHighPtRelaxedIsoIso"),
         path2 = cms.vstring (""),
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
@@ -467,7 +467,7 @@ HLTLIST = cms.VPSet(
         ),
     cms.PSet (
         HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v"), # Do we need this?? probably not...
-        path1 = cms.vstring ("hltSelectedPFTau180MediumChargedIsolationL1HLTMatched1Prong"),
+        path1 = cms.vstring ("hltSelectedPFTau180MediumChargedIsolationL1HLTMatched1Prong","hltPFTau180TrackPt50LooseAbsOrRelMediumHighPtRelaxedIso1Prong"),
         path2 = cms.vstring (""),
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
