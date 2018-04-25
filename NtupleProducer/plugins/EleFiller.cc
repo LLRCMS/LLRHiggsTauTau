@@ -232,7 +232,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     //-- Missing hit  
     //int missinghit = l.gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
     int missinghit = l.gsfTrack()->hitPattern().numberOfAllHits(HitPattern::MISSING_INNER_HITS);
-
+    int missinglosthit = l.gsfTrack()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+	  
     //--- 3 charge assignement
     bool isGsfCtfScPixChargeConsistent=l.isGsfCtfScPixChargeConsistent();
     bool isGsfScPixChargeConsistent=l.isGsfScPixChargeConsistent();
@@ -254,6 +255,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserInt("isConversionVeto",(isconversionveto ? 1 : 0));
     //l.addUserFloat("HLTMatch", HLTMatch);
     l.addUserInt("missingHit", missinghit);
+    l.addUserInt("missingLostHit", missinglosthit);
     l.addUserInt("isGsfCtfScPixChargeConsistent",(isGsfCtfScPixChargeConsistent ? 1 : 0));
     l.addUserInt("isGsfScPixChargeConsistent",(isGsfScPixChargeConsistent ? 1 : 0));
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
