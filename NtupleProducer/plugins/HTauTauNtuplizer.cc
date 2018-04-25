@@ -558,6 +558,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_jetPtRel;
   std::vector<Float_t> _daughters_jetPtRatio;
   std::vector<Float_t> _daughters_jetBTagCSV;
+  std::vector<Float_t> _daughters_jetBTagDeepCSV;
   std::vector<Float_t> _daughters_lepMVA_mvaId;
 
   std::vector<Float_t> _daughters_pca_x;
@@ -957,6 +958,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_jetPtRel.clear();
   _daughters_jetPtRatio.clear();
   _daughters_jetBTagCSV.clear();
+  _daughters_jetBTagDeepCSV.clear();
   _daughters_lepMVA_mvaId.clear();
 
   _daughters_iseleBDT.clear();
@@ -1547,6 +1549,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_jetPtRel",&_daughters_jetPtRel);
   myTree->Branch("daughters_jetPtRatio",&_daughters_jetPtRatio);
   myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
+  myTree->Branch("daughters_jetBTagDeepCSV",&_daughters_jetBTagDeepCSV);
   myTree->Branch("daughters_lepMVA_mvaId",&_daughters_lepMVA_mvaId);
 
   if(doCPVariables){
@@ -2925,7 +2928,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1., error_trackpt=-1.;
     int jetNDauChargedMVASel = -1;
     float miniRelIsoCharged = -1., miniRelIsoNeutral = -1.;
-    float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1.;
+    float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1., jetBTagDeepCSV=-1.;
     float lepMVA_mvaId = -1.;
 
     //
@@ -2961,6 +2964,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet,theJECName);
       jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+      jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
 
       lepMVA_mvaId  = userdatahelpers::getUserFloat(cand,"segmentCompatibility");
 
@@ -2995,7 +2999,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       
       jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet,theJECName);
       jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
-      jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");      
+      jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+      jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
 
       lepMVA_mvaId = elemva_HZZ;
 
@@ -3112,6 +3117,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_jetPtRel.push_back(jetPtRel);
     _daughters_jetPtRatio.push_back(jetPtRatio);
     _daughters_jetBTagCSV.push_back(jetBTagCSV);
+    _daughters_jetBTagDeepCSV.push_back(jetBTagDeepCSV);
     _daughters_lepMVA_mvaId.push_back(lepMVA_mvaId);
 
     _daughters_pca_x.push_back(pcaPV.X());
