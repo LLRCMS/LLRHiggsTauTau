@@ -360,23 +360,23 @@ std::pair<float,float> LeptonIsoHelper::miniRelIso_ChargedNeutral(const reco::Ca
 
   if(cand->isElectron()){
         
-    if(      fabs(eta) > 0      && fabs(eta) < 1.0 )   EffArea = 0.1752;
-    else if( fabs(eta) >= 1.0   && fabs(eta) < 1.479 ) EffArea = 0.1862;
-    else if( fabs(eta) >= 1.479 && fabs(eta) < 2.0 )   EffArea = 0.1411;
-    else if( fabs(eta) >= 2.0   && fabs(eta) < 2.2 )   EffArea = 0.1534;
-    else if( fabs(eta) >= 2.2   && fabs(eta) < 2.3 )   EffArea = 0.1903;
-    else if( fabs(eta) >= 2.3   && fabs(eta) < 2.4 )   EffArea = 0.2243;
-    else if( fabs(eta) >= 2.4   && fabs(eta) < 2.5 )   EffArea = 0.2687;
+    if(      fabs(eta) >= 0     && fabs(eta) < 1.0 )    EffArea = 0.1566;
+    else if( fabs(eta) >= 1.0   && fabs(eta) < 1.479 )  EffArea = 0.1626;
+    else if( fabs(eta) >= 1.479 && fabs(eta) < 2.0 )    EffArea = 0.1073;
+    else if( fabs(eta) >= 2.0   && fabs(eta) < 2.2 )    EffArea = 0.0854;
+    else if( fabs(eta) >= 2.2   && fabs(eta) < 2.3 )    EffArea = 0.1051;
+    else if( fabs(eta) >= 2.3   && fabs(eta) < 2.4 )    EffArea = 0.1204;
+    else if( fabs(eta) >= 2.4   && fabs(eta) <= 2.5 )   EffArea = 0.1524;
 
   }
 
   else if(cand->isMuon()){
 
-    if(      fabs(eta) > 0    && fabs(eta) < 0.8 ) EffArea = 0.0735;
-    else if( fabs(eta) >= 0.8 && fabs(eta) < 1.3 ) EffArea = 0.0619;
-    else if( fabs(eta) >= 1.3 && fabs(eta) < 2.0 ) EffArea = 0.0465;
-    else if( fabs(eta) >= 2.0 && fabs(eta) < 2.2 ) EffArea = 0.0433;
-    else if( fabs(eta) >= 2.2 && fabs(eta) < 2.5 ) EffArea = 0.0577;
+    if(      fabs(eta) >= 0   && fabs(eta) < 0.8 )   EffArea = 0.0566;
+    else if( fabs(eta) >= 0.8 && fabs(eta) < 1.3 )   EffArea = 0.0562;
+    else if( fabs(eta) >= 1.3 && fabs(eta) < 2.0 )   EffArea = 0.0363;
+    else if( fabs(eta) >= 2.0 && fabs(eta) < 2.2 )   EffArea = 0.0119;
+    else if( fabs(eta) >= 2.2 && fabs(eta) <= 2.5 )  EffArea = 0.0064;
     
   }
 
