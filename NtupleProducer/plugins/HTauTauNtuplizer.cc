@@ -464,6 +464,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_eleMVA_HZZ; //isBDT for ele
   std::vector<bool> _daughters_passConversionVeto; //isBDT for ele
   std::vector<int>  _daughters_eleMissingHits;
+  std::vector<int>  _daughters_eleMissingLostHits;
   std::vector<bool>  _daughters_iseleChargeConsistent;
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
@@ -969,6 +970,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_eleMVA_HZZ.clear();
   _daughters_passConversionVeto.clear();
   _daughters_eleMissingHits.clear();
+  _daughters_eleMissingLostHits.clear();
   _daughters_iseleChargeConsistent.clear();
   _daughters_iseleCUT.clear();
   //_daughter2.clear();
@@ -1500,6 +1502,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_eleMVA_HZZ",&_daughters_eleMVA_HZZ);
   myTree->Branch("daughters_passConversionVeto",&_daughters_passConversionVeto);
   myTree->Branch("daughters_eleMissingHits",&_daughters_eleMissingHits);
+  myTree->Branch("daughters_eleMissingLostHits",&_daughters_eleMissingLostHits);
   myTree->Branch("daughters_iseleChargeConsistent",&_daughters_iseleChargeConsistent);
   myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT);
   myTree->Branch("decayMode",&_decayType);
@@ -2912,6 +2915,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float elemva_HZZ=-2;
     bool isconversionveto=false;
     int elemissinghits = 999;
+    int elemissinglosthits = 999;
     bool iselechargeconsistent=false;
 
     int decay=-1;
@@ -2987,6 +2991,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
+      elemissinglosthits = userdatahelpers::getUserInt(cand,"missingLostHit");
       if((userdatahelpers::getUserInt(cand,"isGsfCtfScPixChargeConsistent") + userdatahelpers::getUserInt(cand,"isGsfScPixChargeConsistent"))>1)iselechargeconsistent=true;
 
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
@@ -3070,6 +3075,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_eleMVA_HZZ.push_back(elemva_HZZ);     
     _daughters_passConversionVeto.push_back(isconversionveto);
     _daughters_eleMissingHits.push_back(elemissinghits);
+    _daughters_eleMissingLostHits.push_back(elemissinglosthits);
     _daughters_iseleChargeConsistent.push_back(iselechargeconsistent);
 
     //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
