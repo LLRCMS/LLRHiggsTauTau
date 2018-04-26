@@ -54,8 +54,8 @@ private:
   virtual void endJob(){};
 
   //const edm::InputTag theCandidateTag;
-  //edm::EDGetTokenT<edm::View<pat::Muon> > theCandidateTag;
-  edm::EDGetTokenT<pat::MuonRefVector> theCandidateTag;
+  edm::EDGetTokenT<edm::View<pat::Muon> > theCandidateTag;
+  //edm::EDGetTokenT<pat::MuonRefVector> theCandidateTag;
   edm::EDGetTokenT<edm::View<reco::GenParticle> > theGenTag ;
   edm::EDGetTokenT<double> theRhoTag ;
   edm::EDGetTokenT<vector<Vertex>> theVtxTag ;
