@@ -364,8 +364,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("PFRelIsoAll2Value",PFRelIsoAll2Value);
     l.addUserFloat("PFRelIsoAll042Value",PFRelIsoAll042Value);
 	  
-    float ptRatio2Value = (*ptRatio_2)[ele];
     float ptRel2Value = (*ptRel_2)[ele];
+    float ptRatio2Value = (*ptRatio_2)[ele];
     float jetNDauChargedMVASel2Value = (*jetNDauChargedMVASel_2)[ele];
     l.addUserFloat("ptRel2Value",ptRel2Value);
     l.addUserFloat("ptRatio2Value",ptRatio2Value);
