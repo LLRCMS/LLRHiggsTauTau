@@ -86,7 +86,7 @@ miniRelIsoAllNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<
 PFRelIsoAll04NanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PFRelIsoAll04Collection"))),
 ptRelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ptRelCollection"))),
 ptRatioNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ptRatioCollection"))),
-jetNDauChargedMVASelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("jetNDauChargedMVASelCollection")))
+jetNDauChargedMVASelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("jetNDauChargedMVASelCollection"))),
 
 sampleType(iConfig.getParameter<int>("sampleType")),
 setup(iConfig.getParameter<int>("setup")),
