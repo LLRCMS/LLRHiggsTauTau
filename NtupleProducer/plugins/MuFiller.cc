@@ -59,6 +59,11 @@ private:
   edm::EDGetTokenT<edm::View<reco::GenParticle> > theGenTag ;
   edm::EDGetTokenT<double> theRhoTag ;
   edm::EDGetTokenT<vector<Vertex>> theVtxTag ;
+  edm::EDGetTokenT<edm::ValueMap<float> > miniRelIsoChargedNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > miniRelIsoAllNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > ptRelNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > ptRatioNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > jetNDauChargedMVASelNanoAODToken_;
   int sampleType;
   int setup;
   const StringCutObjectSelector<pat::Muon, true> cut;
@@ -71,10 +76,18 @@ private:
 MuFiller::MuFiller(const edm::ParameterSet& iConfig) :
 //theCandidateTag(iConfig.getParameter<InputTag>("src")),
 //theCandidateTag(consumes<edm::View<pat::Muon> >(iConfig.getParameter<InputTag>("src"))),
-theCandidateTag(consumes<pat::MuonRefVector>(iConfig.getParameter<InputTag>("src"))),
+//theCandidateTag(consumes<pat::MuonRefVector>(iConfig.getParameter<InputTag>("src"))),
+theCandidateTag(consumes<edm::View<pat::Muon> >(iConfig.getParameter<InputTag>("src"))),
 theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
 theRhoTag(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoCollection"))),
 theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
+miniRelIsoChargedNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoChgCollection"))),
+miniRelIsoAllNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoAllCollection"))),
+PFRelIsoAll04NanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PFRelIsoAll04Collection"))),
+ptRelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ptRelCollection"))),
+ptRatioNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ptRatioCollection"))),
+jetNDauChargedMVASelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("jetNDauChargedMVASelCollection")))
+
 sampleType(iConfig.getParameter<int>("sampleType")),
 setup(iConfig.getParameter<int>("setup")),
 cut(iConfig.getParameter<std::string>("cut")),
@@ -108,14 +121,28 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<vector<Vertex> >  vertexs;
   iEvent.getByToken(theVtxTag,vertexs);
   //iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
+  
+  edm::Handle<edm::ValueMap<float> > miniRelIsoChg_2;
+  edm::Handle<edm::ValueMap<float> > miniRelIsoAll_2;
+  iEvent.getByToken(miniRelIsoChargedNanoAODToken_,miniRelIsoChg_2);
+  iEvent.getByToken(miniRelIsoAllNanoAODToken_,miniRelIsoAll_2);
 
+  edm::Handle<edm::ValueMap<float> > ptRel_2;	  
+  edm::Handle<edm::ValueMap<float> > ptRatio_2;
+  edm::Handle<edm::ValueMap<float> > jetNDauChargedMVASel_2;
+  iEvent.getByToken(ptRelNanoAODToken_,ptRel_2);
+  iEvent.getByToken(ptRatioNanoAODToken_,ptRatio_2);
+  iEvent.getByToken(jetNDauChargedMVASelNanoAODToken_,jetNDauChargedMVASel_2);
+	
   // Output collection
   //auto_ptr<pat::MuonCollection> result( new pat::MuonCollection() );
   std::unique_ptr<pat::MuonCollection> result( new pat::MuonCollection() );
 
-  for (unsigned int i = 0; i< muonHandle->size(); ++i){
-    //---Clone the pat::Muon
-    pat::Muon l(*((*muonHandle)[i].get()));
+  for( View<pat::Muon>::const_iterator mu = muonHandle->begin(); mu != muonHandle->end(); mu++){
+    const unsigned int i = distance (muonHandle->begin(), mu);
+    const auto muon = muonHandle->ptrAt(i);
+    const Ptr<pat::Muon> muPtr(muonHandle, mu - muonHandle->begin() );
+    pat::Muon l(*muon);
 
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();
@@ -220,6 +247,18 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(!l.hasUserFloat("isTrackerMuon")) {
       l.addUserFloat("isTrackerMuon",l.isTrackerMuon());
     }
+	  
+    float miniRelIsoChg2Value = (*miniRelIsoChg_2)[muPtr];
+    float miniRelIsoAll2Value = (*miniRelIsoAll_2)[muPtr];
+    l.addUserFloat("miniRelIsoChg2Value",miniRelIsoChg2Value);
+    l.addUserFloat("miniRelIsoAll2Value",miniRelIsoAll2Value);
+	
+    float ptRel2Value = (*ptRel_2)[muPtr];
+    float ptRatio2Value = (*ptRatio_2)[muPtr];
+    float jetNDauChargedMVASel2Value = (*jetNDauChargedMVASel_2)[muPtr];
+    l.addUserFloat("ptRel2Value",ptRel2Value);
+    l.addUserFloat("ptRatio2Value",ptRatio2Value);
+    l.addUserFloat("jetNDauChargedMVASel2Value",jetNDauChargedMVASel2Value);
     
     //--- MC parent code 
     const reco::GenParticle* genL= l.genParticleRef().get();
