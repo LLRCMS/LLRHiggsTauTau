@@ -200,7 +200,8 @@ process.ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
 )
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
-    src = cms.InputTag("removeBadAndCloneGlobalMuons"),
+#    src = cms.InputTag("removeBadAndCloneGlobalMuons"),
+    src = cms.InputTag("slimmedMuons"),
     cut = cms.string(MUCUT),
 #    Lowering pT cuts
 #    cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
