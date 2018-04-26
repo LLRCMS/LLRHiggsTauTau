@@ -460,10 +460,14 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<bool> _daughters_iseleWPLoose; //isBDT for ele
   std::vector<bool> _daughters_iseleWP80; //isBDT for ele
   std::vector<bool> _daughters_iseleWP90; //isBDT for ele
+  std::vector<bool> _daughters_iseleNoIsoWPLoose; //isBDT for ele no Iso
+  std::vector<bool> _daughters_iseleNoIsoWP80; //isBDT for ele no Iso
+  std::vector<bool> _daughters_iseleNoIsoWP90; //isBDT for ele no Iso
   std::vector<Float_t> _daughters_eleMVAnt; //isBDT for ele
   std::vector<Float_t> _daughters_eleMVA_HZZ; //isBDT for ele
   std::vector<bool> _daughters_passConversionVeto; //isBDT for ele
   std::vector<int>  _daughters_eleMissingHits;
+  std::vector<int>  _daughters_eleMissingLostHits;
   std::vector<bool>  _daughters_iseleChargeConsistent;
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
@@ -558,6 +562,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_jetPtRel;
   std::vector<Float_t> _daughters_jetPtRatio;
   std::vector<Float_t> _daughters_jetBTagCSV;
+  std::vector<Float_t> _daughters_jetBTagDeepCSV;
   std::vector<Float_t> _daughters_lepMVA_mvaId;
 
   std::vector<Float_t> _daughters_pca_x;
@@ -957,16 +962,21 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_jetPtRel.clear();
   _daughters_jetPtRatio.clear();
   _daughters_jetBTagCSV.clear();
+  _daughters_jetBTagDeepCSV.clear();
   _daughters_lepMVA_mvaId.clear();
 
   _daughters_iseleBDT.clear();
   _daughters_iseleWPLoose.clear();
   _daughters_iseleWP80.clear();
   _daughters_iseleWP90.clear();
+  _daughters_iseleNoIsoWPLoose.clear();
+  _daughters_iseleNoIsoWP80.clear();
+  _daughters_iseleNoIsoWP90.clear();
   _daughters_eleMVAnt.clear();
   _daughters_eleMVA_HZZ.clear();
   _daughters_passConversionVeto.clear();
   _daughters_eleMissingHits.clear();
+  _daughters_eleMissingLostHits.clear();
   _daughters_iseleChargeConsistent.clear();
   _daughters_iseleCUT.clear();
   //_daughter2.clear();
@@ -1494,10 +1504,14 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_iseleWPLoose",&_daughters_iseleWPLoose);
   myTree->Branch("daughters_iseleWP80",&_daughters_iseleWP80);
   myTree->Branch("daughters_iseleWP90",&_daughters_iseleWP90);
+  myTree->Branch("daughters_iseleNoIsoWPLoose",&_daughters_iseleNoIsoWPLoose);
+  myTree->Branch("daughters_iseleNoIsoWP80",&_daughters_iseleNoIsoWP80);
+  myTree->Branch("daughters_iseleNoIsoWP90",&_daughters_iseleNoIsoWP90);
   myTree->Branch("daughters_eleMVAnt",&_daughters_eleMVAnt);
   myTree->Branch("daughters_eleMVA_HZZ",&_daughters_eleMVA_HZZ);
   myTree->Branch("daughters_passConversionVeto",&_daughters_passConversionVeto);
   myTree->Branch("daughters_eleMissingHits",&_daughters_eleMissingHits);
+  myTree->Branch("daughters_eleMissingLostHits",&_daughters_eleMissingLostHits);
   myTree->Branch("daughters_iseleChargeConsistent",&_daughters_iseleChargeConsistent);
   myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT);
   myTree->Branch("decayMode",&_decayType);
@@ -1547,6 +1561,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_jetPtRel",&_daughters_jetPtRel);
   myTree->Branch("daughters_jetPtRatio",&_daughters_jetPtRatio);
   myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
+  myTree->Branch("daughters_jetBTagDeepCSV",&_daughters_jetBTagDeepCSV);
   myTree->Branch("daughters_lepMVA_mvaId",&_daughters_lepMVA_mvaId);
 
   if(doCPVariables){
@@ -2905,10 +2920,14 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     bool iseleLoose = false;
     bool isele80=false;
     bool isele90=false;
+    bool iselenoisoLoose = false;
+    bool iselenoiso80=false;
+    bool iselenoiso90=false;
     float elemva=-2;
     float elemva_HZZ=-2;
     bool isconversionveto=false;
     int elemissinghits = 999;
+    int elemissinglosthits = 999;
     bool iselechargeconsistent=false;
 
     int decay=-1;
@@ -2925,7 +2944,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1., error_trackpt=-1.;
     int jetNDauChargedMVASel = -1;
     float miniRelIsoCharged = -1., miniRelIsoNeutral = -1.;
-    float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1.;
+    float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1., jetBTagDeepCSV=-1.;
     float lepMVA_mvaId = -1.;
 
     //
@@ -2961,6 +2980,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet,theJECName);
       jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+      jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
 
       lepMVA_mvaId  = userdatahelpers::getUserFloat(cand,"segmentCompatibility");
 
@@ -2978,11 +2998,15 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       if(userdatahelpers::getUserInt(cand,"isEleIDLoose") == 1) iseleLoose=true;
       if(userdatahelpers::getUserInt(cand,"isEleID80") == 1) isele80=true;
       if(userdatahelpers::getUserInt(cand,"isEleID90") == 1) isele90=true;
+      if(userdatahelpers::getUserInt(cand,"isEleNoIsoIDLoose") == 1) iselenoisoLoose=true;
+      if(userdatahelpers::getUserInt(cand,"isEleNoIsoID80") == 1) iselenoiso80=true;
+      if(userdatahelpers::getUserInt(cand,"isEleNoIsoID90") == 1) iselenoiso90=true;
       elemva=(userdatahelpers::getUserFloat(cand,"eleMVAvalue"));
       elemva_HZZ=(userdatahelpers::getUserFloat(cand,"HZZeleMVAvalue"));
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
+      elemissinglosthits = userdatahelpers::getUserInt(cand,"missingLostHit");
       if((userdatahelpers::getUserInt(cand,"isGsfCtfScPixChargeConsistent") + userdatahelpers::getUserInt(cand,"isGsfScPixChargeConsistent"))>1)iselechargeconsistent=true;
 
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
@@ -2995,7 +3019,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       
       jetPtRel = LeptonIsoHelper::jetPtRel(*cand, closest_jet,theJECName);
       jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
-      jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");      
+      jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+      jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
 
       lepMVA_mvaId = elemva_HZZ;
 
@@ -3061,10 +3086,14 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_iseleWPLoose.push_back(iseleLoose);
     _daughters_iseleWP80.push_back(isele80);
     _daughters_iseleWP90.push_back(isele90);
+    _daughters_iseleNoIsoWPLoose.push_back(iselenoisoLoose);
+    _daughters_iseleNoIsoWP80.push_back(iselenoiso80);
+    _daughters_iseleNoIsoWP90.push_back(iselenoiso90);
     _daughters_eleMVAnt.push_back(elemva); 
     _daughters_eleMVA_HZZ.push_back(elemva_HZZ);     
     _daughters_passConversionVeto.push_back(isconversionveto);
     _daughters_eleMissingHits.push_back(elemissinghits);
+    _daughters_eleMissingLostHits.push_back(elemissinglosthits);
     _daughters_iseleChargeConsistent.push_back(iselechargeconsistent);
 
     //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
@@ -3112,6 +3141,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_jetPtRel.push_back(jetPtRel);
     _daughters_jetPtRatio.push_back(jetPtRatio);
     _daughters_jetBTagCSV.push_back(jetBTagCSV);
+    _daughters_jetBTagDeepCSV.push_back(jetBTagDeepCSV);
     _daughters_lepMVA_mvaId.push_back(lepMVA_mvaId);
 
     _daughters_pca_x.push_back(pcaPV.X());

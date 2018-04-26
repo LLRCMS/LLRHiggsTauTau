@@ -81,6 +81,9 @@ class EleFiller : public edm::EDProducer {
   edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseNoIsoIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumNoIsoIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > eleTightNoIsoIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
   edm::EDGetTokenT<edm::ValueMap<int> > mvaCategoriesMapToken_;//*******
   edm::EDGetTokenT<edm::ValueMap<float> > HZZmvaValuesMapToken_;
@@ -109,6 +112,9 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   eleLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
   eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
+  eleLooseNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleLooseNoIsoIdMap"))),
+  eleMediumNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumNoIsoIdMap"))),
+  eleTightNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightNoIsoIdMap"))),
   mvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaValuesMap"))),
   mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap"))),
   HZZmvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("HZZmvaValuesMap")))//****************
@@ -176,6 +182,12 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   iEvent.getByToken(eleLooseIdMapToken_,loose_id_decisions2);
   iEvent.getByToken(eleMediumIdMapToken_,medium_id_decisions2);
   iEvent.getByToken(eleTightIdMapToken_,tight_id_decisions2);
+  edm::Handle<edm::ValueMap<bool> > loose_id_decisions3;
+  edm::Handle<edm::ValueMap<bool> > medium_id_decisions3;
+  edm::Handle<edm::ValueMap<bool> > tight_id_decisions3;
+  iEvent.getByToken(eleLooseNoIsoIdMapToken_,loose_id_decisions3);
+  iEvent.getByToken(eleMediumNoIsoIdMapToken_,medium_id_decisions3);
+  iEvent.getByToken(eleTightNoIsoIdMapToken_,tight_id_decisions3);
   edm::Handle<edm::ValueMap<float> > mvaValues;
   edm::Handle<edm::ValueMap<int> > mvaCategories;
   iEvent.getByToken(mvaValuesMapToken_,mvaValues);
@@ -232,7 +244,8 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     //-- Missing hit  
     //int missinghit = l.gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
     int missinghit = l.gsfTrack()->hitPattern().numberOfAllHits(HitPattern::MISSING_INNER_HITS);
-
+    int missinglosthit = l.gsfTrack()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+	  
     //--- 3 charge assignement
     bool isGsfCtfScPixChargeConsistent=l.isGsfCtfScPixChargeConsistent();
     bool isGsfScPixChargeConsistent=l.isGsfScPixChargeConsistent();
@@ -254,6 +267,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserInt("isConversionVeto",(isconversionveto ? 1 : 0));
     //l.addUserFloat("HLTMatch", HLTMatch);
     l.addUserInt("missingHit", missinghit);
+    l.addUserInt("missingLostHit", missinglosthit);
     l.addUserInt("isGsfCtfScPixChargeConsistent",(isGsfCtfScPixChargeConsistent ? 1 : 0));
     l.addUserInt("isGsfScPixChargeConsistent",(isGsfScPixChargeConsistent ? 1 : 0));
     l.addUserFloat("sigmaIetaIeta",l.sigmaIetaIeta());
@@ -276,11 +290,17 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     int isEleIDLoose = (*loose_id_decisions2)[ele];
     int isEleID90 = (*medium_id_decisions2)[ele];
     int isEleID80  = (*tight_id_decisions2)[ele];
+    int isEleNoIsoIDLoose = (*loose_id_decisions3)[ele];
+    int isEleNoIsoID90 = (*medium_id_decisions3)[ele];
+    int isEleNoIsoID80 = (*tight_id_decisions3)[ele];
     //std::cout<<(*medium_id_decisions2)[ele]<<isEleID90<<endl;
     float eleMVAvalue=(*mvaValues)[ele];
     l.addUserInt("isEleIDLoose",isEleIDLoose);
     l.addUserInt("isEleID80",isEleID80);
     l.addUserInt("isEleID90",isEleID90);
+    l.addUserInt("isEleNoIsoIDLoose",isEleNoIsoIDLoose);
+    l.addUserInt("isEleNoIsoID80",isEleNoIsoID80);
+    l.addUserInt("isEleNoIsoID90",isEleNoIsoID90);
     l.addUserFloat("eleMVAvalue",eleMVAvalue);
     l.addUserFloat("BDT",eleMVAvalue); //I know, it's duplicated, but I don't want to change to change all the downstream code...
     float HZZeleMVAvalue=(*HZZmvaValues)[ele];
