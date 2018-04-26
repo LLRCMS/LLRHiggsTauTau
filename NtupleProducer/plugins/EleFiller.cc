@@ -87,9 +87,15 @@ class EleFiller : public edm::EDProducer {
   edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
   edm::EDGetTokenT<edm::ValueMap<int> > mvaCategoriesMapToken_;//*******
   edm::EDGetTokenT<edm::ValueMap<float> > HZZmvaValuesMapToken_;
-
-
-
+  edm::EDGetTokenT<edm::ValueMap<float> > miniRelIsoChargedNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > miniRelIsoAllNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > PFRelIsoChargedNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > PFRelIsoAllNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > PFRelIsoAll04NanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > ptRelNanoAODToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > ptRatioNanoAODToken_;  
+  edm::EDGetTokenT<edm::ValueMap<float> > jetNDauChargedMVASelNanoAODToken_;
+  
   //BDTId* bdt;
   };
 
@@ -117,9 +123,17 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   eleTightNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightNoIsoIdMap"))),
   mvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaValuesMap"))),
   mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap"))),
-  HZZmvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("HZZmvaValuesMap")))//****************
-
+  HZZmvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("HZZmvaValuesMap"))), 
+  miniRelIsoChargedNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoChgCollection"))),
+  miniRelIsoAllNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoAllCollection"))),
+  PFRelIsoChargedNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PFRelIsoChgCollection"))),
+  PFRelIsoAllNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PFRelIsoAllCollection"))),
+  PFRelIsoAll04NanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PFRelIsoAll04Collection"))),
+  ptRelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ptRelCollection"))),
+  ptRatioNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ptRatioCollection"))),
+  jetNDauChargedMVASelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("jetNDauChargedMVASelCollection")))
  
+ //****************
   //bdt(0)
 {/*
   //if (recomputeBDT) bdt = new BDTId;
@@ -194,6 +208,24 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   iEvent.getByToken(mvaCategoriesMapToken_,mvaCategories);
   edm::Handle<edm::ValueMap<float> > HZZmvaValues;
   iEvent.getByToken(HZZmvaValuesMapToken_,HZZmvaValues);
+  
+  edm::Handle<edm::ValueMap<float> > miniRelIsoChg_2;
+  edm::Handle<edm::ValueMap<float> > miniRelIsoAll_2;
+  edm::Handle<edm::ValueMap<float> > PFRelIsoChg_2;
+  edm::Handle<edm::ValueMap<float> > PFRelIsoAll_2;
+  edm::Handle<edm::ValueMap<float> > PFRelIsoAll04_2;
+  iEvent.getByToken(miniRelIsoChargedNanoAODToken_,miniRelIsoChg_2);
+  iEvent.getByToken(miniRelIsoAllNanoAODToken_,miniRelIsoAll_2);
+  iEvent.getByToken(PFRelIsoChargedNanoAODToken_,PFRelIsoChg_2);
+  iEvent.getByToken(PFRelIsoAllNanoAODToken_,PFRelIsoAll_2);
+  iEvent.getByToken(PFRelIsoAll04NanoAODToken_,PFRelIsoAll04_2);
+	  
+  edm::Handle<edm::ValueMap<float> > ptRatio_2;
+  edm::Handle<edm::ValueMap<float> > ptRel_2;
+  edm::Handle<edm::ValueMap<float> > jetNDauChargedMVASel_2;
+  iEvent.getByToken(ptRelNanoAODToken_,ptRel_2);
+  iEvent.getByToken(ptRatioNanoAODToken_,ptRatio_2);
+  iEvent.getByToken(jetNDauChargedMVASelNanoAODToken_,jetNDauChargedMVASel_2);
 
 //**********************
 
@@ -320,6 +352,24 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
      else isBDT = (eleMVAvalue>-0.67099);   
     }
     l.addUserInt("isBDT",(isBDT ? 1 : 0));
+
+    float miniRelIsoChg2Value = (*miniRelIsoChg_2)[ele];
+    float miniRelIsoAll2Value = (*miniRelIsoAll_2)[ele];
+    float PFRelIsoChg2Value = (*PFRelIsoChg_2)[ele];
+    float PFRelIsoAll2Value = (*PFRelIsoAll_2)[ele];
+    float PFRelIsoAll042Value = (*PFRelIsoAll04_2)[ele];
+    l.addUserFloat("miniRelIsoChg2Value",miniRelIsoChg2Value);
+    l.addUserFloat("miniRelIsoAll2Value",miniRelIsoAll2Value);
+    l.addUserFloat("PFRelIsoChg2Value",PFRelIsoChg2Value);
+    l.addUserFloat("PFRelIsoAll2Value",PFRelIsoAll2Value);
+    l.addUserFloat("PFRelIsoAll042Value",PFRelIsoAll042Value);
+	  
+    float ptRatio2Value = (*ptRatio_2)[ele];
+    float ptRel2Value = (*ptRel_2)[ele];
+    float jetNDauChargedMVASel2Value = (*jetNDauChargedMVASel_2)[ele];
+    l.addUserFloat("ptRel2Value",ptRel2Value);
+    l.addUserFloat("ptRatio2Value",ptRatio2Value);
+    l.addUserFloat("jetNDauChargedMVASel2Value",jetNDauChargedMVASel2Value);
 
     //--- MC info
     const reco::GenParticle* genL= l.genParticleRef().get();
