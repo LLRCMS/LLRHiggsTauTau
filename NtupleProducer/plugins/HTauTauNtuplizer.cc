@@ -2969,7 +2969,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int jetNDauChargedMVASel = -1, jetNDauChargedMVASel_nanoAOD = -1;
     float miniRelIsoCharged = -1., miniRelIsoNeutral = -1.;
     float miniRelIsoCharged_nanoAOD = -1., miniRelIsoAll_nanoAOD = -1.;
-    float PFRelIsoCharge_nanoAOD = -1., PFRelIsoAll_nanoAOD = -1., PFRelIsoAll04_nanoAOD = -1.;
+    float PFRelIsoCharged_nanoAOD = -1., PFRelIsoAll_nanoAOD = -1., PFRelIsoAll04_nanoAOD = -1.;
     float jetPtRel = -1., jetPtRatio = -1., jetPtRel_nanoAOD = -1., jetPtRatio_nanoAOD = -1.;  
     float jetBTagCSV=-1., jetBTagDeepCSV=-1.;
     float lepMVA_mvaId = -1.;
@@ -3054,7 +3054,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       miniRelIsoCharged_nanoAOD = (userdatahelpers::getUserFloat(cand,"miniRelIsoChg2Value"));
       miniRelIsoAll_nanoAOD = (userdatahelpers::getUserFloat(cand,"miniRelIsoAll2Value"));
 
-      PFRelIsoCharge_nanoAOD = (userdatahelpers::getUserFloat(cand,"PFRelIsoChg2Value"));
+      PFRelIsoCharged_nanoAOD = (userdatahelpers::getUserFloat(cand,"PFRelIsoChg2Value"));
       PFRelIsoAll_nanoAOD = (userdatahelpers::getUserFloat(cand,"PFRelIsoAll2Value"));
       PFRelIsoAll04_nanoAOD = (userdatahelpers::getUserFloat(cand,"PFRelIsoAll042Value"));
       
