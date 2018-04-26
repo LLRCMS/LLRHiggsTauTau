@@ -244,7 +244,7 @@ process.softMuons = cms.EDProducer("MuFiller",
 )
 
 # process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process.softMuons)
-process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons + process.isoForMu + process.ptRatioRelForMu)    
+process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons + process.isoForMu + process.ptRatioRelForMu + process.softMuons)    
 
 ###
 ### Electrons
