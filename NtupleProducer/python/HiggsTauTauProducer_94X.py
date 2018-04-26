@@ -184,6 +184,20 @@ process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.
 #                                    passthrough = cms.string("isGlobalMuon && numberOfMatches >= 2"),
 #                                    fractionOfSharedSegments = cms.double(0.499))
 
+#mu isolation from nanoAOD
+process.isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
+    src = cms.InputTag("bareSoftMuons"),
+    relative = cms.bool(True),
+    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
+    EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
+)
+
+#mu ptRatioRel from nanoAOD
+process.ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
+    srcJet = cms.InputTag("updatedJets"),
+    srcLep = cms.InputTag("bareSoftMuons"),
+    srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
+)
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("removeBadAndCloneGlobalMuons"),
@@ -213,6 +227,11 @@ process.softMuons = cms.EDProducer("MuFiller",
     genCollection = cms.InputTag("prunedGenParticles"),
     rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
     vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    miniRelIsoChgCollection = cms.InputTag("isoForMu:miniIsoChg"), #nanoAOD
+    miniRelIsoAllCollection = cms.InputTag("isoForMu:miniIsoAll"), #nanoAOD
+    ptRatioCollection = cms.InputTag("ptRatioRelForMu:ptRatio"), #nanoAOD
+    ptRelCollection = cms.InputTag("ptRatioRelForMu:ptRel"), #nanoAOD
+    jetNDauChargedMVASelCollection = cms.InputTag("ptRatioRelForMu:jetNDauChargedMVASel"), #nanoAOD
     sampleType = cms.int32(LEPTON_SETUP),                     
     setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
 #    cut = cms.string("userFloat('SIP')<100"),
@@ -225,7 +244,7 @@ process.softMuons = cms.EDProducer("MuFiller",
 )
 
 # process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process.softMuons)
-process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons)    
+process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons + process.isoForMu + process.ptRatioRelForMu)    
 
 ###
 ### Electrons
@@ -309,12 +328,36 @@ for idmod in my_id_modules:
 #   cut = cms.string(ELECUT)
 #   )
 
+#ele iso from nanoAOD
+process.isoForEle = cms.EDProducer("EleIsoValueMapProducer",
+    src = cms.InputTag("slimmedElectrons"),
+    relative = cms.bool(True),
+    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
+    rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
+    EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"),
+    EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"),
+)
+
+#ele ptRatioRel from nanoAOD
+process.ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
+    srcJet = cms.InputTag("updatedJets"),
+    srcLep = cms.InputTag("slimmedElectrons"),
+    srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
+)
 
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
    rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
    vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
    genCollection = cms.InputTag("prunedGenParticles"),
+   miniRelIsoChgCollection = cms.InputTag("isoForEle:miniIsoChg"), #nanoAOD
+   miniRelIsoAllCollection = cms.InputTag("isoForEle:miniIsoAll"), #nanoAOD
+   PFRelIsoChgCollection = cms.InputTag("isoForEle:PFIsoChg"), #nanoAOD
+   PFRelIsoAllCollection = cms.InputTag("isoForEle:PFIsoAll"), #nanoAOD
+   PFRelIsoAll04Collection = cms.InputTag("isoForEle:PFIsoAll04"), #nanoAOD
+   ptRatioCollection = cms.InputTag("ptRatioRelForEle:ptRatio"), #nanoAOD
+   ptRelCollection = cms.InputTag("ptRatioRelForEle:ptRel"), #nanoAOD
+   jetNDauChargedMVASelCollection = cms.InputTag("ptRatioRelForEle:jetNDauChargedMVASel"), #nanoAOD
    sampleType = cms.int32(LEPTON_SETUP),          
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
 
@@ -374,7 +417,7 @@ setattr(process,egmMod,process.egmGsfElectronIDs.clone())
 setattr(process,mvaMod,process.electronMVAValueMapProducer.clone())
 setattr(process,regMod,process.electronRegressionValueMapProducer.clone())
 setattr(process,egmSeq,cms.Sequence(getattr(process,mvaMod)*getattr(process,egmMod)*getattr(process,regMod)))
-process.electrons = cms.Sequence(getattr(process,mvaMod)*getattr(process,egmMod)*getattr(process,regMod) * process.softElectrons)#process.bareSoftElectrons
+process.electrons = cms.Sequence(process.isoForEle + process.ptRatioRelForEle + getattr(process,mvaMod)*getattr(process,egmMod)*getattr(process,regMod) * process.softElectrons)#process.bareSoftElectrons
 
 # Handle special cases
 #if ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
@@ -641,6 +684,54 @@ process.updatedPatJetsUpdatedJEC.userData.userInts.src    += ['pileupJetIdUpdate
 process.jecSequence = cms.Sequence(process.pileupJetIdUpdated + process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 #process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 
+#needed for ele/mu ptRatioRel with nanoAOD
+process.tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
+                          filterParams=cms.PSet(
+                            version = cms.string('WINTER17'),
+                            quality = cms.string('TIGHT'),
+                          ),
+                          src = cms.InputTag("slimmedJets")
+)
+
+#needed for ele/mu ptRatioRel with nanoAOD
+process.tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
+        filterParams=cms.PSet(
+          version = cms.string('WINTER17'),
+          quality = cms.string('TIGHTLEPVETO'),
+        ),
+                          src = cms.InputTag("slimmedJets")
+)
+
+#needed for ele/mu ptRatioRel with nanoAOD
+process.slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
+     src = cms.InputTag("slimmedJets"),
+     userFloats = cms.PSet(),
+     userInts = cms.PSet(
+        tightId = cms.InputTag("tightJetId"),
+        tightIdLepVeto = cms.InputTag("tightJetIdLepVeto"),
+     ),
+)
+
+#needed for ele/mu ptRatioRel with nanoAOD
+from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
+## Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
+##      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
+process.jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
+    levels = cms.vstring('L1FastJet',
+        'L2Relative',
+        'L3Absolute',
+        'L2L3Residual'),
+    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+)
+
+#needed for ele/mu ptRatioRel with nanoAOD
+from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
+process.updatedJets = updatedPatJets.clone(
+  addBTagInfo=False,
+  jetSource='slimmedJetsWithUserData',
+  jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactors") ),
+)
+
 process.jets = cms.EDFilter("PATJetRefSelector",
                             #src = cms.InputTag("slimmedJets"),
                             src = cms.InputTag("updatedPatJetsUpdatedJEC"),
@@ -671,12 +762,10 @@ if COMPUTEQGVAR:
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     process.QGTagger.srcJets          = cms.InputTag("jets")    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
     process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
-    process.jetSequence = cms.Sequence(process.jets * process.QGTagger)
+    process.jetSequence = cms.Sequence(process.jets * process.QGTagger + process.tightJetId + process.tightJetIdLepVeto + process.slimmedJetsWithUserData + process.jetCorrFactors + process.updatedJets)
 
 else:
-    process.jetSequence = cms.Sequence(process.jets)
-
-
+    process.jetSequence = cms.Sequence(process.jets + process.tightJetId + process.tightJetIdLepVeto + process.slimmedJetsWithUserData + process.jetCorrFactors + process.updatedJets)
 
 
 # il primo legge la collezione dei leptoni e stampa quali sono
@@ -920,13 +1009,14 @@ process.Candidates = cms.Sequence(
     process.nEventsTotal       +
     #process.hltFilter         + 
     process.nEventsPassTrigger +
+    process.jecSequence + process.jetSequence + #process.jets + 
     process.muons              +
     process.electrons          + process.cleanSoftElectrons +
     process.taus               +
     process.fsrSequence        +
     process.softLeptons        + process.barellCand +
     #process.jets              +
-    process.jecSequence + process.jetSequence + #process.jets + 
+    #process.jecSequence + process.jetSequence + #process.jets + 
     process.METSequence        +
     process.geninfo            +
     process.SVFit
