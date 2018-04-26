@@ -83,7 +83,6 @@ theRhoTag(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoCollection"))
 theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
 miniRelIsoChargedNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoChgCollection"))),
 miniRelIsoAllNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoAllCollection"))),
-PFRelIsoAll04NanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PFRelIsoAll04Collection"))),
 ptRelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ptRelCollection"))),
 ptRatioNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ptRatioCollection"))),
 jetNDauChargedMVASelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("jetNDauChargedMVASelCollection"))),
