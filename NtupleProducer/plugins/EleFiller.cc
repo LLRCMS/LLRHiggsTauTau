@@ -219,9 +219,9 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   iEvent.getByToken(PFRelIsoChargedNanoAODToken_,PFRelIsoChg_2);
   iEvent.getByToken(PFRelIsoAllNanoAODToken_,PFRelIsoAll_2);
   iEvent.getByToken(PFRelIsoAll04NanoAODToken_,PFRelIsoAll04_2);
-	  
-  edm::Handle<edm::ValueMap<float> > ptRatio_2;
+
   edm::Handle<edm::ValueMap<float> > ptRel_2;
+  edm::Handle<edm::ValueMap<float> > ptRatio_2;
   edm::Handle<edm::ValueMap<float> > jetNDauChargedMVASel_2;
   iEvent.getByToken(ptRelNanoAODToken_,ptRel_2);
   iEvent.getByToken(ptRatioNanoAODToken_,ptRatio_2);
