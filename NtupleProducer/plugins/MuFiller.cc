@@ -105,7 +105,8 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //sipCalculator_->initialize(iSetup);
 
   //--- Get leptons and rho
-  edm::Handle<pat::MuonRefVector> muonHandle;
+  //edm::Handle<pat::MuonRefVector> muonHandle;
+  edm::Handle<edm::View<pat::Muon> > muonHandle;
   //Handle<edm::View<reco::GenParticle> > genHandle;
   //iEvent.getByLabel(theCandidateTag, muonHandle);
   iEvent.getByToken(theCandidateTag, muonHandle);
