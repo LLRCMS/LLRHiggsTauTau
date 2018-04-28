@@ -3065,7 +3065,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
 
-      lepMVA_mvaId = elemva_HZZ;
+      lepMVA_mvaId = elemva;
 
     }else if(type==ParticleType::TAU){
       discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
