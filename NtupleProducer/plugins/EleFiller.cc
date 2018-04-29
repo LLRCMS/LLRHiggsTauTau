@@ -85,7 +85,9 @@ class EleFiller : public edm::EDProducer {
   edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumNoIsoIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightNoIsoIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > mvaNoIsoValuesMapToken_;
   edm::EDGetTokenT<edm::ValueMap<int> > mvaCategoriesMapToken_;//*******
+  edm::EDGetTokenT<edm::ValueMap<int> > mvaNoIsoCategoriesMapToken_;//*******
   edm::EDGetTokenT<edm::ValueMap<float> > HZZmvaValuesMapToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > miniRelIsoChargedNanoAODToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > miniRelIsoAllNanoAODToken_;
@@ -122,7 +124,9 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   eleMediumNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumNoIsoIdMap"))),
   eleTightNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightNoIsoIdMap"))),
   mvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaValuesMap"))),
+  mvaNoIsoValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaNoIsoValuesMap"))),
   mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap"))),
+  mvaNoIsoCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaNoIsoCategoriesMap"))),
   HZZmvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("HZZmvaValuesMap"))), 
   miniRelIsoChargedNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoChgCollection"))),
   miniRelIsoAllNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoAllCollection"))),
@@ -203,9 +207,13 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   iEvent.getByToken(eleMediumNoIsoIdMapToken_,medium_id_decisions3);
   iEvent.getByToken(eleTightNoIsoIdMapToken_,tight_id_decisions3);
   edm::Handle<edm::ValueMap<float> > mvaValues;
+  edm::Handle<edm::ValueMap<float> > mvaNoIsoValues;
   edm::Handle<edm::ValueMap<int> > mvaCategories;
+  edm::Handle<edm::ValueMap<int> > mvaNoIsoCategories;
   iEvent.getByToken(mvaValuesMapToken_,mvaValues);
+  iEvent.getByToken(mvaNoIsoValuesMapToken_,mvaNoIsoValues);
   iEvent.getByToken(mvaCategoriesMapToken_,mvaCategories);
+  iEvent.getByToken(mvaNoIsoCategoriesMapToken_,mvaNoIsoCategories);
   edm::Handle<edm::ValueMap<float> > HZZmvaValues;
   iEvent.getByToken(HZZmvaValuesMapToken_,HZZmvaValues);
   
@@ -327,6 +335,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     int isEleNoIsoID80 = (*tight_id_decisions3)[ele];
     //std::cout<<(*medium_id_decisions2)[ele]<<isEleID90<<endl;
     float eleMVAvalue=(*mvaValues)[ele];
+    float eleMVANoIsovalue=(*mvaNoIsoValues)[ele];
     l.addUserInt("isEleIDLoose",isEleIDLoose);
     l.addUserInt("isEleID80",isEleID80);
     l.addUserInt("isEleID90",isEleID90);
@@ -334,6 +343,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserInt("isEleNoIsoID80",isEleNoIsoID80);
     l.addUserInt("isEleNoIsoID90",isEleNoIsoID90);
     l.addUserFloat("eleMVAvalue",eleMVAvalue);
+    l.addUserFloat("eleMVANoIsovalue",eleMVANoIsovalue);
     l.addUserFloat("BDT",eleMVAvalue); //I know, it's duplicated, but I don't want to change to change all the downstream code...
     float HZZeleMVAvalue=(*HZZmvaValues)[ele];
     l.addUserFloat("HZZeleMVAvalue",HZZeleMVAvalue);
