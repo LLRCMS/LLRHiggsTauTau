@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-execfile(PyFilePath+"python/triggers_92X.py") # contains the list of triggers and filters
+#execfile(PyFilePath+"python/triggers_92X.py") # contains the list of triggers and filters
 #execfile(PyFilePath+"python/triggers_92X_test.py") # contains the list of triggers and filters
+execfile(PyFilePath+"python/triggers_94X_test.py")
 
 process = cms.Process("TEST")
 
