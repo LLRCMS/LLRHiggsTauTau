@@ -3388,17 +3388,17 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           }
           else istrgMatched = false;
           
-          // Check the pT of the candidate for leg1 and 2 //FRA
-          if (legPosition == 1)
-          {
-            if ( cand->pt() < trgmap.GetPtCut1() ) istrgMatched=false;
-          }
-          else if (legPosition == 2)
-          {
-            if ( cand->pt() < trgmap.GetPtCut2() ) istrgMatched=false;
-          }
-          else
-            istrgMatched=false;
+          // // Check the pT of the candidate for leg1 and 2 //FRA
+          //if (legPosition == 1)
+          //{
+          //  if ( cand->pt() < trgmap.GetPtCut1() ) istrgMatched=false;
+          //}
+          //else if (legPosition == 2)
+          //{
+          //  if ( cand->pt() < trgmap.GetPtCut2() ) istrgMatched=false;
+          //}
+          //else
+          //  istrgMatched=false;
 
           // FIXME: should I check type? --> no, multiple filters should be enough
           if(istrgMatched)
