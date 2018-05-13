@@ -195,7 +195,8 @@ process.isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
 
 #mu ptRatioRel from nanoAOD
 process.ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
-    srcJet = cms.InputTag("updatedJets"),
+    srcJet = cms.InputTag("updatedPatJetsUpdatedJEC"),
+#    srcJet = cms.InputTag("updatedJets"),
     srcLep = cms.InputTag("bareSoftMuons"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
@@ -342,7 +343,8 @@ process.isoForEle = cms.EDProducer("EleIsoValueMapProducer",
 
 #ele ptRatioRel from nanoAOD
 process.ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
-    srcJet = cms.InputTag("updatedJets"),
+#    srcJet = cms.InputTag("updatedJets"),
+    srcJet = cms.InputTag("updatedPatJetsUpdatedJEC"),
     srcLep = cms.InputTag("slimmedElectrons"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
@@ -689,52 +691,52 @@ process.jecSequence = cms.Sequence(process.pileupJetIdUpdated + process.patJetCo
 #process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 
 #needed for ele/mu ptRatioRel with nanoAOD
-process.tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
-                          filterParams=cms.PSet(
-                            version = cms.string('WINTER17'),
-                            quality = cms.string('TIGHT'),
-                          ),
-                          src = cms.InputTag("slimmedJets")
-)
+#process.tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
+#                          filterParams=cms.PSet(
+#                            version = cms.string('WINTER17'),
+#                            quality = cms.string('TIGHT'),
+#                          ),
+#                          src = cms.InputTag("slimmedJets")
+#)
 
 #needed for ele/mu ptRatioRel with nanoAOD
-process.tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
-        filterParams=cms.PSet(
-          version = cms.string('WINTER17'),
-          quality = cms.string('TIGHTLEPVETO'),
-        ),
-                          src = cms.InputTag("slimmedJets")
-)
+#process.tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
+#        filterParams=cms.PSet(
+#          version = cms.string('WINTER17'),
+#          quality = cms.string('TIGHTLEPVETO'),
+#        ),
+#                          src = cms.InputTag("slimmedJets")
+#)
 
 #needed for ele/mu ptRatioRel with nanoAOD
-process.slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
-     src = cms.InputTag("slimmedJets"),
-     userFloats = cms.PSet(),
-     userInts = cms.PSet(
-        tightId = cms.InputTag("tightJetId"),
-        tightIdLepVeto = cms.InputTag("tightJetIdLepVeto"),
-     ),
-)
+#process.slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
+#     src = cms.InputTag("slimmedJets"),
+#     userFloats = cms.PSet(),
+#     userInts = cms.PSet(
+#        tightId = cms.InputTag("tightJetId"),
+#        tightIdLepVeto = cms.InputTag("tightJetIdLepVeto"),
+#     ),
+#)
 
 #needed for ele/mu ptRatioRel with nanoAOD
-from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
+#from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 ## Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
 ##      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
-process.jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
-    levels = cms.vstring('L1FastJet',
-        'L2Relative',
-        'L3Absolute',
-        'L2L3Residual'),
-    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-)
+#process.jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
+#    levels = cms.vstring('L1FastJet',
+#        'L2Relative',
+#        'L3Absolute',
+#        'L2L3Residual'),
+#    primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+#)
 
 #needed for ele/mu ptRatioRel with nanoAOD
-from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
-process.updatedJets = updatedPatJets.clone(
-  addBTagInfo=False,
-  jetSource='slimmedJetsWithUserData',
-  jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactors") ),
-)
+#from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
+#process.updatedJets = updatedPatJets.clone(
+#  addBTagInfo=False,
+#  jetSource='slimmedJetsWithUserData',
+#  jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactors") ),
+#)
 
 process.jets = cms.EDFilter("PATJetRefSelector",
                             #src = cms.InputTag("slimmedJets"),
@@ -766,11 +768,12 @@ if COMPUTEQGVAR:
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     process.QGTagger.srcJets          = cms.InputTag("jets")    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
     process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
-    process.jetSequence = cms.Sequence(process.jets * process.QGTagger + process.tightJetId + process.tightJetIdLepVeto + process.slimmedJetsWithUserData + process.jetCorrFactors + process.updatedJets)
-
+#    process.jetSequence = cms.Sequence(process.jets * process.QGTagger + process.tightJetId + process.tightJetIdLepVeto + process.slimmedJetsWithUserData + process.jetCorrFactors + process.updatedJets)
+    process.jetSequence = cms.Sequence(process.jets * process.QGTagger)
+    
 else:
-    process.jetSequence = cms.Sequence(process.jets + process.tightJetId + process.tightJetIdLepVeto + process.slimmedJetsWithUserData + process.jetCorrFactors + process.updatedJets)
-
+#    process.jetSequence = cms.Sequence(process.jets + process.tightJetId + process.tightJetIdLepVeto + process.slimmedJetsWithUserData + process.jetCorrFactors + process.updatedJets)
+    process.jetSequence = cms.Sequence(process.jets)
 
 # il primo legge la collezione dei leptoni e stampa quali sono
 #process.beforeLLcombiner = cms.EDFilter("beforeCombiner",
