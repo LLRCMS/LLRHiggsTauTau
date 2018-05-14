@@ -3,6 +3,7 @@
 #######################
 https://cms-pdmv.cern.ch/mcm/requests?dataset_name=
 
+https://cms-pdmv.cern.ch/mcm/requests?prepid=HIG-RunIIFall17wmLHEGS*&dataset_name=*ToHHTo2B2Tau*_13TeV-madgraph&page=-1&shown=127
 https://cms-pdmv.cern.ch/mcm/requests?dataset_name=*HHTo2B2Tau*13TeV*&prepid=HIG*Fall17*MiniAOD*
 https://cms-pdmv.cern.ch/mcm/requests?dataset_name=*VBF*To2B2Tau*13TeV*&prepid=HIG*Fall17*MiniAOD*&page=0&shown=127
 

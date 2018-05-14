@@ -11,6 +11,7 @@ config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'analyzer.py' # to produce LLR ntuples or EnrichedMiniAOD according to the RunNtuplizer bool
 config.JobType.sendExternalFolder = True #Needed until the PR including the Spring16 ele MVA ID is integrated in CMSSW/cms-data.
+config.JobType.inputFiles=['JECUncertaintySources'] # FRA: adding to the sandobx the directory with JEC files (https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3FAQ#How_are_the_inputFiles_handled_i)
 
 config.section_("Data")
 config.Data.inputDataset = '/my/precious/dataset'

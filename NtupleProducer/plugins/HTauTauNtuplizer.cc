@@ -583,6 +583,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<TLorentzVector> _jets;
   std::vector<std::vector<Long64_t>> _jets_VBFfirstTrigMatch; //FRA
   std::vector<std::vector<Long64_t>> _jets_VBFsecondTrigMatch; //FRA
+  std::vector<Long64_t> _jets_VBFleadFilterMatch;    //FRA
+  std::vector<Long64_t> _jets_VBFsubleadFilterMatch; //FRA
   std::vector<Float_t> _jets_px;
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
@@ -1150,6 +1152,8 @@ void HTauTauNtuplizer::Initialize(){
 //  _jets.clear();
   _jets_VBFfirstTrigMatch.clear(); //FRA
   _jets_VBFsecondTrigMatch.clear(); //FRA
+  _jets_VBFleadFilterMatch.clear();    //FRA
+  _jets_VBFsubleadFilterMatch.clear(); //FRA
   _jets_px.clear();
   _jets_py.clear();
   _jets_pz.clear();
@@ -1579,6 +1583,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_VBFfirstTrigMatch",&_jets_VBFfirstTrigMatch); //FRA
   myTree->Branch("jets_VBFsecondTrigMatch",&_jets_VBFsecondTrigMatch); //FRA
+  myTree->Branch("jets_VBFleadFilterMatch"   , &_jets_VBFleadFilterMatch   ); //FRA
+  myTree->Branch("jets_VBFsubleadFilterMatch", &_jets_VBFsubleadFilterMatch); //FRA
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
@@ -1743,6 +1749,11 @@ Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0)
 void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
   Initialize();
+
+  //for debugging purposes //FRA
+  //if ( event.id().event() != 235 ) return; //FRA
+  //cout << "################# Run number: " << event.id().event() << endl; //FRA
+
   if (doCPVariables) findPrimaryVertices(event, eSetup);
     
   Handle<vector<reco::Vertex> >  vertexs;
@@ -2416,7 +2427,27 @@ void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm:
 //Fill jets quantities
 //int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
 int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, edm::EventSetup const& iSetup, JetCorrectionUncertainty* jecUnc, myJECMap* jecSourceUncProviders){
-  
+
+  // TriggerBits and TriggerObjets (for VBF trigger matching)
+  edm::Handle<edm::TriggerResults> triggerBits;
+  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+
+  event.getByToken(triggerObjects_, triggerObjects);
+  event.getByToken(triggerBits_, triggerBits);
+  const edm::TriggerNames &names = event.triggerNames(*triggerBits);
+
+  // Save a subsample of TOs with (type==85) && (hasLeadFilter || hasSubLeadFilter)
+  std::vector<pat::TriggerObjectStandAlone> goodTOs;
+  for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
+  {
+    // Get the TO and unpack the filter labels
+    pat::TriggerObjectStandAlone TO = triggerObjects->at(idxto);
+    TO.unpackFilterLabels(event,*triggerBits);
+
+    if ( (TO.type(85)==true) && (TO.hasFilterLabel("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTau20") || TO.hasFilterLabel("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleLooseChargedIsoPFTau20") ) )
+      goodTOs.push_back(TO);
+  }
+
   // Getting the primary Vertex (FRA 2017)
   Handle<vector<reco::Vertex> >  vertexs;
   event.getByToken(theVtxTag,vertexs);
@@ -2696,7 +2727,80 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     JER_parameters.setJetEta(ijet->eta());
     JER_parameters.setRho(*rhoJERHandle);
     _jets_JER.push_back( JERresolution.getResolution(JER_parameters) * ijet->energy() ); // JER*energy beacuse cmssw gives the % of JER, while KinFit wants resolution in GeV
-  }
+
+
+    // VBF trigger matching
+    Long64_t VBFleadFilterMatch    = 0;
+    Long64_t VBFsubleadFilterMatch = 0;
+    // loop on the TOs that are already of type==85 and passed one of the VBF jet filters
+    for (size_t idxto = 0; idxto < goodTOs.size(); ++idxto)
+    {
+      // Get the TO
+      pat::TriggerObjectStandAlone obj = goodTOs.at(idxto);
+
+      // bools to save if it has the filter or not
+      bool isVBFsubleadFilterMatched = false;
+      bool isVBFleadFilterMatched = false;
+
+      // DeltaR2 match between jet and trigger object
+      if(deltaR2(obj,*ijet)<0.25)
+      {
+        // Unpacking Filter Labels and Path Names
+        obj.unpackFilterLabels(event,*triggerBits);
+        obj.unpackPathNames(names);
+
+        //Get HLT path names
+        std::vector<std::string> pathNamesAll  = obj.pathNames(false);
+
+        // Loop on the HLT path names in the Trigger Object
+        for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h)
+        {
+          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
+          if (triggerbit < 0) continue ; // not a path I want to save
+
+          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
+
+          // TO filter labels
+          const std::vector<std::string>& vLabels = obj.filterLabels();
+
+          // Loop on Leg3 filter (2 jets with pt40) ---> subleadFilter
+          if (trgmap.GetNfiltersleg3()>0)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg3();ifilt++)
+            {
+              string label = trgmap.GetfilterVBF(true,ifilt);
+              if (label.empty()) continue;
+              if (find(vLabels.begin(), vLabels.end(), label) != vLabels.end()) isVBFsubleadFilterMatched=true;
+            }
+          }
+          else isVBFsubleadFilterMatched = false;
+
+          // Loop on Leg4 filter (1 jet with pt115)  ---> leadFilter
+          if (trgmap.GetNfiltersleg4()>0)
+          {
+            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg4();ifilt++) //change to leg4
+            {
+              string label = trgmap.GetfilterVBF(false,ifilt);
+              if (label.empty()) continue;
+              if (find(vLabels.begin(), vLabels.end(), label) != vLabels.end()) isVBFleadFilterMatched=true;
+            }
+          }
+          else isVBFleadFilterMatched = false;
+
+        } // end loop on HLT paths
+
+      } // end if dR2<0.25
+
+      if(isVBFsubleadFilterMatched) VBFsubleadFilterMatch |= (Long64_t(1) <<idxto);
+      if(isVBFleadFilterMatched)    VBFleadFilterMatch    |= (Long64_t(1) <<idxto);
+
+    } //end loop on goodTOs
+
+    // Fill branches with result of VBF trig matching
+    _jets_VBFleadFilterMatch.push_back(VBFleadFilterMatch);
+    _jets_VBFsubleadFilterMatch.push_back(VBFsubleadFilterMatch);
+
+  } // end loop on jets
 
   if ( theisMC )
   {
@@ -3284,19 +3388,18 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           }
           else istrgMatched = false;
           
-          // Check the pT of the candidate for leg1 and 2 //FRA
-          if (legPosition == 1)
-          {
-            if ( cand->pt() < trgmap.GetPtCut1() ) istrgMatched=false;
-          }
-          else if (legPosition == 2)
-          {
-            if ( cand->pt() < trgmap.GetPtCut2() ) istrgMatched=false;
-          }
-          else
-            istrgMatched=false;
-          
-          
+          // // Check the pT of the candidate for leg1 and 2 //FRA
+          //if (legPosition == 1)
+          //{
+          //  if ( cand->pt() < trgmap.GetPtCut1() ) istrgMatched=false;
+          //}
+          //else if (legPosition == 2)
+          //{
+          //  if ( cand->pt() < trgmap.GetPtCut2() ) istrgMatched=false;
+          //}
+          //else
+          //  istrgMatched=false;
+
           // FIXME: should I check type? --> no, multiple filters should be enough
           if(istrgMatched)
           {
