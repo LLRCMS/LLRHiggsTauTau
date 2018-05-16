@@ -200,11 +200,10 @@ isMC = False
 # lumiMaskFileName = "20lug_NoL1TJSON_diff_15lug_NoL1TJSON.txt"
 #lumiMaskFileName = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PromptReco/Cert_294927-302663_13TeV_PromptReco_Collisions17_JSON.txt'
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
-
 ## 15 May 2018 Golden JSON 2017
 # https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
-lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
+lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+
 
 FastJobs = True # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
