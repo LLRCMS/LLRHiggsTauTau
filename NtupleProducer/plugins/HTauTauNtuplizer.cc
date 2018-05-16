@@ -226,6 +226,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<LHEEventProduct> theLHETag;
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
   edm::EDGetTokenT<pat::METCollection> theMetTag;
+  edm::EDGetTokenT<pat::METCollection> theMetERTag;
   edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
   edm::EDGetTokenT<math::Error<2>::type> thePFMETCovTag;
   edm::EDGetTokenT<double> thePFMETSignifTag;
@@ -257,6 +258,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _NBadMu;
   Float_t _met;
   Float_t _metphi;
+  Float_t _met_er;
+  Float_t _met_er_phi;
   Float_t _PUPPImet;
   Float_t _PUPPImetphi;
   Float_t _PFMETCov00;
@@ -791,6 +794,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theLHETag            (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lheCollection"))),
   theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
   theMetTag            (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metCollection"))),
+  theMetERTag            (consumes<pat::METCollection>                   (pset.getParameter<edm::InputTag>("metERCollection"))),
   thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))),
   thePFMETCovTag       (consumes<math::Error<2>::type>                   (pset.getParameter<edm::InputTag>("srcPFMETCov"))),
   thePFMETSignifTag    (consumes<double>                                 (pset.getParameter<edm::InputTag>("srcPFMETSignificance"))),
@@ -1125,6 +1129,8 @@ void HTauTauNtuplizer::Initialize(){
   _triggerbit=0;
   _metfilterbit=0;
   _met=0;
+  _met_er=0;
+  _met_er_phi=0;
   _metphi=0.;
   _PUPPImet=0;
   _PUPPImetphi=0.;
@@ -1320,6 +1326,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
+  myTree->Branch("met_er",&_met_er,"met_er/F");
+  myTree->Branch("met_er_phi",&_met_er_phi,"met_er_phi/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");
   myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
   myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
@@ -1909,6 +1917,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<pat::Jet>>fatjetHandle;
   edm::Handle<edm::ValueMap<float>>qgTaggerHandle;
   edm::Handle<pat::METCollection> metHandle;
+  edm::Handle<pat::METCollection> metERHandle;
   edm::Handle<pat::METCollection> PUPPImetHandle;
   edm::Handle<math::Error<2>::type> covHandle;
   edm::Handle<double> METsignficanceHandle;
@@ -1927,6 +1936,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(theFatJetTag,fatjetHandle);
   event.getByToken(theLepTag,dauHandle);
   event.getByToken(theMetTag,metHandle);
+  event.getByToken(theMetERTag,metERHandle);
   event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   event.getByToken(thePFMETCovTag,covHandle);
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
@@ -1975,6 +1985,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const edm::View<pat::Jet>* jets = jetHandle.product();
   const edm::View<pat::Jet>* fatjets = fatjetHandle.product();
   const pat::MET &met = metHandle->front();
+  const pat::MET &met_er = metERHandle->front();
   const pat::MET &PUPPImet = PUPPImetHandle->front();
   //myNtuple->InitializeVariables();
     
@@ -1983,6 +1994,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _lumi=event.luminosityBlock();
   // _met = met.sumEt(); // scalar sum of the pf candidates
   _met = met.pt();
+  _met_er = met_er.pt();
+  _met_er_phi = met_er.phi();
   _metphi = met.phi();
   _PUPPImet = PUPPImet.pt();
   _PUPPImetphi = PUPPImet.phi();

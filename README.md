@@ -239,9 +239,6 @@ git checkout egm_id_80X_v1
 cd $CMSSW_BASE/src
 scram b -j 4
 ```
-
-</details>
-
 ### Instructions for 92X
 
 ```
@@ -290,6 +287,87 @@ git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma
 cd EGamma/EGammaAnalysisTools
 git checkout c0db796 -- interface/ElectronEffectiveArea.h
 cd -
+
+# FSR corrections
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+cd UFHZZAnalysisRun2
+git checkout master FSRPhotons
+# need to fix: - FSRPhotons/plugins/FSRPhotonProducer.cc
+#              - FSRPhotons/plugins/PhotonPFIsoCalculator.cc
+# replace 'std::auto_ptr' with 'std::unique_ptr' 
+# search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
+cd -
+
+# SVfit
+git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
+git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
+git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
+cd TauAnalysis/SVfitStandalone
+git checkout HIG-16-006
+# need to fix: TauAnalysis/SVfitStandalone/src/SVfitStandaloneQuantities.cc 
+# add '#include <numeric>'
+
+cd $CMSSW_BASE/src
+scram b -j 8
+```
+
+</details>
+
+### Instructions for 94X
+
+```
+cmsrel CMSSW_9_4_6_patch1
+cd CMSSW_9_4_6_patch1/src/
+cmsenv
+
+# MVA EleID Fall 2017
+git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3
+scram b -j 8
+cd $CMSSW_BASE/external
+# below, you may have a different architecture, this is just one example from lxplus (same on polui)
+cd slc6_amd64_gcc630/
+git clone https://github.com/lsoffi/RecoEgamma-PhotonIdentification.git data/RecoEgamma/PhotonIdentification/data
+cd data/RecoEgamma/PhotonIdentification/data
+git checkout CMSSW_9_4_0_pre3_TnP
+cd $CMSSW_BASE/external
+cd slc6_amd64_gcc630/
+git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
+cd data/RecoEgamma/ElectronIdentification/data
+git checkout CMSSW_9_4_0_pre3_TnP
+cd $CMSSW_BASE/src
+
+# Remove some of the unused weights (otherwise the crab tarball is too big for submission)
+cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/ElectronIdentification/data
+rm -r PHYS14 Spring15 
+cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/PhotonIdentification/data
+rm -r PHYS14 Spring15 Spring16
+cd $CMSSW_BASE/src
+
+# Z-recoil corrections
+git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
+
+# LLRHiggsTauTau framework
+git clone https://github.com/LLRCMS/LLRHiggsTauTau
+cd LLRHiggsTauTau
+git checkout 92X
+cd -
+
+git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
+cd Muon/MuonAnalysisTools
+git checkout master -- interface/MuonEffectiveArea.h
+cd -
+
+git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
+cd EGamma/EGammaAnalysisTools
+git checkout c0db796 -- interface/ElectronEffectiveArea.h
+cd -
+
+# Remove some of the unused weights (otherwise the crab tarball is too big for submission)
+cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/ElectronIdentification/data
+rm -r PHYS14 Spring15
+cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/PhotonIdentification/data
+rm -r PHYS14 Spring15 Spring16
+cd $CMSSW_BASE/src
 
 # FSR corrections
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2

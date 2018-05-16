@@ -161,12 +161,15 @@ import re
 #tag = "MC_gravitonsRS_29Apr2017"
 #datasetsFile = "datasets.txt"
 
-PROCESS = ["TTFall17"]
-tag = "MC_Fall17"
-datasetsFile = "datasets.txt"
+#PROCESS = ["MC_PU12Apr"]
+#tag = "MC_PU12Apr"
+#datasetsFile = "datasets_Fall17_15May2018.txt"
 
+PROCESS = ["DATA2017"]
+tag = "Data17_BF"
+datasetsFile = "datasets_Fall17_15May2018.txt"
 
-isMC = True
+isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -197,10 +200,14 @@ isMC = True
 # lumiMaskFileName = "20lug_NoL1TJSON_diff_15lug_NoL1TJSON.txt"
 #lumiMaskFileName = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PromptReco/Cert_294927-302663_13TeV_PromptReco_Collisions17_JSON.txt'
-lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
 
-FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
-VeryLong = True # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
+## 15 May 2018 Golden JSON 2017
+# https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
+lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
+
+FastJobs = True # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
+VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
 
@@ -299,8 +306,10 @@ for dtset in dtsetToLaunch:
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
     #command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
-    command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
+    command += " Data.outLFNDirBase=/store/user/camendol/HHNtuples2017/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
+    #command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
+    command += " Data.splitting='Automatic'"
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples

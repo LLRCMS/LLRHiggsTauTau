@@ -25,6 +25,6 @@ config.Data.outputDatasetTag = 'DefaultPublishName'
 
 config.section_("Site")
 # PARIGI
-#config.Site.storageSite = 'T2_FR_GRIF_LLR'
+config.Site.storageSite = 'T2_FR_GRIF_LLR'
 # MILANO
-config.Site.storageSite = 'T3_IT_MIB'
+#config.Site.storageSite = 'T3_IT_MIB'
