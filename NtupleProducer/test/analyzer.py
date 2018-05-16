@@ -32,7 +32,7 @@ APPLYTESCORRECTION=False # shift the central value of the tau energy scale befor
 COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = False # compute QG Tagger for jets
-IsMC=True
+IsMC=False
 Is25ns=True
 HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.
 if not IsMC:
@@ -91,7 +91,7 @@ process.source = cms.Source("PoolSource",
     # 2017 Data
     # B_v1
     #'/store/data/Run2017B/SingleMuon/MINIAOD/PromptReco-v1/000/297/046/00000/32AC3177-7A56-E711-BE34-02163E019D73.root',
-    #'/store/data/Run2017B/SingleElectron/MINIAOD/PromptReco-v1/000/297/046/00000/02CBE6D1-4456-E711-82F5-02163E019D97.root', # 5000   evts
+    '/store/data/Run2017B/SingleElectron/MINIAOD/PromptReco-v1/000/297/046/00000/02CBE6D1-4456-E711-82F5-02163E019D97.root', # 5000   evts
     #'/store/data/Run2017B/SingleElectron/MINIAOD/PromptReco-v1/000/297/050/00000/166F7BB0-3C56-E711-BD8B-02163E0145C5.root',  # 147000 evts
     #'/store/data/Run2017B/Tau/MINIAOD/PromptReco-v1/000/297/046/00000/B600F102-4856-E711-839A-02163E01411B.root',
     # C_v3
@@ -122,7 +122,7 @@ process.source = cms.Source("PoolSource",
     #'/store/data/Run2017B/Tau/MINIAOD/17Nov2017-v1/40000/02D49C45-F8DD-E711-9ACC-001E675043AD.root',
     # TT Fully Hadronic
     #'/store/mc/RunIIFall17MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/00000/047A883D-9618-E811-B3FB-7CD30AD09FDC.root',
-    '/store/mc/RunIIFall17MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/20000/CA2359BE-6442-E811-A7C5-9CB654AEAE02.root'    
+    #'/store/mc/RunIIFall17MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/20000/CA2359BE-6442-E811-A7C5-9CB654AEAE02.root'    
     )
 )
 
