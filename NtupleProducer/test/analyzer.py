@@ -24,12 +24,12 @@ APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil correcti
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
 
-SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
-COMPUTEUPDOWNSVFIT=True # compute SVfit for up/down TES variation
+COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = False # compute QG Tagger for jets
 IsMC=True
@@ -115,9 +115,13 @@ process.source = cms.Source("PoolSource",
     
     # Samples for SyncFeb2018
     # Signal
-    '/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/128F2EAF-6905-E811-810E-44A842BECCD8.root',
-    '/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/F89C5A80-6905-E811-9A3F-FA163ED3ED08.root',
-    '/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/34715D6D-6905-E811-9843-44A842CFD5BE.root',
+    #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/128F2EAF-6905-E811-810E-44A842BECCD8.root',
+    #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/F89C5A80-6905-E811-9A3F-FA163ED3ED08.root',
+    #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/34715D6D-6905-E811-9843-44A842CFD5BE.root',
+    '/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/1CA54262-F442-E811-8262-0CC47A4D7694.root',
+    '/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/5ED78A31-7243-E811-8053-484D7E8DF09F.root',
+    '/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/8CDFDFC6-C542-E811-9360-848F69FBC12A.root',
+    '/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/A4C07038-AC42-E811-8A74-1418776375C9.root',
     # Data
     #'/store/data/Run2017B/Tau/MINIAOD/17Nov2017-v1/40000/02D49C45-F8DD-E711-9ACC-001E675043AD.root',
     #'/store/data/Run2017B/SingleMuon/MINIAOD/31Mar2018-v1/100000/001642F1-6638-E811-B4FA-0025905B857A.root',
@@ -142,7 +146,7 @@ process.maxEvents.input = -1
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_fourteen.root'))
+process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
 
 # L1 trigger objects (as suggested on: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information )
 #  ----> TO BE FIXED <----
