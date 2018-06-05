@@ -349,7 +349,7 @@ git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/Recoil
 # LLRHiggsTauTau framework
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau
-git checkout 92X
+git checkout 94X_HH
 cd -
 
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
