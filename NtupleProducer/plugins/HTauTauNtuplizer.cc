@@ -434,6 +434,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
+  std::vector<Float_t> _metx_up;
+  std::vector<Float_t> _mety_up;
+  std::vector<Float_t> _metx_down;
+  std::vector<Float_t> _mety_down;
   std::vector<Float_t> _uncorrmetx;
   std::vector<Float_t> _uncorrmety;
   std::vector<Float_t> _metCov00;
@@ -1099,6 +1103,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_isL1IsoTau28Matched.clear();
   _metx.clear();
   _mety.clear();
+  _metx_up.clear();
+  _mety_up.clear();
+  _metx_down.clear();
+  _mety_down.clear();
   _uncorrmetx.clear();
   _uncorrmety.clear();
   _metCov00.clear();
@@ -1490,6 +1498,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
+  myTree->Branch("METx_UP",&_metx_up);
+  myTree->Branch("METy_UP",&_mety_up);
+  myTree->Branch("METx_DOWN",&_metx_down);
+  myTree->Branch("METy_DOWN",&_mety_down);
   myTree->Branch("uncorrMETx",&_uncorrmetx);
   myTree->Branch("uncorrMETy",&_uncorrmety);
   myTree->Branch("MET_cov00",&_metCov00);
@@ -2080,6 +2092,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     float thisMETpx = cand.userFloat("MEt_px");
     float thisMETpy = cand.userFloat("MEt_py");
+    float thisMETpx_up = cand.userFloat("MEt_px_UP");
+    float thisMETpy_up = cand.userFloat("MEt_py_UP");
+    float thisMETpx_down = cand.userFloat("MEt_px_DOWN");
+    float thisMETpy_down = cand.userFloat("MEt_py_DOWN");
     float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
     float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
@@ -2135,7 +2151,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _SVMetPhiTauDown.push_back( (hasDown ? cand.userFloat("SVfit_METPhiTauDown"): -999. ));
 
     _metx.push_back(thisMETpx);
-    _mety.push_back(thisMETpy);    
+    _mety.push_back(thisMETpy);
+    _metx_up.push_back(thisMETpx_up);
+    _mety_up.push_back(thisMETpy_up);
+    _metx_down.push_back(thisMETpx_down);
+    _mety_down.push_back(thisMETpy_down);
     _uncorrmetx.push_back(thisMETpx_uncorr);
     _uncorrmety.push_back(thisMETpy_uncorr);
     _metCov00.push_back(cand.userFloat("MEt_cov00"));

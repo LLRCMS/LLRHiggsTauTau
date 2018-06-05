@@ -859,7 +859,8 @@ if USECLASSICSVFIT:
                                       srcCov     = cms.InputTag("METSignificance", "METCovariance"),
                                       usePairMET = cms.bool(USEPAIRMET),
                                       srcMET     = srcMETTag,
-                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
+                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False),
+                                      computeForUpDownMET = cms.bool(COMPUTEMETUPDOWNSVFIT if IsMC else False)
     )
 else:
     print "Using STANDALONE_SV_FIT"
