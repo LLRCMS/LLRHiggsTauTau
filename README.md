@@ -347,6 +347,9 @@ cd $CMSSW_BASE/src
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
+# Lepton-tau cross trigger scale factor
+git clone -b tauTriggers2017_MCv2_PreReMiniaod https://github.com/truggles/TauTriggerSFs2017 TriggerSF/TauTriggerSFs2017
+
 # LLRHiggsTauTau framework
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau
