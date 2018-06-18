@@ -744,6 +744,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _ak8jets_tau1; // subjettiness
   std::vector<Float_t> _ak8jets_tau2; // subjettiness
   std::vector<Float_t> _ak8jets_tau3; // subjettiness
+  std::vector<Float_t> _ak8jets_tau4; // subjettiness
   std::vector<Float_t> _ak8jets_CSV; // CSV score
   std::vector<Float_t> _ak8jets_deepCSV_probb; // CSV score
   std::vector<Float_t> _ak8jets_deepCSV_probbb; // CSV score
@@ -1342,6 +1343,7 @@ void HTauTauNtuplizer::Initialize(){
   _ak8jets_tau1.clear();
   _ak8jets_tau2.clear();
   _ak8jets_tau3.clear();
+  _ak8jets_tau4.clear();
   _ak8jets_CSV.clear();
   _ak8jets_deepCSV_probb.clear();
   _ak8jets_deepCSV_probbb.clear();
@@ -1795,6 +1797,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("ak8jets_tau1", &_ak8jets_tau1);
   myTree->Branch("ak8jets_tau2", &_ak8jets_tau2);
   myTree->Branch("ak8jets_tau3", &_ak8jets_tau3);
+  myTree->Branch("ak8jets_tau4", &_ak8jets_tau4);
   myTree->Branch("ak8jets_CSV", &_ak8jets_CSV);
   myTree->Branch("ak8jets_deepCSV_probb", &_ak8jets_deepCSV_probb);
   myTree->Branch("ak8jets_deepCSV_probbb", &_ak8jets_deepCSV_probbb);
@@ -2970,22 +2973,32 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_py.push_back( (float) ijet->py());
       _ak8jets_pz.push_back( (float) ijet->pz());
       _ak8jets_e.push_back( (float) ijet->energy());    
-      _ak8jets_SoftDropMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSSoftDropMass") ? ijet->userFloat("ak8PFJetsCHSSoftDropMass") : -999 );
-      _ak8jets_PrunedMass.push_back   (ijet->hasUserFloat("ak8PFJetsCHSPrunedMass")   ? ijet->userFloat("ak8PFJetsCHSPrunedMass")   : -999 );
-      _ak8jets_TrimmedMass.push_back  (ijet->hasUserFloat("ak8PFJetsCHSTrimmedMass")  ? ijet->userFloat("ak8PFJetsCHSTrimmedMass")  : -999 );
-      _ak8jets_FilteredMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSFilteredMass") ? ijet->userFloat("ak8PFJetsCHSFilteredMass") : -999 );
-      _ak8jets_tau1.push_back         (ijet->hasUserFloat("NjettinessAK8:tau1")       ? ijet->userFloat("NjettinessAK8:tau1")       : -999 );
-      _ak8jets_tau2.push_back         (ijet->hasUserFloat("NjettinessAK8:tau2")       ? ijet->userFloat("NjettinessAK8:tau2")       : -999 );
-      _ak8jets_tau3.push_back         (ijet->hasUserFloat("NjettinessAK8:tau3")       ? ijet->userFloat("NjettinessAK8:tau3")       : -999 );
+      //_ak8jets_SoftDropMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSSoftDropMass") ? ijet->userFloat("ak8PFJetsCHSSoftDropMass") : -999 );
+      //_ak8jets_PrunedMass.push_back   (ijet->hasUserFloat("ak8PFJetsCHSPrunedMass")   ? ijet->userFloat("ak8PFJetsCHSPrunedMass")   : -999 );
+      //_ak8jets_TrimmedMass.push_back  (ijet->hasUserFloat("ak8PFJetsCHSTrimmedMass")  ? ijet->userFloat("ak8PFJetsCHSTrimmedMass")  : -999 );
+      //_ak8jets_FilteredMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSFilteredMass") ? ijet->userFloat("ak8PFJetsCHSFilteredMass") : -999 );
+      //_ak8jets_tau1.push_back         (ijet->hasUserFloat("NjettinessAK8:tau1")       ? ijet->userFloat("NjettinessAK8:tau1")       : -999 );
+      //_ak8jets_tau2.push_back         (ijet->hasUserFloat("NjettinessAK8:tau2")       ? ijet->userFloat("NjettinessAK8:tau2")       : -999 );
+      //_ak8jets_tau3.push_back         (ijet->hasUserFloat("NjettinessAK8:tau3")       ? ijet->userFloat("NjettinessAK8:tau3")       : -999 );
+      _ak8jets_SoftDropMass.push_back (ijet->hasUserFloat("ak8PFJetsPuppiSoftDropMass") ? ijet->userFloat("ak8PFJetsPuppiSoftDropMass") : -999 );
+      _ak8jets_PrunedMass.push_back   (ijet->hasUserFloat("ak8PFJetsPuppiPrunedMass")   ? ijet->userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass")   : -999 );
+      _ak8jets_TrimmedMass.push_back  (ijet->hasUserFloat("ak8PFJetsPuppiTrimmedMass")  ? ijet->userFloat("ak8PFJetsPuppiTrimmedMass")  : -999 );
+      _ak8jets_FilteredMass.push_back (ijet->hasUserFloat("ak8PFJetsPuppiFilteredMass") ? ijet->userFloat("ak8PFJetsPuppiFilteredMass") : -999 );
+      _ak8jets_tau1.push_back         (ijet->hasUserFloat("NjettinessAK8Puppi:tau1")    ? ijet->userFloat("NjettinessAK8Puppi:tau1")    : -999 );
+      _ak8jets_tau2.push_back         (ijet->hasUserFloat("NjettinessAK8Puppi:tau2")    ? ijet->userFloat("NjettinessAK8Puppi:tau2")    : -999 );
+      _ak8jets_tau3.push_back         (ijet->hasUserFloat("NjettinessAK8Puppi:tau3")    ? ijet->userFloat("NjettinessAK8Puppi:tau3")    : -999 );
+      _ak8jets_tau4.push_back         (ijet->hasUserFloat("NjettinessAK8Puppi:tau4")    ? ijet->userFloat("NjettinessAK8Puppi:tau4")    : -999 );
       _ak8jets_CSV.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
       _ak8jets_deepCSV_probb.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probb"));
       _ak8jets_deepCSV_probbb.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probbb"));
 
       // store subjets for soft drop
       int nsubj = 0;
-      if (ijet->hasSubjets("SoftDrop"))
+      //if (ijet->hasSubjets("SoftDrop"))
+      if (ijet->hasSubjets("SoftDropPuppi"))
       {
-        pat::JetPtrCollection const & subj = ijet->subjets("SoftDrop");
+        //pat::JetPtrCollection const & subj = ijet->subjets("SoftDrop");
+        pat::JetPtrCollection const & subj = ijet->subjets("SoftDropPuppi");
         // cout << "============= IJET " << ijet - fatjets->begin() << " ============= " << endl;
         for (auto isubj = subj.begin(); isubj!=subj.end(); isubj++)
         {

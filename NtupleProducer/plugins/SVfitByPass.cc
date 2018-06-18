@@ -22,6 +22,7 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
+using METUncertainty = pat::MET::METUncertainty;
 
 // ------------------------------------------------------------------
 
@@ -98,7 +99,12 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   TMatrixD covMET(2, 2);
   float significance = -999.;
   Handle<View<pat::MET> > METHandle;
-  
+
+  double METx_UP   = 0.;
+  double METy_UP   = 0.;
+  double METx_DOWN = 0.;
+  double METy_DOWN = 0.;
+
   if (!_usePairMET)
   {
     // iEvent.getByToken(vtheMETTag.at(0), METHandle);
@@ -115,6 +121,14 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     covMET[0][1] = covMET[1][0]; // (1,0) is the only one saved
     covMET[1][1] = (*covHandle)(1,1);
     significance = (float) (*significanceHandle);
+
+     // now get the MET shifted UP/DOWN by the JES
+     LorentzVector patMET_UP   = patMET.shiftedP4(METUncertainty::JetEnUp);
+     METx_UP = patMET_UP.px();
+     METy_UP = patMET_UP.py();
+     LorentzVector patMET_DOWN = patMET.shiftedP4(METUncertainty::JetEnDown);
+     METx_DOWN = patMET_DOWN.px();
+     METy_DOWN = patMET_DOWN.py();
   }
 
   // loop on all the pairs
@@ -142,6 +156,14 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       covMET[1][0] = covMETbuf(1,0);
       covMET[0][1] = covMETbuf(0,1);
       covMET[1][1] = covMETbuf(1,1);
+
+     // now get the MET shifted UP/DOWN by the JES
+     LorentzVector patMET_UP   = patMET->shiftedP4(METUncertainty::JetEnUp);
+     METx_UP = patMET_UP.px();
+     METy_UP = patMET_UP.py();
+     LorentzVector patMET_DOWN = patMET->shiftedP4(METUncertainty::JetEnDown);
+     METx_DOWN = patMET_DOWN.px();
+     METy_DOWN = patMET_DOWN.py();
     }
 
     // Get the pair and the two leptons composing it
@@ -171,6 +193,10 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("MEt_cov10", (float) covMET[1][0]);
     pair.addUserFloat("MEt_cov11", (float) covMET[1][1]);
     pair.addUserFloat("MEt_significance", significance);
+    pair.addUserFloat("MEt_px_UP", (float) METx_UP);
+    pair.addUserFloat("MEt_py_UP", (float) METy_UP);
+    pair.addUserFloat("MEt_px_DOWN", (float) METx_DOWN);
+    pair.addUserFloat("MEt_py_DOWN", (float) METy_DOWN);
 
     result->push_back(pair);
   }
