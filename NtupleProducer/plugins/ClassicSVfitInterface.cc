@@ -51,6 +51,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace classic_svFit;
+using METUncertainty = pat::MET::METUncertainty;
 
 // ------------------------------------------------------------------
 
@@ -79,6 +80,7 @@ class ClassicSVfitInterface : public edm::EDProducer {
   edm::EDGetTokenT<math::Error<2>::type> theCovTag;
   bool _usePairMET;
   bool _computeForUpDownTES;
+  bool _computeForUpDownMET;
   TFile* inputFile_visPtResolution_;
   
   // 6,7,8 are expected to be unused
@@ -108,6 +110,7 @@ theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("sr
   //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   _usePairMET = iConfig.getParameter<bool>("usePairMET");
   _computeForUpDownTES = iConfig.getParameter<bool>("computeForUpDownTES");
+  _computeForUpDownMET = iConfig.getParameter<bool>("computeForUpDownMET");
   
   // const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
   // for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
@@ -152,6 +155,11 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
   TMatrixD covMET(2, 2);
   float significance = -999.;
 
+  double METx_UP   = 0.;
+  double METy_UP   = 0.;
+  double METx_DOWN = 0.;
+  double METy_DOWN = 0.;
+
   iEvent.getByToken(theMETTag, METHandle);    
   // initialize MET once if not using PairMET
   if (!_usePairMET)
@@ -181,6 +189,14 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
      if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
         edm::LogWarning("SingularCovarianceMatrix") << "(ClassicSVfitInterface) Warning! Input covariance matrix is singular"
                                                     << "   --> SVfit algorithm will probably crash...";
+
+     // now get the MET shifted UP/DOWN by the JES
+     LorentzVector patMET_UP   = patMET.shiftedP4(METUncertainty::JetEnUp);
+     METx_UP = patMET_UP.px();
+     METy_UP = patMET_UP.py();
+     LorentzVector patMET_DOWN = patMET.shiftedP4(METUncertainty::JetEnDown);
+     METx_DOWN = patMET_DOWN.px();
+     METy_DOWN = patMET_DOWN.py();
   }
   
   // Output collection
@@ -235,6 +251,14 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
           edm::LogWarning("SingularCovarianceMatrix") << "(ClassicSVfitInterface) Warning! Input covariance matrix is singular"
                                                     << "   --> SVfit algorithm will probably crash...";
       }
+
+     // now get the MET shifted UP/DOWN by the JES
+     LorentzVector patMET_UP   = patMET->shiftedP4(METUncertainty::JetEnUp);
+     METx_UP = patMET_UP.px();
+     METy_UP = patMET_UP.py();
+     LorentzVector patMET_DOWN = patMET->shiftedP4(METUncertainty::JetEnDown);
+     METx_DOWN = patMET_DOWN.px();
+     METy_DOWN = patMET_DOWN.py();
     } 
 
     // prepare tau nominal, up, down candidates            
@@ -316,51 +340,74 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     double SVfitMass = -999.;
     double SVfitMassTauUp = -999.;
     double SVfitMassTauDown = -999.;
+    double SVfitMassMETUp = -999.;
+    double SVfitMassMETDown = -999.;
 
     double SVfitTransverseMass = -999.;
     double SVfitTransverseMassTauUp = -999.;
     double SVfitTransverseMassTauDown = -999.;
+    double SVfitTransverseMassMETUp = -999.;
+    double SVfitTransverseMassMETDown = -999.;
 
     double SVpt = -999.;
     double SVptTauUp = -999.;
     double SVptTauDown = -999.;
+    double SVptMETUp = -999.;
+    double SVptMETDown = -999.;
 
     double SVeta = -999.;
     double SVetaTauUp = -999.;
     double SVetaTauDown = -999.;
+    double SVetaMETUp = -999.;
+    double SVetaMETDown = -999.;
 
     double SVphi = -999.;
     double SVphiTauUp = -999.;
     double SVphiTauDown = -999.;
+    double SVphiMETUp = -999.;
+    double SVphiMETDown = -999.;
 
     double SVfitMassUnc = -999.;
     double SVfitMassUncTauUp = -999.;
     double SVfitMassUncTauDown = -999.;
-    
+    double SVfitMassUncMETUp = -999.;
+    double SVfitMassUncMETDown = -999.;
+
     double SVfitTransverseMassUnc = -999.;
     double SVfitTransverseMassUncTauUp = -999.;
     double SVfitTransverseMassUncTauDown = -999.;
+    double SVfitTransverseMassUncMETUp = -999.;
+    double SVfitTransverseMassUncMETDown = -999.;
 
     double SVptUnc = -999.;
     double SVptUncTauUp = -999.;
     double SVptUncTauDown = -999.;
+    double SVptUncMETUp = -999.;
+    double SVptUncMETDown = -999.;
 
     double SVetaUnc = -999.;
     double SVetaUncTauUp = -999.;
     double SVetaUncTauDown = -999.;
+    double SVetaUncMETUp = -999.;
+    double SVetaUncMETDown = -999.;
 
     double SVphiUnc = -999.;
     double SVphiUncTauUp = -999.;
     double SVphiUncTauDown = -999.;
+    double SVphiUncMETUp = -999.;
+    double SVphiUncMETDown = -999.;
 
     double SVMETRho = -999.;        // fitted MET
     double SVMETRhoTauUp = -999.;   // fitted MET
     double SVMETRhoTauDown = -999.; // fitted MET
+    double SVMETRhoMETUp = -999.;   // fitted MET
+    double SVMETRhoMETDown = -999.; // fitted MET
 
     double SVMETPhi = -999.;        // fitted MET
     double SVMETPhiTauUp = -999.;   // fitted MET
     double SVMETPhiTauDown = -999.; // fitted MET
-
+    double SVMETPhiMETUp = -999.;   // fitted MET
+    double SVMETPhiMETDown = -999.; // fitted MET
 
     // assessing pair type
     int apdg1 = abs(l1->pdgId());
@@ -439,16 +486,16 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         
         if ( algoTauUp.isValidSolution() )
         {
-          SVfitMassTauUp              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMass();
-          SVfitTransverseMassTauUp    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
-          SVptTauUp                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPt();
-          SVetaTauUp                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEta();
-          SVphiTauUp                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhi();
-          SVfitMassUncTauUp           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMassErr();
-          SVfitTransverseMassUncTauUp = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMassErr();
-          SVptUncTauUp                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
-          SVetaUncTauUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
-          SVphiUncTauUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
+          SVfitMassTauUp              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getMass();
+          SVfitTransverseMassTauUp    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getTransverseMass();
+          SVptTauUp                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getPt();
+          SVetaTauUp                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getEta();
+          SVphiTauUp                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getPhi();
+          SVfitMassUncTauUp           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getMassErr();
+          SVfitTransverseMassUncTauUp = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getTransverseMassErr();
+          SVptUncTauUp                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getPtErr();
+          SVetaUncTauUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getEtaErr();
+          SVphiUncTauUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauUp.getHistogramAdapter())->getPhiErr();
           
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1Up(l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1);
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2Up(l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2);
@@ -470,19 +517,19 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         if ( algoTauDown.isValidSolution() )
         {
         
-          SVfitMassTauDown              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMass();
-          SVfitTransverseMassTauDown    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMass();
-          SVptTauDown                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPt();
-          SVetaTauDown                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEta();
-          SVphiTauDown                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhi();
-          SVfitMassUncTauDown           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getMassErr();
-          SVfitTransverseMassUncTauDown = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getTransverseMassErr();
-          SVptUncTauDown                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
-          SVetaUncTauDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
-          SVphiUncTauDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
+          SVfitMassTauDown              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getMass();
+          SVfitTransverseMassTauDown    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getTransverseMass();
+          SVptTauDown                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getPt();
+          SVetaTauDown                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getEta();
+          SVphiTauDown                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getPhi();
+          SVfitMassUncTauDown           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getMassErr();
+          SVfitTransverseMassUncTauDown = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getTransverseMassErr();
+          SVptUncTauDown                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getPtErr();
+          SVetaUncTauDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getEtaErr();
+          SVphiUncTauDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoTauDown.getHistogramAdapter())->getPhiErr();
 
-          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1Down(l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1);
-          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2Down(l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1Down(l1_DOWN.Pt(), l1_DOWN.Eta(), l1_DOWN.Phi(), mass1);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2Down(l2_DOWN.Pt(), l2_DOWN.Eta(), l2_DOWN.Phi(), mass2);
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredDiTauSystemDown = measuredTau1Down + measuredTau2Down;
           ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> fittedDiTauSystemDown(SVptTauDown, SVetaTauDown, SVphiTauDown, SVfitMassTauDown);
           Vector fittedMETDown = (fittedDiTauSystemDown.Vect() - measuredDiTauSystemDown.Vect());
@@ -507,56 +554,145 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
           SVMETRhoTauUp = SVMETRhoTauDown = SVMETRho ;
           SVMETPhiTauUp = SVMETPhiTauDown = SVMETPhi ;
       }
+
+      // compute UP/DOWN due to the MET JES shift
+      if (_computeForUpDownMET)
+      {
+        // UP MET
+        ClassicSVfit algoMETUp(verbosity);
+        algoMETUp.addLogM_fixed(false, kappa);
+        //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
+        algoMETUp.integrate(measuredTauLeptons, METx_UP, METy_UP, covMET);
+
+        if ( algoMETUp.isValidSolution() )
+        {
+          SVfitMassMETUp              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getMass();
+          SVfitTransverseMassMETUp    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getTransverseMass();
+          SVptMETUp                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getPt();
+          SVetaMETUp                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getEta();
+          SVphiMETUp                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getPhi();
+          SVfitMassUncMETUp           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getMassErr();
+          SVfitTransverseMassUncMETUp = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getTransverseMassErr();
+          SVptUncMETUp                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getPtErr();
+          SVetaUncMETUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getEtaErr();
+          SVphiUncMETUp               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETUp.getHistogramAdapter())->getPhiErr();
+
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1(l1->pt(), l1->eta(), l1->phi(), mass1);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2(l2->pt(), l2->eta(), l2->phi(), mass2);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredDiTauSystem = measuredTau1 + measuredTau2;
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> fittedDiTauSystem(SVpt, SVeta, SVphi, SVfitMass);
+          Vector fittedMET = (fittedDiTauSystem.Vect() - measuredDiTauSystem.Vect());
+          SVMETRhoMETUp = fittedMET.Rho();
+          SVMETPhiMETUp = fittedMET.Phi();
+        }
+        else
+          SVfitMassMETUp = -111; // -111: SVfit failed (cfr: -999: SVfit not computed)
+
+        // DOWN MET
+        ClassicSVfit algoMETDown(verbosity);
+        algoMETDown.addLogM_fixed(false, kappa);
+        //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
+        algoMETDown.integrate(measuredTauLeptons, METx_DOWN, METy_DOWN, covMET);
+
+        if ( algoMETDown.isValidSolution() )
+        {
+          SVfitMassMETDown              = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getMass();
+          SVfitTransverseMassMETDown    = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getTransverseMass();
+          SVptMETDown                   = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getPt();
+          SVetaMETDown                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getEta();
+          SVphiMETDown                  = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getPhi();
+          SVfitMassUncMETDown           = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getMassErr();
+          SVfitTransverseMassUncMETDown = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getTransverseMassErr();
+          SVptUncMETDown                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getPtErr();
+          SVetaUncMETDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getEtaErr();
+          SVphiUncMETDown               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algoMETDown.getHistogramAdapter())->getPhiErr();
+
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1(l1->pt(), l1->eta(), l1->phi(), mass1);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2(l2->pt(), l2->eta(), l2->phi(), mass2);
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredDiTauSystem = measuredTau1 + measuredTau2;
+          ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> fittedDiTauSystem(SVpt, SVeta, SVphi, SVfitMass);
+          Vector fittedMET = (fittedDiTauSystem.Vect() - measuredDiTauSystem.Vect());
+          SVMETRhoMETDown = fittedMET.Rho();
+          SVMETPhiMETDown = fittedMET.Phi();
+        }
+        else
+          SVfitMassMETUp = -111; // -111: SVfit failed (cfr: -999: SVfit not computed)
+      }
+
     } // end of quality checks IF
     
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", (float) SVfitMass);
     pair.addUserFloat("SVfitMassTauUp", (float) SVfitMassTauUp);
     pair.addUserFloat("SVfitMassTauDown", (float) SVfitMassTauDown);
+    pair.addUserFloat("SVfitMassMETUp", (float) SVfitMassMETUp);
+    pair.addUserFloat("SVfitMassMETDown", (float) SVfitMassMETDown);
 
     pair.addUserFloat("SVfitTransverseMass", (float) SVfitTransverseMass);
     pair.addUserFloat("SVfitTransverseMassTauUp", (float) SVfitTransverseMassTauUp);
     pair.addUserFloat("SVfitTransverseMassTauDown", (float) SVfitTransverseMassTauDown);
+    pair.addUserFloat("SVfitTransverseMassMETUp", (float) SVfitTransverseMassMETUp);
+    pair.addUserFloat("SVfitTransverseMassMETDown", (float) SVfitTransverseMassMETDown);
 
     pair.addUserFloat("SVfit_pt", (float) SVpt);
     pair.addUserFloat("SVfit_ptTauUp", (float) SVptTauUp);
     pair.addUserFloat("SVfit_ptTauDown", (float) SVptTauDown);
+    pair.addUserFloat("SVfit_ptMETUp", (float) SVptMETUp);
+    pair.addUserFloat("SVfit_ptMETDown", (float) SVptMETDown);
 
     pair.addUserFloat("SVfit_eta", (float) SVeta);
     pair.addUserFloat("SVfit_etaTauUp", (float) SVetaTauUp);
     pair.addUserFloat("SVfit_etaTauDown", (float) SVetaTauDown);
+    pair.addUserFloat("SVfit_etaMETUp", (float) SVetaMETUp);
+    pair.addUserFloat("SVfit_etaMETDown", (float) SVetaMETDown);
 
     pair.addUserFloat("SVfit_phi", (float) SVphi);
     pair.addUserFloat("SVfit_phiTauUp", (float) SVphiTauUp);
     pair.addUserFloat("SVfit_phiTauDown", (float) SVphiTauDown);
+    pair.addUserFloat("SVfit_phiMETUp", (float) SVphiMETUp);
+    pair.addUserFloat("SVfit_phiMETDown", (float) SVphiMETDown);
 
     pair.addUserFloat("SVfitMassUnc", (float) SVfitMassUnc);
     pair.addUserFloat("SVfitMassUncTauUp", (float) SVfitMassUncTauUp);
     pair.addUserFloat("SVfitMassUncTauDown", (float) SVfitMassUncTauDown);
+    pair.addUserFloat("SVfitMassUncMETUp", (float) SVfitMassUncMETUp);
+    pair.addUserFloat("SVfitMassUncMETDown", (float) SVfitMassUncMETDown);
 
     pair.addUserFloat("SVfitTransverseMassUnc", (float) SVfitTransverseMassUnc);
     pair.addUserFloat("SVfitTransverseMassUncTauUp", (float) SVfitTransverseMassUncTauUp);
     pair.addUserFloat("SVfitTransverseMassUncTauDown", (float) SVfitTransverseMassUncTauDown);
+    pair.addUserFloat("SVfitTransverseMassUncMETUp", (float) SVfitTransverseMassUncMETUp);
+    pair.addUserFloat("SVfitTransverseMassUncMETDown", (float) SVfitTransverseMassUncMETDown);
 
     pair.addUserFloat("SVfit_ptUnc", (float) SVptUnc);
     pair.addUserFloat("SVfit_ptUncTauUp", (float) SVptUncTauUp);
     pair.addUserFloat("SVfit_ptUncTauDown", (float) SVptUncTauDown);
+    pair.addUserFloat("SVfit_ptUncMETUp", (float) SVptUncMETUp);
+    pair.addUserFloat("SVfit_ptUncMETDown", (float) SVptUncMETDown);
 
     pair.addUserFloat("SVfit_etaUnc", (float) SVetaUnc);
     pair.addUserFloat("SVfit_etaUncTauUp", (float) SVetaUncTauUp);
     pair.addUserFloat("SVfit_etaUncTauDown", (float) SVetaUncTauDown);
+    pair.addUserFloat("SVfit_etaUncMETUp", (float) SVetaUncMETUp);
+    pair.addUserFloat("SVfit_etaUncMETDown", (float) SVetaUncMETDown);
 
     pair.addUserFloat("SVfit_phiUnc", (float) SVphiUnc);
     pair.addUserFloat("SVfit_phiUncTauUp", (float) SVphiUncTauUp);
     pair.addUserFloat("SVfit_phiUncTauDown", (float) SVphiUncTauDown);
+    pair.addUserFloat("SVfit_phiUncMETUp", (float) SVphiUncMETUp);
+    pair.addUserFloat("SVfit_phiUncMETDown", (float) SVphiUncMETDown);
 
     pair.addUserFloat("SVfit_METRho", (float) SVMETRho);
     pair.addUserFloat("SVfit_METRhoTauUp", (float) SVMETRhoTauUp);
     pair.addUserFloat("SVfit_METRhoTauDown", (float) SVMETRhoTauDown);
+    pair.addUserFloat("SVfit_METRhoMETUp", (float) SVMETRhoMETUp);
+    pair.addUserFloat("SVfit_METRhoMETDown", (float) SVMETRhoMETDown);
 
     pair.addUserFloat("SVfit_METPhi", (float) SVMETPhi);
     pair.addUserFloat("SVfit_METPhiTauUp", (float) SVMETPhiTauUp);
     pair.addUserFloat("SVfit_METPhiTauDown", (float) SVMETPhiTauDown);
+    pair.addUserFloat("SVfit_METPhiMETUp", (float) SVMETPhiMETUp);
+    pair.addUserFloat("SVfit_METPhiMETDown", (float) SVMETPhiMETDown);
 
     pair.addUserFloat("MEt_px", (float) METx);
     pair.addUserFloat("MEt_py", (float) METy);
@@ -567,7 +703,11 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     pair.addUserFloat("MEt_cov10", (float) covMET[1][0]);
     pair.addUserFloat("MEt_cov11", (float) covMET[1][1]);
     pair.addUserFloat("MEt_significance", significance);
-    
+    pair.addUserFloat("MEt_px_UP", (float) METx_UP);
+    pair.addUserFloat("MEt_py_UP", (float) METy_UP);
+    pair.addUserFloat("MEt_px_DOWN", (float) METx_DOWN);
+    pair.addUserFloat("MEt_py_DOWN", (float) METy_DOWN);
+
     result->push_back(pair);     
   }
   
