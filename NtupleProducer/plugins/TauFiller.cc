@@ -236,23 +236,23 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (l.decayMode()==0)       // 1prong
       {
-        udshiftP[0]    = udShift[0];          // up
-        udshiftP[1]    = udShift[1];          // down
+        udshiftP[0]    =  (1. + NominalTESCorrection1Pr/100.) + (NominalTESUncertainty/100.): //udShift[0]; // up
+        udshiftP[1]    =  (1. + NominalTESCorrection1Pr/100.) - (NominalTESUncertainty/100.); //udShift[1]; // down
         udshiftMass[0] = udshiftMass[1] = 1.; // no mass shift for pi0
       }
       else if (l.decayMode()==1)  // 1prong+pi0
       {
-        udshiftP[0]    = udShift[0]; // up
-        udshiftP[1]    = udShift[1]; // down
-        udshiftMass[0] = udShift[0]; // up
-        udshiftMass[1] = udShift[1]; // down
+        udshiftP[0]    = (1. + NominalTESCorrection1PrPi0/100.) + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftP[1]    = (1. + NominalTESCorrection1PrPi0/100.) - (NominalTESUncertainty/100.); //udShift[1]; // down
+        udshiftMass[0] = (1. + NominalTESCorrection1PrPi0/100.) + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftMass[1] = (1. + NominalTESCorrection1PrPi0/100.) - (NominalTESUncertainty/100.); //udShift[1]; // down
       }
       else if (l.decayMode()==10) // 3prong
       {
-        udshiftP[0]    = udShift[0]; // up
-        udshiftP[1]    = udShift[1]; // down
-        udshiftMass[0] = udShift[0]; // up
-        udshiftMass[1] = udShift[1]; // down
+        udshiftP[0]    = (1. + NominalTESCorrection3Pr/100.) + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftP[1]    = (1. + NominalTESCorrection3Pr/100.) - (NominalTESUncertainty/100.); //udShift[1]; // down
+        udshiftMass[0] = (1. + NominalTESCorrection3Pr/100.) + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftMass[1] = (1. + NominalTESCorrection3Pr/100.) - (NominalTESUncertainty/100.); //udShift[1]; // down
       }
       else  // these are not real taus and will be rejected --> we don't care about the shift and just put 1
       {

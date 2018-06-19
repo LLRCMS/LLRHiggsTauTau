@@ -798,7 +798,8 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     dau1 = (apdg1 == 13 ? l1 : l2);
     dau2 = (apdg1 == 13 ? l2 : l1);
 
-    if (dau1->pt() < 17.)
+    //if (dau1->pt() < 17.)
+    if (dau1->pt() < 10.)
       return false;
 
     if (dau2->pt() < 20.)
@@ -807,12 +808,12 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1) // decayModeFinding == decayModeFindingOldDMs
       return false;
 
-    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
-    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    //bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
+    ////bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
-    if (!iso1 || !iso2) 
-      return false;
+    //if (!iso1 || !iso2)
+    //  return false;
 
     return true; // passed all requirements
   }
@@ -822,7 +823,8 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     dau1 = (apdg1 == 11 ? l1 : l2);
     dau2 = (apdg1 == 11 ? l2 : l1);
 
-    if (dau1->pt() < 19.)
+    //if (dau1->pt() < 19.)
+    if (dau1->pt() < 10.)
       return false;
 
     if (dau2->pt() < 20.)
@@ -831,12 +833,12 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
-    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
-    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    //bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
+    ////bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
-    if (!iso1 || !iso2) 
-      return false;
+    //if (!iso1 || !iso2)
+    //  return false;
 
     return true; // passed all requirements
   }
@@ -846,10 +848,12 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     dau1 = ((l1->pt() > l2->pt()) ? l1 : l2);
     dau2 = ((l1->pt() > l2->pt()) ? l2 : l1);
 
-    if (dau1->pt() < 30.)
+    //if (dau1->pt() < 30.)
+    if (dau1->pt() < 20.)
       return false;
     
-    if (dau2->pt() < 30.)
+    //if (dau2->pt() < 30.)
+    if (dau2->pt() < 20.)
       return false;
     
     if (userdatahelpers::getUserInt(l1,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
@@ -858,13 +862,13 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
-    //bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    ////bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    ////bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
+    //bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
-    if (!iso1 || !iso2) 
-      return false;
+    //if (!iso1 || !iso2)
+    //  return false;
 
     return true; // passed all requirements
   }
