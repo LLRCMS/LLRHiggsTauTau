@@ -855,8 +855,7 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     dau1 = (apdg1 == 13 ? l1 : l2);
     dau2 = (apdg1 == 13 ? l2 : l1);
 
-    //if (dau1->pt() < 17.)
-    if (dau1->pt() < 10.)
+    if (dau1->pt() < 17.)
       return false;
 
     if (dau2->pt() < 20.)
@@ -880,8 +879,7 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     dau1 = (apdg1 == 11 ? l1 : l2);
     dau2 = (apdg1 == 11 ? l2 : l1);
 
-    //if (dau1->pt() < 19.)
-    if (dau1->pt() < 10.)
+    if (dau1->pt() < 19.)
       return false;
 
     if (dau2->pt() < 20.)
