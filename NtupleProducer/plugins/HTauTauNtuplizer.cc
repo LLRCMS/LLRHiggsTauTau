@@ -462,6 +462,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _mety_up;
   std::vector<Float_t> _metx_down;
   std::vector<Float_t> _mety_down;
+  std::vector<Float_t> _metx_up_tes;
+  std::vector<Float_t> _mety_up_tes;
+  std::vector<Float_t> _metx_down_tes;
+  std::vector<Float_t> _mety_down_tes;
   std::vector<Float_t> _uncorrmetx;
   std::vector<Float_t> _uncorrmety;
   std::vector<Float_t> _metCov00;
@@ -503,7 +507,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 39;
+  static const int ntauIds = 41;
   TString tauIDStrings[ntauIds] = {
    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
@@ -534,11 +538,13 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
    "byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
    "byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+   "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
    "byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
    "byLooseIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
    "byMediumIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
    "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
    "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+   "byVVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
    "byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
    "byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
    "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
@@ -566,6 +572,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //FRA
   std::vector<Float_t> _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //FRA
   std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017; //FRA
+  std::vector<Int_t> _daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017; //FRA
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
   std::vector<Float_t> _daughters_puCorrPtSum;
@@ -967,6 +974,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.clear();      //FRA
   _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.clear();      //FRA
   _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.clear(); //FRA
+  _daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017.clear(); //FRA
   _daughters_footprintCorrection.clear();
   _daughters_neutralIsoPtSumWeight.clear();
   _daughters_photonPtSumOutsideSignalCone.clear();
@@ -1156,6 +1164,10 @@ void HTauTauNtuplizer::Initialize(){
   _mety_up.clear();
   _metx_down.clear();
   _mety_down.clear();
+  _metx_up_tes.clear();
+  _mety_up_tes.clear();
+  _metx_down_tes.clear();
+  _mety_down_tes.clear();
   _uncorrmetx.clear();
   _uncorrmety.clear();
   _metCov00.clear();
@@ -1576,6 +1588,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("METy_UP",&_mety_up);
   myTree->Branch("METx_DOWN",&_metx_down);
   myTree->Branch("METy_DOWN",&_mety_down);
+  myTree->Branch("METx_UP_TES",&_metx_up_tes);
+  myTree->Branch("METy_UP_TES",&_mety_up_tes);
+  myTree->Branch("METx_DOWN_TES",&_metx_down_tes);
+  myTree->Branch("METy_DOWN_TES",&_mety_down_tes);
   myTree->Branch("uncorrMETx",&_uncorrmetx);
   myTree->Branch("uncorrMETy",&_uncorrmety);
   myTree->Branch("MET_cov00",&_metCov00);
@@ -1630,6 +1646,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
   myTree->Branch("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
   myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
+  myTree->Branch("daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", &_daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017); //FRA
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
   myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
@@ -2171,6 +2188,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpy_up = cand.userFloat("MEt_py_UP");
     float thisMETpx_down = cand.userFloat("MEt_px_DOWN");
     float thisMETpy_down = cand.userFloat("MEt_py_DOWN");
+    float thisMETpx_up_tes = cand.userFloat("MEt_px_UP_TES");
+    float thisMETpy_up_tes = cand.userFloat("MEt_py_UP_TES");
+    float thisMETpx_down_tes = cand.userFloat("MEt_px_DOWN_TES");
+    float thisMETpy_down_tes = cand.userFloat("MEt_py_DOWN_TES");
     float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
     float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
@@ -2257,6 +2278,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _mety_up.push_back(thisMETpy_up);
     _metx_down.push_back(thisMETpx_down);
     _mety_down.push_back(thisMETpy_down);
+    _metx_up_tes.push_back(thisMETpx_up_tes);
+    _mety_up_tes.push_back(thisMETpy_up_tes);
+    _metx_down_tes.push_back(thisMETpx_down_tes);
+    _mety_down_tes.push_back(thisMETpy_down_tes);
     _uncorrmetx.push_back(thisMETpx_uncorr);
     _uncorrmety.push_back(thisMETpy_uncorr);
     _metCov00.push_back(cand.userFloat("MEt_cov00"));
@@ -3099,7 +3124,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
         pfour+=fsr->p4();
       }
     } 
-    
+
     _daughters_px.push_back( (float) pfour.X());
     _daughters_py.push_back( (float) pfour.Y());
     _daughters_pz.push_back( (float) pfour.Z());
@@ -3186,6 +3211,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float leadChargedParticlePt=-1., trackRefPt=-1.;
     int typeOfMuon=0;
     float byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1, byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=-1; //FRA
+    int  byVVLooseIsolationMVArun2017v2DBoldDMwLT2017=-1; //FRA
     Long64_t tauIDflag = 0;
     float footprintCorrection, neutralIsoPtSumWeight, photonPtSumOutsideSignalCone;
 
@@ -3293,6 +3319,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       byIsolationMVArun2017v2DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMwLTraw2017"); //FRA
       byIsolationMVArun2017v1DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v1DBoldDMwLTraw2017"); //FRA
       byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017"); //FRA
+      byVVLooseIsolationMVArun2017v2DBoldDMwLT2017= userdatahelpers::getUserInt (cand, "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017"); //FRA
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
@@ -3367,6 +3394,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
     _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
     _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
+    _daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017.push_back(byVVLooseIsolationMVArun2017v2DBoldDMwLT2017); //FRA
     _daughters_numChargedParticlesSignalCone.push_back(numChargedParticlesSignalCone);
     _daughters_numNeutralHadronsSignalCone.push_back(numNeutralHadronsSignalCone);
     _daughters_numPhotonsSignalCone.push_back(numPhotonsSignalCone);

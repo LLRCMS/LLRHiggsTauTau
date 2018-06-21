@@ -29,8 +29,8 @@ USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SV
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
-COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
-COMPUTEMETUPDOWNSVFIT=False # compute SVfit for up/down MET JES variation
+COMPUTEUPDOWNSVFIT=True # compute SVfit for up/down TES variation
+COMPUTEMETUPDOWNSVFIT=True # compute SVfit for up/down MET JES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = False # compute QG Tagger for jets
 IsMC=True
@@ -120,42 +120,56 @@ process.source = cms.Source("PoolSource",
     #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/F89C5A80-6905-E811-9A3F-FA163ED3ED08.root',
     #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/34715D6D-6905-E811-9843-44A842CFD5BE.root',
     # miniAOD_v2
-    '/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/1CA54262-F442-E811-8262-0CC47A4D7694.root',
-    '/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/5ED78A31-7243-E811-8053-484D7E8DF09F.root',
-    '/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/8CDFDFC6-C542-E811-9360-848F69FBC12A.root',
-    '/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/A4C07038-AC42-E811-8A74-1418776375C9.root',
+    #'/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/1CA54262-F442-E811-8262-0CC47A4D7694.root',
+    #'/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/5ED78A31-7243-E811-8053-484D7E8DF09F.root',
+    #'/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/8CDFDFC6-C542-E811-9360-848F69FBC12A.root',
+    #'/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/A4C07038-AC42-E811-8A74-1418776375C9.root',
+    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/Graviton450_1.root',
+    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/Graviton450_2.root',
+    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/Graviton450_3.root',
+    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/Graviton450_4.root',
 
     # Data
     #'/store/data/Run2017B/Tau/MINIAOD/17Nov2017-v1/40000/02D49C45-F8DD-E711-9ACC-001E675043AD.root',
     #'/store/data/Run2017B/SingleMuon/MINIAOD/31Mar2018-v1/100000/001642F1-6638-E811-B4FA-0025905B857A.root',
     # miniAOD_v2
     #'/store/data/Run2017B/Tau/MINIAOD/31Mar2018-v1/00000/040B1CD3-9437-E811-8D93-A4BF01158FE0.root',
+    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/TauB.root'
     #'/store/data/Run2017F/Tau/MINIAOD/31Mar2018-v1/00000/0089E8C0-1A37-E811-9E5C-008CFAC93D18.root',
+    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/TauF.root'
 
     # TT Fully Hadronic
     #'/store/mc/RunIIFall17MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/00000/047A883D-9618-E811-B3FB-7CD30AD09FDC.root',
     #'/store/mc/RunIIFall17MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/20000/CA2359BE-6442-E811-A7C5-9CB654AEAE02.root'
     # miniAOD_v2
     #'/store/mc/RunIIFall17MiniAODv2/TTJets_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/00000/0031EAB0-8442-E811-84DF-0025901AFB36.root',
+    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/TT.root',
+
+    # DY 2 Jets
+    #'/store/mc/RunIIFall17MiniAODv2/DY2JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/810000/BAE0A78F-7366-E811-B871-A0369FD20D18.root'
     )
 )
 
 # process.source.skipEvents = cms.untracked.uint32(968)
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
+#process.source.eventsToProcess = cms.untracked.VEventRange("1:81:67461-1:81:67461")
+#process.source.eventsToProcess = cms.untracked.VEventRange("1:6:4403-1:6:4403")
+#process.source.eventsToProcess = cms.untracked.VEventRange("305902:212:301932757-305902:212:301932757")
 
 #Limited nEv for testing purposes. -1 to run all events
 process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
-#if not IsMC:
-#  execfile(PyFilePath+"python/lumiMask.py")
-#  process.source.lumisToProcess = LUMIMASK
+if not IsMC:
+  execfile(PyFilePath+"python/lumiMask.py")
+  process.source.lumisToProcess = LUMIMASK
 
 ##
 ## Output file
 ##
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+#process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_Graviton450_seventeen.root'))
 
 # L1 trigger objects (as suggested on: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information )
 #  ----> TO BE FIXED <----

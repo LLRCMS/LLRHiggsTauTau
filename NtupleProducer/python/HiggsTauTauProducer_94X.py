@@ -784,8 +784,16 @@ else:
     process.METSignificance = cms.EDProducer ("ExtractMETSignificance",
                                                   srcMET=cms.InputTag("slimmedMETs","","TEST")
                                                   )
+
+    # add variables with MET shifted for TES corrections
+    process.ShiftMETforTES = cms.EDProducer ("ShiftMETforTES",
+                                             srcMET  = cms.InputTag("slimmedMETs","","TEST"),
+                                             tauCollection = cms.InputTag("softTaus")
+                                             )
+
     process.METSequence += process.fullPatMetSequence
     process.METSequence += process.METSignificance
+    process.METSequence += process.ShiftMETforTES
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 process.testCands = cms.EDFilter("CandPtrSelector",
@@ -860,7 +868,11 @@ if USECLASSICSVFIT:
                                       usePairMET = cms.bool(USEPAIRMET),
                                       srcMET     = srcMETTag,
                                       computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False),
-                                      computeForUpDownMET = cms.bool(COMPUTEMETUPDOWNSVFIT if IsMC else False)
+                                      computeForUpDownMET = cms.bool(COMPUTEMETUPDOWNSVFIT if IsMC else False),
+                                      METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
+                                      METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
+                                      METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
+                                      METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
     )
 else:
     print "Using STANDALONE_SV_FIT"
@@ -881,7 +893,11 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     usePairMET = cms.bool(USEPAIRMET),
                                     srcMET     = srcMETTag,
                                     srcSig     = cms.InputTag("METSignificance", "METSignificance"),
-                                    srcCov     = cms.InputTag("METSignificance", "METCovariance")
+                                    srcCov     = cms.InputTag("METSignificance", "METCovariance"),
+                                    METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
+                                    METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
+                                    METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
+                                    METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
 )
 
 

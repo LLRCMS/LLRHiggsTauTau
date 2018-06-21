@@ -113,12 +113,14 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "againstElectronMediumMVA6",
     "againstElectronTightMVA6",
     "againstElectronVTightMVA6",
-    
+
+    "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byLooseIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
     "byMediumIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
     "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    "byVVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     
     "byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
     "byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
@@ -152,6 +154,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
 
 }
 
+using LorentzVectorE = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double>>;
 
 void
 TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -181,8 +184,10 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double shiftP = 1.;
     double shiftMass = 1.;
     
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr)
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 /*0.5*/ && l.genJet()->pt() > 8. && ApplyTESCentralCorr)
     {
+
+      //cout << "---- gen get pt: " << l.genJet()->pt() << endl;
       if (l.decayMode()==0)       // 1prong
       {
         shiftP    = Shift1Pr;
@@ -220,39 +225,38 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double enS_Nominal = TMath::Sqrt(pxS_Nominal*pxS_Nominal + pyS_Nominal*pyS_Nominal + pzS_Nominal*pzS_Nominal + massS_Nominal*massS_Nominal);
     math::XYZTLorentzVectorD p4S_Nominal( pxS_Nominal, pyS_Nominal, pzS_Nominal, enS_Nominal );
 
-    l.setP4( p4S_Nominal );
+    //l.setP4( p4S_Nominal ); // was here for 2016 data, now it's moved almost at the end of taufiller
 
     //Up and Down variations: NominalTESUncertainty from python cfg
     //const float udShift[2] = {1.03, 0.97}; // 0: UP, 1: DOWN
-    const double udShift[2] = {1. + (NominalTESUncertainty/100.), 1. - (NominalTESUncertainty/100.)}; // 0: UP, 1: DOWN
+    //const double udShift[2] = {1. + (NominalTESUncertainty/100.), 1. - (NominalTESUncertainty/100.)}; // 0: UP, 1: DOWN // unused
 
     float udshiftP[2] = {1., 1.};
     float udshiftMass[2] = {1., 1.};
     bool isTESShifted = false;
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. ) {
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 /*0.5*/ && l.genJet()->pt() > 8. ) {
 
       isTESShifted = true;
 
-
       if (l.decayMode()==0)       // 1prong
       {
-        udshiftP[0]    = udShift[0];          // up
-        udshiftP[1]    = udShift[1];          // down
+        udshiftP[0]    =  Shift1Pr + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftP[1]    =  Shift1Pr - (NominalTESUncertainty/100.); //udShift[1]; // down
         udshiftMass[0] = udshiftMass[1] = 1.; // no mass shift for pi0
       }
       else if (l.decayMode()==1)  // 1prong+pi0
       {
-        udshiftP[0]    = udShift[0]; // up
-        udshiftP[1]    = udShift[1]; // down
-        udshiftMass[0] = udShift[0]; // up
-        udshiftMass[1] = udShift[1]; // down
+        udshiftP[0]    = Shift1PrPi0 + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftP[1]    = Shift1PrPi0 - (NominalTESUncertainty/100.); //udShift[1]; // down
+        udshiftMass[0] = Shift1PrPi0 + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftMass[1] = Shift1PrPi0 - (NominalTESUncertainty/100.); //udShift[1]; // down
       }
       else if (l.decayMode()==10) // 3prong
       {
-        udshiftP[0]    = udShift[0]; // up
-        udshiftP[1]    = udShift[1]; // down
-        udshiftMass[0] = udShift[0]; // up
-        udshiftMass[1] = udShift[1]; // down
+        udshiftP[0]    = Shift3Pr + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftP[1]    = Shift3Pr - (NominalTESUncertainty/100.); //udShift[1]; // down
+        udshiftMass[0] = Shift3Pr + (NominalTESUncertainty/100.); //udShift[0]; // up
+        udshiftMass[1] = Shift3Pr - (NominalTESUncertainty/100.); //udShift[1]; // down
       }
       else  // these are not real taus and will be rejected --> we don't care about the shift and just put 1
       {
@@ -305,8 +309,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserInt("TauUpExists", isTESShifted ? 1 : 0);
     l.addUserInt("TauDownExists", isTESShifted ? 1 : 0);
 
-
-    
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();
     float PFNeutralHadIso   = l.neutralHadronIso();
@@ -468,6 +470,9 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //       l.addUserFloat("MCParentCode",MCParentCode);
     //     }
     
+    // apply the actual shift of the central value here
+    l.setP4( p4S_Nominal );
+
     //--- Check selection cut. Being done here, flags are not available; but this way we 
     //    avoid wasting time on rejected leptons.
     if (!cut(l)) continue;
@@ -476,7 +481,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(CutSet<pat::Tau>::const_iterator flag = flags.begin(); flag != flags.end(); ++flag) {
       l.addUserFloat(flag->first,int((*(flag->second))(l)));
     }
-    
+    //cout << " ---------> DOPO pattau - p4: " << LorentzVectorE(l.p4()) << endl;
     result->push_back(l);
   }
   //iEvent.put(result);

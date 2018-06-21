@@ -81,6 +81,10 @@ class ClassicSVfitInterface : public edm::EDProducer {
   bool _usePairMET;
   bool _computeForUpDownTES;
   bool _computeForUpDownMET;
+  edm::EDGetTokenT<double> theMETdxUPTag;
+  edm::EDGetTokenT<double> theMETdyUPTag;
+  edm::EDGetTokenT<double> theMETdxDOWNTag;
+  edm::EDGetTokenT<double> theMETdyDOWNTag;
   TFile* inputFile_visPtResolution_;
   
   // 6,7,8 are expected to be unused
@@ -105,7 +109,11 @@ ClassicSVfitInterface::ClassicSVfitInterface(const edm::ParameterSet& iConfig):
 theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
 theMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
 theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
-theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov")))
+theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov"))),
+theMETdxUPTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxUP"))),
+theMETdyUPTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyUP"))),
+theMETdxDOWNTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxDOWN"))),
+theMETdyDOWNTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyDOWN")))
 {
   //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   _usePairMET = iConfig.getParameter<bool>("usePairMET");
@@ -160,6 +168,11 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
   double METx_DOWN = 0.;
   double METy_DOWN = 0.;
 
+  double METx_UP_TES = 0.;
+  double METy_UP_TES = 0.;
+  double METx_DOWN_TES = 0.;
+  double METy_DOWN_TES = 0.;
+
   iEvent.getByToken(theMETTag, METHandle);    
   // initialize MET once if not using PairMET
   if (!_usePairMET)
@@ -174,10 +187,19 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
      Handle<double> significanceHandle;
      Handle<math::Error<2>::type> covHandle;
+     Handle<double> METxUPHandle;
+     Handle<double> METyUPHandle;
+     Handle<double> METxDOWNHandle;
+     Handle<double> METyDOWNHandle;
      
      iEvent.getByToken (theSigTag, significanceHandle);
      iEvent.getByToken (theCovTag, covHandle);
      
+     iEvent.getByToken (theMETdxUPTag, METxUPHandle);
+     iEvent.getByToken (theMETdyUPTag, METyUPHandle);
+     iEvent.getByToken (theMETdxDOWNTag, METxDOWNHandle);
+     iEvent.getByToken (theMETdyDOWNTag, METyDOWNHandle);
+
      covMET[0][0] = (*covHandle)(0,0);
      covMET[1][0] = (*covHandle)(1,0);
      covMET[0][1] = covMET[1][0]; // (1,0) is the only one saved
@@ -185,6 +207,11 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
      significance = (float) (*significanceHandle);
      
+     METx_UP_TES   = *METxUPHandle;
+     METy_UP_TES   = *METyUPHandle;
+     METx_DOWN_TES = *METxDOWNHandle;
+     METy_DOWN_TES = *METyDOWNHandle;
+
      // protection against singular matrices
      if (covMET[0][0] == 0 && covMET[1][0] == 0 && covMET[0][1] == 0 && covMET[1][1] == 0)
         edm::LogWarning("SingularCovarianceMatrix") << "(ClassicSVfitInterface) Warning! Input covariance matrix is singular"
@@ -197,6 +224,14 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
      LorentzVector patMET_DOWN = patMET.shiftedP4(METUncertainty::JetEnDown);
      METx_DOWN = patMET_DOWN.px();
      METy_DOWN = patMET_DOWN.py();
+
+     //cout << " -------- CLASSIC SVIFT MET ---------" << endl;
+     //cout << "MET       : " << patMET.px() << " / " << patMET.py() << endl;
+     //cout << "MET UP JES: " << METx_UP << " / " << METy_UP << endl;
+     //cout << "MET DW JES: " << METx_DOWN << " / " << METy_DOWN << endl;
+     //cout << "MET UP TES: " << METx_UP_TES << " / " << METy_UP_TES << endl;
+     //cout << "MET DW TES: " << METx_DOWN_TES << " / " << METy_DOWN_TES << endl;
+     //cout << " -------- ----------------- ---------" << endl;
   }
   
   // Output collection
@@ -259,6 +294,22 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
      LorentzVector patMET_DOWN = patMET->shiftedP4(METUncertainty::JetEnDown);
      METx_DOWN = patMET_DOWN.px();
      METy_DOWN = patMET_DOWN.py();
+
+     // TES shift of MET
+     Handle<double> METxUPHandle;
+     Handle<double> METyUPHandle;
+     Handle<double> METxDOWNHandle;
+     Handle<double> METyDOWNHandle;
+
+     iEvent.getByToken (theMETdxUPTag, METxUPHandle);
+     iEvent.getByToken (theMETdyUPTag, METyUPHandle);
+     iEvent.getByToken (theMETdxDOWNTag, METxDOWNHandle);
+     iEvent.getByToken (theMETdyDOWNTag, METyDOWNHandle);
+
+     METx_UP_TES   = *METxUPHandle;
+     METy_UP_TES   = *METyUPHandle;
+     METx_DOWN_TES = *METxDOWNHandle;
+     METy_DOWN_TES = *METyDOWNHandle;
     } 
 
     // prepare tau nominal, up, down candidates            
@@ -482,7 +533,8 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         ClassicSVfit algoTauUp(verbosity);
         algoTauUp.addLogM_fixed(false, kappa);
         //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
-        algoTauUp.integrate(measuredTauLeptonsTauUp, METx, METy, covMET);
+        //algoTauUp.integrate(measuredTauLeptonsTauUp, METx, METy, covMET);
+        algoTauUp.integrate(measuredTauLeptonsTauUp, METx_UP_TES, METy_UP_TES, covMET);
         
         if ( algoTauUp.isValidSolution() )
         {
@@ -512,7 +564,8 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         ClassicSVfit algoTauDown(verbosity);
         algoTauDown.addLogM_fixed(false, kappa);
         //algoTauDown.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
-        algoTauDown.integrate(measuredTauLeptonsTauDown, METx, METy, covMET);
+        //algoTauDown.integrate(measuredTauLeptonsTauDown, METx, METy, covMET);
+        algoTauDown.integrate(measuredTauLeptonsTauDown, METx_DOWN_TES, METx_DOWN_TES, covMET);
 
         if ( algoTauDown.isValidSolution() )
         {
@@ -707,6 +760,10 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     pair.addUserFloat("MEt_py_UP", (float) METy_UP);
     pair.addUserFloat("MEt_px_DOWN", (float) METx_DOWN);
     pair.addUserFloat("MEt_py_DOWN", (float) METy_DOWN);
+    pair.addUserFloat("MEt_px_UP_TES", (float) METx_UP_TES);
+    pair.addUserFloat("MEt_py_UP_TES", (float) METy_UP_TES);
+    pair.addUserFloat("MEt_px_DOWN_TES", (float) METx_DOWN_TES);
+    pair.addUserFloat("MEt_py_DOWN_TES", (float) METy_DOWN_TES);
 
     result->push_back(pair);     
   }
@@ -809,9 +866,9 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
-    if (!iso1 || !iso2) 
+    if (!iso1 || !iso2)
       return false;
 
     return true; // passed all requirements
@@ -833,9 +890,9 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
-    if (!iso1 || !iso2) 
+    if (!iso1 || !iso2)
       return false;
 
     return true; // passed all requirements
@@ -846,10 +903,12 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     dau1 = ((l1->pt() > l2->pt()) ? l1 : l2);
     dau2 = ((l1->pt() > l2->pt()) ? l2 : l1);
 
-    if (dau1->pt() < 30.)
+    //if (dau1->pt() < 30.)
+    if (dau1->pt() < 20.)
       return false;
     
-    if (dau2->pt() < 30.)
+    //if (dau2->pt() < 30.)
+    if (dau2->pt() < 20.)
       return false;
     
     if (userdatahelpers::getUserInt(l1,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
@@ -860,10 +919,10 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
 
     //bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    bool iso1 = (userdatahelpers::getUserInt(l1,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
 
-    if (!iso1 || !iso2) 
+    if (!iso1 || !iso2)
       return false;
 
     return true; // passed all requirements

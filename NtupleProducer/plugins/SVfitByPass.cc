@@ -46,6 +46,11 @@ class SVfitBypass : public edm::EDProducer {
   edm::EDGetTokenT<double> theSigTag;
   edm::EDGetTokenT<math::Error<2>::type> theCovTag;
 
+  edm::EDGetTokenT<double> theMETdxUPTag;
+  edm::EDGetTokenT<double> theMETdyUPTag;
+  edm::EDGetTokenT<double> theMETdxDOWNTag;
+  edm::EDGetTokenT<double> theMETdyDOWNTag;
+
   //int sampleType;
   bool _usePairMET;
   //bool _useMVAMET;
@@ -59,7 +64,11 @@ SVfitBypass::SVfitBypass(const edm::ParameterSet& iConfig):
 theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
 theMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
 theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
-theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov")))
+theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov"))),
+theMETdxUPTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxUP"))),
+theMETdyUPTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyUP"))),
+theMETdxDOWNTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxDOWN"))),
+theMETdyDOWNTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyDOWN")))
 {
   //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
@@ -100,10 +109,17 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float significance = -999.;
   Handle<View<pat::MET> > METHandle;
 
+  // JES shift
   double METx_UP   = 0.;
   double METy_UP   = 0.;
   double METx_DOWN = 0.;
   double METy_DOWN = 0.;
+
+  // TES shift
+  double METx_UP_TES = 0.;
+  double METy_UP_TES = 0.;
+  double METx_DOWN_TES = 0.;
+  double METy_DOWN_TES = 0.;
 
   if (!_usePairMET)
   {
@@ -129,6 +145,22 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      LorentzVector patMET_DOWN = patMET.shiftedP4(METUncertainty::JetEnDown);
      METx_DOWN = patMET_DOWN.px();
      METy_DOWN = patMET_DOWN.py();
+
+     // TES shift of MET
+     Handle<double> METxUPHandle;
+     Handle<double> METyUPHandle;
+     Handle<double> METxDOWNHandle;
+     Handle<double> METyDOWNHandle;
+
+     iEvent.getByToken (theMETdxUPTag, METxUPHandle);
+     iEvent.getByToken (theMETdyUPTag, METyUPHandle);
+     iEvent.getByToken (theMETdxDOWNTag, METxDOWNHandle);
+     iEvent.getByToken (theMETdyDOWNTag, METyDOWNHandle);
+
+     METx_UP_TES   = *METxUPHandle;
+     METy_UP_TES   = *METyUPHandle;
+     METx_DOWN_TES = *METxDOWNHandle;
+     METy_DOWN_TES = *METyDOWNHandle;
   }
 
   // loop on all the pairs
@@ -164,6 +196,22 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      LorentzVector patMET_DOWN = patMET->shiftedP4(METUncertainty::JetEnDown);
      METx_DOWN = patMET_DOWN.px();
      METy_DOWN = patMET_DOWN.py();
+
+     // TES shift of MET
+     Handle<double> METxUPHandle;
+     Handle<double> METyUPHandle;
+     Handle<double> METxDOWNHandle;
+     Handle<double> METyDOWNHandle;
+
+     iEvent.getByToken (theMETdxUPTag, METxUPHandle);
+     iEvent.getByToken (theMETdyUPTag, METyUPHandle);
+     iEvent.getByToken (theMETdxDOWNTag, METxDOWNHandle);
+     iEvent.getByToken (theMETdyDOWNTag, METyDOWNHandle);
+
+     METx_UP_TES   = *METxUPHandle;
+     METy_UP_TES   = *METyUPHandle;
+     METx_DOWN_TES = *METxDOWNHandle;
+     METy_DOWN_TES = *METyDOWNHandle;
     }
 
     // Get the pair and the two leptons composing it
@@ -197,6 +245,10 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("MEt_py_UP", (float) METy_UP);
     pair.addUserFloat("MEt_px_DOWN", (float) METx_DOWN);
     pair.addUserFloat("MEt_py_DOWN", (float) METy_DOWN);
+    pair.addUserFloat("MEt_px_UP_TES", (float) METx_UP_TES);
+    pair.addUserFloat("MEt_py_UP_TES", (float) METy_UP_TES);
+    pair.addUserFloat("MEt_px_DOWN_TES", (float) METx_DOWN_TES);
+    pair.addUserFloat("MEt_py_DOWN_TES", (float) METy_DOWN_TES);
 
     result->push_back(pair);
   }
