@@ -462,6 +462,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _mety_up;
   std::vector<Float_t> _metx_down;
   std::vector<Float_t> _mety_down;
+  std::vector<Float_t> _metx_up_tes;
+  std::vector<Float_t> _mety_up_tes;
+  std::vector<Float_t> _metx_down_tes;
+  std::vector<Float_t> _mety_down_tes;
   std::vector<Float_t> _uncorrmetx;
   std::vector<Float_t> _uncorrmety;
   std::vector<Float_t> _metCov00;
@@ -1156,6 +1160,10 @@ void HTauTauNtuplizer::Initialize(){
   _mety_up.clear();
   _metx_down.clear();
   _mety_down.clear();
+  _metx_up_tes.clear();
+  _mety_up_tes.clear();
+  _metx_down_tes.clear();
+  _mety_down_tes.clear();
   _uncorrmetx.clear();
   _uncorrmety.clear();
   _metCov00.clear();
@@ -1576,6 +1584,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("METy_UP",&_mety_up);
   myTree->Branch("METx_DOWN",&_metx_down);
   myTree->Branch("METy_DOWN",&_mety_down);
+  myTree->Branch("METx_UP_TES",&_metx_up_tes);
+  myTree->Branch("METy_UP_TES",&_mety_up_tes);
+  myTree->Branch("METx_DOWN_TES",&_metx_down_tes);
+  myTree->Branch("METy_DOWN_TES",&_mety_down_tes);
   myTree->Branch("uncorrMETx",&_uncorrmetx);
   myTree->Branch("uncorrMETy",&_uncorrmety);
   myTree->Branch("MET_cov00",&_metCov00);
@@ -2171,6 +2183,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpy_up = cand.userFloat("MEt_py_UP");
     float thisMETpx_down = cand.userFloat("MEt_px_DOWN");
     float thisMETpy_down = cand.userFloat("MEt_py_DOWN");
+    float thisMETpx_up_tes = cand.userFloat("MEt_px_UP_TES");
+    float thisMETpy_up_tes = cand.userFloat("MEt_py_UP_TES");
+    float thisMETpx_down_tes = cand.userFloat("MEt_px_DOWN_TES");
+    float thisMETpy_down_tes = cand.userFloat("MEt_py_DOWN_TES");
     float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
     float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
@@ -2257,6 +2273,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _mety_up.push_back(thisMETpy_up);
     _metx_down.push_back(thisMETpx_down);
     _mety_down.push_back(thisMETpy_down);
+    _metx_up_tes.push_back(thisMETpx_up_tes);
+    _mety_up_tes.push_back(thisMETpy_up_tes);
+    _metx_down_tes.push_back(thisMETpx_down_tes);
+    _mety_down_tes.push_back(thisMETpy_down_tes);
     _uncorrmetx.push_back(thisMETpx_uncorr);
     _uncorrmety.push_back(thisMETpy_uncorr);
     _metCov00.push_back(cand.userFloat("MEt_cov00"));
@@ -3099,7 +3119,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
         pfour+=fsr->p4();
       }
     } 
-    
+
     _daughters_px.push_back( (float) pfour.X());
     _daughters_py.push_back( (float) pfour.Y());
     _daughters_pz.push_back( (float) pfour.Z());
