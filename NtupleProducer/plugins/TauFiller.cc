@@ -113,12 +113,14 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "againstElectronMediumMVA6",
     "againstElectronTightMVA6",
     "againstElectronVTightMVA6",
-    
+
+    "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byLooseIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
     "byMediumIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
     "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    "byVVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     
     "byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
     "byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
