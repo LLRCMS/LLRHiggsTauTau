@@ -187,7 +187,8 @@ process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.
 
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
-    src = cms.InputTag("removeBadAndCloneGlobalMuons"),
+    #src = cms.InputTag("removeBadAndCloneGlobalMuons"), # input for 2016 data only
+    src = cms.InputTag("slimmedMuons"),
     cut = cms.string(MUCUT),
 #    Lowering pT cuts
 #    cut = cms.string("(isGlobalMuon || (isTrackerMuon && numberOfMatches>0)) &&" +
@@ -226,7 +227,7 @@ process.softMuons = cms.EDProducer("MuFiller",
 )
 
 # process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process.softMuons)
-process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons)    
+process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons)
 
 ###
 ### Electrons
