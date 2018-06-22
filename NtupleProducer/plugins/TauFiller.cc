@@ -184,7 +184,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double shiftP = 1.;
     double shiftMass = 1.;
     
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 /*0.5*/ && l.genJet()->pt() > 8. && ApplyTESCentralCorr)
+    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr) // 2016 data
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15. && ApplyTESCentralCorr)   // 2017 data
     {
 
       //cout << "---- gen get pt: " << l.genJet()->pt() << endl;
@@ -234,7 +235,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float udshiftP[2] = {1., 1.};
     float udshiftMass[2] = {1., 1.};
     bool isTESShifted = false;
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 /*0.5*/ && l.genJet()->pt() > 8. ) {
+    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8.) { // 2016 data
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15.) { // 2017 data
 
       isTESShifted = true;
 
