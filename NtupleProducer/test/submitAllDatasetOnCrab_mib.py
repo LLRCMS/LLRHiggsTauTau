@@ -34,13 +34,17 @@ import re
 #tag = "MC_gravitonsRS_29Apr2017"
 #datasetsFile = "datasets.txt"
 
-PROCESS = ["MC_PU12Apr"]
-tag = "MC_PU12Apr_18May2018"
-datasetsFile = "datasets_Fall17_15May2018.txt"
+#PROCESS = ["MC_PU12Apr"]
+#tag = "MC_PU12Apr_18May2018"
+#datasetsFile = "datasets_Fall17_15May2018.txt"
 
 #PROCESS = ["DATA2017"]
 #tag = "Data2017BF_31Mar2018ReReco_17May2018"
 #datasetsFile = "datasets_Fall17_15May2018.txt"
+
+PROCESS = ["MINIAODFALL17v2"]
+tag = "MC_25June2018"
+datasetsFile = "datasets_Fall17_15May2018.txt"
 
 isMC = True
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
@@ -80,8 +84,8 @@ isMC = True
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
 lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
 
-FastJobs = True # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
-VeryLong = True # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
+FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
+VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
 
