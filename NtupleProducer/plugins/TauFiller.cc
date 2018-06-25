@@ -294,6 +294,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       l.addUserFloat("py_TauUp",p4SUP.py());
       l.addUserFloat("pz_TauUp",p4SUP.pz());
       l.addUserFloat("e_TauUp",p4SUP.energy());
+      l.addUserFloat("m_TauUp",p4SUP.mass());
 
       // down shift
       pxS = l.px()*udshiftP[1];
@@ -307,6 +308,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       l.addUserFloat("py_TauDown",p4SDOWN.py());
       l.addUserFloat("pz_TauDown",p4SDOWN.pz());
       l.addUserFloat("e_TauDown",p4SDOWN.energy());
+      l.addUserFloat("m_TauDown",p4SDOWN.mass());
     }
     l.addUserInt("TauUpExists", isTESShifted ? 1 : 0);
     l.addUserInt("TauDownExists", isTESShifted ? 1 : 0);
