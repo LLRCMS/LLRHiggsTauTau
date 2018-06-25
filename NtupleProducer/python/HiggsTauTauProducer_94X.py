@@ -545,7 +545,11 @@ process.softTaus = cms.EDProducer("TauFiller",
    vtxCollection = cms.InputTag("goodPrimaryVertices"),
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
-   NominalTESCorrection = cms.double(-1), #in percent , shift of central value of TES
+   # --> Correct values for 2017 data - Uncertainty 3.0%
+   NominalTESUncertainty      = cms.double(3.0) , # in percent, up/down uncertainty of TES
+   NominalTESCorrection1Pr    = cms.double(-3.0), #DecayMode==0
+   NominalTESCorrection1PrPi0 = cms.double(-2.0), #DecayMode==1
+   NominalTESCorrection3Pr    = cms.double(-1.0), #DecayMode==10
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
    flags = cms.PSet(
