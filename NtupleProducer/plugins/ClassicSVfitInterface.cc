@@ -46,6 +46,7 @@
 
 #include <vector>
 #include <string>
+#include <cmath>
 
 using namespace edm;
 using namespace std;
@@ -251,6 +252,10 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     classic_svFit::MeasuredTauLepton::kDecayType l2Type = GetDecayTypeFlag (l2->pdgId());
     double mass1 = GetMass (l1Type, l1->mass());
     double mass2 = GetMass (l2Type, l2->mass());
+    double mass1_UP   = -1.;
+    double mass1_DOWN = -1.;
+    double mass2_UP   = -1.;
+    double mass2_DOWN = -1.;
    
     int decay1 = -1;
     int decay2 = -1;
@@ -336,13 +341,18 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
       float pyUp = userdatahelpers::getUserFloat(l1,"py_TauUp");
       float pzUp = userdatahelpers::getUserFloat(l1,"pz_TauUp");
       float eUp  = userdatahelpers::getUserFloat(l1,"e_TauUp");
+      float mUp  = userdatahelpers::getUserFloat(l1,"m_TauUp");
       l1_UP.SetPxPyPzE (pxUp, pyUp, pzUp, eUp);
 
       float pxDown = userdatahelpers::getUserFloat(l1,"px_TauDown");
       float pyDown = userdatahelpers::getUserFloat(l1,"py_TauDown");
       float pzDown = userdatahelpers::getUserFloat(l1,"pz_TauDown");
       float eDown  = userdatahelpers::getUserFloat(l1,"e_TauDown");
+      float mDown  = userdatahelpers::getUserFloat(l1,"m_TauDown");
       l1_DOWN.SetPxPyPzE (pxDown, pyDown, pzDown, eDown);
+
+      mass1_UP   = GetMass (l1Type, mUp);
+      mass1_DOWN = GetMass (l1Type, mDown);
     }
 
     if (l2shifted)
@@ -351,13 +361,18 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
       float pyUp = userdatahelpers::getUserFloat(l2,"py_TauUp");
       float pzUp = userdatahelpers::getUserFloat(l2,"pz_TauUp");
       float eUp  = userdatahelpers::getUserFloat(l2,"e_TauUp");
+      float mUp  = userdatahelpers::getUserFloat(l2,"m_TauUp");
       l2_UP.SetPxPyPzE (pxUp, pyUp, pzUp, eUp);
 
       float pxDown = userdatahelpers::getUserFloat(l2,"px_TauDown");
       float pyDown = userdatahelpers::getUserFloat(l2,"py_TauDown");
       float pzDown = userdatahelpers::getUserFloat(l2,"pz_TauDown");
       float eDown  = userdatahelpers::getUserFloat(l2,"e_TauDown");
+      float mDown  = userdatahelpers::getUserFloat(l2,"m_TauDown");
       l2_DOWN.SetPxPyPzE (pxDown, pyDown, pzDown, eDown);
+
+      mass2_UP   = GetMass (l2Type, mUp);
+      mass2_DOWN = GetMass (l2Type, mDown);
     }
 
     // set lepton vector, ordered for SVfit
@@ -366,11 +381,11 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
       measuredTauLeptons.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2, decay2 ));
       measuredTauLeptons.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1, decay1 ));
 
-      measuredTauLeptonsTauUp.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2, decay2 ));
-      measuredTauLeptonsTauUp.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1, decay1 ));
+      measuredTauLeptonsTauUp.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2_UP, decay2 ));
+      measuredTauLeptonsTauUp.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1_UP, decay1 ));
 
-      measuredTauLeptonsTauDown.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2_DOWN.Pt(), l2_DOWN.Eta(), l2_DOWN.Phi(), mass2, decay2 ));
-      measuredTauLeptonsTauDown.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1_DOWN.Pt(), l1_DOWN.Eta(), l1_DOWN.Phi(), mass1, decay1 ));
+      measuredTauLeptonsTauDown.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2_DOWN.Pt(), l2_DOWN.Eta(), l2_DOWN.Phi(), mass2_DOWN, decay2 ));
+      measuredTauLeptonsTauDown.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1_DOWN.Pt(), l1_DOWN.Eta(), l1_DOWN.Phi(), mass1_DOWN, decay1 ));
     }
 
     else
@@ -378,11 +393,11 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
       measuredTauLeptons.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1->pt(), l1->eta(), l1->phi(), mass1, decay1 ));
       measuredTauLeptons.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2->pt(), l2->eta(), l2->phi(), mass2, decay2 ));
 
-      measuredTauLeptonsTauUp.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1, decay1 ));
-      measuredTauLeptonsTauUp.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2, decay2 ));
+      measuredTauLeptonsTauUp.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1_UP.Pt(), l1_UP.Eta(), l1_UP.Phi(), mass1_UP, decay1 ));
+      measuredTauLeptonsTauUp.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2_UP.Pt(), l2_UP.Eta(), l2_UP.Phi(), mass2_UP, decay2 ));
 
-      measuredTauLeptonsTauDown.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1_DOWN.Pt(), l1_DOWN.Eta(), l1_DOWN.Phi(), mass1, decay1 ));
-      measuredTauLeptonsTauDown.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2_DOWN.Pt(), l2_DOWN.Eta(), l2_DOWN.Phi(), mass2, decay2 ));
+      measuredTauLeptonsTauDown.push_back(classic_svFit::MeasuredTauLepton(l1Type, l1_DOWN.Pt(), l1_DOWN.Eta(), l1_DOWN.Phi(), mass1_DOWN, decay1 ));
+      measuredTauLeptonsTauDown.push_back(classic_svFit::MeasuredTauLepton(l2Type, l2_DOWN.Pt(), l2_DOWN.Eta(), l2_DOWN.Phi(), mass2_DOWN, decay2 ));
     }
 
     // define algorithm (set the debug level to 3 for testing)
@@ -497,6 +512,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     {
       ClassicSVfit algo(verbosity);
       algo.addLogM_fixed(false, kappa);
+      algo.addLogM_dynamic(false);
       //algo.setLikelihoodFileName("testClassicSVfit.root"); //ROOT file to store histograms of di-tau pT, eta, phi, mass and transverse mass, comment if you don't want it
       //algo.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
       algo.integrate(measuredTauLeptons, METx, METy, covMET);
@@ -532,6 +548,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         // UP
         ClassicSVfit algoTauUp(verbosity);
         algoTauUp.addLogM_fixed(false, kappa);
+        algoTauUp.addLogM_dynamic(false);
         //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         //algoTauUp.integrate(measuredTauLeptonsTauUp, METx, METy, covMET);
         algoTauUp.integrate(measuredTauLeptonsTauUp, METx_UP_TES, METy_UP_TES, covMET);
@@ -563,9 +580,10 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         // DOWN
         ClassicSVfit algoTauDown(verbosity);
         algoTauDown.addLogM_fixed(false, kappa);
+        algoTauDown.addLogM_dynamic(false);
         //algoTauDown.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         //algoTauDown.integrate(measuredTauLeptonsTauDown, METx, METy, covMET);
-        algoTauDown.integrate(measuredTauLeptonsTauDown, METx_DOWN_TES, METx_DOWN_TES, covMET);
+        algoTauDown.integrate(measuredTauLeptonsTauDown, METx_DOWN_TES, METy_DOWN_TES, covMET);
 
         if ( algoTauDown.isValidSolution() )
         {
@@ -591,6 +609,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         }
         else
           SVfitMassTauDown = -111; // -111: SVfit failed (cfr: -999: SVfit not computed)
+
       }
       else if (_computeForUpDownTES) // if I asked to have UP/DOWN variation, but this pair has not tau shifted, simply put central value. 
       {                              // instead, if I dindn't ask for up/down, I get -999 everywhere to remember my mistakes
@@ -614,6 +633,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         // UP MET
         ClassicSVfit algoMETUp(verbosity);
         algoMETUp.addLogM_fixed(false, kappa);
+        algoMETUp.addLogM_dynamic(false);
         //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         algoMETUp.integrate(measuredTauLeptons, METx_UP, METy_UP, covMET);
 
@@ -644,6 +664,7 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         // DOWN MET
         ClassicSVfit algoMETDown(verbosity);
         algoMETDown.addLogM_fixed(false, kappa);
+        algoMETDown.addLogM_dynamic(false);
         //algoTauUp.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
         algoMETDown.integrate(measuredTauLeptons, METx_DOWN, METy_DOWN, covMET);
 
@@ -674,6 +695,12 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     } // end of quality checks IF
     
+    //cout << "-----------------" << endl;
+    //cout << "Central (M, pt, eta): " << SVfitMass << " / " << SVpt << " / " << SVeta << endl;
+    //cout << "TauUp   (M, pt, eta): " << SVfitMassTauUp << " / " << SVptTauUp << " / " << SVetaTauUp << endl;
+    //cout << "TauDown (M, pt, eta): " << SVfitMassTauDown << " / " << SVptTauDown << " / " << SVetaTauDown << endl;
+    //cout << "-----------------" << endl;
+
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", (float) SVfitMass);
     pair.addUserFloat("SVfitMassTauUp", (float) SVfitMassTauUp);

@@ -24,7 +24,7 @@ APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil correcti
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
 
-SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
@@ -152,8 +152,8 @@ process.source = cms.Source("PoolSource",
 
 # process.source.skipEvents = cms.untracked.uint32(968)
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
-#process.source.eventsToProcess = cms.untracked.VEventRange("1:81:67461-1:81:67461")
-#process.source.eventsToProcess = cms.untracked.VEventRange("1:6:4403-1:6:4403")
+#process.source.eventsToProcess = cms.untracked.VEventRange("1:26669:46950527-1:26669:46950527")
+#process.source.eventsToProcess = cms.untracked.VEventRange("1:7:5757-1:7:5757")
 #process.source.eventsToProcess = cms.untracked.VEventRange("305902:212:301932757-305902:212:301932757")
 
 #Limited nEv for testing purposes. -1 to run all events
@@ -169,7 +169,7 @@ if not IsMC:
 ## Output file
 ##
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
-#process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_Graviton450_seventeen.root'))
+#process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_TauDataF_eighteen.root'))
 
 # L1 trigger objects (as suggested on: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information )
 #  ----> TO BE FIXED <----
