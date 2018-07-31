@@ -399,7 +399,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
   std::vector<Float_t> _daughters_HLTpt;
-  std::vector<Bool_t>  _daughters_isL1IsoTau32Matched;
+  std::vector<Bool_t>  _daughters_isL1IsoTau28Matched;
+  std::vector<Float_t>  _daughters_highestEt_L1IsoTauMatched;
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
 
@@ -1187,7 +1188,8 @@ void HTauTauNtuplizer::Initialize(){
 
   _isOSCand.clear();
   _daughters_HLTpt.clear();
-  _daughters_isL1IsoTau32Matched.clear();
+  _daughters_isL1IsoTau28Matched.clear();
+  _daughters_highestEt_L1IsoTauMatched.clear();
   _metx.clear();
   _mety.clear();
   _metx_up.clear();
@@ -1493,7 +1495,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("L1_jetPhi",&_L1_jetPhi);
 
 
-     myTree->Branch("daughters_isL1IsoTau32Matched", &_daughters_isL1IsoTau32Matched);
+     myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
       
     myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
       myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
@@ -1715,7 +1717,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
   myTree->Branch("daughters_HLTpt",&_daughters_HLTpt);
 
-
+  myTree->Branch("daughters_isL1IsoTau28Matched", &_daughters_isL1IsoTau28Matched);
 
   myTree->Branch("daughters_jetNDauChargedMVASel",&_daughters_jetNDauChargedMVASel);
   myTree->Branch("daughters_miniRelIsoCharged",&_daughters_miniRelIsoCharged);
@@ -3690,12 +3692,13 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       }*/
     if (theisMC)
       {
+	std::vector<Float_t> L1IsoTau_et; 
 	for (int ibx = l1taus->getFirstBX(); ibx <= l1taus->getLastBX(); ++ibx)
 	  {
 	    for (BXVector<l1t::Tau>::const_iterator it=l1taus->begin(ibx); it!=l1taus->end(ibx); it++)
 	      {
 		if (it->et() > 0 && ibx ==0){
-		  if (it->et() > 32  && it->hwIso() > 0.5){
+		  if (it->hwIso() > 0.5){
 		    TLorentzVector tlv_L1Tau;
 		    TLorentzVector tlv_Tau;
 		    tlv_L1Tau.SetPtEtaPhiM(it->et(),
@@ -3710,17 +3713,21 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 		    
 		    if ((tlv_L1Tau.DeltaR(tlv_Tau)*tlv_L1Tau.DeltaR(tlv_Tau)) < 0.25) {
 		      isL1IsoTauMatched = true;
-		      break;
+		      L1IsoTau_et.push_back(it->et());
 		    }
 		    
-		  } 
+		  }
 		  
 		}
 	      }
+	    
 	  }
 	
-	_daughters_isL1IsoTau32Matched.push_back(isL1IsoTauMatched) ;
-	
+	if(isL1IsoTauMatched) {
+	  std::sort(L1IsoTau_et.begin(), L1IsoTau_et.end());
+	  Float_t L1IsoTau_etMax = *L1IsoTau_et.rbegin();
+	  _daughters_highestEt_L1IsoTauMatched.push_back(L1IsoTau_etMax) ;
+	}
       }
   }
 }
