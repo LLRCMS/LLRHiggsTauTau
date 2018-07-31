@@ -1465,13 +1465,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_e",&_daughters_e);
   myTree->Branch("daughters_charge",&_daughters_charge);
 
-    myTree->Branch("L1_tauEt",&_L1_tauEt);
-    myTree->Branch("L1_tauEta",&_L1_tauEta);
-    myTree->Branch("L1_tauPhi",&_L1_tauPhi);
-    myTree->Branch("L1_tauIso",&_L1_tauIso);
-    myTree->Branch("L1_jetEt",&_L1_jetEt);
-    myTree->Branch("L1_jetEta",&_L1_jetEta);
-    myTree->Branch("L1_jetPhi",&_L1_jetPhi);
+
 
   
   if(doCPVariables){
@@ -1490,7 +1484,18 @@ void HTauTauNtuplizer::beginJob(){
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
-      myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
+    myTree->Branch("L1_tauEt",&_L1_tauEt);
+    myTree->Branch("L1_tauEta",&_L1_tauEta);
+    myTree->Branch("L1_tauPhi",&_L1_tauPhi);
+    myTree->Branch("L1_tauIso",&_L1_tauIso);
+    myTree->Branch("L1_jetEt",&_L1_jetEt);
+    myTree->Branch("L1_jetEta",&_L1_jetEta);
+    myTree->Branch("L1_jetPhi",&_L1_jetPhi);
+
+
+     myTree->Branch("daughters_isL1IsoTau32Matched", &_daughters_isL1IsoTau32Matched);
+      
+    myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
       myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
       myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
       myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
@@ -1710,7 +1715,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
   myTree->Branch("daughters_HLTpt",&_daughters_HLTpt);
 
-  myTree->Branch("daughters_isL1IsoTau32Matched", &_daughters_isL1IsoTau32Matched);
+
 
   myTree->Branch("daughters_jetNDauChargedMVASel",&_daughters_jetNDauChargedMVASel);
   myTree->Branch("daughters_miniRelIsoCharged",&_daughters_miniRelIsoCharged);
@@ -2213,7 +2218,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     
   }
   if(writeFatJets) FillFatJet(fatjets, event);
-  if(writeL1) FillL1Obj(L1Tau, L1Jet, event);
+  if(writeL1 && theisMC) FillL1Obj(L1Tau, L1Jet, event);
   
   //FRA: Matching jets with trigger filters for VBF
   VBFtrigMatch(jets, event);
@@ -3683,39 +3688,40 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           }
       }
       }*/
-
-    for (int ibx = l1taus->getFirstBX(); ibx <= l1taus->getLastBX(); ++ibx)
+    if (theisMC)
       {
-	for (BXVector<l1t::Tau>::const_iterator it=l1taus->begin(ibx); it!=l1taus->end(ibx); it++)
+	for (int ibx = l1taus->getFirstBX(); ibx <= l1taus->getLastBX(); ++ibx)
 	  {
-	    if (it->et() > 0 && ibx ==0){
-	      if (it->et() > 32  && it->hwIso() > 0.5){
-		cout<<"tau et "<<it->et()<<" eta "<<it->eta()<<" phi "<<it->phi()<<" iso "<<it->hwIso() << endl;
-		TLorentzVector tlv_L1Tau;
-		TLorentzVector tlv_Tau;
-		tlv_L1Tau.SetPtEtaPhiM(it->et(),
-				       it->eta(),
-				       it->phi(),
-				       0.);
-		
-		tlv_Tau.SetPtEtaPhiM(cand->pt(),
-				     cand->eta(),
-				     cand->phi(),
-				     0.);
-		
-		if ((tlv_L1Tau.DeltaR(tlv_Tau)*tlv_L1Tau.DeltaR(tlv_Tau)) < 0.25) {
-		  isL1IsoTauMatched = true;
-		  break;
+	    for (BXVector<l1t::Tau>::const_iterator it=l1taus->begin(ibx); it!=l1taus->end(ibx); it++)
+	      {
+		if (it->et() > 0 && ibx ==0){
+		  if (it->et() > 32  && it->hwIso() > 0.5){
+		    TLorentzVector tlv_L1Tau;
+		    TLorentzVector tlv_Tau;
+		    tlv_L1Tau.SetPtEtaPhiM(it->et(),
+					   it->eta(),
+					   it->phi(),
+					   0.);
+		    
+		    tlv_Tau.SetPtEtaPhiM(cand->pt(),
+					 cand->eta(),
+					 cand->phi(),
+					 0.);
+		    
+		    if ((tlv_L1Tau.DeltaR(tlv_Tau)*tlv_L1Tau.DeltaR(tlv_Tau)) < 0.25) {
+		      isL1IsoTauMatched = true;
+		      break;
+		    }
+		    
+		  } 
+		  
 		}
-		
-	      } 
-	      
-	    }
+	      }
 	  }
+	
+	_daughters_isL1IsoTau32Matched.push_back(isL1IsoTauMatched) ;
+	
       }
-    
-    _daughters_isL1IsoTau32Matched.push_back(isL1IsoTauMatched) ;
-
   }
 }
 
@@ -3953,7 +3959,6 @@ void HTauTauNtuplizer::FillL1Obj(const BXVector<l1t::Tau>* taus, const BXVector<
 	    _L1_tauEta.push_back(it->eta());
 	    _L1_tauPhi.push_back(it->phi());
 	    _L1_tauIso.push_back(it->hwIso());
-	    cout<<"tau et "<<it->et()<<" eta "<<it->eta()<<" phi "<<it->phi()<<" iso "<<it->hwIso() << endl;
 	  }
 	}
     }
