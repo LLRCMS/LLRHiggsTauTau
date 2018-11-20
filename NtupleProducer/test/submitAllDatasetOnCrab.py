@@ -165,11 +165,19 @@ import re
 #tag = "MC_PU12Apr"
 #datasetsFile = "datasets_Fall17_15May2018.txt"
 
-PROCESS = ["DATA2017"]
-tag = "Data17_BF"
-datasetsFile = "datasets_Fall17_15May2018.txt"
+#PROCESS = ["DATA2017"]
+#tag = "SingleMuon2017E_26Jun2018"
+#datasetsFile = "datasetsFall17.txt"
 
-isMC = False
+#PROCESS = ["SIG_Fall17"]
+#tag = "VBFRadion400_29Jun2018"
+#datasetsFile = "datasetsFall17.txt"
+
+PROCESS = ["DY_Fall2017"]
+tag = "MC_16Oct2018"
+datasetsFile = "datasetsFall17.txt"
+
+isMC = True
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -202,10 +210,10 @@ isMC = False
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PromptReco/Cert_294927-302663_13TeV_PromptReco_Collisions17_JSON.txt'
 ## 15 May 2018 Golden JSON 2017
 # https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
-lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+lumiMaskFileName = '/home/llr/cms/amendola/HH2017/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/test/crab3_SingleMuon2017_26Jun2018/crab_SingleMuon_4/results/notFinishedLumis.json'
 
-
-FastJobs = True # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
+FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
@@ -250,7 +258,7 @@ print " Publish?: "   , PublishDataset
 with open(datasetsFile) as fIn:
     for line in fIn:
         line = line.strip() # remove newline at the end and leding/trailing whitespaces
-        
+
         if not line: #skip empty lines
             continue
 
@@ -263,7 +271,7 @@ with open(datasetsFile) as fIn:
             if words[0] == sectionBeginEnd and words[2] == sectionBeginEnd: 
                 currSection = words[1]
         else:
-            if currSection in PROCESS:
+            if currSection in PROCESS:                
                 dtsetToLaunch.append(line)
 
 # CREATE CRAB JOBS
@@ -284,6 +292,7 @@ outlog.write (" Fast jobs?: %s\n" % str(FastJobs))
 outlog.write (" Publish?: %s\n"   % str(PublishDataset))
 outlog.write (" ===============================================\n\n\n")
 
+print dtsetToLaunch
 for dtset in dtsetToLaunch:
     dtsetNames = dtset
     if '/MINIAODSIM' in dtset:
@@ -308,7 +317,7 @@ for dtset in dtsetToLaunch:
     command += " Data.outLFNDirBase=/store/user/camendol/HHNtuples2017/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
     #command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
-    command += " Data.splitting='Automatic'"
+    #command += " Data.splitting='Automatic'"
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
