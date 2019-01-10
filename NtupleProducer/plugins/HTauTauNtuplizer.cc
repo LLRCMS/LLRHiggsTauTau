@@ -118,11 +118,15 @@
 
 #include "TLorentzVector.h"
 
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+
  namespace {
 //   bool writePhotons = false;  // Write photons in the tree. 
    bool writeJets = true;     // Write jets in the tree. 
    bool writeFatJets = true;
    bool writeSoftLep = false;
+   bool writeL1 = true;
    bool DEBUG = false;
    int DETAIL=1;
  }
@@ -163,12 +167,14 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
   int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, edm::EventSetup const&, JetCorrectionUncertainty*, myJECMap*);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
-  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets);
+  void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets, const BXVector<l1t::Tau>* l1taus);
   void VBFtrigMatch(const edm::View<pat::Jet>* jet, const edm::Event&); //FRA
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
   int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
+  void FillL1Obj(const BXVector<l1t::Tau>* taus, const BXVector<l1t::Jet>* jets, const edm::Event& event); // chia
+  
   //int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
   static bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
   float ComputeMT (math::XYZTLorentzVector visP4, float METx, float METy);
@@ -208,7 +214,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   PUReweight reweight;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
-  edm::EDGetTokenT<vector<l1extra::L1JetParticle>> l1ExtraIsoTau_;
+  //edm::EDGetTokenT<vector<l1extra::L1JetParticle>> l1ExtraIsoTau_;
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<edm::TriggerResults> metFilterBits_;
   edm::EDGetTokenT<vector<Vertex>> theVtxTag;
@@ -236,6 +242,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::MergeableCounter> thePassTag;
   edm::EDGetTokenT<LHEEventProduct> theLHEPTag;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag;
+  edm::EDGetTokenT<BXVector<l1t::Tau> > theL1TauTag;
+  edm::EDGetTokenT<BXVector<l1t::Jet> > theL1JetTag;
   edm::EDGetTokenT<int> theNBadMuTag;
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
   //flags
@@ -374,6 +382,17 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _genjet_partonFlavour; // from matched pat::Jet
   std::vector<Int_t> _genjet_hadronFlavour; // (eh yes, because it is not accessible easily from gen jets)
 
+  //L1 taus
+  std::vector<Float_t> _L1_tauEt;
+  std::vector<Float_t> _L1_tauEta;
+  std::vector<Float_t> _L1_tauPhi;
+  std::vector<short int> _L1_tauIso;
+
+  //L1 jets
+  std::vector<Float_t> _L1_jetEt;
+  std::vector<Float_t> _L1_jetEta;
+  std::vector<Float_t> _L1_jetPhi;
+  
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
   //Mothers output variables
@@ -381,6 +400,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _indexDau2;
   std::vector<Float_t> _daughters_HLTpt;
   std::vector<Bool_t>  _daughters_isL1IsoTau28Matched;
+  std::vector<Float_t>  _daughters_highestEt_L1IsoTauMatched;
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
 
@@ -812,7 +832,7 @@ const int HTauTauNtuplizer::ntauIds; // definition of static member
 // ----Constructor and Destructor -----
 HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   triggerObjects_      (consumes<pat::TriggerObjectStandAloneCollection> (pset.getParameter<edm::InputTag>("triggerSet"))),
-  l1ExtraIsoTau_       (consumes<vector<l1extra::L1JetParticle>>         (pset.getParameter<edm::InputTag>("l1extraIsoTau"))) ,
+  //l1ExtraIsoTau_       (consumes<vector<l1extra::L1JetParticle>>         (pset.getParameter<edm::InputTag>("l1extraIsoTau"))) ,
   triggerBits_         (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
   metFilterBits_       (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("metFilters"))),
   theVtxTag            (consumes<vector<Vertex>>                         (pset.getParameter<edm::InputTag>("vtxCollection"))),
@@ -840,6 +860,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   thePassTag           (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("passCollection"))),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection"))),
   beamSpotTag          (consumes<reco::BeamSpot>                         (pset.getParameter<edm::InputTag>("beamSpot"))),
+  theL1TauTag      (consumes<BXVector<l1t::Tau>>                     (pset.getParameter<edm::InputTag>("stage2TauCollection"))),
+  theL1JetTag      (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
   theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))),
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag")))
 
@@ -1071,6 +1093,15 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_TauGenDecayMode.clear();
   _genpart_TauGenDetailedDecayMode.clear();
   _genpart_flags.clear();
+
+  _L1_tauEt.clear();
+  _L1_tauEta.clear();
+  _L1_tauPhi.clear();
+  _L1_tauIso.clear();
+
+  _L1_jetEt.clear();
+  _L1_jetEta.clear();
+  _L1_jetPhi.clear();
   
   _genjet_px.clear();
   _genjet_py.clear();
@@ -1158,6 +1189,7 @@ void HTauTauNtuplizer::Initialize(){
   _isOSCand.clear();
   _daughters_HLTpt.clear();
   _daughters_isL1IsoTau28Matched.clear();
+  _daughters_highestEt_L1IsoTauMatched.clear();
   _metx.clear();
   _mety.clear();
   _metx_up.clear();
@@ -1435,6 +1467,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_e",&_daughters_e);
   myTree->Branch("daughters_charge",&_daughters_charge);
 
+
+
+  
   if(doCPVariables){
     myTree->Branch("daughters_charged_px",&_daughters_charged_px);
     myTree->Branch("daughters_charged_py",&_daughters_charged_py);
@@ -1445,12 +1480,24 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("daughters_neutral_py",&_daughters_neutral_py);
     myTree->Branch("daughters_neutral_pz",&_daughters_neutral_pz);
     myTree->Branch("daughters_neutral_e",&_daughters_neutral_e);
+
   }
 
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   if(theisMC){
-      myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
+    myTree->Branch("L1_tauEt",&_L1_tauEt);
+    myTree->Branch("L1_tauEta",&_L1_tauEta);
+    myTree->Branch("L1_tauPhi",&_L1_tauPhi);
+    myTree->Branch("L1_tauIso",&_L1_tauIso);
+    myTree->Branch("L1_jetEt",&_L1_jetEt);
+    myTree->Branch("L1_jetEta",&_L1_jetEta);
+    myTree->Branch("L1_jetPhi",&_L1_jetPhi);
+
+
+     myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
+      
+    myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
       myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
       myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
       myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
@@ -1517,6 +1564,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genjet_partonFlavour" , &_genjet_partonFlavour);
     myTree->Branch("genjet_hadronFlavour" , &_genjet_hadronFlavour);
 
+    
     myTree->Branch("NUP", &_nup,"NUP/I");
     myTree->Branch("SVfit_fitMETPhiTauUp", &_SVMetPhiTauUp);
     myTree->Branch("SVfit_fitMETPhiTauDown", &_SVMetPhiTauDown);
@@ -1668,6 +1716,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired);
   myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
   myTree->Branch("daughters_HLTpt",&_daughters_HLTpt);
+
   myTree->Branch("daughters_isL1IsoTau28Matched", &_daughters_isL1IsoTau28Matched);
 
   myTree->Branch("daughters_jetNDauChargedMVASel",&_daughters_jetNDauChargedMVASel);
@@ -2020,6 +2069,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<pat::Jet>>jetHandle;
   edm::Handle<edm::View<pat::Jet>>fatjetHandle;
   edm::Handle<edm::ValueMap<float>>qgTaggerHandle;
+  edm::Handle<BXVector<l1t::Tau>>L1TauHandle;
+  edm::Handle<BXVector<l1t::Jet>>L1JetHandle;
   edm::Handle<pat::METCollection> metHandle;
   edm::Handle<pat::METCollection> metERHandle;
   edm::Handle<pat::METCollection> PUPPImetHandle;
@@ -2037,6 +2088,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(theJetTag,jetHandle);
   if(computeQGVar)
     event.getByToken(theQGTaggerTag,qgTaggerHandle);
+  event.getByToken(theL1TauTag,L1TauHandle);
+  event.getByToken(theL1JetTag,L1JetHandle);
   event.getByToken(theFatJetTag,fatjetHandle);
   event.getByToken(theLepTag,dauHandle);
   event.getByToken(theMetTag,metHandle);
@@ -2091,6 +2144,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const pat::MET &met = metHandle->front();
   const pat::MET &met_er = metERHandle->front();
   const pat::MET &PUPPImet = PUPPImetHandle->front();
+  const BXVector<l1t::Tau>* L1Tau = L1TauHandle.product();
+  const BXVector<l1t::Jet>* L1Jet = L1JetHandle.product();
   //myNtuple->InitializeVariables();
     
   _indexevents = event.id().event();
@@ -2121,7 +2176,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     FillGenJetInfo(event); // gen jets
   }
   //Loop of softleptons and fill them
-  FillSoftLeptons(daus,event,eSetup,theFSR,jets);
+  FillSoftLeptons(daus,event,eSetup,theFSR,jets,L1Tau);
   
   //Loop on Jets
 
@@ -2165,6 +2220,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     
   }
   if(writeFatJets) FillFatJet(fatjets, event);
+  if(writeL1 && theisMC) FillL1Obj(L1Tau, L1Jet, event);
   
   //FRA: Matching jets with trigger filters for VBF
   VBFtrigMatch(jets, event);
@@ -3047,7 +3103,7 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
 //Fill all leptons (we keep them all for veto purposes
 void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 				       const edm::Event& event, const edm::EventSetup& setup,
-				       bool theFSR, const edm::View<pat::Jet> *jets){
+				       bool theFSR, const edm::View<pat::Jet> *jets,const BXVector<l1t::Tau>* l1taus ){
   edm::Handle<edm::TriggerResults> triggerBits;
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
 
@@ -3055,8 +3111,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
   event.getByToken(triggerBits_, triggerBits);
   const edm::TriggerNames &names = event.triggerNames(*triggerBits);
   
-  edm::Handle<vector<l1extra::L1JetParticle>> L1ExtraIsoTau;
-  event.getByToken(l1ExtraIsoTau_, L1ExtraIsoTau);
+  //edm::Handle<vector<l1extra::L1JetParticle>> L1ExtraIsoTau;
+  //event.getByToken(l1ExtraIsoTau_, L1ExtraIsoTau);
 
 
   edm::Handle<edm::View<pat::PackedCandidate> >pfCandHandle;
@@ -3619,21 +3675,60 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     // L1 candidate matching -- to correct for the missing seed
     bool isL1IsoTauMatched = false;
-    if(L1ExtraIsoTau.isValid()){
+    /*if(L1ExtraIsoTau.isValid()){
       for (unsigned int iL1IsoTau = 0; iL1IsoTau < L1ExtraIsoTau->size(); iL1IsoTau++)
       {
         const l1extra::L1JetParticle& L1IsoTau = (*L1ExtraIsoTau).at(iL1IsoTau);
-        //cout << "IL1TauL: " << iL1IsoTau << " - " << L1IsoTau.pt() << " " << L1IsoTau.eta() << " " << L1IsoTau.phi() << " " << isL1IsoTauMatched << endl;
+        // cout << "IL1TauL: " << iL1IsoTau << " - " << L1IsoTau.pt() << " " << L1IsoTau.eta() << " " << L1IsoTau.phi() << " " << isL1IsoTauMatched << endl;
         // 0.5 cone match + pT requirement as in data taking
-        if(L1IsoTau.pt() > 28 && deltaR2(L1IsoTau,*cand)<0.25)
+	cout<<"iso tau pt "<<L1IsoTau.pt()<<" eta "<<L1IsoTau.eta()<<" "<<L1IsoTau.phi()<<endl;
+        if(L1IsoTau.pt() > 32 && deltaR2(L1IsoTau,*cand)<0.25)
           {
+
             isL1IsoTauMatched = true;
             break;
           }
       }
-    }
-    _daughters_isL1IsoTau28Matched.push_back(isL1IsoTauMatched) ;
-
+      }*/
+    if (theisMC)
+      {
+	std::vector<Float_t> L1IsoTau_et; 
+	for (int ibx = l1taus->getFirstBX(); ibx <= l1taus->getLastBX(); ++ibx)
+	  {
+	    for (BXVector<l1t::Tau>::const_iterator it=l1taus->begin(ibx); it!=l1taus->end(ibx); it++)
+	      {
+		if (it->et() > 0 && ibx ==0){
+		  if (it->hwIso() > 0.5){
+		    TLorentzVector tlv_L1Tau;
+		    TLorentzVector tlv_Tau;
+		    tlv_L1Tau.SetPtEtaPhiM(it->et(),
+					   it->eta(),
+					   it->phi(),
+					   0.);
+		    
+		    tlv_Tau.SetPtEtaPhiM(cand->pt(),
+					 cand->eta(),
+					 cand->phi(),
+					 0.);
+		    
+		    if ((tlv_L1Tau.DeltaR(tlv_Tau)*tlv_L1Tau.DeltaR(tlv_Tau)) < 0.25) {
+		      isL1IsoTauMatched = true;
+		      L1IsoTau_et.push_back(it->et());
+		    }
+		    
+		  }
+		  
+		}
+	      }
+	    
+	  }
+	
+	if(isL1IsoTauMatched) {
+	  std::sort(L1IsoTau_et.begin(), L1IsoTau_et.end());
+	  Float_t L1IsoTau_etMax = *L1IsoTau_et.rbegin();
+	  _daughters_highestEt_L1IsoTauMatched.push_back(L1IsoTau_etMax) ;
+	}
+      }
   }
 }
 
@@ -3856,6 +3951,38 @@ int HTauTauNtuplizer::GetMatchedGen (const reco::Candidate* genL, const edm::Eve
     }
     
     return index;
+}
+
+//Fill L1 objects
+void HTauTauNtuplizer::FillL1Obj(const BXVector<l1t::Tau>* taus, const BXVector<l1t::Jet>* jets, const edm::Event& event){
+
+  for (int ibx = taus->getFirstBX(); ibx <= taus->getLastBX(); ++ibx)
+    {
+      for (BXVector<l1t::Tau>::const_iterator it=taus->begin(ibx); it!=taus->end(ibx); it++)
+	{
+	  if (it->et() > 0 && ibx ==0){
+
+	    _L1_tauEt .push_back(it->et());
+	    _L1_tauEta.push_back(it->eta());
+	    _L1_tauPhi.push_back(it->phi());
+	    _L1_tauIso.push_back(it->hwIso());
+	  }
+	}
+    }
+
+  for (int ibx = jets->getFirstBX(); ibx <= jets->getLastBX(); ++ibx)
+    {
+      for (BXVector<l1t::Jet>::const_iterator it=jets->begin(ibx); it!=jets->end(ibx); it++)
+	{
+	  if (it->et() > 0&& ibx ==0){
+	    
+	    _L1_jetEt .push_back(it->et());
+	    _L1_jetEta.push_back(it->eta());
+	    _L1_jetPhi.push_back(it->phi());
+	   
+	  }
+	}
+    }
 }
 
 // not used anymore, all info already stored in genFiller

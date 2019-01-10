@@ -39,7 +39,7 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalTightHalo2016Filter",
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter",
