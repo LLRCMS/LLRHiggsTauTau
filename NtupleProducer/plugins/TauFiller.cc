@@ -56,7 +56,11 @@ class TauFiller : public edm::EDProducer {
   const double NominalTESCorrection1Pr;    // DM==0  - correction of central TES
   const double NominalTESCorrection1PrPi0; // DM==1  - correction of central TES
   const double NominalTESCorrection3Pr;    // DM==10 - correction of central TES
-  const double NominalTESUncertainty;      // Up/Down uncertainty for TES - same for all DMs
+  const double NominalTESCorrection3PrPi0;    // DM==11 - correction of central TES
+  const double NominalTESUncertainty1Pr;      // Up/Down uncertainty for TES 
+  const double NominalTESUncertainty1PrPi0;      // Up/Down uncertainty for TES 
+  const double NominalTESUncertainty3Pr;      // Up/Down uncertainty for TES 
+  const double NominalTESUncertainty3PrPi0;      // Up/Down uncertainty for TES 
 
   vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
   vector<string> tauFloatDiscrims_; // tau discrims to be added as userFloats
@@ -75,7 +79,11 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   NominalTESCorrection1Pr(iConfig.getParameter<double>("NominalTESCorrection1Pr")),
   NominalTESCorrection1PrPi0(iConfig.getParameter<double>("NominalTESCorrection1PrPi0")),
   NominalTESCorrection3Pr(iConfig.getParameter<double>("NominalTESCorrection3Pr")),
-  NominalTESUncertainty(iConfig.getParameter<double>("NominalTESUncertainty"))
+  NominalTESCorrection3PrPi0(iConfig.getParameter<double>("NominalTESCorrection3PrPi0")),
+  NominalTESUncertainty1Pr(iConfig.getParameter<double>("NominalTESUncertainty1Pr")),
+  NominalTESUncertainty1PrPi0(iConfig.getParameter<double>("NominalTESUncertainty1PrPi0")),
+  NominalTESUncertainty3Pr(iConfig.getParameter<double>("NominalTESUncertainty3Pr")),
+  NominalTESUncertainty3PrPi0(iConfig.getParameter<double>("NominalTESUncertainty3PrPi0"))
 {
   produces<pat::TauCollection>();
 
@@ -181,6 +189,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double Shift1Pr    = 1. + NominalTESCorrection1Pr/100.;
     double Shift1PrPi0 = 1. + NominalTESCorrection1PrPi0/100.;
     double Shift3Pr    = 1. + NominalTESCorrection3Pr/100.;
+    double Shift3PrPi0  = 1. + NominalTESCorrection3PrPi0/100.;
     double shiftP = 1.;
     double shiftMass = 1.;
     
@@ -203,6 +212,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
         shiftP    = Shift3Pr;
         shiftMass = Shift3Pr;
+      }
+      else if (l.decayMode()==11) // 3prong+pi0
+      {
+        shiftP    = Shift3PrPi0;
+        shiftMass = Shift3PrPi0;
       }
       else  // these are not real taus and will be rejected --> we don't care about the shift and just put 1
       {
@@ -242,23 +256,30 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (l.decayMode()==0)       // 1prong
       {
-        udshiftP[0]    =  Shift1Pr + (NominalTESUncertainty/100.); //udShift[0]; // up
-        udshiftP[1]    =  Shift1Pr - (NominalTESUncertainty/100.); //udShift[1]; // down
+        udshiftP[0]    =  Shift1Pr + (NominalTESUncertainty1Pr/100.); //udShift[0]; // up
+        udshiftP[1]    =  Shift1Pr - (NominalTESUncertainty1Pr/100.); //udShift[1]; // down
         udshiftMass[0] = udshiftMass[1] = 1.; // no mass shift for pi0
       }
       else if (l.decayMode()==1)  // 1prong+pi0
       {
-        udshiftP[0]    = Shift1PrPi0 + (NominalTESUncertainty/100.); //udShift[0]; // up
-        udshiftP[1]    = Shift1PrPi0 - (NominalTESUncertainty/100.); //udShift[1]; // down
-        udshiftMass[0] = Shift1PrPi0 + (NominalTESUncertainty/100.); //udShift[0]; // up
-        udshiftMass[1] = Shift1PrPi0 - (NominalTESUncertainty/100.); //udShift[1]; // down
+        udshiftP[0]    = Shift1PrPi0 + (NominalTESUncertainty1PrPi0/100.); //udShift[0]; // up
+        udshiftP[1]    = Shift1PrPi0 - (NominalTESUncertainty1PrPi0/100.); //udShift[1]; // down
+        udshiftMass[0] = Shift1PrPi0 + (NominalTESUncertainty1PrPi0/100.); //udShift[0]; // up
+        udshiftMass[1] = Shift1PrPi0 - (NominalTESUncertainty1PrPi0/100.); //udShift[1]; // down
       }
       else if (l.decayMode()==10) // 3prong
       {
-        udshiftP[0]    = Shift3Pr + (NominalTESUncertainty/100.); //udShift[0]; // up
-        udshiftP[1]    = Shift3Pr - (NominalTESUncertainty/100.); //udShift[1]; // down
-        udshiftMass[0] = Shift3Pr + (NominalTESUncertainty/100.); //udShift[0]; // up
-        udshiftMass[1] = Shift3Pr - (NominalTESUncertainty/100.); //udShift[1]; // down
+        udshiftP[0]    = Shift3Pr + (NominalTESUncertainty3Pr/100.); //udShift[0]; // up
+        udshiftP[1]    = Shift3Pr - (NominalTESUncertainty3Pr/100.); //udShift[1]; // down
+        udshiftMass[0] = Shift3Pr + (NominalTESUncertainty3Pr/100.); //udShift[0]; // up
+        udshiftMass[1] = Shift3Pr - (NominalTESUncertainty3Pr/100.); //udShift[1]; // down
+      }
+      else if (l.decayMode()==11) // 3prong
+      {
+        udshiftP[0]    = Shift3PrPi0 + (NominalTESUncertainty3PrPi0/100.); //udShift[0]; // up
+        udshiftP[1]    = Shift3PrPi0 - (NominalTESUncertainty3PrPi0/100.); //udShift[1]; // down
+        udshiftMass[0] = Shift3PrPi0 + (NominalTESUncertainty3PrPi0/100.); //udShift[0]; // up
+        udshiftMass[1] = Shift3PrPi0 - (NominalTESUncertainty3PrPi0/100.); //udShift[1]; // down
       }
       else  // these are not real taus and will be rejected --> we don't care about the shift and just put 1
       {

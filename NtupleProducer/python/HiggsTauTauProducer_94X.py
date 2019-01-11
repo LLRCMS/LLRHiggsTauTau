@@ -534,10 +534,20 @@ process.softTaus = cms.EDProducer("TauFiller",
    # NominalTESCorrection3Pr    = cms.double(0.6) , #DecayMode==10
 
    # --> Correct values for 2017 data - Uncertainty 3.0%
-   NominalTESUncertainty      = cms.double(3.0) , # in percent, up/down uncertainty of TES
-   NominalTESCorrection1Pr    = cms.double(-3.0), #DecayMode==0
-   NominalTESCorrection1PrPi0 = cms.double(-2.0), #DecayMode==1
-   NominalTESCorrection3Pr    = cms.double(-1.0), #DecayMode==10
+   # NominalTESUncertainty      = cms.double(3.0) , # in percent, up/down uncertainty of TES
+   # NominalTESCorrection1Pr    = cms.double(-3.0), #DecayMode==0
+   # NominalTESCorrection1PrPi0 = cms.double(-2.0), #DecayMode==1
+   # NominalTESCorrection3Pr    = cms.double(-1.0), #DecayMode==10
+
+   # --> Correct values for 2017 data - Chiara update Jan2019
+   NominalTESUncertainty1Pr         = cms.double(0.8) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty1PrPi0      = cms.double(0.8) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty3Pr         = cms.double(0.9) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty3PrPi0      = cms.double(1.0) , # in percent, up/down uncertainty of TES      
+   NominalTESCorrection1Pr          = cms.double(0.7), #DecayMode==0                                 
+   NominalTESCorrection1PrPi0       = cms.double(-0.2), #DecayMode==1                                 
+   NominalTESCorrection3Pr          = cms.double(0.1), #DecayMode==10                                
+   NominalTESCorrection3PrPi0       = cms.double(-0.1), #DecayMode==11                                
 
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
