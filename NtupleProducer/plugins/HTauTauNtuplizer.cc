@@ -2195,23 +2195,49 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
+  bool RunB = (_runNumber > 297046 && _runNumber < 299329);
+  bool RunC = (_runNumber > 299368 && _runNumber < 302029);
+  bool RunD = (_runNumber > 302030 && _runNumber < 303434);
+  bool RunE = (_runNumber > 303824 && _runNumber < 304797);
+  bool RunF = (_runNumber > 305040 && _runNumber < 306462);
 
   // Accessing the JEC uncertainties sources - !! FIXME !! - seems like uncertainty sources are all the same for MC and DATA (all eras)
   if(theisMC)
   {
     for (const auto& source: m_jec_sources) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V6_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
   }
   else
   {
-    for (const auto& source: m_jec_sources) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V6_DATA_UncertaintySources_AK4PFchs.txt", source);
-      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-      jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+    if(RunB){
+      for (const auto& source: m_jec_sources) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(RunC){
+      for (const auto& source: m_jec_sources) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017C_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(RunD || RunE){
+      for (const auto& source: m_jec_sources) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017DE_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(RunF){
+      for (const auto& source: m_jec_sources) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017F_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
     }
+
   }
 
   _numberOfJets = 0;
