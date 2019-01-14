@@ -2195,11 +2195,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
-  bool RunB = (_runNumber > 297046 && _runNumber < 299329);
-  bool RunC = (_runNumber > 299368 && _runNumber < 302029);
-  bool RunD = (_runNumber > 302030 && _runNumber < 303434);
-  bool RunE = (_runNumber > 303824 && _runNumber < 304797);
-  bool RunF = (_runNumber > 305040 && _runNumber < 306462);
+  bool RunB = (_runNumber >= 297046 && _runNumber <= 299329);
+  bool RunC = (_runNumber >= 299368 && _runNumber <= 302029);
+  bool RunD = (_runNumber >= 302030 && _runNumber <= 303434);
+  bool RunE = (_runNumber >= 303824 && _runNumber <= 304797);
+  bool RunF = (_runNumber >= 305040 && _runNumber <= 306462);
 
   // Accessing the JEC uncertainties sources - !! FIXME !! - seems like uncertainty sources are all the same for MC and DATA (all eras)
   if(theisMC)
