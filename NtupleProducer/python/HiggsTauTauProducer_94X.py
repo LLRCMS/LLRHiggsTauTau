@@ -145,6 +145,31 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
 
+#2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
+process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
+
+baddetEcallist = cms.vuint32(
+    [872439604,872422825,872420274,872423218,
+     872423215,872416066,872435036,872439336,
+     872420273,872436907,872420147,872439731,
+     872436657,872420397,872439732,872439339,
+     872439603,872422436,872439861,872437051,
+     872437052,872420649,872422436,872421950,
+     872437185,872422564,872421566,872421695,
+     872421955,872421567,872437184,872421951,
+     872421694,872437056,872437057,872437313])
+
+
+process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
+    "EcalBadCalibFilter",
+    EcalRecHitSource = cms.InputTag("reducedEgamma:reducedEERecHits"),
+    ecalMinEt        = cms.double(50.),
+    baddetEcal    = baddetEcallist, 
+    taggingMode = cms.bool(True),
+    debug = cms.bool(False)
+    )
+
+
 #Re-Reco2016 fix from G. Petrucciani
 #process.load("RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff")
 process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
@@ -509,10 +534,20 @@ process.softTaus = cms.EDProducer("TauFiller",
    # NominalTESCorrection3Pr    = cms.double(0.6) , #DecayMode==10
 
    # --> Correct values for 2017 data - Uncertainty 3.0%
-   NominalTESUncertainty      = cms.double(3.0) , # in percent, up/down uncertainty of TES
-   NominalTESCorrection1Pr    = cms.double(-3.0), #DecayMode==0
-   NominalTESCorrection1PrPi0 = cms.double(-2.0), #DecayMode==1
-   NominalTESCorrection3Pr    = cms.double(-1.0), #DecayMode==10
+   # NominalTESUncertainty      = cms.double(3.0) , # in percent, up/down uncertainty of TES
+   # NominalTESCorrection1Pr    = cms.double(-3.0), #DecayMode==0
+   # NominalTESCorrection1PrPi0 = cms.double(-2.0), #DecayMode==1
+   # NominalTESCorrection3Pr    = cms.double(-1.0), #DecayMode==10
+
+   # --> Correct values for 2017 data - Chiara update Jan2019
+   NominalTESUncertainty1Pr         = cms.double(0.8) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty1PrPi0      = cms.double(0.8) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty3Pr         = cms.double(0.9) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty3PrPi0      = cms.double(1.0) , # in percent, up/down uncertainty of TES      
+   NominalTESCorrection1Pr          = cms.double(0.7), #DecayMode==0                                 
+   NominalTESCorrection1PrPi0       = cms.double(-0.2), #DecayMode==1                                 
+   NominalTESCorrection3Pr          = cms.double(0.1), #DecayMode==10                                
+   NominalTESCorrection3PrPi0       = cms.double(-0.1), #DecayMode==11                                
 
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
@@ -945,7 +980,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons"),
                       genLumiHeaderTag = cms.InputTag("generator"),
-                      metERCollection = cms.InputTag("slimmedMETsTest","","TEST")
+                      metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
+                      ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
 )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
@@ -975,6 +1011,7 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ## Paths
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
+process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(

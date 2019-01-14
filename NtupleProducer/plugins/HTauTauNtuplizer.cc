@@ -246,6 +246,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<BXVector<l1t::Jet> > theL1JetTag;
   edm::EDGetTokenT<int> theNBadMuTag;
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
+  edm::EDGetTokenT< bool >ecalBadCalibFilterUpdate_token ;
+
   //flags
   //static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
@@ -264,6 +266,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Long64_t _triggerbit;
   Int_t _metfilterbit;
   Int_t _NBadMu;
+  Bool_t _passecalBadCalibFilterUpdate;
   Float_t _met;
   Float_t _metphi;
   Float_t _met_er;
@@ -860,10 +863,11 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   thePassTag           (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("passCollection"))),
   theLHEPTag           (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lhepCollection"))),
   beamSpotTag          (consumes<reco::BeamSpot>                         (pset.getParameter<edm::InputTag>("beamSpot"))),
-  theL1TauTag      (consumes<BXVector<l1t::Tau>>                     (pset.getParameter<edm::InputTag>("stage2TauCollection"))),
-  theL1JetTag      (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
+  theL1TauTag          (consumes<BXVector<l1t::Tau>>                     (pset.getParameter<edm::InputTag>("stage2TauCollection"))),
+  theL1JetTag          (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
   theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))),
-  genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag")))
+  genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
+  ecalBadCalibFilterUpdate_token  (consumes< bool >                      (pset.getParameter<edm::InputTag>("ecalBadCalibReducedMINIAODFilter")))
 
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
@@ -1227,6 +1231,7 @@ void HTauTauNtuplizer::Initialize(){
   _runNumber=0;
   _lumi=0;
   _NBadMu=0;
+  _passecalBadCalibFilterUpdate=false;
   _triggerbit=0;
   _metfilterbit=0;
   _met=0;
@@ -1425,6 +1430,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
   myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");
+  myTree->Branch("passecalBadCalibFilterUpdate",&_passecalBadCalibFilterUpdate,"passecalBadCalibFilterUpdate/O");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
@@ -2079,6 +2085,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   edm::Handle<int> NBadMuHandle;
+  edm::Handle< bool > passecalBadCalibFilterUpdate ;
 
   // protect in case of events where trigger hasn't fired --> no collection created 
   event.getByToken(theCandTag,candHandle);
@@ -2098,6 +2105,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePFMETCovTag,covHandle);
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
   event.getByToken(theNBadMuTag,NBadMuHandle);
+  event.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
 
   if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
@@ -2164,6 +2172,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PFMETCov11 = (*covHandle)(1,1);
   _PFMETsignif = (*METsignficanceHandle);
   _NBadMu = (*NBadMuHandle);
+  _passecalBadCalibFilterUpdate =  (*passecalBadCalibFilterUpdate );
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
   if(DEBUG)printf("===New Event===\n");
@@ -2186,23 +2195,50 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
+  bool RunB = (_runNumber >= 297046 && _runNumber <= 299329);
+  bool RunC = (_runNumber >= 299368 && _runNumber <= 302029);
+  bool RunD = (_runNumber >= 302030 && _runNumber <= 303434);
+  bool RunE = (_runNumber >= 303824 && _runNumber <= 304797);
+  bool RunF = (_runNumber >= 305040 && _runNumber <= 306462);
+
 
   // Accessing the JEC uncertainties sources - !! FIXME !! - seems like uncertainty sources are all the same for MC and DATA (all eras)
   if(theisMC)
   {
     for (const auto& source: m_jec_sources) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V6_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
   }
   else
   {
-    for (const auto& source: m_jec_sources) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V6_DATA_UncertaintySources_AK4PFchs.txt", source);
-      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-      jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+    if(RunB){
+      for (const auto& source: m_jec_sources) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(RunC){
+      for (const auto& source: m_jec_sources) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017C_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(RunD || RunE){
+      for (const auto& source: m_jec_sources) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017DE_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(RunF){
+      for (const auto& source: m_jec_sources) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017F_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
     }
+
   }
 
   _numberOfJets = 0;

@@ -379,6 +379,9 @@ git checkout master FSRPhotons
 # search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
 cd -
 
+# bad MET filter fix
+git cms-addpkg RecoMET/METFilters
+
 # SVfit
 git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
 git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
