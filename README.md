@@ -316,6 +316,7 @@ scram b -j 8
 ### Instructions for 94X
 
 ```
+cmsrel CMSSW_9_4_10
 cd CMSSW_9_4_10/src
 cmsenv
 
