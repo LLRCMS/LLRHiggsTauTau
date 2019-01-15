@@ -316,32 +316,13 @@ scram b -j 8
 ### Instructions for 94X
 
 ```
-cmsrel CMSSW_9_4_6_patch1
-cd CMSSW_9_4_6_patch1/src/
+cmsrel CMSSW_9_4_10
+cd CMSSW_9_4_10/src
 cmsenv
 
 # MVA EleID Fall 2017
-git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3
-scram b -j 8
-cd $CMSSW_BASE/external
-# below, you may have a different architecture, this is just one example from lxplus (same on polui)
-cd slc6_amd64_gcc630/
-git clone https://github.com/lsoffi/RecoEgamma-PhotonIdentification.git data/RecoEgamma/PhotonIdentification/data
-cd data/RecoEgamma/PhotonIdentification/data
-git checkout CMSSW_9_4_0_pre3_TnP
-cd $CMSSW_BASE/external
-cd slc6_amd64_gcc630/
-git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
-cd data/RecoEgamma/ElectronIdentification/data
-git checkout CMSSW_9_4_0_pre3_TnP
-cd $CMSSW_BASE/src
-
-# Remove some of the unused weights (otherwise the crab tarball is too big for submission)
-cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/ElectronIdentification/data
-rm -r PHYS14 Spring15 
-cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/PhotonIdentification/data
-rm -r PHYS14 Spring15 Spring16
-cd $CMSSW_BASE/src
+git cms-init
+git cms-merge-topic cms-egamma:EgammaID_949
 
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
@@ -362,20 +343,13 @@ cd EGamma/EGammaAnalysisTools
 git checkout c0db796 -- interface/ElectronEffectiveArea.h
 cd -
 
-# Remove some of the unused weights (otherwise the crab tarball is too big for submission)
-cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/ElectronIdentification/data
-rm -r PHYS14 Spring15
-cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/PhotonIdentification/data
-rm -r PHYS14 Spring15 Spring16
-cd $CMSSW_BASE/src
-
 # FSR corrections
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 cd UFHZZAnalysisRun2
 git checkout master FSRPhotons
 # need to fix: - FSRPhotons/plugins/FSRPhotonProducer.cc
 #              - FSRPhotons/plugins/PhotonPFIsoCalculator.cc
-# replace 'std::auto_ptr' with 'std::unique_ptr' 
+# replace 'std::auto_ptr' with 'std::unique_ptr'
 # search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
 cd -
 

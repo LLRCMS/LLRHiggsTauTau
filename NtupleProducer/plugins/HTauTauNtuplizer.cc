@@ -505,7 +505,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
   std::vector<Float_t> _combreliso;
   std::vector<Float_t> _combreliso03;
-  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, 
+  //std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, 
   std::vector<Int_t> _daughters_muonID; //bitwise (bit 0 loose, 1 soft , 2 medium, 3 tight, 4 highPT 5 tight_noVtx)
   std::vector<Int_t> _daughters_typeOfMuon; //bitwise, 0=PF, 1=Global, 2=Tracker
   std::vector<Float_t> _dxy;
@@ -624,7 +624,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_jetPtRatio;
   std::vector<Float_t> _daughters_jetBTagCSV;
   std::vector<Float_t> _daughters_jetBTagDeepCSV;
-  std::vector<Float_t> _daughters_lepMVA_mvaId;
+
 
   std::vector<Float_t> _daughters_pca_x;
   std::vector<Float_t> _daughters_pca_y;
@@ -1032,7 +1032,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_jetPtRatio.clear();
   _daughters_jetBTagCSV.clear();
   _daughters_jetBTagDeepCSV.clear();
-  _daughters_lepMVA_mvaId.clear();
+
 
   _daughters_iseleBDT.clear();
   _daughters_iseleWPLoose.clear();
@@ -1214,7 +1214,7 @@ void HTauTauNtuplizer::Initialize(){
   _mTDau1.clear();
   _mTDau2.clear();
   _particleType.clear();
-  _discriminator.clear();
+  //_discriminator.clear();
   _daughters_typeOfMuon.clear();
   _daughters_muonID.clear();
   _dxy.clear();
@@ -1261,7 +1261,7 @@ void HTauTauNtuplizer::Initialize(){
   _MC_weight_scale_muR0p5=0.;
   _MC_weight_scale_muR2=0.;
 
-//  _jets.clear();
+  //_jets.clear();
   _jets_VBFfirstTrigMatch.clear(); //FRA
   _jets_VBFsecondTrigMatch.clear(); //FRA
   _jets_VBFleadFilterMatch.clear();    //FRA
@@ -1491,7 +1491,7 @@ void HTauTauNtuplizer::beginJob(){
 
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
-  if(theisMC){
+  
     myTree->Branch("L1_tauEt",&_L1_tauEt);
     myTree->Branch("L1_tauEta",&_L1_tauEta);
     myTree->Branch("L1_tauPhi",&_L1_tauPhi);
@@ -1502,8 +1502,8 @@ void HTauTauNtuplizer::beginJob(){
 
 
      myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
-      
-    myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
+     if(theisMC){ 
+     myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
       myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
       myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
       myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
@@ -1659,7 +1659,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
   myTree->Branch("particleType",&_particleType);
-  myTree->Branch("discriminator",&_discriminator);
+  //myTree->Branch("discriminator",&_discriminator);
   myTree->Branch("daughters_muonID",&_daughters_muonID);
   myTree->Branch("daughters_typeOfMuon",&_daughters_typeOfMuon);
   myTree->Branch("dxy",&_dxy);
@@ -1732,7 +1732,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_jetPtRatio",&_daughters_jetPtRatio);
   myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
   myTree->Branch("daughters_jetBTagDeepCSV",&_daughters_jetBTagDeepCSV);
-  myTree->Branch("daughters_lepMVA_mvaId",&_daughters_lepMVA_mvaId);
+
 
   if(doCPVariables){
     myTree->Branch("daughters_pca_x",&_daughters_pca_x);
@@ -3279,7 +3279,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
 
     // variables
-    float discr=-1.;
+    //float discr=-1.;
     int muIDflag = 0;
     bool isgood = false;
     bool iseleLoose = false;
@@ -3311,7 +3311,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int jetNDauChargedMVASel = -1;
     float miniRelIsoCharged = -1., miniRelIsoNeutral = -1.;
     float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1., jetBTagDeepCSV=-1.;
-    float lepMVA_mvaId = -1.;
+
 
     //
     GlobalPoint aPVPoint(_pv_x, _pv_y, _pv_z);
@@ -3325,7 +3325,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     if(type==ParticleType::MUON){	
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
-      discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
+      //discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
       if(userdatahelpers::getUserFloat(cand,"isPFMuon"))typeOfMuon |= 1 << 0;
       if(userdatahelpers::getUserFloat(cand,"isGlobalMuon"))typeOfMuon |= 1 << 1;
       if(userdatahelpers::getUserFloat(cand,"isTrackerMuon"))typeOfMuon |= 1 << 2;
@@ -3348,10 +3348,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
 
-      lepMVA_mvaId  = userdatahelpers::getUserFloat(cand,"segmentCompatibility");
+     
 
     }else if(type==ParticleType::ELECTRON){
-      discr=userdatahelpers::getUserFloat(cand,"BDT");
+      //discr=userdatahelpers::getUserFloat(cand,"BDT");
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
       full5x5_ieta=userdatahelpers::getUserFloat(cand,"full5x5_sigmaIetaIeta");
       hOverE=userdatahelpers::getUserFloat(cand,"hOverE");
@@ -3360,15 +3360,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       IoEmIoP=userdatahelpers::getUserFloat(cand,"IoEmIoP");
       IoEmIoP_ttH=userdatahelpers::getUserFloat(cand,"IoEmIoP_ttH");
       SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
-      if(userdatahelpers::getUserInt(cand,"isBDT") == 1)isgood=true;
-      if(userdatahelpers::getUserInt(cand,"isEleIDLoose") == 1) iseleLoose=true;
-      if(userdatahelpers::getUserInt(cand,"isEleID80") == 1) isele80=true;
-      if(userdatahelpers::getUserInt(cand,"isEleID90") == 1) isele90=true;
-      if(userdatahelpers::getUserInt(cand,"isEleNoIsoIDLoose") == 1) iselenoisoLoose=true;
-      if(userdatahelpers::getUserInt(cand,"isEleNoIsoID80") == 1) iselenoiso80=true;
-      if(userdatahelpers::getUserInt(cand,"isEleNoIsoID90") == 1) iselenoiso90=true;
-      elemva=(userdatahelpers::getUserFloat(cand,"eleMVAvalue"));
-      elemva_HZZ=(userdatahelpers::getUserFloat(cand,"HZZeleMVAvalue"));
+      if(userdatahelpers::getUserFloat(cand,"isEleIDLoose") == 1) iseleLoose=true;
+      if(userdatahelpers::getUserFloat(cand,"isEleID80") == 1) isele80=true;
+      if(userdatahelpers::getUserFloat(cand,"isEleID90") == 1) isele90=true;
+      if(userdatahelpers::getUserFloat(cand,"isEleNoIsoIDLoose") == 1) iselenoisoLoose=true;
+      if(userdatahelpers::getUserFloat(cand,"isEleNoIsoID80") == 1) iselenoiso80=true;
+      if(userdatahelpers::getUserFloat(cand,"isEleNoIsoID90") == 1) iselenoiso90=true;
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
@@ -3388,10 +3385,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
 
-      lepMVA_mvaId = elemva_HZZ;
+
 
     }else if(type==ParticleType::TAU){
-      discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
+      //discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
       decayModeFindingOldDMs = userdatahelpers::getUserInt (cand, "decayModeFinding");
       decayModeFindingNewDMs = userdatahelpers::getUserInt (cand, "decayModeFindingNewDMs");
@@ -3440,7 +3437,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 	for(reco::CandidatePtrVector::const_iterator id=neCands.begin();id!=neCands.end(); ++id) neutralP4 += (*id)->p4();
       }
     }
-    _discriminator.push_back(discr);
+    //_discriminator.push_back(discr);
     _daughters_typeOfMuon.push_back(typeOfMuon);
     _daughters_muonID.push_back(muIDflag);
     _daughters_tauID.push_back(tauIDflag);
@@ -3510,7 +3507,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_jetPtRatio.push_back(jetPtRatio);
     _daughters_jetBTagCSV.push_back(jetBTagCSV);
     _daughters_jetBTagDeepCSV.push_back(jetBTagDeepCSV);
-    _daughters_lepMVA_mvaId.push_back(lepMVA_mvaId);
+
 
     _daughters_pca_x.push_back(pcaPV.X());
     _daughters_pca_y.push_back(pcaPV.Y());
@@ -3691,7 +3688,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_L3FilterFired.push_back(LFtriggerbit);
     _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
     _daughters_trgMatched.push_back(trgMatched);    
-    _daughters_HLTpt.push_back(hltpt);
+   _daughters_HLTpt.push_back(hltpt);
 
     vector<int> vTrgMatchedIdx;
     for (int idxHLT = 0; idxHLT < myTriggerHelper->GetNTriggers(); ++idxHLT)
@@ -3726,8 +3723,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           }
       }
       }*/
-    if (theisMC)
-      {
+
 	std::vector<Float_t> L1IsoTau_et; 
 	for (int ibx = l1taus->getFirstBX(); ibx <= l1taus->getLastBX(); ++ibx)
 	  {
@@ -3763,8 +3759,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 	  std::sort(L1IsoTau_et.begin(), L1IsoTau_et.end());
 	  Float_t L1IsoTau_etMax = *L1IsoTau_et.rbegin();
 	  _daughters_highestEt_L1IsoTauMatched.push_back(L1IsoTau_etMax) ;
+	}else{
+	  _daughters_highestEt_L1IsoTauMatched.push_back(-1) ;
 	}
-      }
+  
   }
 }
 
