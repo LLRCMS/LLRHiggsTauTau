@@ -343,6 +343,16 @@ cd EGamma/EGammaAnalysisTools
 git checkout c0db796 -- interface/ElectronEffectiveArea.h
 cd -
 
+# FSR corrections
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+cd UFHZZAnalysisRun2
+git checkout master FSRPhotons
+# need to fix: - FSRPhotons/plugins/FSRPhotonProducer.cc
+#              - FSRPhotons/plugins/PhotonPFIsoCalculator.cc
+# replace 'std::auto_ptr' with 'std::unique_ptr'
+# search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
+cd -
+
 # bad MET filter fix
 git cms-addpkg RecoMET/METFilters
 

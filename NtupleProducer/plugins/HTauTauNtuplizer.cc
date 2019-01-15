@@ -1491,7 +1491,7 @@ void HTauTauNtuplizer::beginJob(){
 
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
-  if(theisMC){
+  
     myTree->Branch("L1_tauEt",&_L1_tauEt);
     myTree->Branch("L1_tauEta",&_L1_tauEta);
     myTree->Branch("L1_tauPhi",&_L1_tauPhi);
@@ -1502,8 +1502,8 @@ void HTauTauNtuplizer::beginJob(){
 
 
      myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
-      
-    myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
+     if(theisMC){ 
+     myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
       myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
       myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
       myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
@@ -3688,7 +3688,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_L3FilterFired.push_back(LFtriggerbit);
     _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
     _daughters_trgMatched.push_back(trgMatched);    
-    _daughters_HLTpt.push_back(hltpt);
+   _daughters_HLTpt.push_back(hltpt);
 
     vector<int> vTrgMatchedIdx;
     for (int idxHLT = 0; idxHLT < myTriggerHelper->GetNTriggers(); ++idxHLT)
@@ -3723,8 +3723,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           }
       }
       }*/
-    if (theisMC)
-      {
+
 	std::vector<Float_t> L1IsoTau_et; 
 	for (int ibx = l1taus->getFirstBX(); ibx <= l1taus->getLastBX(); ++ibx)
 	  {
@@ -3760,8 +3759,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 	  std::sort(L1IsoTau_et.begin(), L1IsoTau_et.end());
 	  Float_t L1IsoTau_etMax = *L1IsoTau_et.rbegin();
 	  _daughters_highestEt_L1IsoTauMatched.push_back(L1IsoTau_etMax) ;
+	}else{
+	  _daughters_highestEt_L1IsoTauMatched.push_back(-1) ;
 	}
-      }
+  
   }
 }
 

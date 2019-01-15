@@ -70,7 +70,7 @@ class EleFiller : public edm::EDProducer {
   edm::EDGetTokenT<vector<Vertex>> theVtxTag ;
   int sampleType;
   int setup;
-  //const StringCutObjectSelector<pat::Electron, true> cut;
+  const StringCutObjectSelector<pat::Electron, true> cut;
   //const CutSet<pat::Electron> flags;
   //EGammaMvaEleEstimatorCSA14* myMVATrig;
   edm::EDGetTokenT<edm::View<pat::Electron> > electronCollectionToken_;
@@ -86,7 +86,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
   sampleType(iConfig.getParameter<int>("sampleType")),
   setup(iConfig.getParameter<int>("setup")),
-  //cut(iConfig.getParameter<std::string>("cut")),
+  cut(iConfig.getParameter<std::string>("cut")),
   //flags(iConfig.getParameter<ParameterSet>("flags")),//,
   //myMVATrig(0),
   electronCollectionToken_(consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src")))
@@ -252,7 +252,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 
     //--- Check selection cut. Being done here, flags are not available; but this way we 
     //    avoid wasting time on rejected leptons.
-    //if (!cut(l)) continue;
+    if (!cut(l)) continue;
 
     //--- Embed flags (ie flags specified in the "flags" pset)
     //for(CutSet<pat::Electron>::const_iterator flag = flags.begin(); flag != flags.end(); ++flag) {

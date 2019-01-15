@@ -331,10 +331,10 @@ process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
 ###    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 ###    
 ###
-process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
-   src = cms.InputTag("slimmedElectrons"),#"calibratedPatElectrons"),
-   cut = cms.string(ELECUT)
-   )
+#process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
+#   src = cms.InputTag("slimmedElectrons"),#"calibratedPatElectrons"),
+#   cut = cms.string(ELECUT)
+#   )
 
 
 process.softElectrons = cms.EDProducer("EleFiller",
@@ -384,7 +384,7 @@ process.softElectrons = cms.EDProducer("EleFiller",
    ###HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
 #  cut = cms.string("userFloat('SIP')<100"),
 #  cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
-   #cut = cms.string(Elecut),
+   cut = cms.string(ELECUT)
    #flags = cms.PSet(
         #ID = cms.string("userInt('isBDT')"), # BDT MVA ID
     #    isGood = cms.string("")               ### ??? maybe this "flags" can be fully trashed?
@@ -637,17 +637,17 @@ else : process.geninfo = cms.Sequence()
 ### ----------------------------------------------------------------------
 ### Search for FSR candidates
 ### ----------------------------------------------------------------------
-#process.load("UFHZZAnalysisRun2.FSRPhotons.fsrPhotons_cff")
-#process.appendPhotons = cms.EDProducer("LeptonPhotonMatcher",
-#    muonSrc = cms.InputTag("softMuons"),
-#    electronSrc = cms.InputTag("cleanSoftElectrons"),
-#    photonSrc = cms.InputTag("boostedFsrPhotons"),#cms.InputTag("cmgPhotonSel"),
-#    matchFSR = cms.bool(True)
-#    )
+process.load("UFHZZAnalysisRun2.FSRPhotons.fsrPhotons_cff")
+process.appendPhotons = cms.EDProducer("LeptonPhotonMatcher",
+    muonSrc = cms.InputTag("softMuons"),
+    electronSrc = cms.InputTag("cleanSoftElectrons"),
+    photonSrc = cms.InputTag("boostedFsrPhotons"),#cms.InputTag("cmgPhotonSel"),
+    matchFSR = cms.bool(True)
+    )
 
-#process.fsrSequence = cms.Sequence(process.fsrPhotonSequence + process.appendPhotons)
-#muString = "appendPhotons:muons"
-#eleString = "appendPhotons:electrons"
+process.fsrSequence = cms.Sequence(process.fsrPhotonSequence + process.appendPhotons)
+muString = "appendPhotons:muons"
+eleString = "appendPhotons:electrons"
 if not APPLYFSR : 
     process.fsrSequence = cms.Sequence()
     muString = "softMuons"
