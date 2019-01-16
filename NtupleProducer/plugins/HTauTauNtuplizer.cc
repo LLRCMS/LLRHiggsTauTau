@@ -244,7 +244,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag;
   edm::EDGetTokenT<BXVector<l1t::Tau> > theL1TauTag;
   edm::EDGetTokenT<BXVector<l1t::Jet> > theL1JetTag;
-  edm::EDGetTokenT<int> theNBadMuTag;
+  //edm::EDGetTokenT<int> theNBadMuTag; //FRA January2019
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
   edm::EDGetTokenT< bool >ecalBadCalibFilterUpdate_token ;
 
@@ -265,7 +265,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _lumi;
   Long64_t _triggerbit;
   Int_t _metfilterbit;
-  Int_t _NBadMu;
+  //Int_t _NBadMu;  //FRA January2019
   Bool_t _passecalBadCalibFilterUpdate;
   Float_t _met;
   Float_t _metphi;
@@ -402,7 +402,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _indexDau1;
   std::vector<Int_t> _indexDau2;
   std::vector<Float_t> _daughters_HLTpt;
-  std::vector<Bool_t>  _daughters_isL1IsoTau28Matched;
+  //std::vector<Bool_t>  _daughters_isL1IsoTau28Matched; //FRA January2019
   std::vector<Float_t>  _daughters_highestEt_L1IsoTauMatched;
   //std::vector<Int_t> _genDaughters;
   std::vector<Bool_t> _isOSCand;
@@ -514,7 +514,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _dz_innerTrack;
   std::vector<Float_t> _daughters_rel_error_trackpt;
   std::vector<Float_t> _SIP;
-  std::vector<bool> _daughters_iseleBDT; //isBDT for ele
+  //std::vector<bool> _daughters_iseleBDT; //isBDT for ele //FRA January2019
   std::vector<bool> _daughters_iseleWPLoose; //isBDT for ele
   std::vector<bool> _daughters_iseleWP80; //isBDT for ele
   std::vector<bool> _daughters_iseleWP90; //isBDT for ele
@@ -523,9 +523,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<bool> _daughters_iseleNoIsoWP90; //isBDT for ele no Iso
   std::vector<Float_t> _daughters_eleMVAnt; //isBDT for ele
   std::vector<Float_t> _daughters_eleMVA_HZZ; //isBDT for ele
-  std::vector<bool> _daughters_passConversionVeto; //isBDT for ele
-  std::vector<int>  _daughters_eleMissingHits;
-  std::vector<int>  _daughters_eleMissingLostHits;
+  //std::vector<bool> _daughters_passConversionVeto; //isBDT for ele //FRA January2019
+  //std::vector<int>  _daughters_eleMissingHits; //FRA January2019
+  //std::vector<int>  _daughters_eleMissingLostHits; //FRA January2019
   std::vector<bool>  _daughters_iseleChargeConsistent;
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
@@ -581,7 +581,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_deltaPhiSuperClusterTrackAtVtx;
   std::vector<Float_t> _daughters_IoEmIoP;
   std::vector<Float_t> _daughters_IoEmIoP_ttH;
-  std::vector<Float_t> _daughters_SCeta;
+  //std::vector<Float_t> _daughters_SCeta; //FRA January2019
   std::vector<Float_t> _daughters_depositR03_tracker;
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
@@ -614,8 +614,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Long64_t> _daughters_trgMatched;
   std::vector<Long64_t> _daughters_FilterFired;
   std::vector<Long64_t> _daughters_isGoodTriggerType;
-  std::vector<Long64_t> _daughters_L3FilterFired;
-  std::vector<Long64_t> _daughters_L3FilterFiredLast;
+  //std::vector<Long64_t> _daughters_L3FilterFired; //FRA January2019
+  //std::vector<Long64_t> _daughters_L3FilterFiredLast; //FRA January2019
 
   std::vector<Int_t> _daughters_jetNDauChargedMVASel;
   std::vector<Float_t> _daughters_miniRelIsoCharged;
@@ -650,7 +650,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
-  std::vector<Float_t> _jets_rawPt;
+  //std::vector<Float_t> _jets_rawPt; //FRA January2019
   std::vector<Float_t> _jets_area;
   std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
@@ -865,7 +865,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   beamSpotTag          (consumes<reco::BeamSpot>                         (pset.getParameter<edm::InputTag>("beamSpot"))),
   theL1TauTag          (consumes<BXVector<l1t::Tau>>                     (pset.getParameter<edm::InputTag>("stage2TauCollection"))),
   theL1JetTag          (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
-  theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))),
+  //theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))), //FRA January2019
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
   ecalBadCalibFilterUpdate_token  (consumes< bool >                      (pset.getParameter<edm::InputTag>("ecalBadCalibReducedMINIAODFilter")))
 
@@ -989,7 +989,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_deltaPhiSuperClusterTrackAtVtx.clear();
   _daughters_IoEmIoP.clear();
   _daughters_IoEmIoP_ttH.clear();
-  _daughters_SCeta.clear();
+  //_daughters_SCeta.clear(); //FRA January2019
   _daughters_depositR03_tracker.clear();  
   _daughters_depositR03_ecal.clear();  
   _daughters_depositR03_hcal.clear();  
@@ -1022,8 +1022,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_trgMatched.clear();
   _daughters_FilterFired.clear();
   _daughters_isGoodTriggerType.clear();
-  _daughters_L3FilterFired.clear();
-  _daughters_L3FilterFiredLast.clear();
+  //_daughters_L3FilterFired.clear(); //FRA January2019
+  //_daughters_L3FilterFiredLast.clear(); //FRA January2019
 
   _daughters_jetNDauChargedMVASel.clear();
   _daughters_miniRelIsoCharged.clear();
@@ -1034,7 +1034,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_jetBTagDeepCSV.clear();
 
 
-  _daughters_iseleBDT.clear();
+  //_daughters_iseleBDT.clear(); //FRA January2019
   _daughters_iseleWPLoose.clear();
   _daughters_iseleWP80.clear();
   _daughters_iseleWP90.clear();
@@ -1043,9 +1043,9 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_iseleNoIsoWP90.clear();
   _daughters_eleMVAnt.clear();
   _daughters_eleMVA_HZZ.clear();
-  _daughters_passConversionVeto.clear();
-  _daughters_eleMissingHits.clear();
-  _daughters_eleMissingLostHits.clear();
+  //_daughters_passConversionVeto.clear(); //FRA January2019
+  //_daughters_eleMissingHits.clear(); //FRA January2019
+  //_daughters_eleMissingLostHits.clear(); //FRA January2019
   _daughters_iseleChargeConsistent.clear();
   _daughters_iseleCUT.clear();
   //_daughter2.clear();
@@ -1192,7 +1192,7 @@ void HTauTauNtuplizer::Initialize(){
 
   _isOSCand.clear();
   _daughters_HLTpt.clear();
-  _daughters_isL1IsoTau28Matched.clear();
+  //_daughters_isL1IsoTau28Matched.clear(); //FRA January2019
   _daughters_highestEt_L1IsoTauMatched.clear();
   _metx.clear();
   _mety.clear();
@@ -1230,7 +1230,7 @@ void HTauTauNtuplizer::Initialize(){
   _indexevents=0;
   _runNumber=0;
   _lumi=0;
-  _NBadMu=0;
+  //_NBadMu=0;  //FRA January2019
   _passecalBadCalibFilterUpdate=false;
   _triggerbit=0;
   _metfilterbit=0;
@@ -1270,7 +1270,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_py.clear();
   _jets_pz.clear();
   _jets_e.clear();
-  _jets_rawPt.clear();
+  //_jets_rawPt.clear(); //FRA January2019
   _jets_area.clear();
   _jets_mT.clear();
   _jets_PUJetID.clear();
@@ -1429,7 +1429,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/l");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
-  myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");
+  //myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");  //FRA January2019
   myTree->Branch("passecalBadCalibFilterUpdate",&_passecalBadCalibFilterUpdate,"passecalBadCalibFilterUpdate/O");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
@@ -1668,7 +1668,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("dz_innerTrack",&_dz_innerTrack);
   myTree->Branch("daughters_rel_error_trackpt",&_daughters_rel_error_trackpt);
   myTree->Branch("SIP",&_SIP);
-  myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
+  //myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT); //FRA January2019
   myTree->Branch("daughters_iseleWPLoose",&_daughters_iseleWPLoose);
   myTree->Branch("daughters_iseleWP80",&_daughters_iseleWP80);
   myTree->Branch("daughters_iseleWP90",&_daughters_iseleWP90);
@@ -1677,9 +1677,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_iseleNoIsoWP90",&_daughters_iseleNoIsoWP90);
   myTree->Branch("daughters_eleMVAnt",&_daughters_eleMVAnt);
   myTree->Branch("daughters_eleMVA_HZZ",&_daughters_eleMVA_HZZ);
-  myTree->Branch("daughters_passConversionVeto",&_daughters_passConversionVeto);
-  myTree->Branch("daughters_eleMissingHits",&_daughters_eleMissingHits);
-  myTree->Branch("daughters_eleMissingLostHits",&_daughters_eleMissingLostHits);
+  //myTree->Branch("daughters_passConversionVeto",&_daughters_passConversionVeto); //FRA January2019
+  //myTree->Branch("daughters_eleMissingHits",&_daughters_eleMissingHits); //FRA January2019
+  //myTree->Branch("daughters_eleMissingLostHits",&_daughters_eleMissingLostHits); //FRA January2019
   myTree->Branch("daughters_iseleChargeConsistent",&_daughters_iseleChargeConsistent);
   myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT);
   myTree->Branch("decayMode",&_decayType);
@@ -1690,7 +1690,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
   myTree->Branch("daughters_decayModeFindingOldDMs", &_daughters_decayModeFindingOldDMs);
-  myTree->Branch("daughters_SCeta",&_daughters_SCeta);
+  //myTree->Branch("daughters_SCeta",&_daughters_SCeta); //FRA January2019
   myTree->Branch("footprintCorrection",&_daughters_footprintCorrection);
   myTree->Branch("neutralIsoPtSumWeight",&_daughters_neutralIsoPtSumWeight);
   myTree->Branch("photonPtSumOutsideSignalCone",&_daughters_photonPtSumOutsideSignalCone);
@@ -1719,11 +1719,11 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_isTriggerObjectforPath", &_daughters_L3trigger);
   myTree->Branch("daughters_FilterFired",&_daughters_FilterFired);
   myTree->Branch("daughters_isGoodTriggerType",&_daughters_isGoodTriggerType);
-  myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired);
-  myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast);
+  //myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired); //FRA January2019
+  //myTree->Branch("daughters_L3FilterFiredLast",&_daughters_L3FilterFiredLast); //FRA January2019
   myTree->Branch("daughters_HLTpt",&_daughters_HLTpt);
 
-  myTree->Branch("daughters_isL1IsoTau28Matched", &_daughters_isL1IsoTau28Matched);
+  //myTree->Branch("daughters_isL1IsoTau28Matched", &_daughters_isL1IsoTau28Matched); //FRA January2019
 
   myTree->Branch("daughters_jetNDauChargedMVASel",&_daughters_jetNDauChargedMVASel);
   myTree->Branch("daughters_miniRelIsoCharged",&_daughters_miniRelIsoCharged);
@@ -1755,7 +1755,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
   myTree->Branch("jets_e",&_jets_e);
-  myTree->Branch("jets_rawPt", &_jets_rawPt);
+  //myTree->Branch("jets_rawPt", &_jets_rawPt); //FRA January2019
   myTree->Branch("jets_area", &_jets_area);
   myTree->Branch("jets_mT", &_jets_mT);
   myTree->Branch("jets_Flavour",&_jets_Flavour);
@@ -2084,7 +2084,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<double> METsignficanceHandle;
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
-  edm::Handle<int> NBadMuHandle;
+  //edm::Handle<int> NBadMuHandle; //FRA January2019
   edm::Handle< bool > passecalBadCalibFilterUpdate ;
 
   // protect in case of events where trigger hasn't fired --> no collection created 
@@ -2104,7 +2104,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   event.getByToken(thePFMETCovTag,covHandle);
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
-  event.getByToken(theNBadMuTag,NBadMuHandle);
+  //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
   event.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
 
   if(theisMC){
@@ -2171,7 +2171,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PFMETCov01 = _PFMETCov10; // (1,0) is the only one saved
   _PFMETCov11 = (*covHandle)(1,1);
   _PFMETsignif = (*METsignficanceHandle);
-  _NBadMu = (*NBadMuHandle);
+  //_NBadMu = (*NBadMuHandle); //FRA January2019
   _passecalBadCalibFilterUpdate =  (*passecalBadCalibFilterUpdate );
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
@@ -2887,9 +2887,8 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
     _jetID.push_back(jetid);
     float jecFactor = ijet->jecFactor("Uncorrected") ;
-    float jetRawPt = jecFactor * ijet->pt();
-    //float jetRawPt2 = ijet->pt() / jecFactor; // this is wrong
-    _jets_rawPt.push_back ( jetRawPt );
+    //float jetRawPt = jecFactor * ijet->pt(); //FRA January2019
+    //_jets_rawPt.push_back ( jetRawPt ); //FRA January2019
     _jets_area.push_back (ijet->jetArea());
     _jetrawf.push_back(jecFactor);
   
@@ -3281,7 +3280,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     // variables
     //float discr=-1.;
     int muIDflag = 0;
-    bool isgood = false;
+    //bool isgood = false;
     bool iseleLoose = false;
     bool isele80=false;
     bool isele90=false;
@@ -3290,13 +3289,13 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     bool iselenoiso90=false;
     float elemva=-2;
     float elemva_HZZ=-2;
-    bool isconversionveto=false;
-    int elemissinghits = 999;
-    int elemissinglosthits = 999;
+    //bool isconversionveto=false; //FRA January2019
+    //int elemissinghits = 999; //FRA January2019
+    //int elemissinglosthits = 999; //FRA January2019
     bool iselechargeconsistent=false;
 
     int decay=-1;
-    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
+    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1; //SCeta=-999.; //FRA January2019
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
@@ -3359,17 +3358,17 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       phisuperatvtx=userdatahelpers::getUserFloat(cand,"deltaPhiSuperClusterTrackAtVtx");
       IoEmIoP=userdatahelpers::getUserFloat(cand,"IoEmIoP");
       IoEmIoP_ttH=userdatahelpers::getUserFloat(cand,"IoEmIoP_ttH");
-      SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
+      //SCeta = userdatahelpers::getUserFloat(cand,"SCeta"); //FRA January2019
       if(userdatahelpers::getUserFloat(cand,"isEleIDLoose") == 1) iseleLoose=true;
       if(userdatahelpers::getUserFloat(cand,"isEleID80") == 1) isele80=true;
       if(userdatahelpers::getUserFloat(cand,"isEleID90") == 1) isele90=true;
       if(userdatahelpers::getUserFloat(cand,"isEleNoIsoIDLoose") == 1) iselenoisoLoose=true;
       if(userdatahelpers::getUserFloat(cand,"isEleNoIsoID80") == 1) iselenoiso80=true;
       if(userdatahelpers::getUserFloat(cand,"isEleNoIsoID90") == 1) iselenoiso90=true;
-      if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
+      //if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true; //FRA January2019
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
-      elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
-      elemissinglosthits = userdatahelpers::getUserInt(cand,"missingLostHit");
+      //elemissinghits = userdatahelpers::getUserInt(cand,"missingHit"); //FRA January2019
+      //elemissinglosthits = userdatahelpers::getUserInt(cand,"missingLostHit"); //FRA January2019
       if((userdatahelpers::getUserInt(cand,"isGsfCtfScPixChargeConsistent") + userdatahelpers::getUserInt(cand,"isGsfScPixChargeConsistent"))>1)iselechargeconsistent=true;
 
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
@@ -3446,7 +3445,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_photonPtSumOutsideSignalCone.push_back(photonPtSumOutsideSignalCone);
 
     _daughters_charge.push_back(cand->charge());
-    _daughters_iseleBDT.push_back(isgood);
+    //_daughters_iseleBDT.push_back(isgood); //FRA January2019
     _daughters_iseleWPLoose.push_back(iseleLoose);
     _daughters_iseleWP80.push_back(isele80);
     _daughters_iseleWP90.push_back(isele90);
@@ -3455,9 +3454,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_iseleNoIsoWP90.push_back(iselenoiso90);
     _daughters_eleMVAnt.push_back(elemva); 
     _daughters_eleMVA_HZZ.push_back(elemva_HZZ);     
-    _daughters_passConversionVeto.push_back(isconversionveto);
-    _daughters_eleMissingHits.push_back(elemissinghits);
-    _daughters_eleMissingLostHits.push_back(elemissinglosthits);
+    //_daughters_passConversionVeto.push_back(isconversionveto); //FRA January2019
+    //_daughters_eleMissingHits.push_back(elemissinghits); //FRA January2019
+    //_daughters_eleMissingLostHits.push_back(elemissinglosthits); //FRA January2019
     _daughters_iseleChargeConsistent.push_back(iselechargeconsistent);
 
     //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
@@ -3469,7 +3468,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(phisuperatvtx);
     _daughters_IoEmIoP.push_back(IoEmIoP);
     _daughters_IoEmIoP_ttH.push_back(IoEmIoP_ttH);
-    _daughters_SCeta.push_back(SCeta);
+    //_daughters_SCeta.push_back(SCeta); //FRA January2019
     _daughters_depositR03_tracker.push_back(depositTracker);
     _daughters_depositR03_ecal.push_back(depositEcal);
     _daughters_depositR03_hcal.push_back(depositHcal);
@@ -3532,7 +3531,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_neutral_e.push_back(neutralP4.T());
 
     //TRIGGER MATCHING
-    Long64_t LFtriggerbit=0,L3triggerbit=0,filterFired=0;
+    //Long64_t LFtriggerbit=0,L3triggerbit=0; //FRA January2019
+    Long64_t filterFired=0;
     Long64_t trgMatched = 0;
     Long64_t triggertypeIsGood = 0;
     float hltpt=0;
@@ -3569,8 +3569,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
           int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
           if (triggerbit < 0) continue ; // not a path I want to save
-          bool isLF   = obj.hasPathName( pathNamesAll[h], true, false );
-          bool isL3   = obj.hasPathName( pathNamesAll[h], false, true );
+          //bool isLF   = obj.hasPathName( pathNamesAll[h], true, false ); //FRA January2019
+          //bool isL3   = obj.hasPathName( pathNamesAll[h], false, true ); //FRA January2019
 
           triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
           bool isfilterGood = true;
@@ -3603,8 +3603,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           //_isFilterFiredLast;
           if(isfilterGood)filterFired |= long(1) <<triggerbit;
           if(triggerType) triggertypeIsGood |= long(1) << triggerbit;
-          if(isLF)LFtriggerbit |= long(1) <<triggerbit;
-          if(isL3)L3triggerbit |= long(1) <<triggerbit;
+          //if(isLF)LFtriggerbit |= long(1) <<triggerbit; //FRA January2019
+          //if(isL3)L3triggerbit |= long(1) <<triggerbit; //FRA January2019
         } // loop on all trigger paths
 
         // -------------- now do matching "filter-wise" to do x-check
@@ -3685,8 +3685,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     } // loop on all trigger candidates
     _daughters_isGoodTriggerType.push_back(triggertypeIsGood);
     _daughters_FilterFired.push_back(filterFired);
-    _daughters_L3FilterFired.push_back(LFtriggerbit);
-    _daughters_L3FilterFiredLast.push_back(L3triggerbit);    
+    //_daughters_L3FilterFired.push_back(LFtriggerbit); //FRA January2019
+    //_daughters_L3FilterFiredLast.push_back(L3triggerbit); //FRA January2019
     _daughters_trgMatched.push_back(trgMatched);    
    _daughters_HLTpt.push_back(hltpt);
 
