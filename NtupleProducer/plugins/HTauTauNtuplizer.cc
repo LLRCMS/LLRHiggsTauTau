@@ -212,7 +212,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   TH1F *hTauIDs;
   triggerhelper* myTriggerHelper;
 
-  PUReweight reweight;
+  //PUReweight reweight; //FRA January2019
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
   //edm::EDGetTokenT<vector<l1extra::L1JetParticle>> l1ExtraIsoTau_;
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
@@ -233,9 +233,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
   edm::EDGetTokenT<pat::METCollection> theMetTag;
   edm::EDGetTokenT<pat::METCollection> theMetERTag;
-  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
-  edm::EDGetTokenT<math::Error<2>::type> thePFMETCovTag;
-  edm::EDGetTokenT<double> thePFMETSignifTag;
+  //edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag; //FRA January2019
+  //edm::EDGetTokenT<math::Error<2>::type> thePFMETCovTag; //FRA January2019
+  //edm::EDGetTokenT<double> thePFMETSignifTag; //FRA January2019
   edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
   edm::EDGetTokenT<edm::View<reco::GenJet>> theGenJetTag;
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
@@ -252,7 +252,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //static const int nOutVars =14;
   bool applyTrigger;    // Only events passing trigger
   bool applySkim;       //  "     "      "     skim
-  //PUReweight reweight;
 
   //counters
   Int_t Nevt_Gen;
@@ -271,13 +270,13 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _metphi;
   Float_t _met_er;
   Float_t _met_er_phi;
-  Float_t _PUPPImet;
-  Float_t _PUPPImetphi;
-  Float_t _PFMETCov00;
-  Float_t _PFMETCov01;
-  Float_t _PFMETCov10;
-  Float_t _PFMETCov11;
-  Float_t _PFMETsignif;
+  //Float_t _PUPPImet;    //FRA January2019
+  //Float_t _PUPPImetphi; //FRA January2019
+  //Float_t _PFMETCov00;  //FRA January2019
+  //Float_t _PFMETCov01;  //FRA January2019
+  //Float_t _PFMETCov10;  //FRA January2019
+  //Float_t _PFMETCov11;  //FRA January2019
+  //Float_t _PFMETsignif; //FRA January2019
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
@@ -287,13 +286,13 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t   _lheNOutC;
   Float_t _npu;
   Int_t   _PUNumInteractions;
-  Float_t _PUReweight;
+  //Float_t _PUReweight; //FRA January2019
   Float_t _rho;
   Int_t _nup;
-  Float_t _MC_weight_scale_muF0p5;
-  Float_t _MC_weight_scale_muF2;
-  Float_t _MC_weight_scale_muR0p5;
-  Float_t _MC_weight_scale_muR2;
+  //Float_t _MC_weight_scale_muF0p5; //FRA January2019
+  //Float_t _MC_weight_scale_muF2;   //FRA January2019
+  //Float_t _MC_weight_scale_muR0p5; //FRA January2019
+  //Float_t _MC_weight_scale_muR2;   //FRA January2019
   Float_t _pv_x=0, _pv_y=0, _pv_z=0;
   Float_t _pvGen_x=0, _pvGen_y=0, _pvGen_z=0;
   Float_t _pvRefit_x=0, _pvRefit_y=0, _pvRefit_z=0;
@@ -527,7 +526,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<int>  _daughters_eleMissingHits; //FRA January2019
   //std::vector<int>  _daughters_eleMissingLostHits; //FRA January2019
   std::vector<bool>  _daughters_iseleChargeConsistent;
-  std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
+  //std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight) //FRA January2019
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
   static const int ntauIds = 41;
@@ -609,8 +608,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_numParticlesIsoCone;
   std::vector<Float_t> _daughters_leadChargedParticlePt;
   std::vector<Float_t> _daughters_trackRefPt;
-  std::vector<Int_t> _daughters_LFtrigger;
-  std::vector<Int_t> _daughters_L3trigger;
+  //std::vector<Int_t> _daughters_LFtrigger; //FRA January2019
+  //std::vector<Int_t> _daughters_L3trigger; //FRA January2019
   std::vector<Long64_t> _daughters_trgMatched;
   std::vector<Long64_t> _daughters_FilterFired;
   std::vector<Long64_t> _daughters_isGoodTriggerType;
@@ -642,8 +641,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Jets variables
   Int_t _numberOfJets;
   //std::vector<TLorentzVector> _jets;
-  std::vector<std::vector<Long64_t>> _jets_VBFfirstTrigMatch; //FRA
-  std::vector<std::vector<Long64_t>> _jets_VBFsecondTrigMatch; //FRA
+  //std::vector<std::vector<Long64_t>> _jets_VBFfirstTrigMatch; //FRA January2019
+  //std::vector<std::vector<Long64_t>> _jets_VBFsecondTrigMatch; //FRA January2019
   std::vector<Long64_t> _jets_VBFleadFilterMatch;    //FRA
   std::vector<Long64_t> _jets_VBFsubleadFilterMatch; //FRA
   std::vector<Float_t> _jets_px;
@@ -833,7 +832,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 const int HTauTauNtuplizer::ntauIds; // definition of static member
 
 // ----Constructor and Destructor -----
-HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
+HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight(), //FRA January2019
   triggerObjects_      (consumes<pat::TriggerObjectStandAloneCollection> (pset.getParameter<edm::InputTag>("triggerSet"))),
   //l1ExtraIsoTau_       (consumes<vector<l1extra::L1JetParticle>>         (pset.getParameter<edm::InputTag>("l1extraIsoTau"))) ,
   triggerBits_         (consumes<edm::TriggerResults>                    (pset.getParameter<edm::InputTag>("triggerResultsLabel"))),
@@ -854,9 +853,9 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
   theMetTag            (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metCollection"))),
   theMetERTag            (consumes<pat::METCollection>                   (pset.getParameter<edm::InputTag>("metERCollection"))),
-  thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))),
-  thePFMETCovTag       (consumes<math::Error<2>::type>                   (pset.getParameter<edm::InputTag>("srcPFMETCov"))),
-  thePFMETSignifTag    (consumes<double>                                 (pset.getParameter<edm::InputTag>("srcPFMETSignificance"))),
+  //thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))), //FRA January2019
+  //thePFMETCovTag       (consumes<math::Error<2>::type>                   (pset.getParameter<edm::InputTag>("srcPFMETCov"))), //FRA January2019
+  //thePFMETSignifTag    (consumes<double>                                 (pset.getParameter<edm::InputTag>("srcPFMETSignificance"))), //FRA January2019
   theGenericTag        (consumes<edm::View<pat::GenericParticle>>        (pset.getParameter<edm::InputTag>("genericCollection"))),
   theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
   theTotTag            (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("totCollection"))),
@@ -1017,8 +1016,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_numParticlesIsoCone.clear();
   _daughters_leadChargedParticlePt.clear();
   _daughters_trackRefPt.clear();
-  _daughters_LFtrigger.clear();
-  _daughters_L3trigger.clear();
+  //_daughters_LFtrigger.clear(); //FRA January2019
+  //_daughters_L3trigger.clear(); //FRA January2019
   _daughters_trgMatched.clear();
   _daughters_FilterFired.clear();
   _daughters_isGoodTriggerType.clear();
@@ -1047,7 +1046,7 @@ void HTauTauNtuplizer::Initialize(){
   //_daughters_eleMissingHits.clear(); //FRA January2019
   //_daughters_eleMissingLostHits.clear(); //FRA January2019
   _daughters_iseleChargeConsistent.clear();
-  _daughters_iseleCUT.clear();
+  //_daughters_iseleCUT.clear(); //FRA January2019
   //_daughter2.clear();
   _softLeptons.clear();
   //_genDaughters.clear();
@@ -1238,13 +1237,13 @@ void HTauTauNtuplizer::Initialize(){
   _met_er=0;
   _met_er_phi=0;
   _metphi=0.;
-  _PUPPImet=0;
-  _PUPPImetphi=0.;
-  _PFMETCov00=0.;
-  _PFMETCov01=0.;
-  _PFMETCov10=0.;
-  _PFMETCov11=0.;
-  _PFMETsignif=0.;
+  //_PUPPImet=0;     //FRA January2019
+  //_PUPPImetphi=0.; //FRA January2019
+  //_PFMETCov00=0.;  //FRA January2019
+  //_PFMETCov01=0.;  //FRA January2019
+  //_PFMETCov10=0.;  //FRA January2019
+  //_PFMETCov11=0.;  //FRA January2019
+  //_PFMETsignif=0.; //FRA January2019
   _MC_weight=0.;
   _npv=0;
   _lheHt=0;
@@ -1253,17 +1252,17 @@ void HTauTauNtuplizer::Initialize(){
   _lheNOutC=0;
   _npu=0.;
   _PUNumInteractions=0;
-  _PUReweight=0.;
+  //_PUReweight=0.; //FRA January2019
   _rho=0;
   _nup=-999;
-  _MC_weight_scale_muF0p5=0.;
-  _MC_weight_scale_muF2=0.;
-  _MC_weight_scale_muR0p5=0.;
-  _MC_weight_scale_muR2=0.;
+  //_MC_weight_scale_muF0p5=0.; //FRA January2019
+  //_MC_weight_scale_muF2=0.;   //FRA January2019
+  //_MC_weight_scale_muR0p5=0.; //FRA January2019
+  //_MC_weight_scale_muR2=0.;   //FRA January2019
 
   //_jets.clear();
-  _jets_VBFfirstTrigMatch.clear(); //FRA
-  _jets_VBFsecondTrigMatch.clear(); //FRA
+  //_jets_VBFfirstTrigMatch.clear(); //FRA January2019
+  //_jets_VBFsecondTrigMatch.clear(); //FRA January2019
   _jets_VBFleadFilterMatch.clear();    //FRA
   _jets_VBFsubleadFilterMatch.clear(); //FRA
   _jets_px.clear();
@@ -1437,8 +1436,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("met_er",&_met_er,"met_er/F");
   myTree->Branch("met_er_phi",&_met_er_phi,"met_er_phi/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");
-  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
-  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
+  //myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");          //FRA January2019
+  //myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F"); //FRA January2019
   if(DETAIL>=1){  
     myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
     myTree->Branch("daughters_full5x5_IetaIeta",&_daughters_full5x5_IetaIeta);
@@ -1448,14 +1447,14 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("daughters_IoEmIoP",&_daughters_IoEmIoP);
     myTree->Branch("daughters_IoEmIoP_ttH",&_daughters_IoEmIoP_ttH);
   }
-  myTree->Branch("PFMETCov00",&_PFMETCov00,"PFMETCov00/F");
-  myTree->Branch("PFMETCov01",&_PFMETCov01,"PFMETCov01/F");
-  myTree->Branch("PFMETCov10",&_PFMETCov10,"PFMETCov10/F");
-  myTree->Branch("PFMETCov11",&_PFMETCov11,"PFMETCov11/F");
-  myTree->Branch("PFMETsignif", &_PFMETsignif, "PFMETsignif/F");
+  //myTree->Branch("PFMETCov00",&_PFMETCov00,"PFMETCov00/F"); //FRA January2019
+  //myTree->Branch("PFMETCov01",&_PFMETCov01,"PFMETCov01/F"); //FRA January2019
+  //myTree->Branch("PFMETCov10",&_PFMETCov10,"PFMETCov10/F"); //FRA January2019
+  //myTree->Branch("PFMETCov11",&_PFMETCov11,"PFMETCov11/F"); //FRA January2019
+  //myTree->Branch("PFMETsignif", &_PFMETsignif, "PFMETsignif/F"); //FRA January2019
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/F"); 
-  myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); 
+  //myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); //FRA January2019
   myTree->Branch("rho",&_rho,"rho/F");  
   
   myTree->Branch("mothers_px",&_mothers_px);
@@ -1528,10 +1527,10 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("PUNumInteractions",&_PUNumInteractions,"PUNumInteractions/I");  
     myTree->Branch("daughters_genindex",&_daughters_genindex);
     myTree->Branch("MC_weight",&_MC_weight,"MC_weight/F");
-    myTree->Branch("MC_weight_scale_muF0p5",&_MC_weight_scale_muF0p5,"MC_weight_scale_muF0p5/F");
-    myTree->Branch("MC_weight_scale_muF2",&_MC_weight_scale_muF2,"MC_weight_scale_muF2/F");
-    myTree->Branch("MC_weight_scale_muR0p5",&_MC_weight_scale_muR0p5,"MC_weight_scale_muR0p5/F");
-    myTree->Branch("MC_weight_scale_muR2",&_MC_weight_scale_muR2,"MC_weight_scale_muR2/F");
+    //myTree->Branch("MC_weight_scale_muF0p5",&_MC_weight_scale_muF0p5,"MC_weight_scale_muF0p5/F"); //FRA January2019
+    //myTree->Branch("MC_weight_scale_muF2",&_MC_weight_scale_muF2,"MC_weight_scale_muF2/F");       //FRA January2019
+    //myTree->Branch("MC_weight_scale_muR0p5",&_MC_weight_scale_muR0p5,"MC_weight_scale_muR0p5/F"); //FRA January2019
+    //myTree->Branch("MC_weight_scale_muR2",&_MC_weight_scale_muR2,"MC_weight_scale_muR2/F");       //FRA January2019
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("lheNOutPartons", &_lheNOutPartons, "lheNOutPartons/I");
     myTree->Branch("lheNOutB", &_lheNOutB, "lheNOutB/I");
@@ -1681,7 +1680,7 @@ void HTauTauNtuplizer::beginJob(){
   //myTree->Branch("daughters_eleMissingHits",&_daughters_eleMissingHits); //FRA January2019
   //myTree->Branch("daughters_eleMissingLostHits",&_daughters_eleMissingLostHits); //FRA January2019
   myTree->Branch("daughters_iseleChargeConsistent",&_daughters_iseleChargeConsistent);
-  myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT);
+  //myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT); //FRA January2019
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
@@ -1714,9 +1713,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_numParticlesIsoCone", &_daughters_numParticlesIsoCone);
   myTree->Branch("daughters_leadChargedParticlePt", &_daughters_leadChargedParticlePt);
   myTree->Branch("daughters_trackRefPt", &_daughters_trackRefPt);
-  myTree->Branch("daughters_isLastTriggerObjectforPath", &_daughters_LFtrigger);
+  //myTree->Branch("daughters_isLastTriggerObjectforPath", &_daughters_LFtrigger); //FRA January2019
   myTree->Branch("daughters_trgMatched", &_daughters_trgMatched);
-  myTree->Branch("daughters_isTriggerObjectforPath", &_daughters_L3trigger);
+  //myTree->Branch("daughters_isTriggerObjectforPath", &_daughters_L3trigger); //FRA January2019
   myTree->Branch("daughters_FilterFired",&_daughters_FilterFired);
   myTree->Branch("daughters_isGoodTriggerType",&_daughters_isGoodTriggerType);
   //myTree->Branch("daughters_L3FilterFired",&_daughters_L3FilterFired); //FRA January2019
@@ -1747,8 +1746,8 @@ void HTauTauNtuplizer::beginJob(){
   }
 
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
-  myTree->Branch("jets_VBFfirstTrigMatch",&_jets_VBFfirstTrigMatch); //FRA
-  myTree->Branch("jets_VBFsecondTrigMatch",&_jets_VBFsecondTrigMatch); //FRA
+  //myTree->Branch("jets_VBFfirstTrigMatch",&_jets_VBFfirstTrigMatch); //FRA January2019
+  //myTree->Branch("jets_VBFsecondTrigMatch",&_jets_VBFsecondTrigMatch); //FRA January2019
   myTree->Branch("jets_VBFleadFilterMatch"   , &_jets_VBFleadFilterMatch   ); //FRA
   myTree->Branch("jets_VBFsubleadFilterMatch", &_jets_VBFsubleadFilterMatch); //FRA
   myTree->Branch("jets_px",&_jets_px);
@@ -1884,20 +1883,23 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("subjets_deepCSV_probbb", &_subjets_deepCSV_probbb);
   myTree->Branch("subjets_ak8MotherIdx", &_subjets_ak8MotherIdx);
 
+  if (doCPVariables) //FRA January2019
+  {
+    myTree->Branch("pv_x", &_pv_x);
+    myTree->Branch("pv_y", &_pv_y);
+    myTree->Branch("pv_z", &_pv_z);
 
-  myTree->Branch("pv_x", &_pv_x);
-  myTree->Branch("pv_y", &_pv_y);
-  myTree->Branch("pv_z", &_pv_z);
+    myTree->Branch("pvRefit_x", &_pvRefit_x);
+    myTree->Branch("pvRefit_y", &_pvRefit_y);
+    myTree->Branch("pvRefit_z", &_pvRefit_z);
 
-  myTree->Branch("pvRefit_x", &_pvRefit_x);
-  myTree->Branch("pvRefit_y", &_pvRefit_y);
-  myTree->Branch("pvRefit_z", &_pvRefit_z);
+    myTree->Branch("isRefitPV", &_isRefitPV);
+  }
 
   myTree->Branch("pvGen_x", &_pvGen_x);
   myTree->Branch("pvGen_y", &_pvGen_y);
   myTree->Branch("pvGen_z", &_pvGen_z);
 
-  myTree->Branch("isRefitPV", &_isRefitPV);
 }
 
 Int_t HTauTauNtuplizer::FindCandIndex(const reco::Candidate& cand,Int_t iCand=0){
@@ -2003,7 +2005,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
         _PUNumInteractions  = PVI->getPU_NumInteractions();
         float nTrueInt = PVI->getTrueNumInteractions();
         _npu = nTrueInt;        
-        _PUReweight = reweight.weight(2012,2012,nTrueInt);
+        //_PUReweight = reweight.weight(2012,2012,nTrueInt); //FRA January2019
         break;
       } 
     }
@@ -2079,9 +2081,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<BXVector<l1t::Jet>>L1JetHandle;
   edm::Handle<pat::METCollection> metHandle;
   edm::Handle<pat::METCollection> metERHandle;
-  edm::Handle<pat::METCollection> PUPPImetHandle;
-  edm::Handle<math::Error<2>::type> covHandle;
-  edm::Handle<double> METsignficanceHandle;
+  //edm::Handle<pat::METCollection> PUPPImetHandle; //FRA January2019
+  //edm::Handle<math::Error<2>::type> covHandle; //FRA January2019
+  //edm::Handle<double> METsignficanceHandle; //FRA January2019
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
@@ -2101,9 +2103,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(theLepTag,dauHandle);
   event.getByToken(theMetTag,metHandle);
   event.getByToken(theMetERTag,metERHandle);
-  event.getByToken(thePUPPIMetTag,PUPPImetHandle);
-  event.getByToken(thePFMETCovTag,covHandle);
-  event.getByToken(thePFMETSignifTag,METsignficanceHandle);
+  //event.getByToken(thePUPPIMetTag,PUPPImetHandle); //FRA January2019
+  //event.getByToken(thePFMETCovTag,covHandle); //FRA January2019
+  //event.getByToken(thePFMETSignifTag,METsignficanceHandle); //FRA January2019
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
   event.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
 
@@ -2118,13 +2120,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     if (lheeventinfo.isValid()) {
       _nup=lheeventinfo->hepeup().NUP;
-      if (lheeventinfo->weights().size() > 6) // access weights only if weights() is filled
-      {
-        _MC_weight_scale_muF0p5 = _aMCatNLOweight*(lheeventinfo->weights()[2].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 0.5 | muR = 1
-        _MC_weight_scale_muF2 = _aMCatNLOweight*(lheeventinfo->weights()[1].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 2 | muR = 1
-        _MC_weight_scale_muR0p5 = _aMCatNLOweight*(lheeventinfo->weights()[6].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 0.5
-        _MC_weight_scale_muR2 = _aMCatNLOweight*(lheeventinfo->weights()[3].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 2
-      }
+      //if (lheeventinfo->weights().size() > 6) // access weights only if weights() is filled  //FRA January2019
+      //{
+      //  _MC_weight_scale_muF0p5 = _aMCatNLOweight*(lheeventinfo->weights()[2].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 0.5 | muR = 1 //FRA January2019
+      //  _MC_weight_scale_muF2 = _aMCatNLOweight*(lheeventinfo->weights()[1].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 2 | muR = 1     //FRA January2019
+      //  _MC_weight_scale_muR0p5 = _aMCatNLOweight*(lheeventinfo->weights()[6].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 0.5 //FRA January2019
+      //  _MC_weight_scale_muR2 = _aMCatNLOweight*(lheeventinfo->weights()[3].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 2     //FRA January2019
+      //}
     }
 
   }
@@ -2151,7 +2153,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const edm::View<pat::Jet>* fatjets = fatjetHandle.product();
   const pat::MET &met = metHandle->front();
   const pat::MET &met_er = metERHandle->front();
-  const pat::MET &PUPPImet = PUPPImetHandle->front();
+  //const pat::MET &PUPPImet = PUPPImetHandle->front(); //FRA January2019
   const BXVector<l1t::Tau>* L1Tau = L1TauHandle.product();
   const BXVector<l1t::Jet>* L1Jet = L1JetHandle.product();
   //myNtuple->InitializeVariables();
@@ -2164,13 +2166,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _met_er = met_er.pt();
   _met_er_phi = met_er.phi();
   _metphi = met.phi();
-  _PUPPImet = PUPPImet.pt();
-  _PUPPImetphi = PUPPImet.phi();
-  _PFMETCov00 = (*covHandle)(0,0); 
-  _PFMETCov10 = (*covHandle)(1,0);
-  _PFMETCov01 = _PFMETCov10; // (1,0) is the only one saved
-  _PFMETCov11 = (*covHandle)(1,1);
-  _PFMETsignif = (*METsignficanceHandle);
+  //_PUPPImet = PUPPImet.pt();     //FRA January2019
+  //_PUPPImetphi = PUPPImet.phi(); //FRA January2019
+  //_PFMETCov00 = (*covHandle)(0,0); //FRA January2019
+  //_PFMETCov10 = (*covHandle)(1,0); //FRA January2019
+  //_PFMETCov01 = _PFMETCov10; // (1,0) is the only one saved //FRA January2019
+  //_PFMETCov11 = (*covHandle)(1,1); //FRA January2019
+  //_PFMETsignif = (*METsignficanceHandle); //FRA January2019
   //_NBadMu = (*NBadMuHandle); //FRA January2019
   _passecalBadCalibFilterUpdate =  (*passecalBadCalibFilterUpdate );
   //Do all the stuff here
@@ -2259,7 +2261,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   if(writeL1 && theisMC) FillL1Obj(L1Tau, L1Jet, event);
   
   //FRA: Matching jets with trigger filters for VBF
-  VBFtrigMatch(jets, event);
+  //VBFtrigMatch(jets, event); //FRA January2019
     
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
@@ -2669,8 +2671,8 @@ void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm:
   } // Loop on jets
   
   // Fill the tree variable
-  _jets_VBFfirstTrigMatch.push_back(VBFfirstTrigMatched);
-  _jets_VBFsecondTrigMatch.push_back(VBFsecondTrigMatched);
+  //_jets_VBFfirstTrigMatch.push_back(VBFfirstTrigMatched); //FRA January2019
+  //_jets_VBFsecondTrigMatch.push_back(VBFsecondTrigMatched); //FRA January2019
 
 }
 
@@ -3459,7 +3461,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     //_daughters_eleMissingLostHits.push_back(elemissinglosthits); //FRA January2019
     _daughters_iseleChargeConsistent.push_back(iselechargeconsistent);
 
-    //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT"));
+    //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT")); //FRA January2019
     _decayType.push_back(decay);
     _daughters_IetaIeta.push_back(ieta);
     _daughters_full5x5_IetaIeta.push_back(full5x5_ieta);
