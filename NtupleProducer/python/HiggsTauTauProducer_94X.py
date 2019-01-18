@@ -172,23 +172,23 @@ process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
 
 #Re-Reco2016 fix from G. Petrucciani
 #process.load("RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff")
-process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
-    muons = cms.InputTag("slimmedMuons"),
-    vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    muonPtCut = cms.double(20),
-    selectClones = cms.bool(False),
-    taggingMode = cms.bool(True),
-    verbose     = cms.untracked.bool(False),
-)
-process.cloneGlobalMuonTagger = process.badGlobalMuonTagger.clone(
-    selectClones = cms.bool(True)
-)
+#process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
+#    muons = cms.InputTag("slimmedMuons"),
+#    vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
+#    muonPtCut = cms.double(20),
+#    selectClones = cms.bool(False),
+#    taggingMode = cms.bool(True),
+#    verbose     = cms.untracked.bool(False),
+#)
+#process.cloneGlobalMuonTagger = process.badGlobalMuonTagger.clone(
+#    selectClones = cms.bool(True)
+#)
 
-process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
-    input = cms.InputTag("slimmedMuons"),
-    toremove = cms.InputTag("badGlobalMuonTagger", "bad"),
-    toremove2 = cms.InputTag("cloneGlobalMuonTagger", "bad")
-)
+#process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
+#    input = cms.InputTag("slimmedMuons"),
+#    toremove = cms.InputTag("badGlobalMuonTagger", "bad"),
+#    toremove2 = cms.InputTag("cloneGlobalMuonTagger", "bad")
+#)
 
 # process.removeCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
 #     input = cms.InputTag("removeBadGlobalMuons"),
@@ -196,7 +196,7 @@ process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
 # )
 
 # process.noBadGlobalMuons = cms.Sequence(~process.cloneGlobalMuonTagger + ~process.badGlobalMuonTagger)
-process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
+#process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
 
 #process.softLeptons = cms.EDProducer("CandViewMerger",
 #    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
@@ -252,7 +252,8 @@ process.softMuons = cms.EDProducer("MuFiller",
 )
 
 # process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process.softMuons)
-process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons)
+#process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons)
+process.muons =  cms.Sequence(process.bareSoftMuons+ process.softMuons)
 
 ###
 ### Electrons
@@ -980,7 +981,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       #l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
-                      nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons"),
+                      #nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons"), #FRA January2019
                       genLumiHeaderTag = cms.InputTag("generator"),
                       metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
