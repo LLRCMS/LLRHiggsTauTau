@@ -76,7 +76,6 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-#process.load("RecoMET.METFilters.python.badGlobalMuonTaggersMiniAOD_cff")
 #process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool( True ),
@@ -170,46 +169,6 @@ process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
     )
 
 
-#Re-Reco2016 fix from G. Petrucciani
-#process.load("RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff")
-#process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
-#    muons = cms.InputTag("slimmedMuons"),
-#    vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
-#    muonPtCut = cms.double(20),
-#    selectClones = cms.bool(False),
-#    taggingMode = cms.bool(True),
-#    verbose     = cms.untracked.bool(False),
-#)
-#process.cloneGlobalMuonTagger = process.badGlobalMuonTagger.clone(
-#    selectClones = cms.bool(True)
-#)
-
-#process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
-#    input = cms.InputTag("slimmedMuons"),
-#    toremove = cms.InputTag("badGlobalMuonTagger", "bad"),
-#    toremove2 = cms.InputTag("cloneGlobalMuonTagger", "bad")
-#)
-
-# process.removeCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
-#     input = cms.InputTag("removeBadGlobalMuons"),
-#     toremove = cms.InputTag("cloneGlobalMuonTagger")
-# )
-
-# process.noBadGlobalMuons = cms.Sequence(~process.cloneGlobalMuonTagger + ~process.badGlobalMuonTagger)
-#process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
-
-#process.softLeptons = cms.EDProducer("CandViewMerger",
-#    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
-#    src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
-#)
-
-### Mu Ghost cleaning
-# process.cleanedMu = cms.EDProducer("PATMuonCleanerBySegments",
-#                                    src = cms.InputTag("cloneGlobalMuonTagger"),
-#                                    preselection = cms.string("track.isNonnull"),
-#                                    passthrough = cms.string("isGlobalMuon && numberOfMatches >= 2"),
-#                                    fractionOfSharedSegments = cms.double(0.499))
-
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
     #src = cms.InputTag("removeBadAndCloneGlobalMuons"), # input for 2016 data only
@@ -220,20 +179,6 @@ process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
 #                     "pt>3 && p>3.5 && abs(eta)<2.4")
 )
 
-
-
-# # MC matching. As the genParticles are no more available in cmg, we re-match with prunedGenParticles.
-# process.muonMatch = cms.EDProducer("MCMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
-#                                    src     = cms.InputTag("softMuons"), # RECO objects to match  
-#                                    matched = cms.InputTag("prunedGenParticles"),   # mc-truth particle collection
-#                                    mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
-#                                    checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge
-#                                    mcStatus = cms.vint32(1),     # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-#                                    maxDeltaR = cms.double(0.5),  # Minimum deltaR for the match
-#                                    maxDPtRel = cms.double(0.5),  # Minimum deltaPt/Pt for the match
-#                                    resolveAmbiguities = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
-#                                    resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first
-#                                    )
 
 process.softMuons = cms.EDProducer("MuFiller",
     src = cms.InputTag("bareSoftMuons"),
@@ -251,38 +196,11 @@ process.softMuons = cms.EDProducer("MuFiller",
     )
 )
 
-# process.muons =  cms.Sequence(process.cleanedMu + process.bareSoftMuons+ process.softMuons)
-#process.muons =  cms.Sequence(process.noBadGlobalMuons + process.bareSoftMuons+ process.softMuons)
 process.muons =  cms.Sequence(process.bareSoftMuons+ process.softMuons)
 
 ###
 ### Electrons
 ###
-##--- Electron regression+calibrarion must be applied after BDT is recomputed
-## NOTE patElectronsWithRegression->eleRegressionEnergy;  calibratedElectrons-> calibratedPatElectrons
-## Default: NEW ECAL regression + NEW calibration + NEW combination
-#process.load('EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi')
-#process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('patElectronsWithTrigger')
-#process.eleRegressionEnergy.energyRegressionType = 2 ## 1: ECAL regression w/o subclusters 2 (default): ECAL regression w/ subclusters)
-##process.eleRegressionEnergy.vertexCollection = cms.InputTag('goodPrimaryVertices')
-#process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
-#process.calibratedPatElectrons.correctionsType = 2 # 1 = old regression, 2 = new regression, 3 = no regression, 0 = nothing
-#process.calibratedPatElectrons.combinationType = 3
-#process.calibratedPatElectrons.lumiRatio = cms.double(1.0)
-#process.calibratedPatElectrons.isMC    = IsMC
-#process.calibratedPatElectrons.synchronization = cms.bool(False)
-#
-##if (LEPTON_SETUP == 2011):
-##   process.eleRegressionEnergy.rhoCollection = cms.InputTag('kt6PFJetsForIso:rho')
-##   if (IsMC):
-##       process.calibratedPatElectrons.inputDataset = "Fall11"
-##   else :
-##       process.calibratedPatElectrons.inputDataset = "Jan16ReReco"
-##else :
-##if (IsMC):
-#process.calibratedPatElectrons.inputDataset = "Summer12_LegacyPaper"
-##   else :
-##process.calibratedPatElectrons.inputDataset = "22Jan2013ReReco"
 
 
 # START ELECTRON CUT BASED ID SECTION
@@ -309,35 +227,6 @@ process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
 
-#### Define which IDs we want to produce
-#### Each of these two example IDs contains all four standard 
-#### cut-based ID working points (only two WP of the PU20bx25 are actually used here).
-####my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_miniAOD_cff']
-####my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
-###my_id_modules =[
-###'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',    # both 25 and 50 ns cutbased ids produced
-###'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_50ns_V1_cff',
-###'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',                 # recommended for both 50 and 25 ns
-###'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff', # will not be produced for 50 ns, triggering still to come
-###'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',    # 25 ns trig
-###'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_50ns_Trig_V1_cff',    # 50 ns trig
-###'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',   #Spring16
-###'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',   #Spring16 HZZ
-###'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',     #Fall17 iso
-###'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',   #Fall17 noIso
-###] 
-####['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_'+nanosec+'ns_V1_cff','RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff']
-####Add them to the VID producer
-###for idmod in my_id_modules:
-###    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-###    
-###
-#process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
-#   src = cms.InputTag("slimmedElectrons"),#"calibratedPatElectrons"),
-#   cut = cms.string(ELECUT)
-#   )
-
-
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
    rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
@@ -345,98 +234,10 @@ process.softElectrons = cms.EDProducer("EleFiller",
    genCollection = cms.InputTag("prunedGenParticles"),
    sampleType = cms.int32(LEPTON_SETUP),          
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
-
-   ####CUT BASED ELE ID
-   ####electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-veto"),
-   ####electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-tight"),
-   ####electronMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-medium"),
-   ####electronLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-loose"),
-   ####electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto"),
-   ####electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-tight"),
-   ####electronMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-   ####electronLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-loose"),
-   ###electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-veto"),
-   ###electronTightIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-tight"),
-   ###electronMediumIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-medium"),
-   ###electronLooseIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-"+nanosec+"ns-V1-standalone-loose"),
-   ###
-   ####MVA ELE ID (only for 25ns right now)
-   ####eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp80"),
-   ####eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-PHYS14-PU20bx25-nonTrig-V1-wp90"),
-   ####mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigValues"),
-   ####mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Phys14NonTrigCategories"),
-   ####eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp80"),
-   ####eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring15-25ns-nonTrig-V1-wp90"),
-   ####mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"),
-   ####mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Categories"),
-   ####eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90"),
-   ####eleTightIdMap  = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80"),
-   ####mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
-   ####mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Categories"),
-   ####HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
-   ###eleLooseIdMap  = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wpLoose"),
-   ###eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp90"),
-   ###eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp80"),
-   ###eleLooseNoIsoIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wpLoose"),
-   ###eleMediumNoIsoIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wp90"),
-   ###eleTightNoIsoIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wp80"),
-   ###mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values"),
-   ###mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Categories"),
-   ###HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
-#  cut = cms.string("userFloat('SIP')<100"),
-#  cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1"),
    cut = cms.string(ELECUT)
-   #flags = cms.PSet(
-        #ID = cms.string("userInt('isBDT')"), # BDT MVA ID
-    #    isGood = cms.string("")               ### ??? maybe this "flags" can be fully trashed?
-#        )
    )
 
-
-#process.electrons = cms.Sequence(process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
-
-###egmMod = 'egmGsfElectronIDs'
-###mvaMod = 'electronMVAValueMapProducer'
-###regMod = 'electronRegressionValueMapProducer'
-###egmSeq = 'egmGsfElectronIDSequence'
-###setattr(process,egmMod,process.egmGsfElectronIDs.clone())
-###setattr(process,mvaMod,process.electronMVAValueMapProducer.clone())
-###setattr(process,regMod,process.electronRegressionValueMapProducer.clone())
-###setattr(process,egmSeq,cms.Sequence(getattr(process,mvaMod)*getattr(process,egmMod)*getattr(process,regMod)))
-###process.electrons = cms.Sequence(getattr(process,mvaMod)*getattr(process,egmMod)*getattr(process,regMod) * process.softElectrons)#process.bareSoftElectrons
-process.electrons = cms.Sequence(process.softElectrons)#process.bareSoftElectrons
-
-# Handle special cases
-#if ELECORRTYPE == "None" :   # No correction at all. Skip correction modules.
-#    process.bareSoftElectrons.src = cms.InputTag('slimmedElectrons')#patElectronsWithTrigger')#RH
-#    process.electrons = cms.Sequence(process.bareSoftElectrons + process.softElectrons)
-#
-#elif ELECORRTYPE == "Moriond" : # Moriond corrections: OLD ECAL regression + OLD calibration + OLD combination 
-#    if (LEPTON_SETUP == 2011):
-#        process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyReg2011Weights_V1.root")
-#    else :
-#        process.eleRegressionEnergy.regressionInputFile = cms.string("EgammaAnalysis/ElectronTools/data/eleEnergyReg2012Weights_V1.root")
-#    process.eleRegressionEnergy.energyRegressionType = 1
-#    process.calibratedPatElectrons.correctionsType   = 1
-#    process.calibratedPatElectrons.combinationType   = 1
-#
-#elif ELECORRTYPE == "Paper" : # NEW ECAL regression + NO calibration + NO combination
-#    process.eleRegressionEnergy.energyRegressionType = 2
-#    process.calibratedPatElectrons.correctionsType   = 0
-#    process.calibratedPatElectrons.combinationType   = 0
-#    
-
-# process.electronMatch = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
-#                                        src         = cms.InputTag("bareSoftElectrons"), # RECO objects to match
-#                                        matched     = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
-#                                        mcPdgId     = cms.vint32(11),               # one or more PDG ID (11 = electron); absolute values (see below)
-#                                        checkCharge = cms.bool(True),               # True = require RECO and MC objects to have the same charge
-#                                        mcStatus    = cms.vint32(1),                # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-#                                        maxDeltaR   = cms.double(0.5),              # Minimum deltaR for the match
-#                                        maxDPtRel   = cms.double(0.5),              # Minimum deltaPt/Pt for the match
-#                                        resolveAmbiguities    = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
-#                                        resolveByMatchQuality = cms.bool(False),    # False = just match input in order; True = pick lowest deltaR pair first
-#                                        )
+process.electrons = cms.Sequence(process.softElectrons)
 
 
 ### ----------------------------------------------------------------------
@@ -526,16 +327,6 @@ process.softTaus = cms.EDProducer("TauFiller",
    vtxCollection = cms.InputTag("goodPrimaryVertices"),
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
-   # --> Used in HIG-17-002
-   # NominalTESCorrection  = cms.double(-1.0), # in percent, shift of central value of TES
-   # NominalTESUncertainty = cms.double(3.0) , # in percent, up/down uncertainty of TES
-
-   # --> Correct values for 2016 data - Uncertainty 1.2%
-   # NominalTESUncertainty      = cms.double(1.2) , # in percent, up/down uncertainty of TES
-   # NominalTESCorrection1Pr    = cms.double(-0.5), #DecayMode==0
-   # NominalTESCorrection1PrPi0 = cms.double(1.1) , #DecayMode==1
-   # NominalTESCorrection3Pr    = cms.double(0.6) , #DecayMode==10
-
    # --> Correct values for 2017 data - Uncertainty 3.0%
    # NominalTESUncertainty      = cms.double(3.0) , # in percent, up/down uncertainty of TES
    # NominalTESCorrection1Pr    = cms.double(-3.0), #DecayMode==0
@@ -559,57 +350,9 @@ process.softTaus = cms.EDProducer("TauFiller",
         )
    )
 
-# process.softTausTauUp = process.softTaus.clone(
-#    src = cms.InputTag("bareTaus"),
-#    genCollection = cms.InputTag("prunedGenParticles"),
-#    vtxCollection = cms.InputTag("goodPrimaryVertices"),
-#    cut = cms.string(TAUCUT),
-#    NominalUpOrDown = cms.string("Up"),
-#    NominalTESCorrection = cms.double(NominalTESCorrection),    
-#    ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                        
-#    discriminator = cms.string(TAUDISCRIMINATOR),
-#    flags = cms.PSet(
-#         isGood = cms.string("")
-#         )
-#    )
 
-# process.softTausTauDown = process.softTaus.clone(
-#    src = cms.InputTag("bareTaus"),
-#    genCollection = cms.InputTag("prunedGenParticles"),
-#    vtxCollection = cms.InputTag("goodPrimaryVertices"),
-#    cut = cms.string(TAUCUT),
-#    NominalUpOrDown = cms.string("Down"),
-#    NominalTESCorrection = cms.double(NominalTESCorrection), 
-#    ApplyTESCorrection = cms.bool(APPLYTESCORRECTION),                       
-#    discriminator = cms.string(TAUDISCRIMINATOR),
-#    flags = cms.PSet(
-#         isGood = cms.string("")
-#         )
-#    )
-
-# process.tauMatch = cms.EDProducer("MCMatcher",
-#     src = cms.InputTag("softTaus"),
-#     maxDPtRel = cms.double(999.9),
-#     mcPdgId = cms.vint32(15),
-#     mcStatus = cms.vint32(2),
-#     resolveByMatchQuality = cms.bool(False),
-#     maxDeltaR = cms.double(999.9),
-#     checkCharge = cms.bool(True),
-#     resolveAmbiguities = cms.bool(True),
-#     matched = cms.InputTag("prunedGenParticles")
-#     )
-
-
-#process.taus=cms.Sequence(process.rerunMvaIsolation2SeqRun2 + process.NewTauIDsEmbedded + process.bareTaus + process.softTaus)
 process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.NewTauIDsEmbedded + process.bareTaus + process.softTaus)
 
-# process.tausMerged = cms.EDProducer("MergeTauCollections",
-#     src        = cms.InputTag("softTaus"),
-#     srcTauUp   = cms.InputTag("softTausTauUp"),
-#     srcTauDown = cms.InputTag("softTausTauDown")
-# )
-
-#process.tausMerged=cms.Sequence(process.softTaus + process.softTausTauUp + process.softTausTauDown + process.tausMerging)
 
 # ### ----------------------------------------------------------------------
 # ### b quarks, only from MC
@@ -656,7 +399,6 @@ if not APPLYFSR :
     tauString = "softTaus"
 #Leptons
 process.softLeptons = cms.EDProducer("CandViewMerger",
-    #src = cms.VInputTag(cms.InputTag("slimmedMuons"), cms.InputTag("slimmedElectrons"),cms.InputTag("slimmedTaus"))
     src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
 )
 
@@ -792,24 +534,6 @@ if USEPAIRMET:
 
     process.METSequence += cms.Sequence(process.MVAMETInputs + process.MVAMET)
 
-    # # python trick: loop on all pairs for pair MET computation
-    # UnpackerTemplate = cms.EDProducer("PairUnpacker",
-    #     src = cms.InputTag("barellCand")
-    # )
-
-    # MVAPairMET = []
-    # for index in range(210):
-    #     UnpackerName = "PairUnpacker%i" % index
-    #     UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
-    #     setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
-    #     process.METSequence += UnpackerModule
-
-    #     MVAMETName = "patMETMVA%i" % index
-    #     MVAModule = process.MVAMET.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
-    #     setattr(process, MVAMETName, MVAModule)
-    #     process.METSequence += MVAModule
-   
-    #     MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
 
 else:
     print "Using event pfMET (same MET for all pairs)"
@@ -834,28 +558,42 @@ else:
     process.METSequence += process.METSignificance
     process.METSequence += process.ShiftMETforTES
 
+#from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+#process.testCands = cms.EDFilter("CandPtrSelector",
+#                                 src=cms.InputTag("packedPFCandidates"),
+#                                 cut=cms.string("abs(eta)<2.5")
+#)
+#
+#runMetCorAndUncFromMiniAOD(process,
+#                           isData=(not IsMC),
+#                           pfCandColl=cms.InputTag("testCands"),
+#                           reclusterJets=True,
+#                           recoMetFromPFCs=True,
+#                           postfix="Test",
+#)
+##metERTag = cms.InputTag("slimmedMETsTest","","TEST")
+#
+#### somehow MET recorrection gets this lost again...
+#process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+#process.patJetsReapplyJEC.userData.userInts.src += ['pileupJetIdUpdated:fullId']
+#
+#
+#
+#process.MET = cms.Path(process.testCands + process.fullPatMetSequenceTest)
+
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-process.testCands = cms.EDFilter("CandPtrSelector",
-                                 src=cms.InputTag("packedPFCandidates"),
-                                 cut=cms.string("abs(eta)<2.5")
+
+runMetCorAndUncFromMiniAOD (
+        process,
+        isData = True, # false for MC
+        fixEE2017 = True,
+        fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+        postfix = "ModifiedMET"
 )
 
-runMetCorAndUncFromMiniAOD(process,
-                           isData=(not IsMC),
-                           pfCandColl=cms.InputTag("testCands"),
-                           reclusterJets=True,
-                           recoMetFromPFCs=True,
-                           postfix="Test",
-)
-#metERTag = cms.InputTag("slimmedMETsTest","","TEST")
+# if running in schedule mode add this to your path
+process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
 
-### somehow MET recorrection gets this lost again...
-process.patJetsReapplyJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
-process.patJetsReapplyJEC.userData.userInts.src += ['pileupJetIdUpdated:fullId']
-
-
-
-process.MET = cms.Path(process.testCands + process.fullPatMetSequenceTest)
 
 
 # ## always compute met significance
@@ -956,7 +694,6 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       rhoForJER = cms.InputTag("fixedGridRhoAll"), # FRA
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
-                      #JECset = cms.untracked.string("patJetCorrFactors"),
                       JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC"),
                       computeQGVar = cms.bool(COMPUTEQGVAR),
                       QGTagger = cms.InputTag("QGTagger", "qgLikelihood"),
@@ -978,12 +715,11 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
                       srcPFMETCov = cms.InputTag("METSignificance", "METCovariance"),
                       srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
-                      #l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
-                      #nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons"), #FRA January2019
                       genLumiHeaderTag = cms.InputTag("generator"),
-                      metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
+                      #metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
+                      metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
 )
 if USE_NOHFMET:
