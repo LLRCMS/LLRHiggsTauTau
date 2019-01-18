@@ -311,7 +311,6 @@ cd $CMSSW_BASE/src
 scram b -j 8
 ```
 
-</details>
 
 ### Instructions for 94X
 
@@ -368,6 +367,53 @@ cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
 # need to fix: TauAnalysis/SVfitStandalone/src/SVfitStandaloneQuantities.cc 
 # add '#include <numeric>'
+
+cd $CMSSW_BASE/src
+scram b -j 8
+```
+
+</details>
+
+
+### Instructions for 102X
+
+```
+cmsrel CMSSW_10_2_5
+cd CMSSW_10_2_5/src
+cmsenv
+
+# MVA EleID Fall 2018
+git cms-init
+git cms-merge-topic cms-egamma:EgammaID_1023 #if you want the V2 IDs, otherwise skip
+
+# Z-recoil corrections
+git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
+
+# LLRHiggsTauTau framework
+git clone git@github.com:francescobrivio/LLRHiggsTauTau.git
+cd LLRHiggsTauTau
+git checkout 102X_HH
+cd -
+
+git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
+cd Muon/MuonAnalysisTools
+git checkout master -- interface/MuonEffectiveArea.h
+cd -
+
+git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
+cd EGamma/EGammaAnalysisTools
+git checkout c0db796 -- interface/ElectronEffectiveArea.h
+cd -
+
+# bad MET filter fix
+git cms-addpkg RecoMET/METFilters
+
+# MET - EE noise mitigation
+git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X
+
+# SVfit
+git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
+git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 
 cd $CMSSW_BASE/src
 scram b -j 8
