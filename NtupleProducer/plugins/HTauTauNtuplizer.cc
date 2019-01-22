@@ -2819,66 +2819,25 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_neMult .push_back(NumNeutralParticles);  
     _jets_MUF    .push_back(MUF);
 
-    int jetid=0; 
-    //PHYS14
-    /*
-    if((NHF<0.99 && NEMF<0.99 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4)){
-      jetid++;
-      if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)  ) jetid++;
-    }
-    */
-    //Spring15
-    // if(absjeta<=3.0){
-    //   if((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ){
-    //     jetid++;
-    //     if( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ) {
-    //       jetid++;
-    //       if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)) jetid++;
-    //     }
-    //   }
-    // }else{
-    //   if(NEMF<0.90 && NumNeutralParticles>10 ){
-    //     jetid++;
-    //     jetid++; //TIGHT and LOOSE are the same in this eta region
-    //   }
-    // }  
-    
-    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
-    // bool looseJetID = false;
-    // bool tightJetID = false;
-    // bool tightLepVetoJetID = false;
-    // if (absjeta <= 2.7)
-    // {
-    //   looseJetID = ( (NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
-    //   tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
-    //   tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
-    // }
-    // else if (absjeta <= 3.0)
-    // {
-    //   looseJetID = (NEMF<0.90 && NumNeutralParticles>2 ) ;
-    //   tightJetID = looseJetID;
-    // }
-    // else
-    // {
-    //   looseJetID = (NEMF<0.90 && NumNeutralParticles>10 );
-    //   tightJetID = looseJetID;
-    // }
-    // if (looseJetID) ++jetid;
-    // if (tightJetID) ++jetid;
-    // if (tightLepVetoJetID) ++jetid;
 
-    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13TeVRun2017
-    // Since the tight JetID efficiency is > 99% everywhere, loose is not recommended anymore
+    // JetID
+    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2018
+    int jetid=0;
     bool tightJetID = false;
     bool tightLepVetoJetID = false;
-    if (absjeta <= 2.7)
+    if (absjeta <= 2.6)
     {
-      tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0) || absjeta>2.4) );
-      tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.80) || absjeta>2.4) );
+      tightJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0 && CHM>0 );
+      tightLepVetoJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8 && CHF>0 && CHM>0 && CEMF<0.80 );
     }
-    else if (absjeta <= 3.0)
+    else if (absjeta>2.6 && absjeta <= 2.7)
     {
-      tightJetID = (NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
+      tightJetID = ( NHF<0.90 && NEMF<0.99 && CHM>0 );
+      tightLepVetoJetID = ( NHF<0.90 && NEMF<0.99 && MUF<0.8 && CHM>0 && CEMF<0.80 );
+    }
+    else if (absjeta>2.7 && absjeta <= 3.0)
+    {
+      tightJetID = ( NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
     }
     else
     {
@@ -2889,8 +2848,6 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
     _jetID.push_back(jetid);
     float jecFactor = ijet->jecFactor("Uncorrected") ;
-    //float jetRawPt = jecFactor * ijet->pt(); //FRA January2019
-    //_jets_rawPt.push_back ( jetRawPt ); //FRA January2019
     _jets_area.push_back (ijet->jetArea());
     _jetrawf.push_back(jecFactor);
   
