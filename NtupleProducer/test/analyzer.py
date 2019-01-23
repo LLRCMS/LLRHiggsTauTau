@@ -25,7 +25,7 @@ USE_NOHFMET = False # True to exclude HF and run on silver json
 
 
 SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
-USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
+#USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations

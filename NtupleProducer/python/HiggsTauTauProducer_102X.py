@@ -583,31 +583,31 @@ else:
 ## ----------------------------------------------------------------------
 ## SV fit
 ## ----------------------------------------------------------------------
-if USECLASSICSVFIT:
-    print "Using CLASSIC_SV_FIT"
-    process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
-                                      srcPairs   = cms.InputTag("barellCand"),
-                                      srcSig     = cms.InputTag("METSignificance", "METSignificance"),
-                                      srcCov     = cms.InputTag("METSignificance", "METCovariance"),
-                                      usePairMET = cms.bool(USEPAIRMET),
-                                      srcMET     = srcMETTag,
-                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False),
-                                      computeForUpDownMET = cms.bool(COMPUTEMETUPDOWNSVFIT if IsMC else False),
-                                      METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
-                                      METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
-                                      METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
-                                      METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
-    )
-else:
-    print "Using STANDALONE_SV_FIT"
-    process.SVllCand = cms.EDProducer("SVfitInterface",
-                                      srcPairs   = cms.InputTag("barellCand"),
-                                      srcSig     = cms.InputTag("METSignificance", "METSignificance"),
-                                      srcCov     = cms.InputTag("METSignificance", "METCovariance"),
-                                      usePairMET = cms.bool(USEPAIRMET),
-                                      srcMET     = srcMETTag,
-                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
-    )
+#if USECLASSICSVFIT:
+#    print "Using CLASSIC_SV_FIT"
+process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
+                                  srcPairs   = cms.InputTag("barellCand"),
+                                  srcSig     = cms.InputTag("METSignificance", "METSignificance"),
+                                  srcCov     = cms.InputTag("METSignificance", "METCovariance"),
+                                  usePairMET = cms.bool(USEPAIRMET),
+                                  srcMET     = srcMETTag,
+                                  computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False),
+                                  computeForUpDownMET = cms.bool(COMPUTEMETUPDOWNSVFIT if IsMC else False),
+                                  METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
+                                  METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
+                                  METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
+                                  METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
+)
+#else:
+#    print "Using STANDALONE_SV_FIT"
+#    process.SVllCand = cms.EDProducer("SVfitInterface",
+#                                      srcPairs   = cms.InputTag("barellCand"),
+#                                      srcSig     = cms.InputTag("METSignificance", "METSignificance"),
+#                                      srcCov     = cms.InputTag("METSignificance", "METCovariance"),
+#                                      usePairMET = cms.bool(USEPAIRMET),
+#                                      srcMET     = srcMETTag,
+#                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
+#    )
 
 ## ----------------------------------------------------------------------
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass)
@@ -680,10 +680,10 @@ if SVFITBYPASS:
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
     process.SVFit = cms.Sequence (process.SVbypass)
 
-
 else:
     process.HTauTauTree.candCollection = cms.InputTag("SVllCand")
     process.SVFit = cms.Sequence (process.SVllCand)
+
 
 #print particles gen level - DEBUG purposes
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
