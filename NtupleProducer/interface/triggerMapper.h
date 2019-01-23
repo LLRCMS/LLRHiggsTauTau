@@ -31,7 +31,7 @@ class triggerMapper {
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int);
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, int theleg1ID, int theleg2ID);
   triggerMapper(string, std::vector<std::string>,std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, int theleg1ID, int theleg2ID); //FRA
-  triggerMapper(string, std::vector<std::string>,std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, int theleg1ID, int theleg2ID, double, double); //FRA
+  //triggerMapper(string, std::vector<std::string>,std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, int theleg1ID, int theleg2ID, double, double); //FRA
   //triggerMapper(TString, TString*,TString*,int,int);
   triggerMapper(string, string, string, int);
   
@@ -42,8 +42,8 @@ class triggerMapper {
   int GetNfiltersleg4(){return filter_leg4.size();} //FRA
   string Getfilter(bool isleg1, int iFilter);
   string GetfilterVBF(bool isleg3, int iFilter); //FRA
-  double GetPtCut1() {return pt1;} //FRA
-  double GetPtCut2() {return pt2;} //FRA
+  //double GetPtCut1() {return pt1;} //FRA
+  //double GetPtCut2() {return pt2;} //FRA
   std::vector<std::string> Getfilters(bool isleg1){return (isleg1 ? filter_leg1 : filter_leg2); };
   int GetTriggerChannel(){return channel;}
   pair <int, int> GetTriggerLegsID(){return make_pair(leg1ID, leg2ID);}
@@ -60,7 +60,7 @@ class triggerMapper {
   int channel; // final decay channel: mu tau, ele tau, ...
   int leg1ID;  // abs(pdgID) of leg 1
   int leg2ID;  // abs(pdgID) of leg 2
-  double pt1;  // pT cut for leg1 //FRA
-  double pt2;  // pT cut for leg2 //FRA
+  //double pt1;  // pT cut for leg1 //FRA
+  //double pt2;  // pT cut for leg2 //FRA
 };
 #endif

@@ -20,9 +20,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(26),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu24_eta2p1_v"),  # FIXME: to be checked
@@ -31,9 +29,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(26),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu27_v"),
@@ -42,9 +38,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(29),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
 ### === Single electron triggers   -- UPDATED FOR 2018 DATA
     cms.PSet (
@@ -54,9 +48,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(31),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele30_WPTight_Gsf_v"),  # FIXME: to be checked  - not present at the beginning of 2018
@@ -65,9 +57,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(33),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele32_WPTight_Gsf_v"),
@@ -76,9 +66,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(35),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele35_WPTight_Gsf_v"),
@@ -87,9 +75,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(38),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
 ### === mu tauh triggers -- CHECK first muon filter, I think it's wrong on the TauTrigger twiki
     cms.PSet (
@@ -99,9 +85,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v"),
@@ -110,9 +94,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v"),
@@ -121,9 +103,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v"),
@@ -132,9 +112,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v"),
@@ -143,9 +121,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v"),
@@ -154,9 +130,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v"),
@@ -165,9 +139,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v"),
@@ -176,9 +148,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v"),
@@ -187,9 +157,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v"),
@@ -198,9 +166,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v"),
@@ -209,20 +175,16 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
-    cms.PSet ( # !!! FIXME !!!
+    cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v"),
-        path1 = cms.vstring ("hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"),
+        path1 = cms.vstring ("hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"),
         path2 = cms.vstring ("hltSelectedPFTau27TightChargedIsolationTightOOSCPhotonsAgainstMuonL1HLTMatched","hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"),
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(13),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(22),
-        pt2 = cms.double(32)
+        leg2 = cms.int32(15)
         ),
 ### === ele tauh triggers  -- UPDATED FOR 2018 DATA
     cms.PSet (
@@ -232,9 +194,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_TightID_CrossL1_v"),
@@ -243,9 +203,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTauHPS30_eta2p1_CrossL1_v"),
@@ -254,9 +212,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTauHPS30_eta2p1_TightID_CrossL1_v"),
@@ -265,9 +221,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_TightChargedIsoPFTauHPS30_eta2p1_CrossL1_v"),
@@ -276,9 +230,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_TightChargedIsoPFTauHPS30_eta2p1_TightID_CrossL1_v"),
@@ -287,9 +239,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_CrossL1_v"),
@@ -298,9 +248,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTau30_eta2p1_TightID_CrossL1_v"),
@@ -309,9 +257,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTau30_eta2p1_CrossL1_v"),
@@ -320,9 +266,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_MediumChargedIsoPFTau30_eta2p1_TightID_CrossL1_v"),
@@ -331,9 +275,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_TightChargedIsoPFTau30_eta2p1_CrossL1_v"),
@@ -342,9 +284,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_TightChargedIsoPFTau30_eta2p1_TightID_CrossL1_v"),
@@ -353,9 +293,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(27),
-        pt2 = cms.double(35)
+        leg2 = cms.int32(15)
         ),
 ### === tauh tauh triggers  -- UPDATED FOR 2018 DATA
     cms.PSet (
@@ -365,9 +303,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(40),
-        pt2 = cms.double(40)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_v"),
@@ -376,9 +312,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(40),
-        pt2 = cms.double(40)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTauHPS40_Trk1_eta2p1_Reg_v"),
@@ -387,9 +321,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(45),
-        pt2 = cms.double(45)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTauHPS40_Trk1_TightID_eta2p1_Reg_v"),
@@ -398,9 +330,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(45),
-        pt2 = cms.double(45)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v"),
@@ -409,9 +339,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(40),
-        pt2 = cms.double(40)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_v"),
@@ -420,9 +348,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(40),
-        pt2 = cms.double(40)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTauHPS40_Trk1_eta2p1_Reg_v"),
@@ -431,9 +357,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(45),
-        pt2 = cms.double(45)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTauHPS40_Trk1_TightID_eta2p1_Reg_v"),
@@ -442,9 +366,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(45),
-        pt2 = cms.double(45)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v"), # Prescaled
@@ -453,9 +375,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(40),
-        pt2 = cms.double(40)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v"), # Prescaled
@@ -464,9 +384,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(40),
-        pt2 = cms.double(40)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTau40_Trk1_eta2p1_Reg_v"), # Prescaled
@@ -475,9 +393,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(45),
-        pt2 = cms.double(45)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v"),
@@ -486,9 +402,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(45),
-        pt2 = cms.double(45)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTau35_Trk1_eta2p1_Reg_v"), # prescaled
@@ -497,9 +411,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(40),
-        pt2 = cms.double(40)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v"),
@@ -508,9 +420,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(40),
-        pt2 = cms.double(40)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTau40_Trk1_eta2p1_Reg_v"),
@@ -519,9 +429,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(45),
-        pt2 = cms.double(45)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_DoubleTightChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v"),
@@ -530,9 +438,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(45),
-        pt2 = cms.double(45)
+        leg2 = cms.int32(15)
         ),
 ### === single tau triggers  -- UPDATED FOR 2018 DATA
     cms.PSet (
@@ -542,9 +448,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(185),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
     cms.PSet (
         HLT = cms.string("HLT_MediumChargedIsoPFTau200HighPtRelaxedIso_Trk50_eta2p1_v"),
@@ -553,9 +457,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(205),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
     cms.PSet (
         HLT = cms.string("HLT_MediumChargedIsoPFTau220HighPtRelaxedIso_Trk50_eta2p1_v"),
@@ -564,9 +466,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(225),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
     cms.PSet (
         HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v"),
@@ -575,9 +475,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(999),
-        pt1 = cms.double(185),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(999)
         ),
 ## === VBF + double-tau triggers -- CHECK FILTERS W\O HPS
     cms.PSet (
@@ -587,9 +485,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleLooseChargedIsoPFTauHPS20"), # 2 jets with pt>40
         path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTauHPS20"),  # 1 jet with pt>115
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(25),
-        pt2 = cms.double(25)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_VBF_DoubleMediumChargedIsoPFTauHPS20_Trk1_eta2p1_v"),
@@ -598,9 +494,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumChargedIsoPFTauHPS20"),
         path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleMediumChargedIsoPFTauHPS20"),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(25),
-        pt2 = cms.double(25)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_VBF_DoubleTightChargedIsoPFTauHPS20_Trk1_eta2p1_v"),
@@ -609,9 +503,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleTightChargedIsoPFTauHPS20"),
         path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleTightChargedIsoPFTauHPS20"),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(25),
-        pt2 = cms.double(25)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_v"),
@@ -620,9 +512,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleLooseChargedIsoPFTau20"),
         path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTau20"),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(25),
-        pt2 = cms.double(25)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_VBF_DoubleMediumChargedIsoPFTau20_Trk1_eta2p1_v"),
@@ -631,9 +521,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleMediumChargedIsoPFTau20"),
         path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleMediumChargedIsoPFTau20"),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(25),
-        pt2 = cms.double(25)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_VBF_DoubleTightChargedIsoPFTau20_Trk1_eta2p1_v"),
@@ -642,9 +530,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring ("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleTightChargedIsoPFTau20"),
         path4 = cms.vstring ("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleTightChargedIsoPFTau20"),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(25),
-        pt2 = cms.double(25)
+        leg2 = cms.int32(15)
         ),
 ## === Tau + MET -- UPDATED FOR 2018 DATA
     cms.PSet (
@@ -654,9 +540,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(55),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET100_v"),
@@ -665,9 +549,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(55),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET110_v"),
@@ -676,9 +558,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(55),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(15)
         ),
     cms.PSet (
         HLT = cms.string("HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET130_v"),
@@ -687,9 +567,7 @@ HLTLIST = cms.VPSet(
         path3 = cms.vstring (""),
         path4 = cms.vstring (""),
         leg1 = cms.int32(15),
-        leg2 = cms.int32(15),
-        pt1 = cms.double(55),
-        pt2 = cms.double(-999)
+        leg2 = cms.int32(15)
         ),
     )
 
