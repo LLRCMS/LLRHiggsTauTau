@@ -312,8 +312,6 @@ cd $CMSSW_BASE/src
 scram b -j 8
 ```
 
-</details>
-
 ### Instructions for 94X_ttH
 
 ```
@@ -385,7 +383,7 @@ git checkout HIG-16-006
 cd $CMSSW_BASE/src
 scram b -j 8
 ```
-
+</details>
 
 ### Instructions for 102X_ttH
 
