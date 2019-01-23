@@ -392,36 +392,13 @@ cmsrel CMSSW_10_2_1
 cd CMSSW_10_2_1/src/
 cmsenv
 
-# MVA EleID Fall 2017
-git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3
-scram b -j 8
-cd $CMSSW_BASE/external
-# below, you may have a different architecture, this is just one example from lxplus (same on polui)
-cd slc6_amd64_gcc630/
-git clone https://github.com/lsoffi/RecoEgamma-PhotonIdentification.git data/RecoEgamma/PhotonIdentification/data
-cd data/RecoEgamma/PhotonIdentification/data
-git checkout CMSSW_9_4_0_pre3_TnP
-cd $CMSSW_BASE/external
-cd slc6_amd64_gcc630/
-git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
-cd data/RecoEgamma/ElectronIdentification/data
-git checkout CMSSW_9_4_0_pre3_TnP
-cd $CMSSW_BASE/src
-
-# Remove some of the unused weights (otherwise the crab tarball is too big for submission)
-cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/ElectronIdentification/data
-rm -r PHYS14 Spring15 
-cd $CMSSW_BASE/external/slc6_amd64_gcc630/data/RecoEgamma/PhotonIdentification/data
-rm -r PHYS14 Spring15 Spring16
-cd $CMSSW_BASE/src
-
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
 # LLRHiggsTauTau framework
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau
-git checkout 94X_ttH
+git checkout 102X_ttH
 cd -
 
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
