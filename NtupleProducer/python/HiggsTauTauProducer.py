@@ -49,9 +49,11 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1' #MC 25 ns miniAODv2    
+    process.GlobalTag.globaltag = '102X_mcRun2_asymptotic_v3'
+    #process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1' #MC 25 ns miniAODv2    
 else :
-    process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
+    process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v4'
+    #process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
 print process.GlobalTag.globaltag
 
 nanosec="25"
