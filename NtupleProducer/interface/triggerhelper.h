@@ -62,7 +62,8 @@ class triggerhelper {
   vector<triggerMapper> triggerMap;
   //static const int nMETs =6; //FRA: OLD 2016 data 80X
   //static const int nMETs =9; //FRA: Fall17 94X
-  static const int nMETs =8; //Chia update Jan19: Fall17 94X
+  //static const int nMETs =8; //Chia update Jan19: Fall17 94X
+  static const int nMETs =8; //FRA: 2018 data 102X
   string metlist[nMETs];
 
 };

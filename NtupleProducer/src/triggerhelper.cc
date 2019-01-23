@@ -26,19 +26,17 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   //cout << "nTriggers: " << nTriggers << endl;
   triggerlist=HLTPaths;
   string tmpMETfilters[nMETs]={
-    //FRA: Fall17 94X
+    //FRA: 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalSuperTightHalo2016Filter", //CHIA Jan 2019: Fall17 94X, recommendation updated 
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter"
-    //"Flag_ecalBadCalibFilter" //Chia Jan 2019: this is deprecated, needs the new one rerunning
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
-
   
 }
 
@@ -50,35 +48,32 @@ triggerhelper::triggerhelper(TH1F* hCounter){
   }
 
   string tmpMETfilters[nMETs]={
-    //FRA: Fall17 94X
+    //FRA: 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalSuperTightHalo2016Filter", //CHIA Jan 2019: Fall17 94X, recommendation updated   
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter"
-    //"Flag_ecalBadCalibFilter" //Chia Jan 2019: this is deprecated, needs the new one rerunning
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
-
 
 }
 
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
-    //FRA: Fall17 94X
+    //FRA: 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalSuperTightHalo2016Filter", //CHIA Jan 2019: Fall17 94X, recommendation updated   
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter"
-    //"Flag_ecalBadCalibFilter" //Chia Jan 2019: this is deprecated, needs the new one rerunning
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
