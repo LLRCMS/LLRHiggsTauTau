@@ -395,17 +395,13 @@ cmsenv
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
-# LLRHiggsTauTau framework
-git clone https://github.com/LLRCMS/LLRHiggsTauTau
-cd LLRHiggsTauTau
-git checkout 102X_ttH
-cd -
-
+# Muon effective area
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
 cd Muon/MuonAnalysisTools
 git checkout master -- interface/MuonEffectiveArea.h
 cd -
 
+# Electron effective area
 git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
 cd EGamma/EGammaAnalysisTools
 git checkout c0db796 -- interface/ElectronEffectiveArea.h
@@ -429,6 +425,12 @@ cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
 # need to fix: TauAnalysis/SVfitStandalone/src/SVfitStandaloneQuantities.cc 
 # add '#include <numeric>'
+
+# LLRHiggsTauTau framework
+git clone https://github.com/LLRCMS/LLRHiggsTauTau
+cd LLRHiggsTauTau
+git checkout 102X_ttH
+cd -
 
 cd $CMSSW_BASE/src
 scram b -j 8
