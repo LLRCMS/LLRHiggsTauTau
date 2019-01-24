@@ -74,10 +74,11 @@ class EleFiller : public edm::EDProducer {
   const CutSet<pat::Electron> flags;
   //EGammaMvaEleEstimatorCSA14* myMVATrig;
   edm::EDGetTokenT<edm::View<pat::Electron> > electronCollectionToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken_;
+  //2015 stuff
+  /*edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken_;*/
   edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
@@ -113,10 +114,10 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   flags(iConfig.getParameter<ParameterSet>("flags")),//,
   //myMVATrig(0),
   electronCollectionToken_(consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src"))),
-  electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
+  /*electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
   electronLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronLooseIdMap"))),
   electronMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronMediumIdMap"))),
-  electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),
+  electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),*/
   eleLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
   eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
   eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
@@ -182,15 +183,16 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   edm::Handle<vector<Vertex> >  vertexs;
   //iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
   iEvent.getByToken(theVtxTag,vertexs);
-    
-  edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
+  
+  //2015 stuff
+  /*edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
   edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
   edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
-  edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
-  iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
+  edm::Handle<edm::ValueMap<bool> > tight_id_decisions;*/
+  /*iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
   iEvent.getByToken(electronLooseIdMapToken_,loose_id_decisions);
   iEvent.getByToken(electronMediumIdMapToken_,medium_id_decisions);
-  iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);
+  iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);*/
 
 //*********************
   //Handle<edm::View<reco::GenParticle> > genParticles;
@@ -320,12 +322,13 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("SCeta", fSCeta);
     l.addUserInt("isEB", int(l.isEB()));
     const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
-    int eleCUT=0;
+    //2015 stuff
+    /*int eleCUT=0;
     if((*veto_id_decisions)[ elPtr ])eleCUT |= 1 << 0;
     if((*loose_id_decisions)[ elPtr ])eleCUT |= 1 << 1;
     if((*medium_id_decisions)[ elPtr ])eleCUT |= 1 << 2;
     if((*tight_id_decisions)[ elPtr ])eleCUT |= 1 << 3;
-    l.addUserInt("isCUT",eleCUT);
+    l.addUserInt("isCUT",eleCUT);*/
 
     int isEleIDLoose = (*loose_id_decisions2)[ele];
     int isEleID90 = (*medium_id_decisions2)[ele];
