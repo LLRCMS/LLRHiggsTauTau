@@ -39,11 +39,11 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalTightHalo2016Filter",
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter",
-    "Flag_ecalBadCalibFilter"
+    //"Flag_ecalBadCalibFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -71,11 +71,11 @@ triggerhelper::triggerhelper(TH1F* hCounter){
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalTightHalo2016Filter",
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter",
-    "Flag_ecalBadCalibFilter"
+    //"Flag_ecalBadCalibFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -98,11 +98,11 @@ triggerhelper::triggerhelper()//:nTriggers(0)
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalTightHalo2016Filter",
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter",
-    "Flag_ecalBadCalibFilter"
+    //"Flag_ecalBadCalibFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
