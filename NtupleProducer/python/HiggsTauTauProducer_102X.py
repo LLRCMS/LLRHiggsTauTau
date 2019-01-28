@@ -145,6 +145,10 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
 
+###
+### Muons
+###
+
 #Re-Reco2016 fix from G. Petrucciani
 #process.load("RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff")
 process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
@@ -788,28 +792,9 @@ if USEPAIRMET:
 
     process.METSequence += cms.Sequence(process.MVAMETInputs + process.MVAMET)
 
-    # # python trick: loop on all pairs for pair MET computation
-    # UnpackerTemplate = cms.EDProducer("PairUnpacker",
-    #     src = cms.InputTag("barellCand")
-    # )
-
-    # MVAPairMET = []
-    # for index in range(210):
-    #     UnpackerName = "PairUnpacker%i" % index
-    #     UnpackerModule = UnpackerTemplate.clone( pairIndex = cms.int32(index) )
-    #     setattr(process, UnpackerName, UnpackerModule)   #equiv to process.<UnpackerName> = <UnpackerModule>
-    #     process.METSequence += UnpackerModule
-
-    #     MVAMETName = "patMETMVA%i" % index
-    #     MVAModule = process.MVAMET.clone( srcLeptons = cms.VInputTag (cms.InputTag(UnpackerName) ) )
-    #     setattr(process, MVAMETName, MVAModule)
-    #     process.METSequence += MVAModule
-   
-    #     MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
-
 else:
     print "Using event pfMET (same MET for all pairs)"
-
+    
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
     runMetCorAndUncFromMiniAOD(
       process,
@@ -819,8 +804,28 @@ else:
     process.METSignificance = cms.EDProducer ("ExtractMETSignificance",
                                                   srcMET=cms.InputTag("slimmedMETs","","TEST")
                                                   )
+
+    # add variables with MET shifted for TES corrections
+    process.ShiftMETforTES = cms.EDProducer ("ShiftMETforTES",
+                                             srcMET  = cms.InputTag("slimmedMETs","","TEST"),
+                                             tauCollection = cms.InputTag("softTaus")
+                                             )
+
     process.METSequence += process.fullPatMetSequence
     process.METSequence += process.METSignificance
+    process.METSequence += process.ShiftMETforTES
+
+    # EE noise mitigation 
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+    runMetCorAndUncFromMiniAOD(
+      process,
+      isData= (not IsMC),
+      fixEE2017 = True,
+      fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+      postfix = "ModifiedMET"
+    )
+    process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
+
 
 # ## always compute met significance
 # process.load("RecoMET.METProducers.METSignificance_cfi")
@@ -870,7 +875,12 @@ if USECLASSICSVFIT:
                                       srcCov     = cms.InputTag("METSignificance", "METCovariance"),
                                       usePairMET = cms.bool(USEPAIRMET),
                                       srcMET     = srcMETTag,
-                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
+                                      computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False),
+                                      computeForUpDownMET = cms.bool(COMPUTEMETUPDOWNSVFIT if IsMC else False),
+                                      METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
+                                      METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
+                                      METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
+                                      METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
     )
 else:
     print "Using STANDALONE_SV_FIT"
@@ -891,8 +901,13 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     usePairMET = cms.bool(USEPAIRMET),
                                     srcMET     = srcMETTag,
                                     srcSig     = cms.InputTag("METSignificance", "METSignificance"),
-                                    srcCov     = cms.InputTag("METSignificance", "METCovariance")
+                                    srcCov     = cms.InputTag("METSignificance", "METCovariance"),
+                                    METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
+                                    METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
+                                    METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
+                                    METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
 )
+
 
 
 ## ----------------------------------------------------------------------
@@ -936,7 +951,9 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons"),
-                      genLumiHeaderTag = cms.InputTag("generator")
+                      genLumiHeaderTag = cms.InputTag("generator"),
+                      metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
+                      #ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
                       )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
