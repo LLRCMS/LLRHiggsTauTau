@@ -29,6 +29,7 @@ USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SV
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=False # shift the central value of the tau energy scale before computing up/down variations
 COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
+COMPUTEMETUPDOWNSVFIT=False # compute SVfit for up/down MET JES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = True # compute QG Tagger for jets
 IsMC=True
@@ -81,7 +82,8 @@ else :
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/mc/RunIISpring18MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSPU28to70_100X_upgrade2018_realistic_v10-v1/90000/2A718835-D52D-E811-9C30-EC0D9A0B3330.root',
+      '/store/mc/RunIIAutumn18MiniAOD/ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/270000/D8E3ED46-5E4A-5F4D-808D-F2B1D66201E9.root',
+      #'/store/mc/RunIISpring18MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSPU28to70_100X_upgrade2018_realistic_v10-v1/90000/2A718835-D52D-E811-9C30-EC0D9A0B3330.root',
 #     '/store/mc/RunIISpring16MiniAODv2/SMS-TChiHH_HToBB_HToTauTau_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/B8A61C30-5E12-E711-87BB-FA163E939724.root',
     #'/store/mc/RunIISpring16MiniAODv2/SMS-TChiHH_HToBB_HToTauTau_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/0264645E-5E12-E711-889B-E41D2D08DD10.root',
     # '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v2/60000/4CBBCFDF-F8C6-E611-A5C2-6CC2173BBD40.root',
@@ -136,7 +138,7 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 10
+process.maxEvents.input = 1000
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
