@@ -425,6 +425,7 @@ cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
 # need to fix: TauAnalysis/SVfitStandalone/src/SVfitStandaloneQuantities.cc 
 # add '#include <numeric>'
+cd ../../../
 
 # MET/prefiring
 git cms-init
