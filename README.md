@@ -388,8 +388,8 @@ scram b -j 8
 ### Instructions for 102X_ttH
 
 ```
-cmsrel CMSSW_10_2_1
-cd CMSSW_10_2_1/src/
+cmsrel CMSSW_10_2_9
+cd CMSSW_10_2_9/src/
 cmsenv
 
 # Z-recoil corrections
@@ -425,6 +425,12 @@ cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
 # need to fix: TauAnalysis/SVfitStandalone/src/SVfitStandaloneQuantities.cc 
 # add '#include <numeric>'
+
+# MET/prefiring
+git cms-init
+git cms-merge-topic lathomas:L1Prefiring_10_2_6                         # only if 2016 MC or 2017 MC
+git cms-addpkg RecoMET/METFilters                                       # only if 2017 data/MC or 2018 data/MC
+git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X        # only if 2017 data/MC
 
 # LLRHiggsTauTau framework
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
