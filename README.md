@@ -429,9 +429,9 @@ git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
 cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
-# need to fix: TauAnalysis/SVfitStandalone/src/SVfitStandaloneQuantities.cc 
+# need to fix: ./src/SVfitStandaloneQuantities.cc 
 # add '#include <numeric>'
-cd ../../../
+cd -
 
 # LLRHiggsTauTau framework
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
