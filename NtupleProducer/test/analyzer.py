@@ -6,6 +6,10 @@
 import os, re
 PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
+Is2018 = True
+Is2017 = False
+Is2016 = False
+
 #samples list (it could be moved to a cfg file for better reading
 #samples = [
 #]
@@ -54,28 +58,24 @@ DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are sa
 STORE_ENRICHEMENT_ONLY=True # When True and DO_ENRICHED=True only collection additional to MiniAOD standard are stored. They can be used to reproduce ntuples when used together with oryginal MiniAOD with two-file-solution
 # ------------------------
 
-is102X = True if 'CMSSW_10' in os.environ['CMSSW_VERSION'] else False
-print "is102X: " , is102X
+Is102X = True if 'CMSSW_10' in os.environ['CMSSW_VERSION'] else False
+print "Is102X: " , Is102X
 
-is92X = True if 'CMSSW_9' in os.environ['CMSSW_VERSION'] else False
-print "is92X: " , is92X
+Is92X = True if 'CMSSW_9' in os.environ['CMSSW_VERSION'] else False
+print "Is92X: " , Is92X
 
-is80X = True if 'CMSSW_8' in os.environ['CMSSW_VERSION'] else False
-print "is80X: " , is80X
+Is80X = True if 'CMSSW_8' in os.environ['CMSSW_VERSION'] else False
+print "Is80X: " , Is80X
 
 ##
 ## Standard sequence
 ##
-if is102X:
+if Is102X:
    execfile(PyFilePath+"python/HiggsTauTauProducer_102X.py")
-if is92X:
-    #execfile(PyFilePath+"python/HiggsTauTauProducer_92X.py")
-    execfile(PyFilePath+"python/HiggsTauTauProducer_94X.py")
-elif is80X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
-else :
-#CMP    execfile(PyFilePath+"python/HiggsTauTauProducer.py")
-     execfile(PyFilePath+"python/HiggsTauTauProducer_102X.py")
+elif Is92X:
+   execfile(PyFilePath+"python/HiggsTauTauProducer_94X.py")
+elif Is80X:
+   execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
 
 ### ----------------------------------------------------------------------
 ### Source, better to use sample to run on batch
@@ -138,7 +138,7 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 1000
+process.maxEvents.input = 10
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
