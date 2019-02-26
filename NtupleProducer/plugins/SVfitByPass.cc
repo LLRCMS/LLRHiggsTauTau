@@ -14,7 +14,9 @@
 #include <DataFormats/METReco/interface/PFMET.h>
 #include <DataFormats/METReco/interface/PFMETCollection.h>
 #include <DataFormats/METReco/interface/CommonMETData.h>
-#include <TauAnalysis/SVfitStandalone/interface/SVfitStandaloneAlgorithm.h>
+//#include <TauAnalysis/SVfitStandalone/interface/SVfitStandaloneAlgorithm.h> //FRA 2018 data: Not used anymore, we use ClassicSvfit now
+#include <TauAnalysis/ClassicSVfit/interface/ClassicSVfit.h>
+#include "Math/LorentzVector.h"
 
 #include <vector>
 #include <string>
@@ -23,6 +25,8 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 using METUncertainty = pat::MET::METUncertainty;
+
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
 
 // ------------------------------------------------------------------
 
@@ -96,8 +100,7 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   unsigned int elNumber = pairHandle->size();
   
-    // Output collection
-  //auto_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
+  // Output collection
   std::unique_ptr<pat::CompositeCandidateCollection> result( new pat::CompositeCandidateCollection );
 
   // get event pat MET to be saved in output
@@ -252,7 +255,6 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     result->push_back(pair);
   }
-  //iEvent.put(result);
   iEvent.put(std::move(result));
 }
 

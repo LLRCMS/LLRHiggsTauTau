@@ -26,19 +26,17 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   //cout << "nTriggers: " << nTriggers << endl;
   triggerlist=HLTPaths;
   string tmpMETfilters[nMETs]={
-    //FRA: Fall17 94X
+    //FRA: 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalSuperTightHalo2016Filter", //CHIA Jan 2019: Fall17 94X, recommendation updated 
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter"
-    //"Flag_ecalBadCalibFilter" //Chia Jan 2019: this is deprecated, needs the new one rerunning
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
-
   
 }
 
@@ -50,35 +48,32 @@ triggerhelper::triggerhelper(TH1F* hCounter){
   }
 
   string tmpMETfilters[nMETs]={
-    //FRA: Fall17 94X
+    //FRA: 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalSuperTightHalo2016Filter", //CHIA Jan 2019: Fall17 94X, recommendation updated   
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter"
-    //"Flag_ecalBadCalibFilter" //Chia Jan 2019: this is deprecated, needs the new one rerunning
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
-
 
 }
 
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
-    //FRA: Fall17 94X
+    //FRA: 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
-    "Flag_globalSuperTightHalo2016Filter", //CHIA Jan 2019: Fall17 94X, recommendation updated   
+    "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_BadChargedCandidateFilter",
     "Flag_eeBadScFilter"
-    //"Flag_ecalBadCalibFilter" //Chia Jan 2019: this is deprecated, needs the new one rerunning
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -135,19 +130,19 @@ void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string
 }
 
 //FRA : added pt cuts for leg1 and leg2
-void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string> path2, vector<string> path3, vector<string> path4, int leg1ID, int leg2ID, double pt1, double pt2)
-{
+//void triggerhelper::addTriggerMap(string hlt,vector<string> path1, vector<string> path2, vector<string> path3, vector<string> path4, int leg1ID, int leg2ID, double pt1, double pt2)
+//{
 
-  if (find(triggerlist.begin(), triggerlist.end(), hlt) != triggerlist.end() )
-  {
-    cout << "** triggerHelper :: Warning: path " << hlt << " already added, skipping" << endl;
-    return;
-  }
+//  if (find(triggerlist.begin(), triggerlist.end(), hlt) != triggerlist.end() )
+//  {
+//    cout << "** triggerHelper :: Warning: path " << hlt << " already added, skipping" << endl;
+//    return;
+//  }
   
-  triggerlist.push_back(hlt);
-  triggerMapper map(hlt, path1, path2, path3, path4, leg1ID, leg2ID, pt1, pt2);
-  triggerMap.push_back(map);
-}
+//  triggerlist.push_back(hlt);
+//  triggerMapper map(hlt, path1, path2, path3, path4, leg1ID, leg2ID, pt1, pt2);
+//  triggerMap.push_back(map);
+//}
 
 Long64_t triggerhelper::FindTriggerBit(const edm::Event& event, const vector<string> foundPaths, const vector<int> indexOfPaths, const edm::Handle<edm::TriggerResults>& triggerResults){
   

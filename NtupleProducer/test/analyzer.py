@@ -25,7 +25,7 @@ USE_NOHFMET = False # True to exclude HF and run on silver json
 
 
 SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
-USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
+#USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
@@ -55,8 +55,10 @@ DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are sa
 STORE_ENRICHEMENT_ONLY=True # When True and DO_ENRICHED=True only collection additional to MiniAOD standard are stored. They can be used to reproduce ntuples when used together with oryginal MiniAOD with two-file-solution
 # ------------------------
 
-is92X = True if 'CMSSW_9' in os.environ['CMSSW_VERSION'] else False# True to run in 92X (2017), False to run in 80X (2016) or 76X (2015)
-print "is92X: " , is92X
+is102X = True if 'CMSSW_10' in os.environ['CMSSW_VERSION'] else False
+print "is102X:" , is102X
+is94X = True if 'CMSSW_9' in os.environ['CMSSW_VERSION'] else False# True to run in 92X (2017), False to run in 80X (2016) or 76X (2015)
+print "is94X: " , is94X
 is80X = True if 'CMSSW_8' in os.environ['CMSSW_VERSION'] else False# True to run in 80X (2016), False to run in 76X (2015)
 print "is80X: " , is80X
 
@@ -64,8 +66,9 @@ print "is80X: " , is80X
 ## Standard sequence
 ##
 
-if is92X:
-    #execfile(PyFilePath+"python/HiggsTauTauProducer_92X.py")
+if is102X:
+    execfile(PyFilePath+"python/HiggsTauTauProducer_102X.py")
+elif is94X:
     execfile(PyFilePath+"python/HiggsTauTauProducer_94X.py")
 elif is80X:
     execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
@@ -87,7 +90,6 @@ process.source = cms.Source("PoolSource",
     #'/store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v2/000/273/150/00000/34A57FB8-D819-E611-B0A4-02163E0144EE.root', #80X data
     # '/store/mc/RunIISpring16MiniAODv1/GluGluToBulkGravitonToHHTo2B2Tau_M-400_narrow_13TeV-madgraph/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3_ext1-v1/30000/06E22BEA-9F10-E611-9862-1CB72C0A3A5D.root', #80X MC
     # '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/12184969-3DB8-E511-879B-001E67504A65.root', #76X MC
-    
     
     # 2017 Data
     # B_v1
@@ -152,9 +154,6 @@ process.source = cms.Source("PoolSource",
 
 # process.source.skipEvents = cms.untracked.uint32(968)
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
-#process.source.eventsToProcess = cms.untracked.VEventRange("1:26669:46950527-1:26669:46950527")
-#process.source.eventsToProcess = cms.untracked.VEventRange("1:7:5757-1:7:5757")
-#process.source.eventsToProcess = cms.untracked.VEventRange("305902:212:301932757-305902:212:301932757")
 
 #Limited nEv for testing purposes. -1 to run all events
 process.maxEvents.input = -1
@@ -169,12 +168,6 @@ if not IsMC:
 ## Output file
 ##
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
-#process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_TauDataF_eighteen.root'))
-
-# L1 trigger objects (as suggested on: https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information )
-#  ----> TO BE FIXED <----
-#process.out.outputCommands.append('keep *_caloStage2Digis_*_*') #FRA
-#process.out.outputCommands.append('keep *_gmtStage2Digis_*_*')  #FRA 
 
 
 if DO_ENRICHED:
@@ -206,8 +199,7 @@ if DO_ENRICHED:
         #process.out.fileName = 'EnrichementForMiniAOD.root' #FIXME: change name of output file?
     process.end = cms.EndPath(process.out)
 
-#process.options = cms.PSet(skipEvent =  cms.untracked.vstring('ProductNotFound'))
-#process.p = cms.EndPath(process.HTauTauTree)
+
 process.p = cms.Path(process.Candidates)
 
 # Silence output

@@ -12,7 +12,7 @@
 <use name="PhysicsTools/KinFitter"/>
 <use name="TrackingTools/Records"/>
 <use name="RecoVertex/KinematicFit"/>
-<use name="TauAnalysis/SVfitStandalone"/>
+<!-- <use name="TauAnalysis/SVfitStandalone"/> -->
 <use name="TauAnalysis/ClassicSVfit"/>
 <use name="TauAnalysis/SVfitTF"/>
 <use name="root"/>

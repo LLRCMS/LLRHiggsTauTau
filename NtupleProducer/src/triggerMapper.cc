@@ -39,8 +39,8 @@ triggerMapper::triggerMapper(const triggerMapper& trigMap)
   channel = trigMap.channel;
   leg1ID = trigMap.leg1ID;
   leg2ID = trigMap.leg2ID;
-  pt1 = trigMap.pt1; //FRA
-  pt2 = trigMap.pt2; //FRA
+  //pt1 = trigMap.pt1; //FRA
+  //pt2 = trigMap.pt2; //FRA
 }
 
 
@@ -138,33 +138,33 @@ triggerMapper::triggerMapper(string HLTtrigger, std::vector<std::string> filters
 }
 
 //FRA : adding cuts on tau pt
-triggerMapper::triggerMapper(string HLTtrigger, std::vector<std::string> filters1, std::vector<std::string> filters2, std::vector<std::string> filters3, std::vector<std::string> filters4, int theleg1ID, int theleg2ID, double thept1, double thept2)
-{
-  HLT=HLTtrigger;
-  int n1 = filters1.size();
-  int n2 = filters2.size();
-  int n3 = filters3.size();
-  int n4 = filters4.size();
+//triggerMapper::triggerMapper(string HLTtrigger, std::vector<std::string> filters1, std::vector<std::string> filters2, std::vector<std::string> filters3, std::vector<std::string> filters4, int theleg1ID, int theleg2ID, double thept1, double thept2)
+//{
+//  HLT=HLTtrigger;
+//  int n1 = filters1.size();
+//  int n2 = filters2.size();
+//  int n3 = filters3.size();
+//  int n4 = filters4.size();
     
-  for(int i=0;i<n1;i++){filter_leg1.push_back(filters1.at(i));}
-  for(int i=0;i<n2;i++){filter_leg2.push_back(filters2.at(i));}
-  for(int i=0;i<n3;i++){filter_leg3.push_back(filters3.at(i));}
-  for(int i=0;i<n4;i++){filter_leg4.push_back(filters4.at(i));}
+//  for(int i=0;i<n1;i++){filter_leg1.push_back(filters1.at(i));}
+//  for(int i=0;i<n2;i++){filter_leg2.push_back(filters2.at(i));}
+//  for(int i=0;i<n3;i++){filter_leg3.push_back(filters3.at(i));}
+//  for(int i=0;i<n4;i++){filter_leg4.push_back(filters4.at(i));}
 
-  leg1ID = theleg1ID;
-  leg2ID = theleg2ID;
+//  leg1ID = theleg1ID;
+//  leg2ID = theleg2ID;
 
-  if      (leg1ID == (int) kele && leg2ID == (int) kmu)  channel = (int) kemu;
-  else if (leg1ID == (int) kele && leg2ID == (int) ktau) channel = (int) ketau;
-  else if (leg1ID == (int) kmu  && leg2ID == (int) ktau) channel = (int) kmutau;
-  else if (leg1ID == (int) ktau && leg2ID == (int) ktau) channel = (int) ktautau;
-  else if (leg1ID == (int) kmu  && leg2ID == (int) kmu)  channel = (int) kmumu;
-  else if (leg1ID == (int) kele && leg2ID == (int) kele) channel = (int) kee;
-  else channel = 999;
+//  if      (leg1ID == (int) kele && leg2ID == (int) kmu)  channel = (int) kemu;
+//  else if (leg1ID == (int) kele && leg2ID == (int) ktau) channel = (int) ketau;
+//  else if (leg1ID == (int) kmu  && leg2ID == (int) ktau) channel = (int) kmutau;
+//  else if (leg1ID == (int) ktau && leg2ID == (int) ktau) channel = (int) ktautau;
+//  else if (leg1ID == (int) kmu  && leg2ID == (int) kmu)  channel = (int) kmumu;
+//  else if (leg1ID == (int) kele && leg2ID == (int) kele) channel = (int) kee;
+//  else channel = 999;
   
-  pt1 = thept1;
-  pt2 = thept2;
-}
+//  pt1 = thept1;
+//  pt2 = thept2;
+//}
 
 triggerMapper::triggerMapper(string HLTtrigger, string filter1, string filter2, int c){
   HLT=HLTtrigger;
