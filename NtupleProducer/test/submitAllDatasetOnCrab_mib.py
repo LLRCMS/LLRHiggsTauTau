@@ -42,9 +42,30 @@ import re
 #tag = "Data2017BF_31Mar2018ReReco_17May2018"
 #datasetsFile = "datasets_Fall17_15May2018.txt"
 
-PROCESS = ["MINIAODFALL17v2"]
-tag = "MC_25June2018"
-datasetsFile = "datasets_Fall17_15May2018.txt"
+#PROCESS = ["MINIAODFALL17v2"]
+#tag = "MC_25June2018"
+#datasetsFile = "datasets_Fall17_15May2018.txt"
+
+#PROCESS = ["BACKGROUNDS_Fall2017_January2019"]
+#tag = "MC_bkg_25January2019"
+#datasetsFile = "datasetsFall17_January2019.txt"
+
+#PROCESS = ["BACKGROUNDS_Fall2017_January2019_njobs"]
+#tag = "MC_bkg_25January2019_njobs"
+#datasetsFile = "datasetsFall17_January2019.txt"
+
+#PROCESS = ["BACKGROUNDS_Fall2017_January2019_lumis"]
+#tag = "MC_bkg_25January2019_lumis"
+#datasetsFile = "datasetsFall17_January2019.txt"
+
+#PROCESS = ["BACKGROUNDS_Fall2017_January2019_njobs2"]
+#tag = "MC_bkg_25January2019_njobs2"
+#datasetsFile = "datasetsFall17_January2019.txt"
+
+PROCESS = ["BACKGROUNDS_Fall2017_January2019_njobs3"]
+tag = "MC_bkg_25January2019_njobs3"
+datasetsFile = "datasetsFall17_January2019.txt"
+
 
 isMC = True
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
