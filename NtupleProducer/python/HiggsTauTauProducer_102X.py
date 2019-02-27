@@ -49,13 +49,13 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    if YEAR=="2016": process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
-    elif YEAR=="2017": process.GlobalTag.globaltag = '94X_mc2017_realistic_v14'
-    elif YEAR=="2018": process.GlobalTag.globaltag = '102X_mcRun2_asymptotic_v3'
+    if YEAR=="2016": process.GlobalTag.globaltag = '94X_mcRun2_asymptotic_v3'
+    elif YEAR=="2017": process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'
+    elif YEAR=="2018": process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v12'
 else :
-    if YEAR=="2016": process.GlobalTag.globaltag = '80X_dataRun2_2016LegacyRepro_v4'
-    elif YEAR=="2017": process.GlobalTag.globaltag = '94X_dataRun2_ReReco_EOY17_v6'
-    elif YEAR=="2018": process.GlobalTag.globaltag = '102X_dataRun2_v4'
+    if YEAR=="2016": process.GlobalTag.globaltag = '94X_dataRun2_v10'
+    elif YEAR=="2017": process.GlobalTag.globaltag = '94X_dataRun2_v11'
+    elif YEAR=="2018": process.GlobalTag.globaltag = '102X_dataRun2_Sep2018Rereco_v1'
 print "GT: ",process.GlobalTag.globaltag
 
 nanosec="25"
