@@ -203,7 +203,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         shiftP    = Shift1Pr;
         shiftMass = 1.;
       }
-      else if (l.decayMode()==1)  // 1prong+pi0
+      else if ( (l.decayMode()==1) || (l.decayMode()==2) )  // 1prong+pi0 or 1prong+2pi0
       {
         shiftP    = Shift1PrPi0;
         shiftMass = Shift1PrPi0;
