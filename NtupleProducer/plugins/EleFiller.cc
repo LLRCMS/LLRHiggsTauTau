@@ -70,6 +70,7 @@ class EleFiller : public edm::EDProducer {
   edm::EDGetTokenT<vector<Vertex>> theVtxTag ;
   int sampleType;
   int setup;
+  int lep_setup;
   const StringCutObjectSelector<pat::Electron, true> cut;
   const CutSet<pat::Electron> flags;
   //EGammaMvaEleEstimatorCSA14* myMVATrig;
@@ -110,6 +111,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
   sampleType(iConfig.getParameter<int>("sampleType")),
   setup(iConfig.getParameter<int>("setup")),
+  lep_setup(iConfig.getParameter<int>("lep_setup")),
   cut(iConfig.getParameter<std::string>("cut")),
   flags(iConfig.getParameter<ParameterSet>("flags")),//,
   //myMVATrig(0),

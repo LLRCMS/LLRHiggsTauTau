@@ -11,6 +11,9 @@ ELECORRTYPE=APPLYELECORR
 try: IsMC
 except NameError:
     IsMC=True
+try: YEAR
+except NameError:
+    YEAR=2016
 try: doCPVariables
 except NameError:
     doCPVariables=True       
@@ -49,17 +52,20 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    if YEAR=="2016": process.GlobalTag.globaltag = '94X_mcRun2_asymptotic_v3'
-    elif YEAR=="2017": process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'
-    elif YEAR=="2018": process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v12'
+    if YEAR==2016: process.GlobalTag.globaltag = '94X_mcRun2_asymptotic_v3'
+    elif YEAR==2017: process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'
+    elif YEAR==2018: process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v12'
 else :
-    if YEAR=="2016": process.GlobalTag.globaltag = '94X_dataRun2_v10'
-    elif YEAR=="2017": process.GlobalTag.globaltag = '94X_dataRun2_v11'
-    elif YEAR=="2018": process.GlobalTag.globaltag = '102X_dataRun2_Sep2018Rereco_v1'
+    if YEAR==2016: process.GlobalTag.globaltag = '94X_dataRun2_v10'
+    elif YEAR==2017: process.GlobalTag.globaltag = '94X_dataRun2_v11'
+    elif YEAR==2018: process.GlobalTag.globaltag = '102X_dataRun2_Sep2018Rereco_v1'
 print "GT: ",process.GlobalTag.globaltag
 
 nanosec="25"
 if not Is25ns: nanosec="50"
+
+LEPTON_SETUP_LEGACY = YEAR 
+print "Lepton setup: ", LEPTON_SETUP_LEGACY
 
 METfiltersProcess = "PAT" if IsMC else "RECO" # NB! this is not guaranteed to be true! the following is valid on 2015 Run C + Run D data. Check:
 # NB: for MET filters, use PAT or RECO depending if the miniAOD was generated simultaneously with RECO or in a separated step
@@ -262,6 +268,7 @@ process.softMuons = cms.EDProducer("MuFiller",
     jetNDauChargedMVASelCollection = cms.InputTag("ptRatioRelForMu:jetNDauChargedMVASel"), #nanoAOD
     sampleType = cms.int32(LEPTON_SETUP),                     
     setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+    lep_setup = cms.int32(LEPTON_SETUP_LEGACY),
 #    cut = cms.string("userFloat('SIP')<100"),
 #    cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1."),
     cut = cms.string(""),
@@ -370,6 +377,7 @@ process.softElectrons = cms.EDProducer("EleFiller",
    jetNDauChargedMVASelCollection = cms.InputTag("ptRatioRelForEle:jetNDauChargedMVASel"), #nanoAOD
    sampleType = cms.int32(LEPTON_SETUP),          
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+   lep_setup = cms.int32(LEPTON_SETUP_LEGACY),
 
    #MVA ELE ID
    #eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90"),
@@ -942,6 +950,7 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
 process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
                       applyFSR = cms.bool(APPLYFSR),
+                      year = cms.int32(YEAR),
                       IsMC = cms.bool(IsMC),
                       doCPVariables = cms.bool(doCPVariables),               
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),

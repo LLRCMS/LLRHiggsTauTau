@@ -66,6 +66,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float> > jetNDauChargedMVASelNanoAODToken_;
   int sampleType;
   int setup;
+  int lep_setup;
   const StringCutObjectSelector<pat::Muon, true> cut;
   const CutSet<pat::Muon> flags;
   //SIPCalculator *sipCalculator_;
@@ -89,6 +90,7 @@ jetNDauChargedMVASelNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getPar
 
 sampleType(iConfig.getParameter<int>("sampleType")),
 setup(iConfig.getParameter<int>("setup")),
+lep_setup(iConfig.getParameter<int>("lep_setup")),
 cut(iConfig.getParameter<std::string>("cut")),
 flags(iConfig.getParameter<edm::ParameterSet>("flags"))
 {

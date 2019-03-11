@@ -6,9 +6,9 @@
 import os, re
 PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
-#YEAR = "2016"
-YEAR = "2017"
-#YEAR = "2018"
+YEAR = 2016
+#YEAR = 2017
+#YEAR = 2018
 print "YEAR: ",YEAR
 
 #apply corrections?
@@ -35,8 +35,8 @@ COMPUTEMETUPDOWNSVFIT=False # compute SVfit for up/down MET JES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = True # compute QG Tagger for jets
 
-#IsMC=True
-IsMC=False
+IsMC=True
+#IsMC=False
 print "IsMC: ", IsMC
 Is25ns=True
 
@@ -86,7 +86,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     
     #2016 ttH
-    #'/store/mc/RunIISummer16MiniAODv3/ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v2/120000/F24F2D5E-DDEC-E811-AF50-90B11C08AD7D.root',
+    '/store/mc/RunIISummer16MiniAODv3/ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v2/120000/F24F2D5E-DDEC-E811-AF50-90B11C08AD7D.root',
     #'/store/data/Run2016C/SingleMuon/MINIAOD/17Jul2018-v1/20000/FEC97F81-0097-E811-A7B9-90E2BACC5EEC.root', 
  
     #2017 ttH
@@ -104,7 +104,7 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 10
+process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file

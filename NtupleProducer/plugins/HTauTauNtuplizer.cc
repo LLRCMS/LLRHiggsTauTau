@@ -195,6 +195,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Bool_t doCPVariables;
   Bool_t computeQGVar;
   string theJECName;
+  Int_t thelep_setup;
   // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
@@ -593,6 +594,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_jetPtRatio_nanoAOD;
   std::vector<Float_t> _daughters_jetBTagCSV;
   std::vector<Float_t> _daughters_jetBTagDeepCSV;
+  std::vector<Float_t> _daughters_jetBTagDeepJet;
   std::vector<Float_t> _daughters_lepMVA_mvaId;
 
   std::vector<Float_t> _daughters_pca_x;
@@ -838,6 +840,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theFileName = pset.getUntrackedParameter<string>("fileName");
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
+  thelep_setup = pset.getParameter<int>("year");
   doCPVariables = pset.getParameter<bool>("doCPVariables");
   computeQGVar = pset.getParameter<bool>("computeQGVar");
   theJECName = pset.getUntrackedParameter<string>("JECset");
@@ -1004,6 +1007,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_jetPtRatio_nanoAOD.clear();
   _daughters_jetBTagCSV.clear();
   _daughters_jetBTagDeepCSV.clear();
+  _daughters_jetBTagDeepJet.clear();
   _daughters_lepMVA_mvaId.clear();
 
   _daughters_iseleBDT.clear();
@@ -1636,6 +1640,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_jetPtRatio_nanoAOD",&_daughters_jetPtRatio_nanoAOD);
   myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
   myTree->Branch("daughters_jetBTagDeepCSV",&_daughters_jetBTagDeepCSV);
+  myTree->Branch("daughters_jetBTagDeepJet",&_daughters_jetBTagDeepJet);
   myTree->Branch("daughters_lepMVA_mvaId",&_daughters_lepMVA_mvaId);
 
   if(doCPVariables){
@@ -3033,7 +3038,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float miniRelIsoCharged_nanoAOD = -1., miniRelIsoAll_nanoAOD = -1.;
     float PFRelIsoCharged_nanoAOD = -1., PFRelIsoAll_nanoAOD = -1., PFRelIsoAll04_nanoAOD = -1.;
     float jetPtRel = -1., jetPtRatio = -1., jetPtRel_nanoAOD = -1., jetPtRatio_nanoAOD = -1.;  
-    float jetBTagCSV=-1., jetBTagDeepCSV=-1.;
+    float jetBTagCSV=-1., jetBTagDeepCSV=-1., jetBTagDeepJet=-1.;
     float lepMVA_mvaId = -1.;
 
     //
@@ -3064,7 +3069,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
       jetNDauChargedMVASel_nanoAOD = (userdatahelpers::getUserFloat(cand,"jetNDauChargedMVASel2Value"));
       
-      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso);
+      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso, thelep_setup);
       miniRelIsoCharged = miniRelIso.first;
       miniRelIsoNeutral = miniRelIso.second;
       miniRelIsoCharged_nanoAOD = (userdatahelpers::getUserFloat(cand,"miniRelIsoChg2Value"));
@@ -3076,6 +3081,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetPtRatio_nanoAOD = (userdatahelpers::getUserFloat(cand,"ptRatio2Value"));
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
+      jetBTagDeepJet = closest_jet.bDiscriminator("pfDeepFlavourJetTags:probb") + closest_jet.bDiscriminator("pfDeepFlavourJetTags:probbb") + closest_jet.bDiscriminator("pfDeepFlavourJetTags:problepb");
     
       lepMVA_mvaId  = userdatahelpers::getUserFloat(cand,"segmentCompatibility");
 
@@ -3111,7 +3117,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
       jetNDauChargedMVASel_nanoAOD = (userdatahelpers::getUserFloat(cand,"jetNDauChargedMVASel2Value"));
       
-      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso);
+      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso, thelep_setup);
       miniRelIsoCharged = miniRelIso.first;
       miniRelIsoNeutral = miniRelIso.second;
       miniRelIsoCharged_nanoAOD = (userdatahelpers::getUserFloat(cand,"miniRelIsoChg2Value"));
@@ -3127,6 +3133,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetPtRatio_nanoAOD = (userdatahelpers::getUserFloat(cand,"ptRatio2Value"));
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
+      jetBTagDeepJet = closest_jet.bDiscriminator("pfDeepFlavourJetTags:probb") + closest_jet.bDiscriminator("pfDeepFlavourJetTags:probbb") + closest_jet.bDiscriminator("pfDeepFlavourJetTags:problepb");
 
       lepMVA_mvaId = elemvanoiso;
 
@@ -3257,6 +3264,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_jetPtRatio_nanoAOD.push_back(jetPtRatio_nanoAOD);
     _daughters_jetBTagCSV.push_back(jetBTagCSV);
     _daughters_jetBTagDeepCSV.push_back(jetBTagDeepCSV);
+    _daughters_jetBTagDeepJet.push_back(jetBTagDeepJet);
     _daughters_lepMVA_mvaId.push_back(lepMVA_mvaId);
 
     _daughters_pca_x.push_back(pcaPV.X());

@@ -165,6 +165,7 @@ process.softMuons = cms.EDProducer("MuFiller",
     vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
     sampleType = cms.int32(LEPTON_SETUP),                     
     setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+    lep_setup = cms.int32(LEPTON_SETUP_LEGACY),
 #    cut = cms.string("userFloat('SIP')<100"),
 #    cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1."),
     cut = cms.string(""),
@@ -263,6 +264,7 @@ process.softElectrons = cms.EDProducer("EleFiller",
    genCollection = cms.InputTag("prunedGenParticles"),
    sampleType = cms.int32(LEPTON_SETUP),          
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
+   lep_setup = cms.int32(LEPTON_SETUP_LEGACY),
 
    #CUT BASED ELE ID
    #electronVetoIdMap = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-veto"),
