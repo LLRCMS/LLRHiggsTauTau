@@ -87,15 +87,12 @@ process.source = cms.Source("PoolSource",
     
     #2016 ttH
     '/store/mc/RunIISummer16MiniAODv3/ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v2/120000/F24F2D5E-DDEC-E811-AF50-90B11C08AD7D.root',
-    #'/store/data/Run2016C/SingleMuon/MINIAOD/17Jul2018-v1/20000/FEC97F81-0097-E811-A7B9-90E2BACC5EEC.root', 
  
     #2017 ttH
     #'/store/mc/RunIIFall17MiniAODv2/ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/70000/F8E7EC91-9742-E811-93FA-001E67792566.root',
-    #'/store/data/Run2017C/SingleMuon/MINIAOD/31Mar2018-v1/910000/BE068F10-3D38-E811-A58C-FA163E152BEF.root'
 
     #2018 ttH 
     #'/store/mc/RunIIAutumn18MiniAOD/ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/270000/D8E3ED46-5E4A-5F4D-808D-F2B1D66201E9.root',
-    #'/store/data/Run2018C/SingleMuon/MINIAOD/17Sep2018-v1/60000/FD80B832-1D9C-2E4B-825B-5126ED09B958.root'
 
     )
 )

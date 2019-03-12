@@ -196,6 +196,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Bool_t computeQGVar;
   string theJECName;
   Int_t thelep_setup;
+  Int_t thejet_setup;
   // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
@@ -841,6 +842,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
   theFSR = pset.getParameter<bool>("applyFSR");
   theisMC = pset.getParameter<bool>("IsMC");
   thelep_setup = pset.getParameter<int>("year");
+  thejet_setup = pset.getParameter<int>("year");
   doCPVariables = pset.getParameter<bool>("doCPVariables");
   computeQGVar = pset.getParameter<bool>("computeQGVar");
   theJECName = pset.getUntrackedParameter<string>("JECset");
@@ -2626,74 +2628,84 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_MUF    .push_back(MUF);
 
     int jetid=0; 
-    //PHYS14
-    /*
-    if((NHF<0.99 && NEMF<0.99 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4)){
-      jetid++;
-      if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)  ) jetid++;
-    }
-    */
-    //Spring15
-    // if(absjeta<=3.0){
-    //   if((NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ){
-    //     jetid++;
-    //     if( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) ) {
-    //       jetid++;
-    //       if( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4)) jetid++;
-    //     }
-    //   }
-    // }else{
-    //   if(NEMF<0.90 && NumNeutralParticles>10 ){
-    //     jetid++;
-    //     jetid++; //TIGHT and LOOSE are the same in this eta region
-    //   }
-    // }  
     
-    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
-    // bool looseJetID = false;
-    // bool tightJetID = false;
-    // bool tightLepVetoJetID = false;
-    // if (absjeta <= 2.7)
-    // {
-    //   looseJetID = ( (NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
-    //   tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
-    //   tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
-    // }
-    // else if (absjeta <= 3.0)
-    // {
-    //   looseJetID = (NEMF<0.90 && NumNeutralParticles>2 ) ;
-    //   tightJetID = looseJetID;
-    // }
-    // else
-    // {
-    //   looseJetID = (NEMF<0.90 && NumNeutralParticles>10 );
-    //   tightJetID = looseJetID;
-    // }
-    // if (looseJetID) ++jetid;
-    // if (tightJetID) ++jetid;
-    // if (tightLepVetoJetID) ++jetid;
-
-    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13TeVRun2017
-    // Since the tight JetID efficiency is > 99% everywhere, loose is not recommended anymore
+    bool looseJetID = false;
     bool tightJetID = false;
     bool tightLepVetoJetID = false;
-    if (absjeta <= 2.7)
-    {
-      tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0) || absjeta>2.4) );
-      tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.80) || absjeta>2.4) );
+
+    //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016 
+    if (thejet_setup==2016){
+
+       if (absjeta <= 2.7){
+         looseJetID = ( (NHF<0.99 && NEMF<0.99 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
+         tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
+         tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
+       }
+       else if (absjeta <= 3.0){
+         looseJetID = (NEMF>0.01 && NHF<0.98 && NumNeutralParticles>2 ) ;
+         tightJetID = looseJetID;
+       }
+       else{
+         looseJetID = (NEMF<0.90 && NumNeutralParticles>10 );
+         tightJetID = looseJetID;
+       }
+
+       if (looseJetID) ++jetid;
+       if (tightJetID) ++jetid;
+       if (tightLepVetoJetID) ++jetid;
+
     }
-    else if (absjeta <= 3.0)
-    {
-      tightJetID = (NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
+
+    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13TeVRun2017
+    else if (thejet_setup==2017){
+
+       looseJetID = true;
+
+       if (absjeta <= 2.7){
+          tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0) || absjeta>2.4) );
+          tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.80) || absjeta>2.4) );
+       }
+       else if (absjeta <= 3.0){
+          tightJetID = (NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
+       }
+       else{
+          tightJetID = (NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 );
+       }
+
+       if (looseJetID) ++jetid;
+       if (tightJetID) ++jetid;
+       if (tightLepVetoJetID) ++jetid;
+
     }
-    else
-    {
-      tightJetID = (NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 );
+
+    //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2018#Jet_Identification_for_the_13_Te
+    else if (thejet_setup==2018){
+
+       looseJetID = true;
+
+       if (absjeta <= 2.6){
+          tightJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0 && CHM>0 );
+          tightLepVetoJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8 && CHF>0 && CHM>0 && CEMF<0.80 );
+       }
+       else if (absjeta <= 2.7){
+          tightJetID = ( NHF<0.90 && NEMF<0.99 && CHM>0 );
+          tightLepVetoJetID = ( NHF<0.90 && NEMF<0.99 && MUF<0.8 && CHM>0 && CEMF<0.80 );
+       }
+       else if (absjeta <= 3.0){
+          tightJetID = (NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
+       }
+       else{
+          tightJetID = (NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 );
+       }
+
+       if (looseJetID) ++jetid;  
+       if (tightJetID) ++jetid;
+       if (tightLepVetoJetID) ++jetid;
+
     }
-    if (tightJetID) ++jetid;
-    if (tightLepVetoJetID) ++jetid;
 
     _jetID.push_back(jetid);
+
     float jecFactor = ijet->jecFactor("Uncorrected") ;
     float jetRawPt = jecFactor * ijet->pt();
     //float jetRawPt2 = ijet->pt() / jecFactor; // this is wrong
