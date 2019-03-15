@@ -624,6 +624,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_area;
   std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
+  std::vector<Int_t>   _jets_PUJetID_WP;
   std::vector<Float_t> _jets_PUJetIDupdated;
   std::vector<Int_t>   _jets_PUJetIDupdated_WP;
   std::vector<Float_t> _jets_vtxPt;
@@ -1217,6 +1218,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_area.clear();
   _jets_mT.clear();
   _jets_PUJetID.clear();
+  _jets_PUJetID_WP.clear();
   _jets_PUJetIDupdated.clear();
   _jets_PUJetIDupdated_WP.clear();
   _jets_vtxPt.clear();
@@ -1671,6 +1673,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_HadronFlavour",&_jets_HadronFlavour);
   myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
+  myTree->Branch("jets_PUJetID_WP",&_jets_PUJetID_WP);
   myTree->Branch("jets_PUJetIDupdated",&_jets_PUJetIDupdated);
   myTree->Branch("jets_PUJetIDupdated_WP",&_jets_PUJetIDupdated_WP);
   myTree->Branch("jets_vtxPt", &_jets_vtxPt);
@@ -2542,6 +2545,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_Flavour.push_back(ijet->partonFlavour());
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
+    _jets_PUJetID_WP.push_back(ijet->userInt("pileupJetId:fullId"));
     _jets_PUJetIDupdated.push_back(ijet->hasUserFloat("pileupJetIdUpdated:fullDiscriminant") ? ijet->userFloat("pileupJetIdUpdated:fullDiscriminant") : -999);
     _jets_PUJetIDupdated_WP.push_back(ijet->hasUserInt("pileupJetIdUpdated:fullId") ? ijet->userInt("pileupJetIdUpdated:fullId") : -999);
 
