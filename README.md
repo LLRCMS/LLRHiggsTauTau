@@ -390,7 +390,7 @@ git cms-merge-topic cms-egamma:EgammaID_1023 #if you want the V2 IDs, otherwise 
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
 # LLRHiggsTauTau framework
-git clone git@github.com:francescobrivio/LLRHiggsTauTau.git
+git clone git@github.com:LLRCMS/LLRHiggsTauTau.git
 cd LLRHiggsTauTau
 git checkout 102X_HH
 cd -
