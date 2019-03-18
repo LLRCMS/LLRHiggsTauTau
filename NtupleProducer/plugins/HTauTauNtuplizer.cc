@@ -2841,7 +2841,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     }
     else
     {
-      tightJetID = (NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 );
+      tightJetID = (NEMF<0.90 && NHF>0.2 && NumNeutralParticles>10 );
     }
     if (tightJetID) ++jetid;
     if (tightLepVetoJetID) ++jetid;
