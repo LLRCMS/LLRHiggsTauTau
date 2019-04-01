@@ -585,7 +585,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_miniRelIsoCharged;
   std::vector<Float_t> _daughters_miniRelIsoCharged_nanoAOD;
   std::vector<Float_t> _daughters_miniRelIsoNeutral;
-  std::vector<Float_t> _daughters_miniRelIsoAll_nanoAOD;
+  std::vector<Float_t> _daughters_miniRelIso_nanoAOD;
   std::vector<Float_t> _daughters_PFRelIsoCharged_nanoAOD;
   std::vector<Float_t> _daughters_PFRelIsoAll_nanoAOD;
   std::vector<Float_t> _daughters_PFRelIsoAll04_nanoAOD;
@@ -1000,7 +1000,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_miniRelIsoCharged.clear();
   _daughters_miniRelIsoCharged_nanoAOD.clear();
   _daughters_miniRelIsoNeutral.clear();
-  _daughters_miniRelIsoAll_nanoAOD.clear();
+  _daughters_miniRelIso_nanoAOD.clear();
   _daughters_PFRelIsoCharged_nanoAOD.clear();
   _daughters_PFRelIsoAll_nanoAOD.clear();
   _daughters_PFRelIsoAll04_nanoAOD.clear();
@@ -1634,7 +1634,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_miniRelIsoCharged",&_daughters_miniRelIsoCharged);
   myTree->Branch("daughters_miniRelIsoCharged_nanoAOD",&_daughters_miniRelIsoCharged_nanoAOD);
   myTree->Branch("daughters_miniRelIsoNeutral",&_daughters_miniRelIsoNeutral);
-  myTree->Branch("daughters_miniRelIsoAll_nanoAOD",&_daughters_miniRelIsoAll_nanoAOD);
+  myTree->Branch("daughters_miniRelIso_nanoAOD",&_daughters_miniRelIso_nanoAOD);
   myTree->Branch("daughters_PFRelIsoCharged_nanoAOD",&_daughters_PFRelIsoCharged_nanoAOD);
   myTree->Branch("daughters_PFRelIsoAll_nanoAOD",&_daughters_PFRelIsoAll_nanoAOD);
   myTree->Branch("daughters_PFRelIsoAll04_nanoAOD",&_daughters_PFRelIsoAll04_nanoAOD);
@@ -3270,7 +3270,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_miniRelIsoCharged.push_back(miniRelIsoCharged);
     _daughters_miniRelIsoCharged_nanoAOD.push_back(miniRelIsoCharged_nanoAOD);
     _daughters_miniRelIsoNeutral.push_back(miniRelIsoNeutral);
-    _daughters_miniRelIsoAll_nanoAOD.push_back(miniRelIsoAll_nanoAOD);
+    _daughters_miniRelIso_nanoAOD.push_back(miniRelIsoAll_nanoAOD);
     _daughters_PFRelIsoCharged_nanoAOD.push_back(PFRelIsoCharged_nanoAOD);
     _daughters_PFRelIsoAll_nanoAOD.push_back(PFRelIsoAll_nanoAOD);
     _daughters_PFRelIsoAll04_nanoAOD.push_back(PFRelIsoAll04_nanoAOD);

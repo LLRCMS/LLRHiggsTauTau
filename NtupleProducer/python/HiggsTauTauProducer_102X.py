@@ -221,7 +221,9 @@ process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.
 process.isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("bareSoftMuons"),
     relative = cms.bool(True),
-    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
+    #rho_MiniIso = cms.InputTag("fixedGridRhoFastjetCentralNeutral"), #2016
+    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"), #2017
+    #EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
 
@@ -351,6 +353,8 @@ process.isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     relative = cms.bool(True),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
+    #rho_MiniIso = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
+    #rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
     EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"),
     EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"),
 )
@@ -947,6 +951,13 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
 ## ----------------------------------------------------------------------
 ## Ntuplizer
 ## ----------------------------------------------------------------------
+
+if YEAR==2016:
+	rhocol = "fixedGridRhoFastjetCentralNeutral"
+elif YEAR==2017 or YEAR==2018:
+	rhocol = "fixedGridRhoFastjetAll"
+print('RhoCollection: ',rhocol)
+
 process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
                       applyFSR = cms.bool(APPLYFSR),
@@ -957,7 +968,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       secVtxCollection = cms.InputTag("slimmedSecondaryVertices"), # FRA
                       puCollection = cms.InputTag("slimmedAddPileupInfo"),
                       rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
-                      rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
+                      #rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
+                      rhoMiniRelIsoCollection = cms.InputTag(rhocol),
                       rhoForJER = cms.InputTag("fixedGridRhoAll"), # FRA
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
