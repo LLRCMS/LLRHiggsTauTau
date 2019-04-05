@@ -280,6 +280,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _MC_weight_scale_muF2;
   Float_t _MC_weight_scale_muR0p5;
   Float_t _MC_weight_scale_muR2;
+  Float_t _MC_weight_tHW;
+  Float_t _MC_weight_tHq;
   Float_t _pv_x=0, _pv_y=0, _pv_z=0;
   Float_t _pvGen_x=0, _pvGen_y=0, _pvGen_z=0;
   Float_t _pvRefit_x=0, _pvRefit_y=0, _pvRefit_z=0;
@@ -1164,6 +1166,8 @@ void HTauTauNtuplizer::Initialize(){
   _MC_weight_scale_muF2=0.;
   _MC_weight_scale_muR0p5=0.;
   _MC_weight_scale_muR2=0.;
+  _MC_weight_tHW=0.;
+  _MC_weight_tHq=0.;
 
 //  _jets.clear();
   _jets_VBFfirstTrigMatch.clear(); //FRA
@@ -1415,6 +1419,8 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("MC_weight_scale_muF2",&_MC_weight_scale_muF2,"MC_weight_scale_muF2/F");
     myTree->Branch("MC_weight_scale_muR0p5",&_MC_weight_scale_muR0p5,"MC_weight_scale_muR0p5/F");
     myTree->Branch("MC_weight_scale_muR2",&_MC_weight_scale_muR2,"MC_weight_scale_muR2/F");
+    myTree->Branch("MC_weight_tHW",&_MC_weight_tHW,"MC_weight_tHW/F");
+    myTree->Branch("MC_weight_tHq",&_MC_weight_tHq,"MC_weight_tHq/F");
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("lheNOutPartons", &_lheNOutPartons, "lheNOutPartons/I");
     myTree->Branch("lheNOutB", &_lheNOutB, "lheNOutB/I");
@@ -1959,6 +1965,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     if (lheeventinfo.isValid()) {
       _nup=lheeventinfo->hepeup().NUP;
+      _MC_weight_tHW =  _aMCatNLOweight*(lheeventinfo->weights()[1091].wgt)/(lheeventinfo->originalXWGTUP());
+      _MC_weight_tHq =  _aMCatNLOweight*(lheeventinfo->weights()[893].wgt)/(lheeventinfo->originalXWGTUP());
       if (lheeventinfo->weights().size() > 6) // access weights only if weights() is filled
       {
         _MC_weight_scale_muF0p5 = _aMCatNLOweight*(lheeventinfo->weights()[2].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 0.5 | muR = 1
@@ -2044,6 +2052,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   {
     for (const auto& source: m_jec_sources) {
       JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V6_DATA_UncertaintySources_AK4PFchs.txt", source);
+     // JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017BCDEF_V6_DATA_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
@@ -3342,7 +3351,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           else istrgMatched = false;
           
           // Check the pT of the candidate for leg1 and 2 //FRA
-          if (legPosition == 1)
+          /*if (legPosition == 1)
           {
             if ( cand->pt() < trgmap.GetPtCut1() ) istrgMatched=false;
           }
@@ -3352,7 +3361,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           }
           else
             istrgMatched=false;
-          
+          */
           
           // FIXME: should I check type? --> no, multiple filters should be enough
           if(istrgMatched)
