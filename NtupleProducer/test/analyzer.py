@@ -48,9 +48,9 @@ if not IsMC:
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
-MUCUT="isLooseMuon && pt>10"#"isLooseMuon && pt>5"
-ELECUT="pt>10"#"pt>7"#"gsfTracsk.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
-TAUCUT="pt>20"#"tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18" #miniAOD tau from hpsPFTauProducer have pt>18 and decaymodefinding ID
+MUCUT="isLooseMuon && pt>5"
+ELECUT="pt>7"#"pt>7"#"gsfTracsk.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
+TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18"
 JETCUT="pt>0" # was 10, is now 0 to save all the jets and be able to copute JEC MET in KLUB
 LLCUT="mass>-99999"
 BCUT="pt>5"
@@ -101,7 +101,7 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = -1
+process.maxEvents.input = 10000
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
