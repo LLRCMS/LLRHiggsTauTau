@@ -63,6 +63,9 @@ print process.GlobalTag.globaltag
 nanosec="25"
 if not Is25ns: nanosec="50"
 
+LEPTON_SETUP_LEGACY = YEAR
+print "Lepton setup: ", LEPTON_SETUP_LEGACY
+
 METfiltersProcess = "PAT" if IsMC else "RECO" # NB! this is not guaranteed to be true! the following is valid on 2015 Run C + Run D data. Check:
 # NB: for MET filters, use PAT or RECO depending if the miniAOD was generated simultaneously with RECO or in a separated step
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD2016#ETmiss_filters
