@@ -777,7 +777,7 @@ if YEAR==2016:
 	rhocol = "fixedGridRhoFastjetCentralNeutral"
 elif YEAR==2017 or YEAR==2018:
 	rhocol = "fixedGridRhoFastjetAll"
-print('RhoCollection: ',rhocol)
+print "RhoCollection: ",rhocol
 
 process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
