@@ -398,6 +398,10 @@ git cms-merge-topic lathomas:L1Prefiring_10_2_6                         # only i
 git cms-addpkg RecoMET/METFilters                                       # only if 2017 data/MC or 2018 data/MC
 git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X        # only if 2017 data/MC
 
+# Jets DeepFlavour
+git cms-addpkg RecoBTag/TensorFlow
+git cherry-pick 94ceae257f846998c357fcad408986cc8a039152
+
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
