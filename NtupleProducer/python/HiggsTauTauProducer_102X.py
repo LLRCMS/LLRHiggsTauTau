@@ -200,13 +200,16 @@ process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
 process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
 
 #mu isolation from nanoAOD
+if YEAR==2016:
+        eafileminiisomu = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"
+elif YEAR == 2017 or YEAR == 2018:
+        eafileminiisomu = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"
+
 process.isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("bareSoftMuons"),
     relative = cms.bool(True),
-    #rho_MiniIso = cms.InputTag("fixedGridRhoFastjetCentralNeutral"), #2016
-    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"), #2017
-    #EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
-    EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
+    rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
+    EAFile_MiniIso = cms.FileInPath(eafileminiisomu),
 )
 
 #mu ptRatioRel from nanoAOD
@@ -217,7 +220,6 @@ process.ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
 )
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
-#    src = cms.InputTag("removeBadAndCloneGlobalMuons"),
     src = cms.InputTag("slimmedMuons"),
     cut = cms.string(MUCUT),
 )
@@ -272,17 +274,23 @@ my_id_modules =[
 #Add them to the VID producer
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-    
+
+
 #ele iso from nanoAOD
+if YEAR==2016:
+	eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt" 
+	eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+elif YEAR == 2017 or YEAR == 2018:
+	eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+        eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+
 process.isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     src = cms.InputTag("slimmedElectrons"),
     relative = cms.bool(True),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
-    #rho_MiniIso = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
-    #rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
-    EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"),
-    EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"),
+    EAFile_MiniIso = cms.FileInPath(eafileminiisoele),
+    EAFile_PFIso = cms.FileInPath(eafilepfisoele),
 )
 
 #ele ptRatioRel from nanoAOD
@@ -577,21 +585,21 @@ process.jets = cms.EDFilter("PATJetRefSelector",
 ### ----------------------------------------------------------------------
 
 if COMPUTEQGVAR:
-    qgDatabaseVersion = 'v2b' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
 
-    from CondCore.CondDB.CondDB_cfi import *
-    QGPoolDBESSource = cms.ESSource("PoolDBESSource",
-                                    toGet = cms.VPSet(),
-                                    connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
+    from CondCore.DBCommon.CondDBSetup_cfi import *
+    process.QGPoolDBESSource = cms.ESSource("PoolDBESSource",
+      CondDBSetup,
+      toGet = cms.VPSet(
+        cms.PSet(
+          record = cms.string('QGLikelihoodRcd'),
+          tag    = cms.string('QGLikelihoodObject_v1_AK4PFchs_2017'),
+          label  = cms.untracked.string('QGL_AK4PFchs')
+        ),
+      ),
+      connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
     )
-    
-    for type in ['AK4PFchs']:
-        QGPoolDBESSource.toGet.extend(cms.VPSet(cms.PSet(
-                    record = cms.string('QGLikelihoodRcd'),
-                    tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_'+type),
-                    label  = cms.untracked.string('QGL_'+type)
-                    )))
 
+    process.es_prefer_qg = cms.ESPrefer('PoolDBESSource','QGPoolDBESSource')
 
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     process.QGTagger.srcJets          = cms.InputTag("jets")    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
@@ -777,7 +785,7 @@ if YEAR==2016:
 	rhocol = "fixedGridRhoFastjetCentralNeutral"
 elif YEAR==2017 or YEAR==2018:
 	rhocol = "fixedGridRhoFastjetAll"
-print "RhoCollection: ",rhocol
+#print "RhoCollection: ",rhocol
 
 process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
@@ -790,7 +798,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       puCollection = cms.InputTag("slimmedAddPileupInfo"),
                       rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
                       #rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
-                      rhoMiniRelIsoCollection = cms.InputTag(rhocol),
+                      rhoMiniRelIsoCollection = cms.InputTag(rhocol), #for non-nanoAOD
                       rhoForJER = cms.InputTag("fixedGridRhoAll"), # FRA
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
