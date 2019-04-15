@@ -520,10 +520,29 @@ updateJetCollection(
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
 )
 
-process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
-process.updatedPatJetsUpdatedJEC.userData.userInts.src    += ['pileupJetIdUpdated:fullId']
-process.jecSequence = cms.Sequence(process.pileupJetIdUpdated + process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+updateJetCollection(
+   process,
+   jetSource = cms.InputTag('slimmedJets'),
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
+   jetCorrections = ('AK4PFchs', jecLevels, 'None'),
+   btagDiscriminators = [
+      	'pfDeepFlavourJetTags:probb',
+      	'pfDeepFlavourJetTags:probbb',
+      	'pfDeepFlavourJetTags:problepb',
+      	'pfDeepFlavourJetTags:probc',
+      	'pfDeepFlavourJetTags:probuds',
+      	'pfDeepFlavourJetTags:probg'
+      ],
+   postfix='NewDFTraining'
+)
+
+#process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+#process.updatedPatJetsUpdatedJEC.userData.userInts.src    += ['pileupJetIdUpdated:fullId']
+#process.jecSequence = cms.Sequence(process.pileupJetIdUpdated + process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 #process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+
+jetsNameAK4="selectedUpdatedPatJetsNewDFTraining"
 
 #needed for ele/mu ptRatioRel with nanoAOD
 process.tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
@@ -575,7 +594,7 @@ process.updatedJets = updatedPatJets.clone(
 
 process.jets = cms.EDFilter("PATJetRefSelector",
                             #src = cms.InputTag("slimmedJets"),
-                            src = cms.InputTag("updatedPatJetsUpdatedJEC"),
+                            src = cms.InputTag("updatedPatJetsNewDFTraining"),
                             cut = cms.string(JETCUT),
 )
 
@@ -602,7 +621,7 @@ if COMPUTEQGVAR:
     process.es_prefer_qg = cms.ESPrefer('PoolDBESSource','QGPoolDBESSource')
 
     process.load('RecoJets.JetProducers.QGTagger_cfi')
-    process.QGTagger.srcJets          = cms.InputTag("jets")    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
+    process.QGTagger.srcJets          = cms.InputTag(jetsNameAK4)    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
     process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
     process.jetSequence = cms.Sequence(process.jets * process.QGTagger + process.tightJetId + process.tightJetIdLepVeto + process.slimmedJetsWithUserData + process.jetCorrFactors + process.updatedJets)
 
@@ -707,7 +726,7 @@ else:
 if IsMC and APPLYMETCORR:
     if USEPAIRMET:
         process.selJetsForZrecoilCorrection = cms.EDFilter("PATJetSelector",
-            src = cms.InputTag("jets"),                                      
+            src = cms.InputTag(jetsNameAK4),                                      
             cut = cms.string("pt > 30. & abs(eta) < 4.7"), 
             filter = cms.bool(False)
         )
@@ -801,9 +820,9 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       rhoMiniRelIsoCollection = cms.InputTag(rhocol), #for non-nanoAOD
                       rhoForJER = cms.InputTag("fixedGridRhoAll"), # FRA
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
-                      jetCollection = cms.InputTag("jets"),
+                      jetCollection = cms.InputTag(jetsNameAK4),
                       #JECset = cms.untracked.string("patJetCorrFactors"),
-                      JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC"),
+                      JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedNewDFTraining"),
                       computeQGVar = cms.bool(COMPUTEQGVAR),
                       QGTagger = cms.InputTag("QGTagger", "qgLikelihood"),
                       stage2TauCollection = cms.InputTag("caloStage2Digis","Tau"),
@@ -867,7 +886,19 @@ process.Candidates = cms.Sequence(
     process.nEventsTotal       +
     #process.hltFilter         + 
     process.nEventsPassTrigger +
-    process.jecSequence + process.jetSequence + #process.jets + 
+    #process.jecSequence + 
+    process.patJetCorrFactorsNewDFTraining+
+    process.updatedPatJetsNewDFTraining+
+    process.pfImpactParameterTagInfosNewDFTraining+
+    process.pfInclusiveSecondaryVertexFinderTagInfosNewDFTraining+
+    process.pfDeepCSVTagInfosNewDFTraining+
+    process.pfDeepFlavourTagInfosNewDFTraining+
+    process.pfDeepFlavourJetTagsNewDFTraining+
+    process.patJetCorrFactorsTransientCorrectedNewDFTraining+
+    process.updatedPatJetsTransientCorrectedNewDFTraining+
+    process.selectedUpdatedPatJetsNewDFTraining+
+    #process.jecSequence+
+    process.jetSequence + #process.jets + 
     process.muons              +
     process.electrons          + process.cleanSoftElectrons +
     process.taus               +
