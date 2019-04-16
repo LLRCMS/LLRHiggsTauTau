@@ -48,6 +48,7 @@ except NameError:
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
+
 from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
@@ -76,6 +77,7 @@ METfiltersProcess = "PAT" if IsMC else "RECO" # NB! this is not guaranteed to be
 ### ----------------------------------------------------------------------
 ### Standard stuff
 ### ----------------------------------------------------------------------
+
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
@@ -95,12 +97,14 @@ process.maxEvents = cms.untracked.PSet(
 ### ----------------------------------------------------------------------
 ### Counters 
 ### ----------------------------------------------------------------------
+
 process.nEventsTotal = cms.EDProducer("EventCountProducer")       # don't change producer name
 process.nEventsPassTrigger = cms.EDProducer("EventCountProducer") # these names are then "hard-coded" inside the ntuplizer plugin
 
 ### ----------------------------------------------------------------------
 ### Trigger bit Requests - filter 
 ### ----------------------------------------------------------------------
+
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 
 process.hltFilter = hlt.hltHighLevel.clone(
@@ -131,14 +135,12 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
                                    src = cms.InputTag("prunedGenParticles")
                                    )
 
-
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
                                                    calibratedPatElectrons = cms.PSet(
                                                        initialSeed = cms.untracked.uint32(1),
                                                        engineName = cms.untracked.string('TRandom3')
                                                        ),
                                                    )
-
 
 process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   src = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -150,7 +152,6 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
 ### ECAL bad calibration filter
 ### ----------------------------------------------------------------------
 
-#2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
 process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
 
 baddetEcallist = cms.vuint32(
@@ -178,7 +179,6 @@ process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
 ### Muons
 ### ----------------------------------------------------------------------
 
-#Re-Reco2016 fix from G. Petrucciani
 process.badGlobalMuonTagger = cms.EDFilter("BadGlobalMuonTagger",
     muons = cms.InputTag("slimmedMuons"),
     vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -199,7 +199,9 @@ process.removeBadAndCloneGlobalMuons = cms.EDProducer("MuonRefPruner",
 
 process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.badGlobalMuonTagger + process.removeBadAndCloneGlobalMuons) # in tagging mode, these modules return always "true"
 
-#mu isolation from nanoAOD
+# mu isolation from nanoAOD
+# different EA for the different years
+# https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/python/electrons_cff.py#L114-L120
 if YEAR==2016:
         eafileminiisomu = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"
 elif YEAR == 2017 or YEAR == 2018:
@@ -237,8 +239,6 @@ process.softMuons = cms.EDProducer("MuFiller",
     sampleType = cms.int32(LEPTON_SETUP),                     
     setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
     lep_setup = cms.int32(LEPTON_SETUP_LEGACY),
-#    cut = cms.string("userFloat('SIP')<100"),
-#    cut = cms.string("userFloat('dxy')<0.5 && userFloat('dz')<1."),
     cut = cms.string(""),
     flags = cms.PSet(
         ID = cms.string("userFloat('isPFMuon')" ), # PF ID
@@ -271,17 +271,44 @@ my_id_modules =[
     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff',   #Fall17 V2 noIso
     ] 
 
-#Add them to the VID producer
+# Add them to the VID producer
 for idmod in my_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
 
-#ele iso from nanoAOD
-if YEAR==2016:
-	eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt" 
-	eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
-elif YEAR == 2017 or YEAR == 2018:
-	eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+#electron scale/smear
+
+if (YEAR == 2016):
+   from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+   setupEgammaPostRecoSeq(process,
+                          runEnergyCorrections=True,
+                          runVID=True,
+                          era='2016-Legacy')
+
+if (YEAR == 2017):
+   from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+   setupEgammaPostRecoSeq(process,
+                          runEnergyCorrections=True,
+                          runVID=True,
+                          era='2017-Nov17ReReco')
+
+if (YEAR == 2018):
+   from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+   setupEgammaPostRecoSeq(process,
+                          runEnergyCorrections=True,
+                          runVID=True,
+			  era='2018-Prompt')
+
+# ele iso from nanoAOD
+# different EA for the different years
+# https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/python/electrons_cff.py#L114-L120
+
+if (YEAR==2016):
+        eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"
+        eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+
+if (YEAR == 2017 or YEAR == 2018):
+        eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
         eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
 
 process.isoForEle = cms.EDProducer("EleIsoValueMapProducer",
@@ -336,8 +363,8 @@ process.softElectrons = cms.EDProducer("EleFiller",
         )
    )
 
-#process.electrons = cms.Sequence(process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
-process.electrons = cms.Sequence(process.isoForEle + process.ptRatioRelForEle + process.egmGsfElectronIDSequence * process.softElectrons)#process.bareSoftElectrons
+
+process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.egmGsfElectronIDSequence * process.softElectrons)
 
 ### ----------------------------------------------------------------------
 ### Lepton Cleaning (clean electrons collection from muons)
@@ -800,11 +827,11 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
 ## Ntuplizer
 ## ----------------------------------------------------------------------
 
-if YEAR==2016:
+if (YEAR==2016):
 	rhocol = "fixedGridRhoFastjetCentralNeutral"
-elif YEAR==2017 or YEAR==2018:
+
+if (YEAR==2017 or YEAR==2018):
 	rhocol = "fixedGridRhoFastjetAll"
-#print "RhoCollection: ",rhocol
 
 process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
@@ -823,6 +850,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       jetCollection = cms.InputTag(jetsNameAK4),
                       #JECset = cms.untracked.string("patJetCorrFactors"),
                       JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedNewDFTraining"),
+                      #JECset = cms.untracked.string("patJetCorrFactorsNewDFTraining"),
                       computeQGVar = cms.bool(COMPUTEQGVAR),
                       QGTagger = cms.InputTag("QGTagger", "qgLikelihood"),
                       stage2TauCollection = cms.InputTag("caloStage2Digis","Tau"),
@@ -874,6 +902,7 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
   src = cms.InputTag("prunedGenParticles")
 )
 
+
 ## ----------------------------------------------------------------------
 ## Paths
 ## ----------------------------------------------------------------------
@@ -882,10 +911,12 @@ process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
+    process.egammaPostRecoSeq  +
     # process.printTree         + # just for debug, print MC particles
     process.nEventsTotal       +
     #process.hltFilter         + 
     process.nEventsPassTrigger +
+    #process.egammaPostRecoSeq  +
     #process.jecSequence + 
     process.patJetCorrFactorsNewDFTraining+
     process.updatedPatJetsNewDFTraining+
@@ -900,7 +931,9 @@ process.Candidates = cms.Sequence(
     #process.jecSequence+
     process.jetSequence + #process.jets + 
     process.muons              +
+    #process.egammaPostRecoSeq  +
     process.electrons          + process.cleanSoftElectrons +
+    #process.egammaPostRecoSeq  +
     process.taus               +
     process.fsrSequence        +
     process.softLeptons        + process.barellCand +
@@ -910,6 +943,7 @@ process.Candidates = cms.Sequence(
     process.geninfo            +
     process.SVFit
     )
+
 # always run ntuplizer
 process.trees = cms.EndPath(process.HTauTauTree)# + process.HTauTauTreeTauUp + process.HTauTauTreeTauDown)
 

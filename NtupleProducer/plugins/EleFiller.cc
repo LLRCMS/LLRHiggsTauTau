@@ -298,6 +298,11 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     if(l.ecalEnergy()>0)
       IoEmIoP_ttH = (1.0/l.ecalEnergy() - l.eSuperClusterOverP()/l.ecalEnergy());
 
+    //--- scale and smearing corrections
+    float ScaleSmearCorr = 1;
+    if(l.energy()!=0) 
+      ScaleSmearCorr = l.userFloat("ecalTrkEnergyPostCorr")/l.energy();
+
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
@@ -322,6 +327,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("IoEmIoP",(1.0/l.ecalEnergy())-(1.0/l.p()));
     l.addUserFloat("IoEmIoP_ttH",IoEmIoP_ttH);
     l.addUserFloat("SCeta", fSCeta);
+    l.addUserFloat("ScaleSmearCorr",ScaleSmearCorr);
     l.addUserInt("isEB", int(l.isEB()));
     const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
     //2015 stuff
