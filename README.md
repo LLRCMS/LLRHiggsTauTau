@@ -410,11 +410,13 @@ git cms-merge-topic cms-egamma:EgammaPostRecoTools_dev
 scram b -j 8
 
 # MET filters
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
 git cms-init
 git cms-addpkg RecoMET/METFilters                                       # only if 2017 data/MC or 2018 data/MC
 scram b -j 8
 
 # MET corrections with EE nosie fix
+# https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription#Instructions_for_9_4_X_X_9_for_2
 git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X        # only if 2017 data/MC
 scram b -j 8
 
