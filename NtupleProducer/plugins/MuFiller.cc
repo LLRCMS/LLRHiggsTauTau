@@ -162,6 +162,7 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float dz  = 999.;
     float dxy_innerTrack = 999.;
     float dz_innerTrack  = 999.;
+
     const Vertex* vertex = 0;
 
     if (vertexs->size()>0) {

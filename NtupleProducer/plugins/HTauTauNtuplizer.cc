@@ -470,7 +470,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _particleType;//0=muon, 1=e, 2=tau
   std::vector<Float_t> _combreliso;
   std::vector<Float_t> _combreliso03;
-  std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, 
+  //std::vector<Float_t> _discriminator;//BDT for ele, discriminator for tau, 
   std::vector<Int_t> _daughters_muonID; //bitwise (bit 0 loose, 1 soft , 2 medium, 3 tight, 4 highPT 5 tight_noVtx)
   std::vector<Int_t> _daughters_typeOfMuon; //bitwise, 0=PF, 1=Global, 2=Tracker
   std::vector<Float_t> _dxy;
@@ -1015,7 +1015,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_jetBTagDeepJet.clear();
   _daughters_lepMVA_mvaId.clear();
 
-  _daughters_iseleBDT.clear();
+  //_daughters_iseleBDT.clear();
   _daughters_iseleWPLoose.clear();
   _daughters_iseleWP80.clear();
   _daughters_iseleWP90.clear();
@@ -1164,7 +1164,7 @@ void HTauTauNtuplizer::Initialize(){
   _mTDau1.clear();
   _mTDau2.clear();
   _particleType.clear();
-  _discriminator.clear();
+  //_discriminator.clear();
   _daughters_typeOfMuon.clear();
   _daughters_muonID.clear();
   _dxy.clear();
@@ -1566,7 +1566,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
   myTree->Branch("particleType",&_particleType);
-  myTree->Branch("discriminator",&_discriminator);
+  //myTree->Branch("discriminator",&_discriminator);
   myTree->Branch("daughters_muonID",&_daughters_muonID);
   myTree->Branch("daughters_typeOfMuon",&_daughters_typeOfMuon);
   myTree->Branch("dxy",&_dxy);
@@ -1575,7 +1575,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("dz_innerTrack",&_dz_innerTrack);
   myTree->Branch("daughters_rel_error_trackpt",&_daughters_rel_error_trackpt);
   myTree->Branch("SIP",&_SIP);
-  myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
+  //myTree->Branch("daughters_iseleBDT",&_daughters_iseleBDT);
   myTree->Branch("daughters_iseleWPLoose",&_daughters_iseleWPLoose);
   myTree->Branch("daughters_iseleWP80",&_daughters_iseleWP80);
   myTree->Branch("daughters_iseleWP90",&_daughters_iseleWP90);
@@ -3022,7 +3022,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
 
     // variables
-    float discr=-1.;
+    //float discr=-1.;
     int muIDflag = 0;
     bool isgood = false;
     bool iseleLoose = false;
@@ -3071,7 +3071,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     if(type==ParticleType::MUON){	
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
-      discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
+      //discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
       if(userdatahelpers::getUserFloat(cand,"isPFMuon"))typeOfMuon |= 1 << 0;
       if(userdatahelpers::getUserFloat(cand,"isGlobalMuon"))typeOfMuon |= 1 << 1;
       if(userdatahelpers::getUserFloat(cand,"isTrackerMuon"))typeOfMuon |= 1 << 2;
@@ -3104,7 +3104,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       lepMVA_mvaId  = userdatahelpers::getUserFloat(cand,"segmentCompatibility");
 
     }else if(type==ParticleType::ELECTRON){
-      discr=userdatahelpers::getUserFloat(cand,"BDT");
+      //discr=userdatahelpers::getUserFloat(cand,"BDT");
       ieta=userdatahelpers::getUserFloat(cand,"sigmaIetaIeta");
       full5x5_ieta=userdatahelpers::getUserFloat(cand,"full5x5_sigmaIetaIeta");
       hOverE=userdatahelpers::getUserFloat(cand,"hOverE");
@@ -3115,15 +3115,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
       ScaleSmearCorr=userdatahelpers::getUserFloat(cand,"ScaleSmearCorr");
       if(userdatahelpers::getUserInt(cand,"isBDT") == 1)isgood=true;
-      if(userdatahelpers::getUserInt(cand,"isEleIDLoose") == 1) iseleLoose=true;
-      if(userdatahelpers::getUserInt(cand,"isEleID80") == 1) isele80=true;
-      if(userdatahelpers::getUserInt(cand,"isEleID90") == 1) isele90=true;
-      if(userdatahelpers::getUserInt(cand,"isEleNoIsoIDLoose") == 1) iselenoisoLoose=true;
-      if(userdatahelpers::getUserInt(cand,"isEleNoIsoID80") == 1) iselenoiso80=true;
-      if(userdatahelpers::getUserInt(cand,"isEleNoIsoID90") == 1) iselenoiso90=true;
-      elemva=(userdatahelpers::getUserFloat(cand,"eleMVAvalue"));
-      elemvanoiso=(userdatahelpers::getUserFloat(cand,"eleMVANoIsovalue"));
-      elemva_HZZ=(userdatahelpers::getUserFloat(cand,"HZZeleMVAvalue"));
+      if(userdatahelpers::getUserFloat(cand,"passMvaIsowpLooseId") == 1) iseleLoose=true;
+       if(userdatahelpers::getUserFloat(cand,"passMvaIsowp80Id") == 1) isele80=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvaIsowp90Id") == 1) isele90=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvanonIsowpLooseId") == 1) iselenoisoLoose=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvanonIsowp80Id") == 1) iselenoiso80=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvanonIsowp90Id") == 1) iselenoiso90=true;
+      elemva=(userdatahelpers::getUserFloat(cand,"mvaValue_Iso"));
+      elemvanoiso=(userdatahelpers::getUserFloat(cand,"mvaValue_noIso"));
+      elemva_HZZ=(userdatahelpers::getUserFloat(cand,"mvaValue_HZZ"));
+     
       if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true;
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       elemissinghits = userdatahelpers::getUserInt(cand,"missingHit");
@@ -3157,7 +3158,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       lepMVA_mvaId = elemvanoiso;
 
     }else if(type==ParticleType::TAU){
-      discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
+      //discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
       decayModeFindingOldDMs = userdatahelpers::getUserInt (cand, "decayModeFinding");
       decayModeFindingNewDMs = userdatahelpers::getUserInt (cand, "decayModeFindingNewDMs");
@@ -3205,7 +3206,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 	for(reco::CandidatePtrVector::const_iterator id=neCands.begin();id!=neCands.end(); ++id) neutralP4 += (*id)->p4();
       }
     }
-    _discriminator.push_back(discr);
+    //_discriminator.push_back(discr);
     _daughters_typeOfMuon.push_back(typeOfMuon);
     _daughters_muonID.push_back(muIDflag);
     _daughters_tauID.push_back(tauIDflag);

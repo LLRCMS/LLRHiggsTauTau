@@ -53,15 +53,20 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    if YEAR==2016: process.GlobalTag.globaltag = '102X_mcRun2_asymptotic_v6'
-    #if YEAR==2016: process.GlobalTag.globaltag = '94X_mcRun2_asymptotic_v3'
-    elif YEAR==2017: process.GlobalTag.globaltag = '102X_mc2017_realistic_v6'
-    #elif YEAR==2017: process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'
-    elif YEAR==2018: process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v12'
+    if (YEAR == 2016): 
+	process.GlobalTag.globaltag = '102X_mcRun2_asymptotic_v6'
+    if (YEAR == 2017): 
+	process.GlobalTag.globaltag = '102X_mc2017_realistic_v6'
+    if (YEAR == 2018): 
+	process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v12'
 else :
-    if YEAR==2016: process.GlobalTag.globaltag = '94X_dataRun2_v10'
-    elif YEAR==2017: process.GlobalTag.globaltag = '94X_dataRun2_v11'
-    elif YEAR==2018: process.GlobalTag.globaltag = '102X_dataRun2_Sep2018Rereco_v1'
+    if (YEAR == 2016): 
+	process.GlobalTag.globaltag = '94X_dataRun2_v10'
+    if (YEAR == 2017): 
+	process.GlobalTag.globaltag = '94X_dataRun2_v11'
+    if (YEAR == 2018): 
+	process.GlobalTag.globaltag = '102X_dataRun2_Sep2018Rereco_v1'
+
 print "GT: ",process.GlobalTag.globaltag
 
 nanosec="25"
@@ -202,9 +207,10 @@ process.noBadGlobalMuons = cms.Sequence(process.cloneGlobalMuonTagger + process.
 # mu isolation from nanoAOD
 # different EA for the different years
 # https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/python/electrons_cff.py#L114-L120
-if YEAR==2016:
+if (YEAR == 2016):
         eafileminiisomu = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"
-elif YEAR == 2017 or YEAR == 2018:
+
+if (YEAR == 2017 or YEAR == 2018):
         eafileminiisomu = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"
 
 process.isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
@@ -262,26 +268,32 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
 # Define which electron IDs we want to produce
-my_id_modules =[
-    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',   #Spring16
-    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',   #Spring16 HZZ
-    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',     #Fall17 V1 iso
-    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',   #Fall17 V1 noIso
-    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',     #Fall17 V2 iso
-    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff',   #Fall17 V2 noIso
-    ] 
+#my_id_modules =[
+#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',   #Spring16
+#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',   #Spring16 HZZ
+#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',     #Fall17 V1 iso
+#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',   #Fall17 V1 noIso
+#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',     #Fall17 V2 iso
+#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff',   #Fall17 V2 noIso
+#    ] 
 
 # Add them to the VID producer
-for idmod in my_id_modules:
-    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+#for idmod in my_id_modules:
+#    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
 
 #electron scale/smear
+#process.selectedSlimmedElectrons = cms.EDFilter("PATElectronSelector",
+#    src = cms.InputTag("slimmedElectrons"),
+#    cut = cms.string("pt>5 && abs(eta)<2.5")
+#)
 
 if (YEAR == 2016):
    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
    setupEgammaPostRecoSeq(process,
-                          runEnergyCorrections=True,
+                          applyEnergyCorrections=False,
+                          applyVIDOnCorrectedEgamma=False,
+                          runEnergyCorrections=False,
                           runVID=True,
                           era='2016-Legacy')
 
@@ -304,12 +316,12 @@ if (YEAR == 2018):
 # https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/python/electrons_cff.py#L114-L120
 
 if (YEAR==2016):
-        eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"
-        eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+   eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"
+   eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
 
 if (YEAR == 2017 or YEAR == 2018):
-        eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
-        eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+   eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+   eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
 
 process.isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     src = cms.InputTag("slimmedElectrons"),
@@ -327,8 +339,14 @@ process.ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
 
+#process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
+#   src = cms.InputTag("selectedSlimmedElectrons"),
+#   cut = cms.string("") #move pt>7 && abs(eta)<2.5 cut to softElectrons so that smear/scale corrections are done before the pT cut
+#)
+
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
+   #src    = cms.InputTag("bareSoftElectrons"),
    rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
    vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
    genCollection = cms.InputTag("prunedGenParticles"),
@@ -343,28 +361,18 @@ process.softElectrons = cms.EDProducer("EleFiller",
    sampleType = cms.int32(LEPTON_SETUP),          
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
    lep_setup = cms.int32(LEPTON_SETUP_LEGACY),
-
-   #MVA ELE ID
-   eleLooseIdMap  = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpLoose"),
-   eleMediumIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp90"),
-   eleTightIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp80"),
-   eleLooseNoIsoIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wpLoose"),
-   eleMediumNoIsoIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp90"),
-   eleTightNoIsoIdMap = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp80"),
-   mvaValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),
-   mvaNoIsoValuesMap     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Values"),
-   mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Categories"),
-   mvaNoIsoCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Categories"),
-   HZZmvaValuesMap  = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
    cut = cms.string(ELECUT),
    flags = cms.PSet(
         ID = cms.string("userInt('isBDT')"), # BDT MVA ID
         isGood = cms.string("")
         )
+
    )
 
 
-process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.egmGsfElectronIDSequence * process.softElectrons)
+process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.softElectrons)
+
+#process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.selectedSlimmedElectrons + process.bareSoftElectrons + process.softElectrons)
 
 ### ----------------------------------------------------------------------
 ### Lepton Cleaning (clean electrons collection from muons)

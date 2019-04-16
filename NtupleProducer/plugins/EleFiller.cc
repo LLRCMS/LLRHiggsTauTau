@@ -75,22 +75,6 @@ class EleFiller : public edm::EDProducer {
   const CutSet<pat::Electron> flags;
   //EGammaMvaEleEstimatorCSA14* myMVATrig;
   edm::EDGetTokenT<edm::View<pat::Electron> > electronCollectionToken_;
-  //2015 stuff
-  /*edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken_;*/
-  edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseNoIsoIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumNoIsoIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<bool> > eleTightNoIsoIdMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > mvaNoIsoValuesMapToken_;
-  edm::EDGetTokenT<edm::ValueMap<int> > mvaCategoriesMapToken_;//*******
-  edm::EDGetTokenT<edm::ValueMap<int> > mvaNoIsoCategoriesMapToken_;//*******
-  edm::EDGetTokenT<edm::ValueMap<float> > HZZmvaValuesMapToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > miniRelIsoChargedNanoAODToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > miniRelIsoAllNanoAODToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > PFRelIsoChargedNanoAODToken_;
@@ -107,6 +91,7 @@ class EleFiller : public edm::EDProducer {
 EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   //theCandidateTag(iConfig.getParameter<InputTag>("src")),
   theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
+  //std::cout<<"here1"<<endl;
   theRhoTag(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoCollection"))),
   theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
   sampleType(iConfig.getParameter<int>("sampleType")),
@@ -116,21 +101,6 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   flags(iConfig.getParameter<ParameterSet>("flags")),//,
   //myMVATrig(0),
   electronCollectionToken_(consumes<edm::View<pat::Electron> >(iConfig.getParameter<edm::InputTag>("src"))),
-  /*electronVetoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronVetoIdMap"))),
-  electronLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronLooseIdMap"))),
-  electronMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronMediumIdMap"))),
-  electronTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronTightIdMap"))),*/
-  eleLooseIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleLooseIdMap"))),
-  eleMediumIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumIdMap"))),
-  eleTightIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightIdMap"))),
-  eleLooseNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleLooseNoIsoIdMap"))),
-  eleMediumNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleMediumNoIsoIdMap"))),
-  eleTightNoIsoIdMapToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("eleTightNoIsoIdMap"))),
-  mvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaValuesMap"))),
-  mvaNoIsoValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mvaNoIsoValuesMap"))),
-  mvaCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaCategoriesMap"))),
-  mvaNoIsoCategoriesMapToken_(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("mvaNoIsoCategoriesMap"))),
-  HZZmvaValuesMapToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("HZZmvaValuesMap"))), 
   miniRelIsoChargedNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoChgCollection"))),
   miniRelIsoAllNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("miniRelIsoAllCollection"))),
   PFRelIsoChargedNanoAODToken_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PFRelIsoChgCollection"))),
@@ -185,41 +155,6 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   edm::Handle<vector<Vertex> >  vertexs;
   //iEvent.getByLabel("offlineSlimmedPrimaryVertices",vertexs);
   iEvent.getByToken(theVtxTag,vertexs);
-  
-  //2015 stuff
-  /*edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
-  edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
-  edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
-  edm::Handle<edm::ValueMap<bool> > tight_id_decisions;*/
-  /*iEvent.getByToken(electronVetoIdMapToken_,veto_id_decisions);
-  iEvent.getByToken(electronLooseIdMapToken_,loose_id_decisions);
-  iEvent.getByToken(electronMediumIdMapToken_,medium_id_decisions);
-  iEvent.getByToken(electronTightIdMapToken_,tight_id_decisions);*/
-
-//*********************
-  //Handle<edm::View<reco::GenParticle> > genParticles;
-  edm::Handle<edm::ValueMap<bool> > loose_id_decisions2;
-  edm::Handle<edm::ValueMap<bool> > medium_id_decisions2;
-  edm::Handle<edm::ValueMap<bool> > tight_id_decisions2; 
-  iEvent.getByToken(eleLooseIdMapToken_,loose_id_decisions2);
-  iEvent.getByToken(eleMediumIdMapToken_,medium_id_decisions2);
-  iEvent.getByToken(eleTightIdMapToken_,tight_id_decisions2);
-  edm::Handle<edm::ValueMap<bool> > loose_id_decisions3;
-  edm::Handle<edm::ValueMap<bool> > medium_id_decisions3;
-  edm::Handle<edm::ValueMap<bool> > tight_id_decisions3;
-  iEvent.getByToken(eleLooseNoIsoIdMapToken_,loose_id_decisions3);
-  iEvent.getByToken(eleMediumNoIsoIdMapToken_,medium_id_decisions3);
-  iEvent.getByToken(eleTightNoIsoIdMapToken_,tight_id_decisions3);
-  edm::Handle<edm::ValueMap<float> > mvaValues;
-  edm::Handle<edm::ValueMap<float> > mvaNoIsoValues;
-  edm::Handle<edm::ValueMap<int> > mvaCategories;
-  edm::Handle<edm::ValueMap<int> > mvaNoIsoCategories;
-  iEvent.getByToken(mvaValuesMapToken_,mvaValues);
-  iEvent.getByToken(mvaNoIsoValuesMapToken_,mvaNoIsoValues);
-  iEvent.getByToken(mvaCategoriesMapToken_,mvaCategories);
-  iEvent.getByToken(mvaNoIsoCategoriesMapToken_,mvaNoIsoCategories);
-  edm::Handle<edm::ValueMap<float> > HZZmvaValues;
-  iEvent.getByToken(HZZmvaValuesMapToken_,HZZmvaValues);
   
   edm::Handle<edm::ValueMap<float> > miniRelIsoChg_2;
   edm::Handle<edm::ValueMap<float> > miniRelIsoAll_2;
@@ -283,6 +218,27 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 
     float rel_error_trackpt = l.gsfTrack()->ptError()/l.gsfTrack()->pt();   
 
+    /*bool passVetoId = l.userInt("cutBasedElectronID-Fall17-94X-V2-veto");
+    bool passLooseId = l.userInt("cutBasedElectronID-Fall17-94X-V2-loose");
+    bool passMediumId = l.userInt("cutBasedElectronID-Fall17-94X-V2-medium");
+    bool passTightId = l.userInt("cutBasedElectronID-Fall17-94X-V2-tight");*/
+    
+    bool passMvaIsowp80Id = l.electronID("mvaEleID-Fall17-iso-V2-wp80");
+    bool passMvanonIsowp80Id = l.electronID("mvaEleID-Fall17-noIso-V2-wp80");
+    bool passMvaIsowp90Id = l.electronID("mvaEleID-Fall17-iso-V2-wp90");
+    bool passMvanonIsowp90Id = l.electronID("mvaEleID-Fall17-noIso-V2-wp90");
+    bool passMvaIsowpLooseId = l.electronID("mvaEleID-Fall17-iso-V2-wpLoose");
+    bool passMvanonIsowpLooseId = l.electronID("mvaEleID-Fall17-noIso-V2-wpLoose");
+ 
+    float mvaValue_Iso = l.userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values");
+    float mvaValue_noIso = l.userFloat("ElectronMVAEstimatorRun2Fall17NoIsoV2Values");
+    float mvaCategory_Iso = l.userInt("ElectronMVAEstimatorRun2Fall17IsoV2Categories");
+    float mvaCategory_noIso = l.userInt("ElectronMVAEstimatorRun2Fall17NoIsoV2Categories");
+
+    bool passMvaHZZwpLooseId = l.electronID("mvaEleID-Spring16-HZZ-V1-wpLoose");
+    float mvaValue_HZZ = l.userFloat("ElectronMVAEstimatorRun2Spring16HZZV1Values");
+    float mvaCategory_HZZ = l.userInt("ElectronMVAEstimatorRun2Spring16HZZV1Categories");
+
     bool isconversionveto=l.passConversionVeto();
     
     //-- Missing hit  
@@ -312,6 +268,19 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("SIP",SIP);
     l.addUserFloat("dxy",dxy);
     l.addUserFloat("dz",dz);
+    l.addUserFloat("passMvaIsowp80Id",passMvaIsowp80Id);
+    l.addUserFloat("passMvanonIsowp80Id",passMvanonIsowp80Id);
+    l.addUserFloat("passMvaIsowp90Id",passMvaIsowp90Id);
+    l.addUserFloat("passMvanonIsowp90Id",passMvanonIsowp90Id);
+    l.addUserFloat("passMvaIsowpLooseId",passMvaIsowpLooseId);
+    l.addUserFloat("passMvanonIsowpLooseId",passMvanonIsowpLooseId);
+    l.addUserFloat("mvaValue_Iso",mvaValue_Iso);
+    l.addUserFloat("mvaValue_noIso",mvaValue_noIso);
+    l.addUserInt("mvaCategory_Iso",mvaCategory_Iso);
+    l.addUserInt("mvaCategory_noIso",mvaCategory_noIso);
+    l.addUserFloat("passMvaHZZwpLooseId",passMvaHZZwpLooseId);
+    l.addUserFloat("mvaValue_HZZ",mvaValue_HZZ);
+    l.addUserInt("mvaCategory_HZZ",mvaCategory_HZZ);
     l.addUserFloat("rel_error_trackpt",rel_error_trackpt);
     l.addUserInt("isConversionVeto",(isconversionveto ? 1 : 0));
     //l.addUserFloat("HLTMatch", HLTMatch);
@@ -330,34 +299,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("ScaleSmearCorr",ScaleSmearCorr);
     l.addUserInt("isEB", int(l.isEB()));
     const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
-    //2015 stuff
-    /*int eleCUT=0;
-    if((*veto_id_decisions)[ elPtr ])eleCUT |= 1 << 0;
-    if((*loose_id_decisions)[ elPtr ])eleCUT |= 1 << 1;
-    if((*medium_id_decisions)[ elPtr ])eleCUT |= 1 << 2;
-    if((*tight_id_decisions)[ elPtr ])eleCUT |= 1 << 3;
-    l.addUserInt("isCUT",eleCUT);*/
-
-    int isEleIDLoose = (*loose_id_decisions2)[ele];
-    int isEleID90 = (*medium_id_decisions2)[ele];
-    int isEleID80  = (*tight_id_decisions2)[ele];
-    int isEleNoIsoIDLoose = (*loose_id_decisions3)[ele];
-    int isEleNoIsoID90 = (*medium_id_decisions3)[ele];
-    int isEleNoIsoID80 = (*tight_id_decisions3)[ele];
-    //std::cout<<(*medium_id_decisions2)[ele]<<isEleID90<<endl;
-    float eleMVAvalue=(*mvaValues)[ele];
-    float eleMVANoIsovalue=(*mvaNoIsoValues)[ele];
-    l.addUserInt("isEleIDLoose",isEleIDLoose);
-    l.addUserInt("isEleID80",isEleID80);
-    l.addUserInt("isEleID90",isEleID90);
-    l.addUserInt("isEleNoIsoIDLoose",isEleNoIsoIDLoose);
-    l.addUserInt("isEleNoIsoID80",isEleNoIsoID80);
-    l.addUserInt("isEleNoIsoID90",isEleNoIsoID90);
-    l.addUserFloat("eleMVAvalue",eleMVAvalue);
-    l.addUserFloat("eleMVANoIsovalue",eleMVANoIsovalue);
-    l.addUserFloat("BDT",eleMVAvalue); //I know, it's duplicated, but I don't want to change to change all the downstream code...
-    float HZZeleMVAvalue=(*HZZmvaValues)[ele];
-    l.addUserFloat("HZZeleMVAvalue",HZZeleMVAvalue);
+    float eleMVAvalue = mvaValue_Iso;
     bool isBDT = false;
     float afSCeta = fabs(fSCeta);
     if(afSCeta < 2.4){
