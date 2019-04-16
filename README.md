@@ -392,8 +392,13 @@ cmsrel CMSSW_10_2_10
 cd CMSSW_10_2_10/src/
 cmsenv
 
-# electron scale/smearing corrections
 git cms-init
+
+# set merge limit variable
+git config merge.renameLimit 999999
+
+# electron scale/smearing corrections
+# https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#2018_Preliminary_Energy_Correcti
 git cms-merge-topic cms-egamma:EgammaPostRecoTools
 scram b -j 8
 
@@ -404,16 +409,22 @@ cd -
 git cms-merge-topic cms-egamma:EgammaPostRecoTools_dev
 scram b -j 8
 
-# MET/prefiring
+# MET filters
 git cms-init
-git cms-merge-topic lathomas:L1Prefiring_10_2_6                         # only if 2016 MC or 2017 MC
 git cms-addpkg RecoMET/METFilters                                       # only if 2017 data/MC or 2018 data/MC
+scram b -j 8
+
+# MET corrections with EE nosie fix
 git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X        # only if 2017 data/MC
+scram b -j 8
+
+# L1 Prefiring
+git cms-merge-topic lathomas:L1Prefiring_10_2_6                         # only if 2016 MC or 2017 MC
 scram b -j 8
 
 # Jets DeepFlavour
 git cms-addpkg RecoBTag/TensorFlow
-git cherry-pick 94ceae257f846998c357fcad408986cc8a039152 # not sure this is necesary in 102X
+git cherry-pick 94ceae257f846998c357fcad408986cc8a039152                # not sure this is necesary in 102X
 scram b -j 8
 
 # Z-recoil corrections
