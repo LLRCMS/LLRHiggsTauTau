@@ -388,30 +388,64 @@ scram b -j 8
 ### Instructions for 102X_ttH
 
 ```
-cmsrel CMSSW_10_2_9
-cd CMSSW_10_2_9/src/
+cmsrel CMSSW_10_2_10
+cd CMSSW_10_2_10/src/
 cmsenv
 
-# MET/prefiring
 git cms-init
-git cms-merge-topic lathomas:L1Prefiring_10_2_6                         # only if 2016 MC or 2017 MC
+
+# set merge limit variable
+git config merge.renameLimit 999999
+
+# electron scale/smearing corrections
+# https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#2018_Preliminary_Energy_Correcti
+git cms-merge-topic cms-egamma:EgammaPostRecoTools
+scram b -j 8
+
+git clone git@github.com:cms-egamma/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
+cd EgammaAnalysis/ElectronTools/data
+git checkout ScalesSmearing2018_Dev
+cd -
+git cms-merge-topic cms-egamma:EgammaPostRecoTools_dev
+scram b -j 8
+
+# MET filters
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
+git cms-init
 git cms-addpkg RecoMET/METFilters                                       # only if 2017 data/MC or 2018 data/MC
+scram b -j 8
+
+# MET corrections with EE nosie fix
+# https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription#Instructions_for_9_4_X_X_9_for_2
 git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X        # only if 2017 data/MC
+scram b -j 8
+
+# L1 Prefiring
+git cms-merge-topic lathomas:L1Prefiring_10_2_6                         # only if 2016 MC or 2017 MC
+scram b -j 8
+
+# Jets DeepFlavour
+git cms-addpkg RecoBTag/TensorFlow
+git cherry-pick 94ceae257f846998c357fcad408986cc8a039152                # not sure this is necesary in 102X
+scram b -j 8
 
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
+scram b -j 8
 
 # Muon effective area
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
 cd Muon/MuonAnalysisTools
 git checkout master -- interface/MuonEffectiveArea.h
 cd -
+scram b -j 8
 
 # Electron effective area
 git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
 cd EGamma/EGammaAnalysisTools
 git checkout c0db796 -- interface/ElectronEffectiveArea.h
 cd -
+scram b -j 8
 
 # FSR corrections
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
@@ -422,6 +456,7 @@ git checkout master FSRPhotons
 # replace 'std::auto_ptr' with 'std::unique_ptr' 
 # search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
 cd -
+scram b -j 8
 
 # SVfit
 git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
@@ -432,12 +467,14 @@ git checkout HIG-16-006
 # need to fix: ./src/SVfitStandaloneQuantities.cc 
 # add '#include <numeric>'
 cd -
+scram b -j 8
 
 # LLRHiggsTauTau framework
 git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau
 git checkout 102X_ttH
 cd -
+scram b -j 8
 
 cd $CMSSW_BASE/src
 scram b -j 8
