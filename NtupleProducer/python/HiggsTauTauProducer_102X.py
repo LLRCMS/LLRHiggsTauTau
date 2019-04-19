@@ -317,7 +317,7 @@ if (YEAR == 2018):
 
 if (YEAR==2016):
    eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt"
-   eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
+   eafilepfisoele = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt"
 
 if (YEAR == 2017 or YEAR == 2018):
    eafileminiisoele = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
@@ -370,7 +370,8 @@ process.softElectrons = cms.EDProducer("EleFiller",
    )
 
 
-process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.softElectrons)
+#process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.softElectrons)
+process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.egmGsfElectronIDSequence * process.softElectrons)
 
 #process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.selectedSlimmedElectrons + process.bareSoftElectrons + process.softElectrons)
 
