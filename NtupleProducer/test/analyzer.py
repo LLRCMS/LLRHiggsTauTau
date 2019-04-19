@@ -49,7 +49,7 @@ if not IsMC:
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
 PVERTEXCUT="!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2" #cut on good primary vertexes
 MUCUT="isLooseMuon && pt>5"
-ELECUT="pt>7"#"pt>7"#"gsfTracsk.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
+ELECUT="pt>5"#"pt>7"#"gsfTracsk.hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS)<=1 && pt>10"
 TAUCUT="tauID('byCombinedIsolationDeltaBetaCorrRaw3Hits') < 1000.0 && pt>18"
 JETCUT="pt>0" # was 10, is now 0 to save all the jets and be able to copute JEC MET in KLUB
 LLCUT="mass>-99999"
@@ -89,10 +89,10 @@ process.source = cms.Source("PoolSource",
     '/store/mc/RunIISummer16MiniAODv3/ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v2/120000/F24F2D5E-DDEC-E811-AF50-90B11C08AD7D.root',
  
     #2017 ttH
-    #'/store/mc/RunIIFall17MiniAODv2/ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/70000/F8E7EC91-9742-E811-93FA-001E67792566.root',
+    #'/store/mc/RunIIFall17MiniAODv2/ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/100000/7C60AC2B-E76F-E811-9D60-0025905B860C.root',
 
     #2018 ttH 
-    #'/store/mc/RunIIAutumn18MiniAOD/ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/270000/D8E3ED46-5E4A-5F4D-808D-F2B1D66201E9.root',
+    #'/store/mc/RunIIAutumn18MiniAOD/ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/270000/A912BBFA-D1A1-8544-A430-8C98C0767737.root',
 
     )
 )
@@ -101,7 +101,8 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 10000
+process.maxEvents.input = 100
+#process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
