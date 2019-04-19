@@ -267,21 +267,6 @@ dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
-# Define which electron IDs we want to produce
-#my_id_modules =[
-#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',   #Spring16
-#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',   #Spring16 HZZ
-#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',     #Fall17 V1 iso
-#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',   #Fall17 V1 noIso
-#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',     #Fall17 V2 iso
-#    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff',   #Fall17 V2 noIso
-#    ] 
-
-# Add them to the VID producer
-#for idmod in my_id_modules:
-#    setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
-
 #electron scale/smear
 #process.selectedSlimmedElectrons = cms.EDFilter("PATElectronSelector",
 #    src = cms.InputTag("slimmedElectrons"),
