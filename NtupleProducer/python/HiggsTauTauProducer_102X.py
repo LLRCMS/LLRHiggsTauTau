@@ -267,11 +267,7 @@ dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
-#electron scale/smear
-#process.selectedSlimmedElectrons = cms.EDFilter("PATElectronSelector",
-#    src = cms.InputTag("slimmedElectrons"),
-#    cut = cms.string("pt>5 && abs(eta)<2.5")
-#)
+#electron scale/smear corrections
 
 if (YEAR == 2016):
    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
@@ -285,15 +281,17 @@ if (YEAR == 2016):
 if (YEAR == 2017):
    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
    setupEgammaPostRecoSeq(process,
-                          runEnergyCorrections=True,
+			  applyEnergyCorrections=False,
+			  applyVIDOnCorrectedEgamma=False,
                           runVID=True,
                           era='2017-Nov17ReReco')
 
 if (YEAR == 2018):
    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
    setupEgammaPostRecoSeq(process,
-                          runEnergyCorrections=True,
-                          runVID=True,
+			  applyEnergyCorrections=False,
+			  applyVIDOnCorrectedEgamma=False,
+			  runVID=True, 
 			  era='2018-Prompt')
 
 # ele iso from nanoAOD
@@ -324,14 +322,8 @@ process.ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
 
-#process.bareSoftElectrons = cms.EDFilter("PATElectronRefSelector",
-#   src = cms.InputTag("selectedSlimmedElectrons"),
-#   cut = cms.string("") #move pt>7 && abs(eta)<2.5 cut to softElectrons so that smear/scale corrections are done before the pT cut
-#)
-
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
-   #src    = cms.InputTag("bareSoftElectrons"),
    rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
    vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
    genCollection = cms.InputTag("prunedGenParticles"),
@@ -351,14 +343,11 @@ process.softElectrons = cms.EDProducer("EleFiller",
         ID = cms.string("userInt('isBDT')"), # BDT MVA ID
         isGood = cms.string("")
         )
-
    )
 
 
 #process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.softElectrons)
 process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.egmGsfElectronIDSequence * process.softElectrons)
-
-#process.electrons = cms.Sequence(process.egammaPostRecoSeq + process.isoForEle + process.ptRatioRelForEle + process.selectedSlimmedElectrons + process.bareSoftElectrons + process.softElectrons)
 
 ### ----------------------------------------------------------------------
 ### Lepton Cleaning (clean electrons collection from muons)
@@ -398,7 +387,6 @@ na.runTauID()
 
 # old sequence starts here
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
-   #src = cms.InputTag("slimmedTaus"),
    src = cms.InputTag("NewTauIDsEmbedded"),
    cut = cms.string(TAUCUT),
    )
@@ -406,7 +394,6 @@ process.bareTaus = cms.EDFilter("PATTauRefSelector",
 ##NOT USED FOR NOW, TBD Later
 process.cleanTaus = cms.EDProducer("PATTauCleaner",
     src = cms.InputTag("bareTaus"),
-    # preselection (any string-based cut on pat::Tau)
     preselection = cms.string(
             'tauID("decayModeFinding") > 0.5 &'
             ' tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5 &'
@@ -510,7 +497,6 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
     src = cms.VInputTag(cms.InputTag(muString), cms.InputTag(eleString),cms.InputTag(tauString))
 )
 
-
 ### ----------------------------------------------------------------------
 ### Jets
 ### ----------------------------------------------------------------------
@@ -557,11 +543,6 @@ updateJetCollection(
       ],
    postfix='NewDFTraining'
 )
-
-#process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
-#process.updatedPatJetsUpdatedJEC.userData.userInts.src    += ['pileupJetIdUpdated:fullId']
-#process.jecSequence = cms.Sequence(process.pileupJetIdUpdated + process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
-#process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
 
 jetsNameAK4="selectedUpdatedPatJetsNewDFTraining"
 
@@ -734,11 +715,6 @@ else:
     process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
 
 
-# ## always compute met significance
-# process.load("RecoMET.METProducers.METSignificance_cfi")
-# process.load("RecoMET.METProducers.METSignificanceParams_cfi")
-# process.METSequence += cms.Sequence(process.METSignificance)
-
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
 ## ----------------------------------------------------------------------
@@ -774,6 +750,7 @@ else:
 ## ----------------------------------------------------------------------
 ## SV fit
 ## ----------------------------------------------------------------------
+
 if USECLASSICSVFIT:
     print "Using CLASSIC_SV_FIT"
     process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
@@ -803,6 +780,7 @@ else:
 ## ----------------------------------------------------------------------
 ## SV fit BYPASS (skip SVfit, don't compute SVfit pair mass)
 ## ----------------------------------------------------------------------
+
 process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcPairs   = cms.InputTag("barellCand"),
                                     usePairMET = cms.bool(USEPAIRMET),
@@ -821,6 +799,7 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
 ## Ntuplizer
 ## ----------------------------------------------------------------------
 
+#this is just for isolation computer in the LeptonIsoHelper, we use nanoAOD module now
 if (YEAR==2016):
 	rhocol = "fixedGridRhoFastjetCentralNeutral"
 
@@ -837,14 +816,11 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       secVtxCollection = cms.InputTag("slimmedSecondaryVertices"), # FRA
                       puCollection = cms.InputTag("slimmedAddPileupInfo"),
                       rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
-                      #rhoMiniRelIsoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
                       rhoMiniRelIsoCollection = cms.InputTag(rhocol), #for non-nanoAOD
                       rhoForJER = cms.InputTag("fixedGridRhoAll"), # FRA
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag(jetsNameAK4),
-                      #JECset = cms.untracked.string("patJetCorrFactors"),
                       JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedNewDFTraining"),
-                      #JECset = cms.untracked.string("patJetCorrFactorsNewDFTraining"),
                       computeQGVar = cms.bool(COMPUTEQGVAR),
                       QGTagger = cms.InputTag("QGTagger", "qgLikelihood"),
                       stage2TauCollection = cms.InputTag("caloStage2Digis","Tau"),
@@ -859,14 +835,12 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       passCollection = cms.InputTag("nEventsPassTrigger"),
                       lhepCollection = cms.InputTag("externalLHEProducer"),
                       triggerResultsLabel = cms.InputTag("TriggerResults", "", HLTProcessName), #Different names for MiniAODv2 at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.                      
-                      #triggerSet = cms.InputTag("selectedPatTrigger"), # FRA
                       triggerSet = cms.InputTag("slimmedPatTrigger"),    # FRA
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
                       PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
                       srcPFMETCov = cms.InputTag("METSignificance", "METCovariance"),
                       srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
-                      #l1extraIsoTau = cms.InputTag("l1extraParticles", "IsoTau"),
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       nBadMu = cms.InputTag("removeBadAndCloneGlobalMuons"),
@@ -906,12 +880,8 @@ process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
     process.egammaPostRecoSeq  +
-    # process.printTree         + # just for debug, print MC particles
     process.nEventsTotal       +
-    #process.hltFilter         + 
     process.nEventsPassTrigger +
-    #process.egammaPostRecoSeq  +
-    #process.jecSequence + 
     process.patJetCorrFactorsNewDFTraining+
     process.updatedPatJetsNewDFTraining+
     process.pfImpactParameterTagInfosNewDFTraining+
@@ -922,17 +892,12 @@ process.Candidates = cms.Sequence(
     process.patJetCorrFactorsTransientCorrectedNewDFTraining+
     process.updatedPatJetsTransientCorrectedNewDFTraining+
     process.selectedUpdatedPatJetsNewDFTraining+
-    #process.jecSequence+
     process.jetSequence + #process.jets + 
     process.muons              +
-    #process.egammaPostRecoSeq  +
     process.electrons          + process.cleanSoftElectrons +
-    #process.egammaPostRecoSeq  +
     process.taus               +
     process.fsrSequence        +
     process.softLeptons        + process.barellCand +
-    #process.jets              +
-    #process.jecSequence + process.jetSequence + #process.jets + 
     process.METSequence        +
     process.geninfo            +
     process.SVFit

@@ -91,7 +91,6 @@ class EleFiller : public edm::EDProducer {
 EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
   //theCandidateTag(iConfig.getParameter<InputTag>("src")),
   theGenTag(consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genCollection"))),
-  //std::cout<<"here1"<<endl;
   theRhoTag(consumes<double>(iConfig.getParameter<edm::InputTag>("rhoCollection"))),
   theVtxTag(consumes<vector<Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"))),
   sampleType(iConfig.getParameter<int>("sampleType")),
@@ -112,39 +111,14 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
  
  //****************
   //bdt(0)
-{/*
-  //if (recomputeBDT) bdt = new BDTId;
-  //Recompute BDT
-  std::vector<std::string> myManualCatWeigths;
-  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EB1_5_oldscenario2phys14FIX_BDT.weights.xml");
-  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EB2_5_oldscenario2phys14FIX_BDT.weights.xml");
-  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EE_5_oldscenario2phys14FIX_BDT.weights.xml");
-  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EB1_10_oldscenario2phys14FIX_BDT.weights.xml");
-  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EB2_10_oldscenario2phys14FIX_BDT.weights.xml");
-  myManualCatWeigths.push_back("EgammaAnalysis/ElectronTools/data/PHYS14FIX/EIDmva_EE_10_oldscenario2phys14FIX_BDT.weights.xml");
-
-  vector<string> myManualCatWeigthsTrig;
-  string the_path;
-  for (unsigned i = 0 ; i < myManualCatWeigths.size() ; i++){
-    the_path = edm::FileInPath ( myManualCatWeigths[i] ).fullPath();
-    myManualCatWeigthsTrig.push_back(the_path);
-  }
-  myMVATrig = new EGammaMvaEleEstimatorCSA14();
-  myMVATrig->initialize("BDT",
-	  EGammaMvaEleEstimatorCSA14::kNonTrigPhys14,
-	  true,
-	  myManualCatWeigthsTrig);
-  */
+{
+  
   produces<pat::ElectronCollection>();
 }
 
   void EleFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   {  
-  // Get leptons and rho
-  //edm::Handle<pat::ElectronRefVector> electronHandle;
-  //iEvent.getByLabel(theCandidateTag, electronHandle);
   edm::Handle<edm::View<pat::Electron> > electrons;
-  //edm::Handle<edm::View<reco::GsfElectron> > electrons;
   iEvent.getByToken(electronCollectionToken_, electrons);
 
   //InputTag theRhoTag = LeptonIsoHelper::getEleRhoTag(sampleType,setup);
@@ -255,9 +229,12 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
       IoEmIoP_ttH = (1.0/l.ecalEnergy() - l.eSuperClusterOverP()/l.ecalEnergy());
 
     //--- scale and smearing corrections
-    float ScaleSmearCorr = 1;
-    if(l.energy()!=0) 
-      ScaleSmearCorr = l.userFloat("ecalTrkEnergyPostCorr")/l.energy();
+    float corr_ele_ecalTrkEnergyPostCorr = l.userFloat("ecalTrkEnergyPostCorr");
+    float corr_ele_ecalTrkEnergyPreCorr = l.userFloat("ecalTrkEnergyPreCorr");
+    float corr_ele = corr_ele_ecalTrkEnergyPostCorr/corr_ele_ecalTrkEnergyPreCorr; 
+    float pt_corr = corr_ele*(l.pt());
+    float E_corr = corr_ele*(l.energy());
+    //std::cout<<"Eta "<<l.eta()<<",post: "<<corr_ele_ecalTrkEnergyPostCorr<<",pre: "<<corr_ele_ecalTrkEnergyPreCorr<<", corr_ele "<<corr_ele<<",pt_corr "<<pt_corr<<std::endl;
 
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
@@ -296,7 +273,11 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("IoEmIoP",(1.0/l.ecalEnergy())-(1.0/l.p()));
     l.addUserFloat("IoEmIoP_ttH",IoEmIoP_ttH);
     l.addUserFloat("SCeta", fSCeta);
-    l.addUserFloat("ScaleSmearCorr",ScaleSmearCorr);
+    l.addUserFloat("corr_ele_ecalTrkEnergyPostCorr",corr_ele_ecalTrkEnergyPostCorr);
+    l.addUserFloat("corr_ele_ecalTrkEnergyPreCorr",corr_ele_ecalTrkEnergyPreCorr);
+    l.addUserFloat("corr_ele",corr_ele);
+    l.addUserFloat("pt_corr",pt_corr);
+    l.addUserFloat("E_corr",E_corr);
     l.addUserInt("isEB", int(l.isEB()));
     const Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
     float eleMVAvalue = mvaValue_Iso;

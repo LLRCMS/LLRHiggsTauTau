@@ -546,7 +546,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_IoEmIoP;
   std::vector<Float_t> _daughters_IoEmIoP_ttH;
   std::vector<Float_t> _daughters_SCeta;
-  std::vector<Float_t> _daughters_ScaleSmearCorr;
+  std::vector<Float_t> _daughters_corr_ele_ecalTrkEnergyPostCorr;
+  std::vector<Float_t> _daughters_corr_ele_ecalTrkEnergyPreCorr;
+  std::vector<Float_t> _daughters_corr_ele;
+  std::vector<Float_t> _daughters_pt_corr;
+  std::vector<Float_t> _daughters_energy_corr;
   std::vector<Float_t> _daughters_depositR03_tracker;
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
@@ -962,7 +966,11 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_IoEmIoP.clear();
   _daughters_IoEmIoP_ttH.clear();
   _daughters_SCeta.clear();
-  _daughters_ScaleSmearCorr.clear();
+  _daughters_corr_ele_ecalTrkEnergyPostCorr.clear();
+  _daughters_corr_ele_ecalTrkEnergyPreCorr.clear();
+  _daughters_corr_ele.clear();
+  _daughters_pt_corr.clear();
+  _daughters_energy_corr.clear();
   _daughters_depositR03_tracker.clear();  
   _daughters_depositR03_ecal.clear();  
   _daughters_depositR03_hcal.clear();  
@@ -1416,7 +1424,12 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_pz",&_daughters_pz);
   myTree->Branch("daughters_e",&_daughters_e);
   myTree->Branch("daughters_charge",&_daughters_charge);
-  myTree->Branch("daughters_ScaleSmearCorr",&_daughters_ScaleSmearCorr);
+  myTree->Branch("daughters_corr_ele_ecalTrkEnergyPostCorr",&_daughters_corr_ele_ecalTrkEnergyPostCorr);
+  myTree->Branch("daughters_corr_ele_ecalTrkEnergyPreCorr",&_daughters_corr_ele_ecalTrkEnergyPreCorr);
+  myTree->Branch("daughters_corr_ele",&_daughters_corr_ele);
+  myTree->Branch("daughters_pt_corr",&_daughters_pt_corr);
+  myTree->Branch("daughters_energy_corr",&_daughters_energy_corr);
+
   if(doCPVariables){
     myTree->Branch("daughters_charged_px",&_daughters_charged_px);
     myTree->Branch("daughters_charged_py",&_daughters_charged_py);
@@ -3040,7 +3053,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     bool iselechargeconsistent=false;
 
     int decay=-1;
-    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.,ScaleSmearCorr=1.;
+    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1,SCeta=-999.;
+    float corr_ele_ecalTrkEnergyPostCorr=-999.,corr_ele_ecalTrkEnergyPreCorr=-999.,corr_ele=-999.,pt_corr=-999.,E_corr=-999;
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
@@ -3113,7 +3127,11 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       IoEmIoP=userdatahelpers::getUserFloat(cand,"IoEmIoP");
       IoEmIoP_ttH=userdatahelpers::getUserFloat(cand,"IoEmIoP_ttH");
       SCeta = userdatahelpers::getUserFloat(cand,"SCeta");
-      ScaleSmearCorr=userdatahelpers::getUserFloat(cand,"ScaleSmearCorr");
+      corr_ele_ecalTrkEnergyPostCorr=userdatahelpers::getUserFloat(cand,"corr_ele_ecalTrkEnergyPostCorr");
+      corr_ele_ecalTrkEnergyPreCorr=userdatahelpers::getUserFloat(cand,"corr_ele_ecalTrkEnergyPreCorr");
+      corr_ele=userdatahelpers::getUserFloat(cand,"corr_ele");
+      pt_corr=userdatahelpers::getUserFloat(cand,"pt_corr");
+      E_corr=userdatahelpers::getUserFloat(cand,"E_corr");
       if(userdatahelpers::getUserInt(cand,"isBDT") == 1)isgood=true;
       if(userdatahelpers::getUserFloat(cand,"passMvaIsowpLooseId") == 1) iseleLoose=true;
        if(userdatahelpers::getUserFloat(cand,"passMvaIsowp80Id") == 1) isele80=true;
@@ -3239,9 +3257,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_deltaPhiSuperClusterTrackAtVtx.push_back(phisuperatvtx);
     _daughters_IoEmIoP.push_back(IoEmIoP);
     _daughters_IoEmIoP_ttH.push_back(IoEmIoP_ttH);
-    _daughters_ScaleSmearCorr.push_back(ScaleSmearCorr);
     _daughters_SCeta.push_back(SCeta);
-    _daughters_ScaleSmearCorr.push_back(ScaleSmearCorr);
+    _daughters_corr_ele_ecalTrkEnergyPostCorr.push_back(corr_ele_ecalTrkEnergyPostCorr);
+    _daughters_corr_ele_ecalTrkEnergyPreCorr.push_back(corr_ele_ecalTrkEnergyPreCorr);
+    _daughters_corr_ele.push_back(corr_ele);
+    _daughters_pt_corr.push_back(pt_corr); //ele scale smear
+    _daughters_energy_corr.push_back(E_corr); //ele scale smear
     _daughters_depositR03_tracker.push_back(depositTracker);
     _daughters_depositR03_ecal.push_back(depositEcal);
     _daughters_depositR03_hcal.push_back(depositHcal);
