@@ -228,13 +228,40 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     if(l.ecalEnergy()>0)
       IoEmIoP_ttH = (1.0/l.ecalEnergy() - l.eSuperClusterOverP()/l.ecalEnergy());
 
-    //--- scale and smearing corrections
-    float corr_ele_ecalTrkEnergyPostCorr = l.userFloat("ecalTrkEnergyPostCorr");
-    float corr_ele_ecalTrkEnergyPreCorr = l.userFloat("ecalTrkEnergyPreCorr");
-    float corr_ele = corr_ele_ecalTrkEnergyPostCorr/corr_ele_ecalTrkEnergyPreCorr; 
+    //--- used scale and smearing corrections and systematics
+    float ecalEnergyErrPreCorr = l.userFloat("ecalEnergyErrPreCorr");
+    float ecalEnergyErrPostCorr = l.userFloat("ecalEnergyErrPostCorr");
+    float ecalTrkEnergyPreCorr = l.userFloat("ecalTrkEnergyPreCorr");
+    float ecalTrkEnergyErrPreCorr = l.userFloat("ecalTrkEnergyErrPreCorr");
+    float ecalTrkEnergyPostCorr = l.userFloat("ecalTrkEnergyPostCorr");
+    float ecalTrkEnergyErrPostCorr = l.userFloat("ecalTrkEnergyErrPostCorr");
+    float energyScaleValue = l.userFloat("energyScaleValue");
+    float energySigmaValue = l.userFloat("energySigmaValue");
+    float energySmearNrSigma = l.userFloat("energySmearNrSigma");
+    float energyScaleUp = l.userFloat("energyScaleUp");
+    float energyScaleDown = l.userFloat("energyScaleDown");
+    float energyScaleStatUp = l.userFloat("energyScaleStatUp");
+    float energyScaleStatDown = l.userFloat("energyScaleStatDown");
+    float energyScaleSystUp = l.userFloat("energyScaleSystUp");
+    float energyScaleSystDown = l.userFloat("energyScaleSystDown");
+    float energyScaleGainUp = l.userFloat("energyScaleGainUp");
+    float energyScaleGainDown = l.userFloat("energyScaleGainDown");
+    float energyScaleEtUp = l.userFloat("energyScaleEtUp");
+    float energyScaleEtDown = l.userFloat("energyScaleEtDown");
+    float energySigmaUp = l.userFloat("energySigmaUp");
+    float energySigmaDown = l.userFloat("energySigmaDown");
+    float energySigmaPhiUp = l.userFloat("energySigmaPhiUp");
+    float energySigmaPhiDown = l.userFloat("energySigmaPhiDown");
+    float energySigmaRhoUp = l.userFloat("energySigmaRhoUp");
+    float energySigmaRhoDown = l.userFloat("energySigmaRhoDown");
+
+    float corr_ele = ecalTrkEnergyPostCorr/ecalTrkEnergyPreCorr; 
     float pt_corr = corr_ele*(l.pt());
     float E_corr = corr_ele*(l.energy());
     //std::cout<<"Eta "<<l.eta()<<",post: "<<corr_ele_ecalTrkEnergyPostCorr<<",pre: "<<corr_ele_ecalTrkEnergyPreCorr<<", corr_ele "<<corr_ele<<",pt_corr "<<pt_corr<<std::endl;
+
+    //--all corrections and systematics
+    
 
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
@@ -273,8 +300,31 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("IoEmIoP",(1.0/l.ecalEnergy())-(1.0/l.p()));
     l.addUserFloat("IoEmIoP_ttH",IoEmIoP_ttH);
     l.addUserFloat("SCeta", fSCeta);
-    l.addUserFloat("corr_ele_ecalTrkEnergyPostCorr",corr_ele_ecalTrkEnergyPostCorr);
-    l.addUserFloat("corr_ele_ecalTrkEnergyPreCorr",corr_ele_ecalTrkEnergyPreCorr);
+    l.addUserFloat("ecalEnergyErrPreCorr",ecalEnergyErrPreCorr);
+    l.addUserFloat("ecalEnergyErrPostCorr",ecalEnergyErrPostCorr);
+    l.addUserFloat("ecalTrkEnergyPreCorr",ecalTrkEnergyPreCorr);
+    l.addUserFloat("ecalTrkEnergyErrPreCorr",ecalTrkEnergyErrPreCorr);
+    l.addUserFloat("ecalTrkEnergyPostCorr",ecalTrkEnergyPostCorr);
+    l.addUserFloat("ecalTrkEnergyErrPostCorr",ecalTrkEnergyErrPostCorr);
+    l.addUserFloat("energyScaleValue",energyScaleValue);
+    l.addUserFloat("energySigmaValue",energySigmaValue);
+    l.addUserFloat("energySmearNrSigma",energySmearNrSigma);
+    l.addUserFloat("energyScaleUp",energyScaleUp);
+    l.addUserFloat("energyScaleDown",energyScaleDown);
+    l.addUserFloat("energyScaleStatUp",energyScaleStatUp);
+    l.addUserFloat("energyScaleStatDown",energyScaleStatDown);
+    l.addUserFloat("energyScaleSystUp",energyScaleSystUp);
+    l.addUserFloat("energyScaleSystDown",energyScaleSystDown);
+    l.addUserFloat("energyScaleGainUp",energyScaleGainUp);
+    l.addUserFloat("energyScaleGainDown",energyScaleGainDown);
+    l.addUserFloat("energyScaleEtUp",energyScaleEtUp);
+    l.addUserFloat("energyScaleEtDown",energyScaleEtDown);
+    l.addUserFloat("energySigmaUp",energySigmaUp);
+    l.addUserFloat("energySigmaDown",energySigmaDown);
+    l.addUserFloat("energySigmaPhiUp",energySigmaPhiUp);
+    l.addUserFloat("energySigmaPhiDown",energySigmaPhiDown);
+    l.addUserFloat("energySigmaRhoUp",energySigmaRhoUp);
+    l.addUserFloat("energySigmaRhoDown",energySigmaRhoDown);
     l.addUserFloat("corr_ele",corr_ele);
     l.addUserFloat("pt_corr",pt_corr);
     l.addUserFloat("E_corr",E_corr);
