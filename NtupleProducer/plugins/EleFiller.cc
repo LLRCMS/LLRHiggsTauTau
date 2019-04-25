@@ -228,7 +228,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     if(l.ecalEnergy()>0)
       IoEmIoP_ttH = (1.0/l.ecalEnergy() - l.eSuperClusterOverP()/l.ecalEnergy());
 
-    //--- used scale and smearing corrections and systematics
+    //--- scale and smearing corrections and systematics
     float ecalEnergyErrPreCorr = l.userFloat("ecalEnergyErrPreCorr");
     float ecalEnergyErrPostCorr = l.userFloat("ecalEnergyErrPostCorr");
     float ecalTrkEnergyPreCorr = l.userFloat("ecalTrkEnergyPreCorr");
@@ -259,9 +259,6 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     float pt_corr = corr_ele*(l.pt());
     float E_corr = corr_ele*(l.energy());
     //std::cout<<"Eta "<<l.eta()<<",post: "<<corr_ele_ecalTrkEnergyPostCorr<<",pre: "<<corr_ele_ecalTrkEnergyPreCorr<<", corr_ele "<<corr_ele<<",pt_corr "<<pt_corr<<std::endl;
-
-    //--all corrections and systematics
-    
 
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
