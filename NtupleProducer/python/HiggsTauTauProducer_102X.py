@@ -704,15 +704,26 @@ else:
     process.METSequence += process.ShiftMETforTES
 
     # EE noise mitigation 
-    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-    runMetCorAndUncFromMiniAOD(
-      process,
-      isData= (not IsMC),
-      fixEE2017 = True,
-      fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
-      postfix = "ModifiedMET"
-    )
-    process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
+    if (YEAR==2016 or YEAR==2018):
+    	from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+    	runMetCorAndUncFromMiniAOD(
+      	  process,
+       	  isData= (not IsMC),
+      	  fixEE2017 = False,
+      	  fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+          postfix = "ModifiedMET"
+    	)
+
+    if (YEAR==2017):
+        from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+        runMetCorAndUncFromMiniAOD(
+          process,
+          isData= (not IsMC),
+          fixEE2017 = True,
+          fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+          postfix = "ModifiedMET"
+        )
+    #process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
 
 
 ## ----------------------------------------------------------------------
@@ -834,7 +845,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       totCollection = cms.InputTag("nEventsTotal"),
                       passCollection = cms.InputTag("nEventsPassTrigger"),
                       lhepCollection = cms.InputTag("externalLHEProducer"),
-                      triggerResultsLabel = cms.InputTag("TriggerResults", "", HLTProcessName), #Different names for MiniAODv2 at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.                      
+                      triggerResultsLabel = cms.InputTag("TriggerResults", "", HLTProcessName), #Different names for MiniAODv2 at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.                   
                       triggerSet = cms.InputTag("slimmedPatTrigger"),    # FRA
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
@@ -850,8 +861,9 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
-else: 
-    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs", "", "TEST") # use TEST so that I get the corrected one
+else:
+    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsModifiedMET", "", "TEST") 
+    #process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs", "", "TEST") # use TEST so that I get the corrected one
 
 if SVFITBYPASS:
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
@@ -880,6 +892,7 @@ process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
     process.egammaPostRecoSeq  +
+    #process.fullPatMetSequenceModifiedMET +
     process.nEventsTotal       +
     process.nEventsPassTrigger +
     process.patJetCorrFactorsNewDFTraining+
@@ -899,6 +912,7 @@ process.Candidates = cms.Sequence(
     process.fsrSequence        +
     process.softLeptons        + process.barellCand +
     process.METSequence        +
+    process.fullPatMetSequenceModifiedMET +
     process.geninfo            +
     process.SVFit
     )
