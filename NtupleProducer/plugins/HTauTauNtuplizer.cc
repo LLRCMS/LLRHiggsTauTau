@@ -263,6 +263,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   ULong64_t _indexevents;
   Int_t _runNumber;
   Int_t _lumi;
+  Int_t _year;
   Long64_t _triggerbit;
   Int_t _metfilterbit;
   Int_t _NBadMu;
@@ -1239,6 +1240,7 @@ void HTauTauNtuplizer::Initialize(){
   _combreliso03.clear();
   _indexevents=0;
   _runNumber=0;
+  _year=0;
   _lumi=0;
   _NBadMu=0;
   _passecalBadCalibFilterUpdate=false;
@@ -1437,6 +1439,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/l");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
+  myTree->Branch("year",&_year,"year/I");
   myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");
   myTree->Branch("passecalBadCalibFilterUpdate",&_passecalBadCalibFilterUpdate,"passecalBadCalibFilterUpdate/O");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
@@ -2161,6 +2164,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _indexevents = event.id().event();
   _runNumber = event.id().run();
   _lumi=event.luminosityBlock();
+  _year=thelep_setup;
   // _met = met.sumEt(); // scalar sum of the pf candidates
   _met = met.pt();
   _metphi = met.phi();
