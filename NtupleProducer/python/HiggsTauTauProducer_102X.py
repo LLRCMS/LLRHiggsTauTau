@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-execfile(PyFilePath+"python/triggers_92X.py") # contains the list of triggers and filters
+#execfile(PyFilePath+"python/triggers_92X.py") # contains the list of triggers and filters
+execfile(PyFilePath+"python/triggers_102X.py")
 
 process = cms.Process("TEST")
 
@@ -73,7 +74,7 @@ nanosec="25"
 if not Is25ns: nanosec="50"
 
 LEPTON_SETUP_LEGACY = YEAR 
-print "Lepton setup: ", LEPTON_SETUP_LEGACY
+#print "Lepton setup: ", LEPTON_SETUP_LEGACY
 
 METfiltersProcess = "PAT" if IsMC else "RECO" # NB! this is not guaranteed to be true! the following is valid on 2015 Run C + Run D data. Check:
 # NB: for MET filters, use PAT or RECO depending if the miniAOD was generated simultaneously with RECO or in a separated step
@@ -652,7 +653,7 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 
 process.METSequence = cms.Sequence()
 if USEPAIRMET:
-    print "Using pair MET (MVA MET)"
+    #print "Using pair MET (MVA MET)"
     from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
     runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
     process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
@@ -681,7 +682,7 @@ if USEPAIRMET:
     process.METSequence += cms.Sequence(process.MVAMETInputs + process.MVAMET)
 
 else:
-    print "Using event pfMET (same MET for all pairs)"
+    #print "Using event pfMET (same MET for all pairs)"
     
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
     runMetCorAndUncFromMiniAOD(
@@ -727,6 +728,25 @@ else:
 
 
 ## ----------------------------------------------------------------------
+## L1 Prefiring
+## ----------------------------------------------------------------------
+
+#if (YEAR==2016):
+#    from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+#    process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+#        DataEra = cms.string("2016BtoH"),
+#        UseJetEMPt = cms.bool(False),
+#        PrefiringRateSystematicUncty = cms.double(0.2))
+
+#if (YEAR==2017):
+#    from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+#    process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+#        DataEra = cms.string("2017BtoF"), 
+#        UseJetEMPt = cms.bool(False),
+#        PrefiringRateSystematicUncty = cms.double(0.2))
+
+
+## ----------------------------------------------------------------------
 ## Z-recoil correction
 ## ----------------------------------------------------------------------
 
@@ -763,7 +783,7 @@ else:
 ## ----------------------------------------------------------------------
 
 if USECLASSICSVFIT:
-    print "Using CLASSIC_SV_FIT"
+    #print "Using CLASSIC_SV_FIT"
     process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
                                       srcPairs   = cms.InputTag("barellCand"),
                                       srcSig     = cms.InputTag("METSignificance", "METSignificance"),
@@ -778,7 +798,7 @@ if USECLASSICSVFIT:
                                       METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
     )
 else:
-    print "Using STANDALONE_SV_FIT"
+    #print "Using STANDALONE_SV_FIT"
     process.SVllCand = cms.EDProducer("SVfitInterface",
                                       srcPairs   = cms.InputTag("barellCand"),
                                       srcSig     = cms.InputTag("METSignificance", "METSignificance"),
@@ -859,16 +879,15 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
                       )
+     
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
 else:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsModifiedMET", "", "TEST") 
-    #process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs", "", "TEST") # use TEST so that I get the corrected one
 
 if SVFITBYPASS:
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
     process.SVFit = cms.Sequence (process.SVbypass)
-
 
 else:
     process.HTauTauTree.candCollection = cms.InputTag("SVllCand")
@@ -892,6 +911,7 @@ process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
     process.egammaPostRecoSeq  +
+    #process.prefiringweight +
     #process.fullPatMetSequenceModifiedMET +
     process.nEventsTotal       +
     process.nEventsPassTrigger +

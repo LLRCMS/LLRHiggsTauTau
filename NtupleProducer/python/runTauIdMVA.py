@@ -64,14 +64,14 @@ class TauIDEmbedder(object):
 	def is_above_cmssw_version(klass, release=9, subversion=4, patch=0, debug = False):
 		split_cmssw_version = klass.get_cmssw_version_number()
 		if klass.versionToInt(release, subversion, patch) > klass.versionToInt(split_cmssw_version[0], split_cmssw_version[1], split_cmssw_version[2]):
-			if debug: print "is_above_cmssw_version:", False
+			#if debug: print "is_above_cmssw_version:", False
 			return False
 		else:
-			if debug: print "is_above_cmssw_version:", True
+			#if debug: print "is_above_cmssw_version:", True
 			return True
 
 	def loadMVA_WPs_run2_2017(self):
-		if self.debug: print "loadMVA_WPs_run2_2017: performed"
+		#if self.debug: print "loadMVA_WPs_run2_2017: performed"
 		global cms
 		for training, gbrForestName in self.tauIdDiscrMVA_trainings_run2_2017.items():
 
@@ -203,7 +203,7 @@ class TauIDEmbedder(object):
 				}
 			}
 
-			if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access 2017v2"
+			#if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access 2017v2"
 			self.loadMVA_WPs_run2_2017()
 
 			self.process.rerunDiscriminationByIsolationOldDMMVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -283,7 +283,7 @@ class TauIDEmbedder(object):
 				}
 			}
 
-			if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access newDM2017v2"
+			#if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access newDM2017v2"
 			self.loadMVA_WPs_run2_2017()
 
 			self.process.rerunDiscriminationByIsolationNewDMMVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(
@@ -363,7 +363,7 @@ class TauIDEmbedder(object):
 				}
 			}
 
-			if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access dR0p32017v2"
+			#if self.debug: print "runTauID: not is_above_cmssw_version(10, 0, 0). Will update the list of available in DB samples to access dR0p32017v2"
 			self.loadMVA_WPs_run2_2017()
 
 			self.process.rerunDiscriminationByIsolationOldDMdR0p3MVArun2017v2raw = patDiscriminationByIsolationMVArun2v1raw.clone(

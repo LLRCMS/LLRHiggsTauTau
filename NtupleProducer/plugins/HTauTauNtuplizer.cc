@@ -211,6 +211,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
   TH1F *hTauIDs;
+  TH1F *hYear;
   triggerhelper* myTriggerHelper;
 
   PUReweight reweight;
@@ -337,6 +338,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_e_TauDown;
   std::vector<Int_t> _daughters_genindex;
   std::vector<Int_t> _daughters_charge;
+
+  std::vector<Int_t> _daughters_matchedJetIndex; //jet index that shares PF packed candidate with daughter
 
   std::vector<const reco::Candidate*> _softLeptons;
   
@@ -672,6 +675,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t>   _jets_neMult;
   std::vector<Int_t>   _jets_chMult;
   std::vector<Float_t> _jets_jecUnc;
+  std::vector<std::vector<Int_t>>  _jets_sharedLeptonPFCandidateIndex;
 
   // JEC uncertainty sources
   std::vector<Float_t> _jets_jetUnc_AbsoluteFlavMap_up; // up variations
@@ -909,12 +913,12 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : reweight(),
     const std::vector<std::string>& path4 = iPSet->getParameter<std::vector<std::string>>("path4"); //FRA
     const int& leg1 = iPSet->getParameter<int>("leg1");
     const int& leg2 = iPSet->getParameter<int>("leg2");
-    const double& pt1 = iPSet->getParameter<double>("pt1"); //FRA
-    const double& pt2 = iPSet->getParameter<double>("pt2"); //FRA
+    //const double& pt1 = iPSet->getParameter<double>("pt1"); //FRA
+    //const double& pt2 = iPSet->getParameter<double>("pt2"); //FRA
     // Build the mape
     //myTriggerHelper->addTriggerMap(hlt,path1,path2,leg1,leg2);
-    //myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2); //FRA
-    myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2, pt1, pt2); //FRA
+    myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2); //FRA
+    //myTriggerHelper->addTriggerMap(hlt,path1,path2,path3,path4,leg1,leg2, pt1, pt2); //FRA
   }
 
   //triggerSet= pset.getParameter<edm::InputTag>("triggerSet");
@@ -980,6 +984,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_pz_TauDown.clear();
   _daughters_e_TauDown.clear();
   _daughters_charge.clear();
+  _daughters_matchedJetIndex.clear();
+
   _daughters_genindex.clear();
   _daughters_IetaIeta.clear();
   _daughters_full5x5_IetaIeta.clear();
@@ -1266,6 +1272,7 @@ void HTauTauNtuplizer::Initialize(){
 //  _jets.clear();
   _jets_VBFfirstTrigMatch.clear(); //FRA
   _jets_VBFsecondTrigMatch.clear(); //FRA
+  _jets_sharedLeptonPFCandidateIndex.clear();
   _jets_px.clear();
   _jets_py.clear();
   _jets_pz.clear();
@@ -1424,6 +1431,7 @@ void HTauTauNtuplizer::beginJob(){
   int nbins=3+(myTriggerHelper->GetNTriggers());
   hCounter = fs->make<TH1F>("Counters","Counters",nbins,0,nbins);
   hTauIDs = fs->make<TH1F>("TauIDs","TauIDs",ntauIds,0,ntauIds);
+  hYear = fs->make<TH1F>("Year","Year",50,2000,2050);
 
   //Branches
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/l");
@@ -1470,6 +1478,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_pz",&_daughters_pz);
   myTree->Branch("daughters_e",&_daughters_e);
   myTree->Branch("daughters_charge",&_daughters_charge);
+  myTree->Branch("daughters_matchedJetIndex",&_daughters_matchedJetIndex);
+
   myTree->Branch("daughters_ecalEnergyErrPreCorr",&_daughters_ecalEnergyErrPreCorr);
   myTree->Branch("daughters_ecalEnergyErrPostCorr",&_daughters_ecalEnergyErrPostCorr);
   myTree->Branch("daughters_ecalTrkEnergyPreCorr",&_daughters_ecalTrkEnergyPreCorr);
@@ -1644,6 +1654,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("MET_significance",&_metSignif); 
   myTree->Branch("mT_Dau1",&_mTDau1); 
   myTree->Branch("mT_Dau2",&_mTDau2); 
+    
   myTree->Branch("PDGIdDaughters",&_pdgdau);
   myTree->Branch("indexDau1",&_indexDau1);
   myTree->Branch("indexDau2",&_indexDau2);
@@ -1746,6 +1757,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
   myTree->Branch("jets_VBFfirstTrigMatch",&_jets_VBFfirstTrigMatch); //FRA
   myTree->Branch("jets_VBFsecondTrigMatch",&_jets_VBFsecondTrigMatch); //FRA
+  myTree->Branch("jets_sharedLeptonPFCandidateIndex",&_jets_sharedLeptonPFCandidateIndex);
   myTree->Branch("jets_px",&_jets_px);
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
@@ -2058,6 +2070,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
   }
+
+  hYear->Fill(thelep_setup);
 
   //Get candidate collection
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
@@ -2864,6 +2878,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     jecUnc->setJetPt(ijet->pt()); // here you must use the CORRECTED jet pt
     _jets_jecUnc.push_back(jecUnc->getUncertainty(true));
 
+
     // JEC uncertainties sources
     for (myJECMap::iterator it=jecSourceUncProviders->begin(); it!=jecSourceUncProviders->end(); ++it)
     {
@@ -3102,6 +3117,24 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     }
 
+    int matched_jet_index = -999;
+    int number_cand = cand->numberOfSourceCandidatePtrs();    
+    for(int i_cand = 0 ; i_cand < number_cand; i_cand++){
+       const reco::CandidatePtr &c1s = cand->sourceCandidatePtr(i_cand); 
+       int i_jet = -1;
+       for(edm::View<pat::Jet>::const_iterator my_jet = jets->begin(); my_jet!=jets->end();++my_jet){
+          i_jet++;
+          int number_jet = my_jet->numberOfSourceCandidatePtrs();
+          for(int i_cand_jet = 0 ; i_cand_jet < number_jet; i_cand_jet++){
+             const reco::CandidatePtr &c2s = my_jet->sourceCandidatePtr(i_cand_jet);
+             if(c2s == c1s){
+                matched_jet_index = i_jet;
+                break;
+             }
+          }
+       }       
+    }
+    _daughters_matchedJetIndex.push_back(matched_jet_index);
 
     // variables
     //float discr=-1.;
@@ -3567,7 +3600,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           else istrgMatched = false;
           
           // Check the pT of the candidate for leg1 and 2 //FRA
-          if (legPosition == 1)
+          /*if (legPosition == 1)
           {
             if ( cand->pt() < trgmap.GetPtCut1() ) istrgMatched=false;
           }
@@ -3576,7 +3609,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
             if ( cand->pt() < trgmap.GetPtCut2() ) istrgMatched=false;
           }
           else
-            istrgMatched=false;
+            istrgMatched=false;*/
           
           
           // FIXME: should I check type? --> no, multiple filters should be enough
