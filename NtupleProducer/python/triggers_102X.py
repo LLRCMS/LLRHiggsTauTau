@@ -77,7 +77,7 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(11),
         leg2 = cms.int32(999)
         ),
-### === mu tauh triggers -- CHECK first muon filter, I think it's wrong on the TauTrigger twiki
+### === mu tauh triggers -- CHECK first muon filter, I think it's wrong on the TauTrigger twiki -- TauTrigger twiki has been corrected on 2019-04-29
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v"),
         path1 = cms.vstring ("hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"),
@@ -569,7 +569,148 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(15),
         leg2 = cms.int32(15)
         ),
-    )
+	
+## Monitoring triggers for 2018 data taking -- Filters should be checked
+    
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg"),
+        path2 = cms.vstring ("hltHpsSelectedPFTau35TrackPt1MediumChargedIsolationL1HLTMatchedReg","hltHpsOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg"),
+        path2 = cms.vstring ("hltHpsSelectedPFTau35TrackPt1MediumChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg","hltHpsOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg"),
+        path2 = cms.vstring ("hltHpsSelectedPFTau35TrackPt1TightChargedIsolationL1HLTMatchedReg","hltHpsOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_TightChargedIsoPFTauHPS35_Trk1_TightID_eta2p1_Reg_CrossL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg"),
+        path2 = cms.vstring ("hltHpsSelectedPFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg","hltHpsOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu27_LooseChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu27LooseChargedIsoPFTau20"),
+        path2 = cms.vstring ("hltHpsPFTau20TrackLooseChargedIsoAgainstMuon","hltHpsOverlapFilterIsoMu27LooseChargedIsoPFTau20"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu27_MediumChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu27MediumChargedIsoPFTau20"),
+        path2 = cms.vstring ("hltHpsPFTau20TrackMediumChargedIsoAgainstMuon","hltHpsOverlapFilterIsoMu27MediumChargedIsoPFTau20"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu27_TightChargedIsoPFTauHPS20_Trk1_eta2p1_SingleL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu27TightChargedIsoPFTau20"),
+        path2 = cms.vstring ("hltHpsPFTau20TrackTightChargedIsoAgainstMuon","hltHpsOverlapFilterIsoMu27TightChargedIsoPFTau20"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sMu22erIsoTau40erL1f0L2f10QL3f24QL3trkIsoFiltered0p07",""),
+        path2 = cms.vstring ("hltSelectedPFTau50MediumChargedIsolationL1HLTMatchedMu22IsoTau40",""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+	
+    ## Duplicate trigger names without "HPS" - See https://twiki.cern.ch/twiki/bin/view/CMS/TauTrigger#Trigger_table_for_2018 - HPS deployed in Menu v2.2
+    
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg"),
+        path2 = cms.vstring ("hltSelectedPFTau35TrackPt1MediumChargedIsolationL1HLTMatchedReg","hltOverlapFilterIsoMu24MediumChargedIsoPFTau35MonitoringReg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg"),
+        path2 = cms.vstring ("hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg","hltOverlapFilterIsoMu24MediumChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg"),
+        path2 = cms.vstring ("hltSelectedPFTau35TrackPt1TightChargedIsolationL1HLTMatchedReg","hltOverlapFilterIsoMu24TightChargedIsoPFTau35MonitoringReg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sBigOrMuXXerIsoTauYYerL1f0L2f10QL3f24QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg"),
+        path2 = cms.vstring ("hltSelectedPFTau35TrackPt1TightChargedIsolationAndTightOOSCPhotonsL1HLTMatchedReg","hltOverlapFilterIsoMu24TightChargedIsoAndTightOOSCPhotonsPFTau35MonitoringReg"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu27_LooseChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu27LooseChargedIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackLooseChargedIsoAgainstMuon","hltOverlapFilterIsoMu27LooseChargedIsoPFTau20"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu27_MediumChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu27MediumChargedIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackMediumChargedIsoAgainstMuon","hltOverlapFilterIsoMu27MediumChargedIsoPFTau20"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_IsoMu27_TightChargedIsoPFTau20_Trk1_eta2p1_SingleL1_v"), 
+        path1 = cms.vstring ("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu27TightChargedIsoPFTau20"),
+        path2 = cms.vstring ("hltPFTau20TrackTightChargedIsoAgainstMuon","hltOverlapFilterIsoMu27TightChargedIsoPFTau20"),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(15)
+        )    
+     )
 
 #now I create the trigger list for HLTconfig
 for i in range(len(HLTLIST)):
