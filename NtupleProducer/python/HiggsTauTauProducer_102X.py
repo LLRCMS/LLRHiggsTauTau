@@ -150,7 +150,7 @@ baddetEcallist = cms.vuint32(
      872437185,872422564,872421566,872421695,
      872421955,872421567,872437184,872421951,
      872421694,872437056,872437057,872437313])
-
+     
 
 process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
     "EcalBadCalibFilter",
@@ -198,20 +198,10 @@ process.muons =  cms.Sequence(process.bareSoftMuons+ process.softMuons)
 # Load tools and function definitions
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
-process.load("RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi")
-#process.load("RecoEgamma.ElectronIdentification.ElectronRegressionValueMapProducer_cfi")
-
 #**********************
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
-
-process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
-# overwrite a default parameter: for miniAOD, the collection name is a slimmed one
-process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
-
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
 
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
@@ -532,8 +522,8 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 
 runMetCorAndUncFromMiniAOD (
         process,
-        isData = True, # false for MC
-        fixEE2017 = True,
+        isData = (not IsMC),
+        fixEE2017 = False, 
         fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
         postfix = "ModifiedMET"
 )
