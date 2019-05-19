@@ -910,7 +910,6 @@ process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
-    process.ecalBadCalibReducedMINIAODFilter + #CMP
     process.egammaPostRecoSeq  +
     #process.prefiringweight +
     #process.fullPatMetSequenceModifiedMET +
