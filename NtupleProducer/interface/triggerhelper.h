@@ -60,9 +60,7 @@ class triggerhelper {
   //const int nTriggers;
   vector<string> triggerlist;
   vector<triggerMapper> triggerMap;
-  //static const int nMETs =6; //FRA: OLD 2016 data 80X
-  //static const int nMETs =9; //FRA: Fall17 94X
-  static const int nMETs =8; //CMP Fall17 94X
+  static const int nMETs = 8;
   string metlist[nMETs];
 
 };
