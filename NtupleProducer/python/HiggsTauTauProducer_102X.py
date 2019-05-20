@@ -308,12 +308,12 @@ process.softTaus = cms.EDProducer("TauFiller",
    # --> Correct values for 2018 data - Davide update May2019
    NominalTESUncertainty1Pr         = cms.double(1.1) , # in percent, up/down uncertainty of TES      
    NominalTESUncertainty1PrPi0      = cms.double(0.9) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty3Pr         = cms.double(0.9) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty3PrPi0      = cms.double(1.0) , # in percent, up/down uncertainty of TES -- Missing for 2018      
+   NominalTESUncertainty3Pr         = cms.double(0.8) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty3PrPi0      = cms.double(1.0) , # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017      
    NominalTESCorrection1Pr          = cms.double(-1.3), #DecayMode==0                                 
    NominalTESCorrection1PrPi0       = cms.double(-0.5), #DecayMode==1                                 
    NominalTESCorrection3Pr          = cms.double(-1.2), #DecayMode==10                                
-   NominalTESCorrection3PrPi0       = cms.double(-0.1), #DecayMode==11 -- Missing for 2018                               
+   NominalTESCorrection3PrPi0       = cms.double(-0.1), #DecayMode==11 -- Missing for 2018, kept the same of 2017                               
 
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
