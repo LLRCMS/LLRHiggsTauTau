@@ -623,6 +623,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_jetPtRatio;
   std::vector<Float_t> _daughters_jetBTagCSV;
   std::vector<Float_t> _daughters_jetBTagDeepCSV;
+  std::vector<Float_t> _daughters_jetBTagDeepFlavor;
 
 
   std::vector<Float_t> _daughters_pca_x;
@@ -778,6 +779,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _ak8jets_CSV; // CSV score
   std::vector<Float_t> _ak8jets_deepCSV_probb; // CSV score
   std::vector<Float_t> _ak8jets_deepCSV_probbb; // CSV score
+  std::vector<Float_t> _ak8jets_deepFlavor_probb; // Flavor score
+  std::vector<Float_t> _ak8jets_deepFlavor_probbb; // Flavor score
+  std::vector<Float_t> _ak8jets_deepFlavor_problepb; // Flavor score
   std::vector<Int_t>   _ak8jets_nsubjets;
 
   // subjets of ak8 -- store ALL subjets, and link them with an idx to the ak8 jet vectors
@@ -788,6 +792,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _subjets_CSV;
   std::vector<Float_t> _subjets_deepCSV_probb;
   std::vector<Float_t> _subjets_deepCSV_probbb;
+  std::vector<Float_t> _subjets_deepFlavor_probb;
+  std::vector<Float_t> _subjets_deepFlavor_probbb;
+  std::vector<Float_t> _subjets_deepFlavor_problepb;
   std::vector<Int_t>   _subjets_ak8MotherIdx;
 
   std::vector<Int_t> _jets_Flavour; // parton flavour
@@ -1032,6 +1039,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_jetPtRatio.clear();
   _daughters_jetBTagCSV.clear();
   _daughters_jetBTagDeepCSV.clear();
+  _daughters_jetBTagDeepFlavor.clear();
 
 
   //_daughters_iseleBDT.clear(); //FRA January2019
@@ -1397,6 +1405,9 @@ void HTauTauNtuplizer::Initialize(){
   _ak8jets_CSV.clear();
   _ak8jets_deepCSV_probb.clear();
   _ak8jets_deepCSV_probbb.clear();
+  _ak8jets_deepFlavor_probb.clear();
+  _ak8jets_deepFlavor_probbb.clear();
+  _ak8jets_deepFlavor_problepb.clear();
   _ak8jets_nsubjets.clear();
 
   _subjets_px.clear();
@@ -1406,6 +1417,9 @@ void HTauTauNtuplizer::Initialize(){
   _subjets_CSV.clear();
   _subjets_deepCSV_probb.clear();
   _subjets_deepCSV_probbb.clear();
+  _subjets_deepFlavor_probb.clear();
+  _subjets_deepFlavor_probbb.clear();
+  _subjets_deepFlavor_problepb.clear();
   _subjets_ak8MotherIdx.clear();
 
 
@@ -1733,6 +1747,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_jetPtRatio",&_daughters_jetPtRatio);
   myTree->Branch("daughters_jetBTagCSV",&_daughters_jetBTagCSV);
   myTree->Branch("daughters_jetBTagDeepCSV",&_daughters_jetBTagDeepCSV);
+  myTree->Branch("daughters_jetBTagDeepFlavor",&_daughters_jetBTagDeepFlavor);
 
 
   if(doCPVariables){
@@ -1875,6 +1890,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("ak8jets_CSV", &_ak8jets_CSV);
   myTree->Branch("ak8jets_deepCSV_probb", &_ak8jets_deepCSV_probb);
   myTree->Branch("ak8jets_deepCSV_probbb", &_ak8jets_deepCSV_probbb);
+  myTree->Branch("ak8jets_deepFlavor_probb", &_ak8jets_deepFlavor_probb);
+  myTree->Branch("ak8jets_deepFlavor_probbb", &_ak8jets_deepFlavor_probbb);
+  myTree->Branch("ak8jets_deepFlavor_problepb", &_ak8jets_deepFlavor_problepb);
   myTree->Branch("ak8jets_nsubjets", &_ak8jets_nsubjets);
 
   myTree->Branch("subjets_px", &_subjets_px);
@@ -1884,6 +1902,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("subjets_CSV", &_subjets_CSV);
   myTree->Branch("subjets_deepCSV_probb", &_subjets_deepCSV_probb);
   myTree->Branch("subjets_deepCSV_probbb", &_subjets_deepCSV_probbb);
+  myTree->Branch("subjets_deepFlavor_probb", &_subjets_deepFlavor_probb);
+  myTree->Branch("subjets_deepFlavor_probbb", &_subjets_deepFlavor_probbb);
+  myTree->Branch("subjets_deepFlavor_problepb", &_subjets_deepFlavor_problepb);
   myTree->Branch("subjets_ak8MotherIdx", &_subjets_ak8MotherIdx);
 
   if (doCPVariables) //FRA January2019
@@ -3070,6 +3091,9 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_CSV.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
       _ak8jets_deepCSV_probb.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probb"));
       _ak8jets_deepCSV_probbb.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probbb"));
+      _ak8jets_deepFlavor_probb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probb"));
+      _ak8jets_deepFlavor_probbb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probbb"));
+      _ak8jets_deepFlavor_problepb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:problepb"));
 
       // store subjets for soft drop
       int nsubj = 0;
@@ -3089,6 +3113,9 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
           _subjets_CSV.push_back((*isubj)->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
           _subjets_deepCSV_probb.push_back((*isubj)->bDiscriminator("pfDeepCSVJetTags:probb"));
           _subjets_deepCSV_probbb.push_back((*isubj)->bDiscriminator("pfDeepCSVJetTags:probbb"));
+          _subjets_deepFlavor_probb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:probb"));
+          _subjets_deepFlavor_probbb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:probbb"));
+          _subjets_deepFlavor_problepb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:problepb"));
           _subjets_ak8MotherIdx.push_back(ijet - fatjets->begin()); // idx of fatjet in fatjet vector
           // cout << " * " << (*isubj)->pt() << " " << isubj - subj.begin() << endl;
         }
@@ -3272,7 +3299,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1., error_trackpt=-1.;
     int jetNDauChargedMVASel = -1;
     float miniRelIsoCharged = -1., miniRelIsoNeutral = -1.;
-    float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1., jetBTagDeepCSV=-1.;
+    float jetPtRel = -1., jetPtRatio = -1., jetBTagCSV=-1., jetBTagDeepCSV=-1., jetBTagDeepFlavor=-1.;
 
 
     //
@@ -3309,6 +3336,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
+      jetBTagDeepFlavor = closest_jet.bDiscriminator("pfDeepFlavourJetTags:probb") + closest_jet.bDiscriminator("pfDeepFlavourJetTags:probbb") + closest_jet.bDiscriminator("pfDeepFlavourJetTags:problepb");
 
      
 
@@ -3346,6 +3374,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       jetPtRatio = LeptonIsoHelper::jetPtRatio(*cand, closest_jet,theJECName);
       jetBTagCSV = closest_jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
       jetBTagDeepCSV = closest_jet.bDiscriminator("pfDeepCSVJetTags:probb") + closest_jet.bDiscriminator("pfDeepCSVJetTags:probbb");
+      jetBTagDeepFlavor = closest_jet.bDiscriminator("pfDeepFlavourJetTags:probb") + closest_jet.bDiscriminator("pfDeepFlavourJetTags:probbb") + closest_jet.bDiscriminator("pfDeepFlavourJetTags:problepb");
 
 
 
@@ -3469,6 +3498,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_jetPtRatio.push_back(jetPtRatio);
     _daughters_jetBTagCSV.push_back(jetBTagCSV);
     _daughters_jetBTagDeepCSV.push_back(jetBTagDeepCSV);
+    _daughters_jetBTagDeepFlavor.push_back(jetBTagDeepFlavor);
 
 
     _daughters_pca_x.push_back(pcaPV.X());

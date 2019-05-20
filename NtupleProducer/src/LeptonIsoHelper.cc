@@ -359,6 +359,8 @@ std::pair<float,float> LeptonIsoHelper::miniRelIso_ChargedNeutral(const reco::Ca
   float eta = cand->eta();
 
   if(cand->isElectron()){
+  
+  // Values from 2017 analysis. To be updated
         
     if(      fabs(eta) >= 0     && fabs(eta) < 1.0 )    EffArea = 0.1566;
     else if( fabs(eta) >= 1.0   && fabs(eta) < 1.479 )  EffArea = 0.1626;
@@ -371,6 +373,8 @@ std::pair<float,float> LeptonIsoHelper::miniRelIso_ChargedNeutral(const reco::Ca
   }
 
   else if(cand->isMuon()){
+  
+  // Values from 2017 analysis. To be updated
 
     if(      fabs(eta) >= 0   && fabs(eta) < 0.8 )   EffArea = 0.0566;
     else if( fabs(eta) >= 0.8 && fabs(eta) < 1.3 )   EffArea = 0.0562;

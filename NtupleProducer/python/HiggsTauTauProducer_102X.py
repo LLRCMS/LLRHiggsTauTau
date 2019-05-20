@@ -49,7 +49,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v12'  # 2018 MC
+    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'  # 2018 MC
 else :
     process.GlobalTag.globaltag = '102X_dataRun2_Sep2018Rereco_v1'  # 2018 Data
 print process.GlobalTag.globaltag
@@ -137,7 +137,7 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
 )
 
 #2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-# FIXME: to be updated to 2018
+# FIXME: to be updated to 2018 --> No difference w.r.t to ttH branch, maybe already updated?
 process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
 
 baddetEcallist = cms.vuint32(
@@ -150,7 +150,7 @@ baddetEcallist = cms.vuint32(
      872437185,872422564,872421566,872421695,
      872421955,872421567,872437184,872421951,
      872421694,872437056,872437057,872437313])
-
+     
 
 process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
     "EcalBadCalibFilter",
@@ -198,20 +198,10 @@ process.muons =  cms.Sequence(process.bareSoftMuons+ process.softMuons)
 # Load tools and function definitions
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
-process.load("RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi")
-#process.load("RecoEgamma.ElectronIdentification.ElectronRegressionValueMapProducer_cfi")
-
 #**********************
 dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
-
-process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
-# overwrite a default parameter: for miniAOD, the collection name is a slimmed one
-process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
-
-from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
-process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
 
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
@@ -255,7 +245,7 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ## Taus
 ##
 
-# FIXME:  to be updated for 2018
+# Davide first update for 2018 May 2019
 from LLRHiggsTauTau.NtupleProducer.runTauIdMVA import *
 na = TauIDEmbedder(process, cms, # pass tour process object
     debug=True,
@@ -314,21 +304,16 @@ process.softTaus = cms.EDProducer("TauFiller",
    vtxCollection = cms.InputTag("goodPrimaryVertices"),
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
-   # --> Correct values for 2017 data - Uncertainty 3.0%
-   # NominalTESUncertainty      = cms.double(3.0) , # in percent, up/down uncertainty of TES
-   # NominalTESCorrection1Pr    = cms.double(-3.0), #DecayMode==0
-   # NominalTESCorrection1PrPi0 = cms.double(-2.0), #DecayMode==1
-   # NominalTESCorrection3Pr    = cms.double(-1.0), #DecayMode==10
 
-   # --> Correct values for 2017 data - Chiara update Jan2019
-   NominalTESUncertainty1Pr         = cms.double(0.8) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty1PrPi0      = cms.double(0.8) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty3Pr         = cms.double(0.9) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty3PrPi0      = cms.double(1.0) , # in percent, up/down uncertainty of TES      
-   NominalTESCorrection1Pr          = cms.double(0.7), #DecayMode==0                                 
-   NominalTESCorrection1PrPi0       = cms.double(-0.2), #DecayMode==1                                 
-   NominalTESCorrection3Pr          = cms.double(0.1), #DecayMode==10                                
-   NominalTESCorrection3PrPi0       = cms.double(-0.1), #DecayMode==11                                
+   # --> Correct values for 2018 data - Davide update May2019
+   NominalTESUncertainty1Pr         = cms.double(1.1) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty1PrPi0      = cms.double(0.9) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty3Pr         = cms.double(0.8) , # in percent, up/down uncertainty of TES      
+   NominalTESUncertainty3PrPi0      = cms.double(1.0) , # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017      
+   NominalTESCorrection1Pr          = cms.double(-1.3), #DecayMode==0                                 
+   NominalTESCorrection1PrPi0       = cms.double(-0.5), #DecayMode==1                                 
+   NominalTESCorrection3Pr          = cms.double(-1.2), #DecayMode==10                                
+   NominalTESCorrection3PrPi0       = cms.double(-0.1), #DecayMode==11 -- Missing for 2018, kept the same of 2017                               
 
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
@@ -537,8 +522,8 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 
 runMetCorAndUncFromMiniAOD (
         process,
-        isData = True, # false for MC
-        fixEE2017 = True,
+        isData = (not IsMC),
+        fixEE2017 = False, 
         fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
         postfix = "ModifiedMET"
 )

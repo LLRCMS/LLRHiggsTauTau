@@ -405,6 +405,12 @@ cd EGamma/EGammaAnalysisTools
 git checkout c0db796 -- interface/ElectronEffectiveArea.h
 cd -
 
+# FSR corrections
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+cd UFHZZAnalysisRun2
+git checkout origin/102X FSRPhotons
+cd -
+
 # bad MET filter fix
 git cms-addpkg RecoMET/METFilters
 
