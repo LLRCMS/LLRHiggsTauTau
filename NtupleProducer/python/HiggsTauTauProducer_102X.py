@@ -51,8 +51,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if IsMC:
     process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'  # 2018 MC
 else :
-    process.GlobalTag.globaltag = '102X_dataRun2_Sep2018Rereco_v1'  # 2018 Data
-print process.GlobalTag.globaltag
+    process.GlobalTag.globaltag = '102X_dataRun2_Sep2018ABC_v2'  # 2018ABC Data
+    #process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v13'    # 2018D Data --> FRA: need to understand how to use it
+
+print "GT: ",process.GlobalTag.globaltag
 
 nanosec="25"
 if not Is25ns: nanosec="50"
