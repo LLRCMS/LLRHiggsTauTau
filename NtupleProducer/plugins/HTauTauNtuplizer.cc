@@ -678,6 +678,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   // JEC uncertainty sources
   std::vector<Float_t> _jets_jetUnc_AbsoluteFlavMap_up; // up variations
   std::vector<Float_t> _jets_jetUnc_AbsoluteMPFBias_up;
+  std::vector<Float_t> _jets_jetUnc_AbsoluteSample_up;
   std::vector<Float_t> _jets_jetUnc_AbsoluteScale_up;
   std::vector<Float_t> _jets_jetUnc_AbsoluteStat_up;
   std::vector<Float_t> _jets_jetUnc_FlavorQCD_up;
@@ -697,6 +698,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_jetUnc_RelativePtEC1_up;
   std::vector<Float_t> _jets_jetUnc_RelativePtEC2_up;
   std::vector<Float_t> _jets_jetUnc_RelativePtHF_up;
+  std::vector<Float_t> _jets_jetUnc_RelativeSample_up;
   std::vector<Float_t> _jets_jetUnc_RelativeStatEC_up;
   std::vector<Float_t> _jets_jetUnc_RelativeStatFSR_up;
   std::vector<Float_t> _jets_jetUnc_RelativeStatHF_up;
@@ -705,6 +707,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_jetUnc_TimePtEta_up;
   std::vector<Float_t> _jets_jetUnc_AbsoluteFlavMap_dw; // down variations
   std::vector<Float_t> _jets_jetUnc_AbsoluteMPFBias_dw;
+  std::vector<Float_t> _jets_jetUnc_AbsoluteSample_dw;
   std::vector<Float_t> _jets_jetUnc_AbsoluteScale_dw;
   std::vector<Float_t> _jets_jetUnc_AbsoluteStat_dw;
   std::vector<Float_t> _jets_jetUnc_FlavorQCD_dw;
@@ -724,6 +727,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_jetUnc_RelativePtEC1_dw;
   std::vector<Float_t> _jets_jetUnc_RelativePtEC2_dw;
   std::vector<Float_t> _jets_jetUnc_RelativePtHF_dw;
+  std::vector<Float_t> _jets_jetUnc_RelativeSample_dw;
   std::vector<Float_t> _jets_jetUnc_RelativeStatEC_dw;
   std::vector<Float_t> _jets_jetUnc_RelativeStatFSR_dw;
   std::vector<Float_t> _jets_jetUnc_RelativeStatHF_dw;
@@ -734,6 +738,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<std::string> m_jec_sources = {
     "AbsoluteFlavMap",
     "AbsoluteMPFBias",
+    "AbsoluteSample",  //FRA: new for 2018 data
     "AbsoluteScale",
     "AbsoluteStat",
     "FlavorQCD",
@@ -753,6 +758,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
     "RelativePtEC1",
     "RelativePtEC2",
     "RelativePtHF",
+    "RelativeSample", //FRA: added for 2018 data, was forgotten in 2017
     "RelativeStatEC",
     "RelativeStatFSR",
     "RelativeStatHF",
@@ -1308,6 +1314,7 @@ void HTauTauNtuplizer::Initialize(){
   // JEC uncertainty sources
   _jets_jetUnc_AbsoluteFlavMap_up.clear(); //up variations
   _jets_jetUnc_AbsoluteMPFBias_up.clear();
+  _jets_jetUnc_AbsoluteSample_up.clear();
   _jets_jetUnc_AbsoluteScale_up.clear();
   _jets_jetUnc_AbsoluteStat_up.clear();
   _jets_jetUnc_FlavorQCD_up.clear();
@@ -1327,6 +1334,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_jetUnc_RelativePtEC1_up.clear();
   _jets_jetUnc_RelativePtEC2_up.clear();
   _jets_jetUnc_RelativePtHF_up.clear();
+  _jets_jetUnc_RelativeSample_up.clear();
   _jets_jetUnc_RelativeStatEC_up.clear();
   _jets_jetUnc_RelativeStatFSR_up.clear();
   _jets_jetUnc_RelativeStatHF_up.clear();
@@ -1335,6 +1343,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_jetUnc_TimePtEta_up.clear();
   _jets_jetUnc_AbsoluteFlavMap_dw.clear(); // down variations
   _jets_jetUnc_AbsoluteMPFBias_dw.clear();
+  _jets_jetUnc_AbsoluteSample_dw.clear();
   _jets_jetUnc_AbsoluteScale_dw.clear();
   _jets_jetUnc_AbsoluteStat_dw.clear();
   _jets_jetUnc_FlavorQCD_dw.clear();
@@ -1354,6 +1363,7 @@ void HTauTauNtuplizer::Initialize(){
   _jets_jetUnc_RelativePtEC1_dw.clear();
   _jets_jetUnc_RelativePtEC2_dw.clear();
   _jets_jetUnc_RelativePtHF_dw.clear();
+  _jets_jetUnc_RelativeSample_dw.clear();
   _jets_jetUnc_RelativeStatEC_dw.clear();
   _jets_jetUnc_RelativeStatFSR_dw.clear();
   _jets_jetUnc_RelativeStatHF_dw.clear();
@@ -1799,8 +1809,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_chMult" , &_jets_chMult);
   myTree->Branch("jets_jecUnc" , &_jets_jecUnc);
   // JEC Uncertainty sources
-  myTree->Branch("jets_jetUnc_AbsoluteFlavMap_up" , &_SourceUncVal_up["AbsoluteFlavMap"]); // up variations
+  myTree->Branch("jets_jetUnc_AbsoluteFlavMap_up"  , &_SourceUncVal_up["AbsoluteFlavMap"]); // up variations
   myTree->Branch("jets_jetUnc_AbsoluteMPFBias_up"  , &_SourceUncVal_up["AbsoluteMPFBias"]);
+  myTree->Branch("jets_jetUnc_AbsoluteSample_up"   , &_SourceUncVal_up["AbsoluteSample"]);
   myTree->Branch("jets_jetUnc_AbsoluteScale_up"    , &_SourceUncVal_up["AbsoluteScale"]);
   myTree->Branch("jets_jetUnc_AbsoluteStat_up"     , &_SourceUncVal_up["AbsoluteStat"]);
   myTree->Branch("jets_jetUnc_FlavorQCD_up"        , &_SourceUncVal_up["FlavorQCD"]);
@@ -1820,14 +1831,16 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_jetUnc_RelativePtEC1_up"    , &_SourceUncVal_up["RelativePtEC1"]);
   myTree->Branch("jets_jetUnc_RelativePtEC2_up"    , &_SourceUncVal_up["RelativePtEC2"]);
   myTree->Branch("jets_jetUnc_RelativePtHF_up"     , &_SourceUncVal_up["RelativePtHF"]);
+  myTree->Branch("jets_jetUnc_RelativeSample_up"   , &_SourceUncVal_up["RelativeSample"]);
   myTree->Branch("jets_jetUnc_RelativeStatEC_up"   , &_SourceUncVal_up["RelativeStatEC"]);
   myTree->Branch("jets_jetUnc_RelativeStatFSR_up"  , &_SourceUncVal_up["RelativeStatFSR"]);
   myTree->Branch("jets_jetUnc_RelativeStatHF_up"   , &_SourceUncVal_up["RelativeStatHF"]);
   myTree->Branch("jets_jetUnc_SinglePionECAL_up"   , &_SourceUncVal_up["SinglePionECAL"]);
   myTree->Branch("jets_jetUnc_SinglePionHCAL_up"   , &_SourceUncVal_up["SinglePionHCAL"]);
   myTree->Branch("jets_jetUnc_TimePtEta_up"        , &_SourceUncVal_up["TimePtEta"]);
-  myTree->Branch("jets_jetUnc_AbsoluteFlavMap_dw" , &_SourceUncVal_dw["AbsoluteFlavMap"]); // down variations
+  myTree->Branch("jets_jetUnc_AbsoluteFlavMap_dw"  , &_SourceUncVal_dw["AbsoluteFlavMap"]); // down variations
   myTree->Branch("jets_jetUnc_AbsoluteMPFBias_dw"  , &_SourceUncVal_dw["AbsoluteMPFBias"]);
+  myTree->Branch("jets_jetUnc_AbsoluteSample_dw"   , &_SourceUncVal_dw["AbsoluteSample"]);
   myTree->Branch("jets_jetUnc_AbsoluteScale_dw"    , &_SourceUncVal_dw["AbsoluteScale"]);
   myTree->Branch("jets_jetUnc_AbsoluteStat_dw"     , &_SourceUncVal_dw["AbsoluteStat"]);
   myTree->Branch("jets_jetUnc_FlavorQCD_dw"        , &_SourceUncVal_dw["FlavorQCD"]);
@@ -1847,6 +1860,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_jetUnc_RelativePtEC1_dw"    , &_SourceUncVal_dw["RelativePtEC1"]);
   myTree->Branch("jets_jetUnc_RelativePtEC2_dw"    , &_SourceUncVal_dw["RelativePtEC2"]);
   myTree->Branch("jets_jetUnc_RelativePtHF_dw"     , &_SourceUncVal_dw["RelativePtHF"]);
+  myTree->Branch("jets_jetUnc_RelativeSample_dw"   , &_SourceUncVal_dw["RelativeSample"]);
   myTree->Branch("jets_jetUnc_RelativeStatEC_dw"   , &_SourceUncVal_dw["RelativeStatEC"]);
   myTree->Branch("jets_jetUnc_RelativeStatFSR_dw"  , &_SourceUncVal_dw["RelativeStatFSR"]);
   myTree->Branch("jets_jetUnc_RelativeStatHF_dw"   , &_SourceUncVal_dw["RelativeStatHF"]);
@@ -1957,6 +1971,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // Up variations
   _SourceUncVal_up.emplace("AbsoluteFlavMap" ,_jets_jetUnc_AbsoluteFlavMap_up);
   _SourceUncVal_up.emplace("AbsoluteMPFBias" ,_jets_jetUnc_AbsoluteMPFBias_up);
+  _SourceUncVal_up.emplace("AbsoluteSample"  ,_jets_jetUnc_AbsoluteSample_up);
   _SourceUncVal_up.emplace("AbsoluteScale"   ,_jets_jetUnc_AbsoluteScale_up);
   _SourceUncVal_up.emplace("AbsoluteStat"    ,_jets_jetUnc_AbsoluteStat_up);
   _SourceUncVal_up.emplace("FlavorQCD"       ,_jets_jetUnc_FlavorQCD_up);
@@ -1976,6 +1991,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _SourceUncVal_up.emplace("RelativePtEC1"   ,_jets_jetUnc_RelativePtEC1_up);
   _SourceUncVal_up.emplace("RelativePtEC2"   ,_jets_jetUnc_RelativePtEC2_up);
   _SourceUncVal_up.emplace("RelativePtHF"    ,_jets_jetUnc_RelativePtHF_up);
+  _SourceUncVal_up.emplace("RelativeSample"  ,_jets_jetUnc_RelativeSample_up);
   _SourceUncVal_up.emplace("RelativeStatEC"  ,_jets_jetUnc_RelativeStatEC_up);
   _SourceUncVal_up.emplace("RelativeStatFSR" ,_jets_jetUnc_RelativeStatFSR_up);
   _SourceUncVal_up.emplace("RelativeStatHF"  ,_jets_jetUnc_RelativeStatHF_up);
@@ -1985,6 +2001,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // Down variations
   _SourceUncVal_dw.emplace("AbsoluteFlavMap" ,_jets_jetUnc_AbsoluteFlavMap_dw);
   _SourceUncVal_dw.emplace("AbsoluteMPFBias" ,_jets_jetUnc_AbsoluteMPFBias_dw);
+  _SourceUncVal_up.emplace("AbsoluteSample"  ,_jets_jetUnc_AbsoluteSample_dw);
   _SourceUncVal_dw.emplace("AbsoluteScale"   ,_jets_jetUnc_AbsoluteScale_dw);
   _SourceUncVal_dw.emplace("AbsoluteStat"    ,_jets_jetUnc_AbsoluteStat_dw);
   _SourceUncVal_dw.emplace("FlavorQCD"       ,_jets_jetUnc_FlavorQCD_dw);
@@ -2004,6 +2021,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _SourceUncVal_dw.emplace("RelativePtEC1"   ,_jets_jetUnc_RelativePtEC1_dw);
   _SourceUncVal_dw.emplace("RelativePtEC2"   ,_jets_jetUnc_RelativePtEC2_dw);
   _SourceUncVal_dw.emplace("RelativePtHF"    ,_jets_jetUnc_RelativePtHF_dw);
+  _SourceUncVal_up.emplace("RelativeSample"  ,_jets_jetUnc_RelativeSample_dw);
   _SourceUncVal_dw.emplace("RelativeStatEC"  ,_jets_jetUnc_RelativeStatEC_dw);
   _SourceUncVal_dw.emplace("RelativeStatFSR" ,_jets_jetUnc_RelativeStatFSR_dw);
   _SourceUncVal_dw.emplace("RelativeStatHF"  ,_jets_jetUnc_RelativeStatHF_dw);
