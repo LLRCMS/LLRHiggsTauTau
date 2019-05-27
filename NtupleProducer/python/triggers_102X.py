@@ -672,7 +672,16 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(13),
         leg2 = cms.int32(11)
         ),
-
+    cms.PSet (
+        HLT = cms.string("HLT_Mu23_TrkIsoVVL_Ele8_CaloIdL_TrackIdL_IsoVL_DZ_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(11)
+        ),
+	
 ### === mu+mu ===
 
     cms.PSet (  

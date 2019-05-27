@@ -362,6 +362,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   
   std::vector<Int_t> _genpart_pdg;
   std::vector<Int_t> _genpart_status;
+
   //std::vector<Int_t> _genpart_mothInd;
   std::vector<Int_t> _genpart_HMothInd;
   std::vector<Int_t> _genpart_MSSMHMothInd;
@@ -1126,6 +1127,7 @@ void HTauTauNtuplizer::Initialize(){
 
   _genpart_pdg.clear();
   _genpart_status.clear();
+
   //_genpart_mothInd.clear();
   _genpart_HMothInd.clear();
   _genpart_MSSMHMothInd.clear();
