@@ -248,17 +248,22 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ##
 
 # Davide first update for 2018 May 2019
-from LLRHiggsTauTau.NtupleProducer.runTauIdMVA import *
-na = TauIDEmbedder(process, cms, # pass tour process object
-    debug=True,
-    toKeep = ["2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1"]
+import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+
+updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Ids
+
+
+tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True,
+                    updatedTauName = updatedTauName,
+                    toKeep = ["deepTau2017v2", "2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
+		                                                                                           #"deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0"] discriminators in this line are based on DNN
 )
-na.runTauID()
+
+tauIdEmbedder.runTauID()
 
 # old sequence starts here
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
-   #src = cms.InputTag("slimmedTaus"),
-   src = cms.InputTag("NewTauIDsEmbedded"),
+   src = cms.InputTag("slimmedTausNewID"), 
    cut = cms.string(TAUCUT),
    )
 
@@ -325,8 +330,7 @@ process.softTaus = cms.EDProducer("TauFiller",
    )
 
 
-process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.NewTauIDsEmbedded + process.bareTaus + process.softTaus)
-
+process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTausNewID + process.bareTaus + process.softTaus)
 
 ### ----------------------------------------------------------------------
 ### gen info, only from MC
@@ -408,6 +412,7 @@ process.jets = cms.EDFilter("PATJetRefSelector",
 ##
 ## QG tagging for jets
 ##
+
 if COMPUTEQGVAR:
     qgDatabaseVersion = 'v2b' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
 
@@ -430,10 +435,9 @@ if COMPUTEQGVAR:
     process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
     process.jetSequence = cms.Sequence(process.jets * process.QGTagger)
 
+
 else:
     process.jetSequence = cms.Sequence(process.jets)
-
-
 
 
 # il primo legge la collezione dei leptoni e stampa quali sono
