@@ -414,27 +414,27 @@ process.jets = cms.EDFilter("PATJetRefSelector",
 ##
 
 if COMPUTEQGVAR:
-    qgDatabaseVersion = 'v2b' # check https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
 
-    from CondCore.CondDB.CondDB_cfi import *
-    QGPoolDBESSource = cms.ESSource("PoolDBESSource",
-                                    toGet = cms.VPSet(),
-                                    connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
+    from CondCore.CondDB.CondDB_cfi import CondDB
+     
+    process.QGPoolDBESSource = cms.ESSource("PoolDBESSource",
+      CondDB.clone(
+        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+      ),
+      toGet = cms.VPSet(
+        cms.PSet(
+          record = cms.string('QGLikelihoodRcd'),
+          tag    = cms.string('QGLikelihoodObject_v1_AK4PFchs_2017'),
+          label  = cms.untracked.string('QGL_AK4PFchs'),
+        ),
+      ),
     )
-    
-    for type in ['AK4PFchs']:
-        QGPoolDBESSource.toGet.extend(cms.VPSet(cms.PSet(
-                    record = cms.string('QGLikelihoodRcd'),
-                    tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_'+type),
-                    label  = cms.untracked.string('QGL_'+type)
-                    )))
-
+    process.es_prefer_qg = cms.ESPrefer("PoolDBESSource", "QGPoolDBESSource")
 
     process.load('RecoJets.JetProducers.QGTagger_cfi')
     process.QGTagger.srcJets          = cms.InputTag("jets")    # Could be reco::PFJetCollection or pat::JetCollection (both AOD and miniAOD)
     process.QGTagger.jetsLabel        = cms.string('QGL_AK4PFchs')        # Other options: see https://twiki.cern.ch/twiki/bin/viewauth/CMS/QGDataBaseVersion
     process.jetSequence = cms.Sequence(process.jets * process.QGTagger)
-
 
 else:
     process.jetSequence = cms.Sequence(process.jets)
