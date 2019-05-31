@@ -141,6 +141,30 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
     "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
     "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+    
+    "byVVVLooseDeepTau2017v2VSjet",
+    "byVVLooseDeepTau2017v2VSjet", 
+    "byVLooseDeepTau2017v2VSjet",  
+    "byLooseDeepTau2017v2VSjet",   
+    "byMediumDeepTau2017v2VSjet",  
+    "byTightDeepTau2017v2VSjet",   
+    "byVTightDeepTau2017v2VSjet",  
+    "byVVTightDeepTau2017v2VSjet", 
+    
+    "byVVVLooseDeepTau2017v2VSe",  
+    "byVVLooseDeepTau2017v2VSe", 
+    "byVLooseDeepTau2017v2VSe",   
+    "byLooseDeepTau2017v2VSe",   
+    "byMediumDeepTau2017v2VSe",   
+    "byTightDeepTau2017v2VSe",   
+    "byVTightDeepTau2017v2VSe",   
+    "byVVTightDeepTau2017v2VSe",   
+    
+    "byVLoosmuDmumupTau2017v2VSmu",
+    "byLoosmuDmumupTau2017v2VSmu", 
+    "byMmudiumDmumupTau2017v2VSmu",
+    "byTightDmumupTau2017v2VSmu", 
+
   };
 
   tauFloatDiscrims_ =
@@ -157,7 +181,10 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byIsolationMVArun2017v1DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", //FRA syncApr2018
-  };
+    "byDeepTau2017v2VSjetraw",  
+    "byDeepTau2017v2VSeraw",  
+    "byDeepTau2017v2VSmuraw",
+   };
 
 
 }
