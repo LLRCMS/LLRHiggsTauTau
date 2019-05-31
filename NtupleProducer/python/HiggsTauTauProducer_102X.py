@@ -380,15 +380,28 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ### ----------------------------------------------------------------------
 
 from LLRHiggsTauTau.NtupleProducer.runTauIdMVA import *
-na = TauIDEmbedder(process, cms, # pass tour process object
-    debug=True,
-    toKeep = ["2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1"]
-)
-na.runTauID()
+#na = TauIDEmbedder(process, cms, # pass tour process object
+#    debug=True,
+#    toKeep = ["2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1"]
+#)
+#na.runTauID()
+
+import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+
+updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Ids
+
+tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True,
+                    updatedTauName = updatedTauName,
+                    toKeep = ["deepTau2017v2", "2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1","deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0"] discriminators in this line are based on DNN
+   )
+
+tauIdEmbedder.runTauID()
+
 
 # old sequence starts here
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
-   src = cms.InputTag("NewTauIDsEmbedded"),
+   #src = cms.InputTag("NewTauIDsEmbedded"),
+   src = cms.InputTag("slimmedTausNewID"),
    cut = cms.string(TAUCUT),
    )
 
@@ -445,7 +458,7 @@ process.softTaus = cms.EDProducer("TauFiller",
 
 
 #process.taus=cms.Sequence(process.rerunMvaIsolation2SeqRun2 + process.NewTauIDsEmbedded + process.bareTaus + process.softTaus)
-process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.NewTauIDsEmbedded + process.bareTaus + process.softTaus)
+process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTausNewID + process.bareTaus + process.softTaus)
 
 
 # ### ----------------------------------------------------------------------

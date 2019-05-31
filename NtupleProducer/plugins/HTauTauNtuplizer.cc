@@ -501,7 +501,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 39;
+  static const int ntauIds = 59;
   TString tauIDStrings[ntauIds] = {
    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
@@ -542,6 +542,27 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
    "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
    "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+   "byVVVLooseDeepTau2017v2VSjet",
+   "byVVLooseDeepTau2017v2VSjet", 
+   "byVLooseDeepTau2017v2VSjet",  
+   "byLooseDeepTau2017v2VSjet",   
+   "byMediumDeepTau2017v2VSjet",  
+   "byTightDeepTau2017v2VSjet",   
+   "byVTightDeepTau2017v2VSjet",  
+   "byVVTightDeepTau2017v2VSjet", 
+   "byVVVLooseDeepTau2017v2VSe",  
+   "byVVLooseDeepTau2017v2VSe", 
+   "byVLooseDeepTau2017v2VSe",   
+   "byLooseDeepTau2017v2VSe",	
+   "byMediumDeepTau2017v2VSe",   
+   "byTightDeepTau2017v2VSe",	
+   "byVTightDeepTau2017v2VSe",   
+   "byVVTightDeepTau2017v2VSe",   
+   "byVLoosmuDmumupTau2017v2VSmu", 
+   "byLoosmuDmumupTau2017v2VSmu", 
+   "byMmudiumDmumupTau2017v2VSmu", 
+   "byTightDmumupTau2017v2VSmu",
+
   };
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_full5x5_IetaIeta;
@@ -592,6 +613,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //FRA
   std::vector<Float_t> _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //FRA
   std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017; //FRA
+  std::vector<Float_t> _daughters_byDeepTau2017v2VSjetraw;
+  std::vector<Float_t> _daughters_byDeepTau2017v2VSeraw;
+  std::vector<Float_t> _daughters_byDeepTau2017v2VSmuraw;
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
   std::vector<Float_t> _daughters_puCorrPtSum;
@@ -1035,6 +1059,9 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.clear();      //FRA
   _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.clear();      //FRA
   _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.clear(); //FRA
+  _daughters_byDeepTau2017v2VSjetraw.clear();
+  _daughters_byDeepTau2017v2VSeraw.clear();
+  _daughters_byDeepTau2017v2VSmuraw.clear();
   _daughters_footprintCorrection.clear();
   _daughters_neutralIsoPtSumWeight.clear();
   _daughters_photonPtSumOutsideSignalCone.clear();
@@ -1706,6 +1733,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
   myTree->Branch("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
   myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
+  myTree->Branch("daughters_byDeepTau2017v2VSjetraw",&_daughters_byDeepTau2017v2VSjetraw);
+  myTree->Branch("daughters_byDeepTau2017v2VSeraw",&_daughters_byDeepTau2017v2VSeraw);
+  myTree->Branch("daughters_byDeepTau2017v2VSmuraw",&_daughters_byDeepTau2017v2VSmuraw);
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
   myTree->Branch("daughters_puCorrPtSum", &_daughters_puCorrPtSum);
@@ -3170,6 +3200,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float leadChargedParticlePt=-1., trackRefPt=-1.;
     int typeOfMuon=0;
     float byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1, byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=-1; //FRA
+    float byDeepTau2017v2VSjetraw=-1, byDeepTau2017v2VSeraw=-1, byDeepTau2017v2VSmuraw=-1;
     Long64_t tauIDflag = 0;
     float footprintCorrection, neutralIsoPtSumWeight, photonPtSumOutsideSignalCone;
 
@@ -3328,6 +3359,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       byIsolationMVArun2017v2DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMwLTraw2017"); //FRA
       byIsolationMVArun2017v1DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v1DBoldDMwLTraw2017"); //FRA
       byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017"); //FRA
+      byDeepTau2017v2VSjetraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSjetraw");
+      byDeepTau2017v2VSeraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSeraw");
+      byDeepTau2017v2VSmuraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSmuraw");
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
       puCorrPtSum = userdatahelpers::getUserFloat (cand, "puCorrPtSum");
@@ -3431,6 +3465,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
     _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
     _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
+    _daughters_byDeepTau2017v2VSjetraw.push_back(byDeepTau2017v2VSjetraw);
+    _daughters_byDeepTau2017v2VSeraw.push_back(byDeepTau2017v2VSeraw);
+    _daughters_byDeepTau2017v2VSmuraw.push_back(byDeepTau2017v2VSmuraw);
     _daughters_numChargedParticlesSignalCone.push_back(numChargedParticlesSignalCone);
     _daughters_numNeutralHadronsSignalCone.push_back(numNeutralHadronsSignalCone);
     _daughters_numPhotonsSignalCone.push_back(numPhotonsSignalCone);

@@ -388,8 +388,8 @@ scram b -j 8
 ### Instructions for 102X_ttH
 
 ```
-cmsrel CMSSW_10_2_10
-cd CMSSW_10_2_10/src/
+cmsrel CMSSW_10_2_14
+cd CMSSW_10_2_14/src/
 cmsenv
 
 git cms-init
@@ -411,7 +411,6 @@ scram b -j 8
 
 # MET filters
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-git cms-init
 git cms-addpkg RecoMET/METFilters                                       # only if 2017 data/MC or 2018 data/MC
 scram b -j 8
 
@@ -427,6 +426,12 @@ scram b -j 8
 # Jets DeepFlavour
 git cms-addpkg RecoBTag/TensorFlow
 git cherry-pick 94ceae257f846998c357fcad408986cc8a039152                # not sure this is necesary in 102X
+scram b -j 8
+
+# Tau ID DNN
+# https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20
+git cms-merge-topic -u cms-tau-pog:CMSSW_10_2_X_tau-pog_DeepTau2017v2
+git clone -b DeepTau2017v2_alone https://github.com/cms-tau-pog/RecoTauTag-TrainingFiles.git RecoTauTag/TrainingFiles/data
 scram b -j 8
 
 # Z-recoil corrections
@@ -474,9 +479,6 @@ git clone https://github.com/LLRCMS/LLRHiggsTauTau
 cd LLRHiggsTauTau
 git checkout 102X_ttH
 cd -
-scram b -j 8
-
-cd $CMSSW_BASE/src
 scram b -j 8
 ```
 
