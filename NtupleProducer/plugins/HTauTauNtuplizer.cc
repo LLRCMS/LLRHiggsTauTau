@@ -196,6 +196,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Bool_t doCPVariables;
   Bool_t computeQGVar;
   string theJECName;
+  Int_t theYear;
   // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
@@ -210,6 +211,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   TTree *myTree;//->See from ntuplefactory in zz4l
   TH1F *hCounter;
   TH1F *hTauIDs;
+  TH1F *hYear;
   triggerhelper* myTriggerHelper;
 
   //PUReweight reweight; //FRA January2019
@@ -262,6 +264,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   ULong64_t _indexevents;
   Int_t _runNumber;
   Int_t _lumi;
+  Int_t _year;
   Long64_t _triggerbit;
   Int_t _metfilterbit;
   //Int_t _NBadMu;  //FRA January2019
@@ -912,6 +915,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   doCPVariables = pset.getParameter<bool>("doCPVariables");
   computeQGVar = pset.getParameter<bool>("computeQGVar");
   theJECName = pset.getUntrackedParameter<string>("JECset");
+  theYear = pset.getParameter<int>("year");
   // theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
@@ -1270,6 +1274,7 @@ void HTauTauNtuplizer::Initialize(){
   _indexevents=0;
   _runNumber=0;
   _lumi=0;
+  _year=0;
   //_NBadMu=0;  //FRA January2019
   _passecalBadCalibFilterUpdate=false;
   _triggerbit=0;
@@ -1475,11 +1480,13 @@ void HTauTauNtuplizer::beginJob(){
   int nbins=3+(myTriggerHelper->GetNTriggers());
   hCounter = fs->make<TH1F>("Counters","Counters",nbins,0,nbins);
   hTauIDs = fs->make<TH1F>("TauIDs","TauIDs",ntauIds,0,ntauIds);
+  hYear = fs->make<TH1F>("Year","Year",50,2000,2050);
 
   //Branches
   myTree->Branch("EventNumber",&_indexevents,"EventNumber/l");
   myTree->Branch("RunNumber",&_runNumber,"RunNumber/I");
   myTree->Branch("lumi",&_lumi,"lumi/I");
+  myTree->Branch("year",&_year,"year/I");
   //myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");  //FRA January2019
   myTree->Branch("passecalBadCalibFilterUpdate",&_passecalBadCalibFilterUpdate,"passecalBadCalibFilterUpdate/O");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
@@ -2142,6 +2149,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
   }
 
+  hYear->Fill(theYear);
+
   //Get candidate collection
   edm::Handle<edm::View<pat::CompositeCandidate>>candHandle;
   edm::Handle<edm::View<reco::Candidate>>dauHandle;
@@ -2232,6 +2241,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _indexevents = event.id().event();
   _runNumber = event.id().run();
   _lumi=event.luminosityBlock();
+  _year=theYear;
   // _met = met.sumEt(); // scalar sum of the pf candidates
   _met = met.pt();
   _met_er = met_er.pt();

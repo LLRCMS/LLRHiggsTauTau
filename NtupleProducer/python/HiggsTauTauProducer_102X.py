@@ -11,6 +11,13 @@ ELECORRTYPE=APPLYELECORR
 try: IsMC
 except NameError:
     IsMC=True
+try: YEAR
+except NameError:
+    YEAR = 2018
+try: PERIOD
+except:
+    PERIOD ="A"
+print 'Year+Period:', str(YEAR)+PERIOD
 try: doCPVariables
 except NameError:
     doCPVariables=True       
@@ -51,8 +58,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if IsMC:
     process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'  # 2018 MC
 else :
-    process.GlobalTag.globaltag = '102X_dataRun2_Sep2018ABC_v2'  # 2018ABC Data
-    #process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v13'    # 2018D Data --> FRA: need to understand how to use it
+    if PERIOD=="D":
+        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v13'    # 2018D Data --> FRA: need to understand how to use it
+    else:
+        process.GlobalTag.globaltag = '102X_dataRun2_Sep2018ABC_v2'  # 2018ABC Data
 
 print "GT: ",process.GlobalTag.globaltag
 
@@ -623,6 +632,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       fileName = cms.untracked.string ("CosaACaso"),
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
+                      year = cms.int32(YEAR),
                       doCPVariables = cms.bool(doCPVariables),               
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
                       secVtxCollection = cms.InputTag("slimmedSecondaryVertices"), # FRA

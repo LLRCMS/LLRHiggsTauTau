@@ -6,6 +6,10 @@
 import os, re
 PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
+# Year/Period
+YEAR   = 2018
+PERIOD = 'A' # use 'D' for 2018D (prompt GT instead of ReReco GT), can be left empty if running on 2018ABC
+
 #samples list (it could be moved to a cfg file for better reading
 #samples = [
 #]
@@ -24,7 +28,7 @@ APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil correcti
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
 
-SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 #USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
@@ -149,6 +153,9 @@ process.source = cms.Source("PoolSource",
 
     # DY 2 Jets
     #'/store/mc/RunIIFall17MiniAODv2/DY2JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/810000/BAE0A78F-7366-E811-B871-A0369FD20D18.root'
+
+    '/store/mc/RunIIAutumn18MiniAOD/GluGluToHHTo2B2Tau_node_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/70000/F0801D64-DDFF-004A-B935-120B8090F5B8.root',
+
     )
 )
 
