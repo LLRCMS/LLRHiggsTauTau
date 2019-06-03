@@ -940,7 +940,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
     myTriggerHelper->addTriggerMap(hlt,path1,path2,chan);
   }
   */
-  if (HLTList.size() > 64) cout << endl << "** HTauTauNtuplizer : Warning : trigger list size exceeds 64, not enough bits in Long64_t type to store all" << endl << endl;
+  if (HLTList.size() > 64) cout << endl << "** HTauTauNtuplizer : Warning : trigger list size exceeds 64, not enough bits in Long64_t type to store all" << endl;
+  if (HLTList.size() > 64) cout << "** HTauTauNtuplizer : Warning : trigger list size: " << HLTList.size() << endl << endl;
   
   for (std::vector<edm::ParameterSet>::const_iterator iPSet = HLTList.begin();iPSet != HLTList.end(); ++iPSet) {
     const std::string& hlt = iPSet->getParameter<std::string>("HLT");
@@ -2145,6 +2146,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _metfilterbit = myTriggerHelper->FindMETBit(event, metFilterBits_);
   Long64_t tbit = _triggerbit;
   //std::cout << " -- tbit: " << std::bitset<64>(tbit) << std::endl;
+
   for(int itr=0;itr<myTriggerHelper->GetNTriggers();itr++) {
     if(myTriggerHelper->IsTriggerFired(tbit,itr)) hCounter->Fill(itr+3);
   }
