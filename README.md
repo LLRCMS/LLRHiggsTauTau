@@ -382,6 +382,10 @@ cmsrel CMSSW_10_2_14
 cd CMSSW_10_2_14/src
 cmsenv
 
+# MVA EleID Fall 2018
+git cms-init
+git cms-merge-topic cms-egamma:EgammaID_1023 #if you want the V2 IDs, otherwise skip
+
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
 
