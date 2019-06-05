@@ -156,12 +156,12 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
 
     float rel_error_trackpt = l.gsfTrack()->ptError()/l.gsfTrack()->pt();   
     
-    float passMvaIsowp80Id = l.electronID("mvaEleID-Fall17-iso-V2-wp80");
-    float passMvanonIsowp80Id = l.electronID("mvaEleID-Fall17-noIso-V2-wp80");
-    float passMvaIsowp90Id = l.electronID("mvaEleID-Fall17-iso-V2-wp90");
-    float passMvanonIsowp90Id = l.electronID("mvaEleID-Fall17-noIso-V2-wp90");
-    float passMvaIsowpLooseId = l.electronID("mvaEleID-Fall17-iso-V2-wpLoose");
-    float passMvanonIsowpLooseId = l.electronID("mvaEleID-Fall17-noIso-V2-wpLoose");
+    float isEleID80         = l.electronID("mvaEleID-Fall17-iso-V2-wp80");
+    float isEleNoIsoID80    = l.electronID("mvaEleID-Fall17-noIso-V2-wp80");
+    float isEleID90         = l.electronID("mvaEleID-Fall17-iso-V2-wp90");
+    float isEleNoIsoID90    = l.electronID("mvaEleID-Fall17-noIso-V2-wp90");
+    float isEleIDLoose      = l.electronID("mvaEleID-Fall17-iso-V2-wpLoose");
+    float isEleNoIsoIDLoose = l.electronID("mvaEleID-Fall17-noIso-V2-wpLoose");
 
     float mvaValue_Iso = l.userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values");
     float mvaValue_HZZ = l.userFloat("ElectronMVAEstimatorRun2Spring16HZZV1Values");
@@ -189,12 +189,12 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("SIP",SIP);
     l.addUserFloat("dxy",dxy);
     l.addUserFloat("dz",dz);
-    l.addUserFloat("passMvaIsowp80Id",passMvaIsowp80Id);
-    l.addUserFloat("passMvanonIsowp80Id",passMvanonIsowp80Id);
-    l.addUserFloat("passMvaIsowp90Id",passMvaIsowp90Id);
-    l.addUserFloat("passMvanonIsowp90Id",passMvanonIsowp90Id);
-    l.addUserFloat("passMvaIsowpLooseId",passMvaIsowpLooseId);
-    l.addUserFloat("passMvanonIsowpLooseId",passMvanonIsowpLooseId);
+    l.addUserFloat("isEleID80",isEleID80);
+    l.addUserFloat("isEleNoIsoID80",isEleNoIsoID80);
+    l.addUserFloat("isEleID90",isEleID90);
+    l.addUserFloat("isEleNoIsoID90",isEleNoIsoID90);
+    l.addUserFloat("isEleIDLoose",isEleIDLoose);
+    l.addUserFloat("isEleNoIsoIDLoose",isEleNoIsoIDLoose);
     l.addUserFloat("mvaValue_Iso",mvaValue_Iso);
     l.addUserFloat("mvaValue_HZZ",mvaValue_HZZ);
     l.addUserFloat("rel_error_trackpt",rel_error_trackpt);
