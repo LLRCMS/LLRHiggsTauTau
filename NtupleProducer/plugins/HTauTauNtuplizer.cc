@@ -3395,12 +3395,14 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       IoEmIoP=userdatahelpers::getUserFloat(cand,"IoEmIoP");
       IoEmIoP_ttH=userdatahelpers::getUserFloat(cand,"IoEmIoP_ttH");
       //SCeta = userdatahelpers::getUserFloat(cand,"SCeta"); //FRA January2019
-      if(userdatahelpers::getUserFloat(cand,"isEleIDLoose") == 1) iseleLoose=true;
-      if(userdatahelpers::getUserFloat(cand,"isEleID80") == 1) isele80=true;
-      if(userdatahelpers::getUserFloat(cand,"isEleID90") == 1) isele90=true;
-      if(userdatahelpers::getUserFloat(cand,"isEleNoIsoIDLoose") == 1) iselenoisoLoose=true;
-      if(userdatahelpers::getUserFloat(cand,"isEleNoIsoID80") == 1) iselenoiso80=true;
-      if(userdatahelpers::getUserFloat(cand,"isEleNoIsoID90") == 1) iselenoiso90=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvaIsowpLooseId") == 1) iseleLoose=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvaIsowp80Id") == 1) isele80=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvaIsowp90Id") == 1) isele90=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvanonIsowpLooseId") == 1) iselenoisoLoose=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvanonIsowp80Id") == 1) iselenoiso80=true;
+      if(userdatahelpers::getUserFloat(cand,"passMvanonIsowp90Id") == 1) iselenoiso90=true;
+      elemva=(userdatahelpers::getUserFloat(cand,"mvaValue_Iso"));
+      elemva_HZZ=(userdatahelpers::getUserFloat(cand,"mvaValue_HZZ"));
       //if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true; //FRA January2019
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       //elemissinghits = userdatahelpers::getUserInt(cand,"missingHit"); //FRA January2019
