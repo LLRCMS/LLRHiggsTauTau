@@ -205,6 +205,11 @@ dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
+from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+setupEgammaPostRecoSeq(process,
+                       runEnergyCorrections=False,
+                       era='2018-Prompt')
+		       
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
    rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
@@ -215,7 +220,7 @@ process.softElectrons = cms.EDProducer("EleFiller",
    cut = cms.string(ELECUT)
    )
 
-process.electrons = cms.Sequence(process.softElectrons)
+process.electrons = cms.Sequence(process.softElectrons+process.egammaPostRecoSeq)
 
 
 ### ----------------------------------------------------------------------
@@ -242,6 +247,8 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
     # finalCut (any string-based cut for pat::Electron)
     finalCut = cms.string(''),
 )
+
+
 
 ##
 ## Taus
@@ -696,6 +703,7 @@ process.Candidates = cms.Sequence(
     process.nEventsTotal       +
     #process.hltFilter         + 
     process.nEventsPassTrigger +
+    process.egammaPostRecoSeq  +
     process.muons              +
     process.electrons          + process.cleanSoftElectrons +
     process.taus               +
