@@ -135,7 +135,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     float PFPhotonIso       = l.photonIso();
 
     //float fSCeta = fabs(l.eta()); 
-    float fSCeta = l.superCluster()->eta();
+    //float fSCeta = l.superCluster()->eta();
 
     float combRelIsoPF = (l.pfIsolationVariables().sumChargedHadronPt + max(l.pfIsolationVariables().sumNeutralHadronEt +l.pfIsolationVariables().sumPhotonEt - 0.5 * l.pfIsolationVariables().sumPUPt, 0.0)) / l.pt();
 //LeptonIsoHelper::combRelIsoPF(sampleType, setup, rho, l);
@@ -155,6 +155,16 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     } 
 
     float rel_error_trackpt = l.gsfTrack()->ptError()/l.gsfTrack()->pt();   
+    
+    float passMvaIsowp80Id = l.electronID("mvaEleID-Fall17-iso-V2-wp80");
+    float passMvanonIsowp80Id = l.electronID("mvaEleID-Fall17-noIso-V2-wp80");
+    float passMvaIsowp90Id = l.electronID("mvaEleID-Fall17-iso-V2-wp90");
+    float passMvanonIsowp90Id = l.electronID("mvaEleID-Fall17-noIso-V2-wp90");
+    float passMvaIsowpLooseId = l.electronID("mvaEleID-Fall17-iso-V2-wpLoose");
+    float passMvanonIsowpLooseId = l.electronID("mvaEleID-Fall17-noIso-V2-wpLoose");
+
+    float mvaValue_Iso = l.userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values");
+    float mvaValue_HZZ = l.userFloat("ElectronMVAEstimatorRun2Spring16HZZV1Values");
 
     bool isconversionveto=l.passConversionVeto();
     
@@ -169,7 +179,7 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     float IoEmIoP_ttH = 9e9;
     if(l.ecalEnergy()>0)
       IoEmIoP_ttH = (1.0/l.ecalEnergy() - l.eSuperClusterOverP()/l.ecalEnergy());
-
+      
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
@@ -179,6 +189,14 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("SIP",SIP);
     l.addUserFloat("dxy",dxy);
     l.addUserFloat("dz",dz);
+    l.addUserFloat("passMvaIsowp80Id",passMvaIsowp80Id);
+    l.addUserFloat("passMvanonIsowp80Id",passMvanonIsowp80Id);
+    l.addUserFloat("passMvaIsowp90Id",passMvaIsowp90Id);
+    l.addUserFloat("passMvanonIsowp90Id",passMvanonIsowp90Id);
+    l.addUserFloat("passMvaIsowpLooseId",passMvaIsowpLooseId);
+    l.addUserFloat("passMvanonIsowpLooseId",passMvanonIsowpLooseId);
+    l.addUserFloat("mvaValue_Iso",mvaValue_Iso);
+    l.addUserFloat("mvaValue_HZZ",mvaValue_HZZ);
     l.addUserFloat("rel_error_trackpt",rel_error_trackpt);
     l.addUserInt("isConversionVeto",(isconversionveto ? 1 : 0));
     //l.addUserFloat("HLTMatch", HLTMatch);
@@ -193,23 +211,9 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("deltaPhiSuperClusterTrackAtVtx",l.deltaPhiSuperClusterTrackAtVtx());
     l.addUserFloat("IoEmIoP",(1.0/l.ecalEnergy())-(1.0/l.p()));
     l.addUserFloat("IoEmIoP_ttH",IoEmIoP_ttH);
-    l.addUserFloat("SCeta", fSCeta);
+    //l.addUserFloat("SCeta", fSCeta);
     l.addUserInt("isEB", int(l.isEB()));
    
-    float isEleID80 = l.electronID("mvaEleID-Fall17-iso-V1-wp80");
-    float isEleID90 = l.electronID("mvaEleID-Fall17-iso-V1-wp90");
-    float isEleIDLoose = l.electronID("mvaEleID-Fall17-iso-V1-wpLoose");
-    float isEleNoIsoID80 = l.electronID("mvaEleID-Fall17-noIso-V1-wp80");
-    float isEleNoIsoID90 = l.electronID("mvaEleID-Fall17-noIso-V1-wp90");
-    float isEleNoIsoIDLoose = l.electronID("mvaEleID-Fall17-noIso-V1-wpLoose");
-
-    l.addUserFloat("isEleID80", isEleID80);
-    l.addUserFloat("isEleID90", isEleID90);
-    l.addUserFloat("isEleIDLoose", isEleIDLoose);
-    l.addUserFloat("isEleNoIsoID80", isEleNoIsoID80);
-    l.addUserFloat("isEleNoIsoID90", isEleNoIsoID90);
-    l.addUserFloat("isEleNoIsoIDLoose", isEleNoIsoIDLoose);
-
     //--- MC info
     const reco::GenParticle* genL= l.genParticleRef().get();
     float px=0,py=0,pz=0,E=0,fromH=0;
