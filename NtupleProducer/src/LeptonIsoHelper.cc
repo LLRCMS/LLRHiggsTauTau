@@ -360,27 +360,34 @@ std::pair<float,float> LeptonIsoHelper::miniRelIso_ChargedNeutral(const reco::Ca
 
   if(cand->isElectron()){
   
-  // Values from 2017 analysis. To be updated
-        
-    if(      fabs(eta) >= 0     && fabs(eta) < 1.0 )    EffArea = 0.1566;
-    else if( fabs(eta) >= 1.0   && fabs(eta) < 1.479 )  EffArea = 0.1626;
-    else if( fabs(eta) >= 1.479 && fabs(eta) < 2.0 )    EffArea = 0.1073;
-    else if( fabs(eta) >= 2.0   && fabs(eta) < 2.2 )    EffArea = 0.0854;
-    else if( fabs(eta) >= 2.2   && fabs(eta) < 2.3 )    EffArea = 0.1051;
-    else if( fabs(eta) >= 2.3   && fabs(eta) < 2.4 )    EffArea = 0.1204;
-    else if( fabs(eta) >= 2.4   && fabs(eta) <= 2.5 )   EffArea = 0.1524;
+    // Values computed for 92X samples
+    //if(      fabs(eta) >= 0     && fabs(eta) < 1.0 )    EffArea = 0.1566;
+    //else if( fabs(eta) >= 1.0   && fabs(eta) < 1.479 )  EffArea = 0.1626;
+    //else if( fabs(eta) >= 1.479 && fabs(eta) < 2.0 )    EffArea = 0.1073;
+    //else if( fabs(eta) >= 2.0   && fabs(eta) < 2.2 )    EffArea = 0.0854;
+    //else if( fabs(eta) >= 2.2   && fabs(eta) < 2.3 )    EffArea = 0.1051;
+    //else if( fabs(eta) >= 2.3   && fabs(eta) < 2.4 )    EffArea = 0.1204;
+    //else if( fabs(eta) >= 2.4   && fabs(eta) <= 2.5 )   EffArea = 0.1524;
+
+    // Updated values for 94X values: valid for 2017 and 2018 samples
+    if     ( fabs(eta) >= 0     && fabs(eta) < 1.0   ) EffArea = 0.1440;
+    else if( fabs(eta) >= 1.0   && fabs(eta) < 1.479 ) EffArea = 0.1562;
+    else if( fabs(eta) >= 1.479 && fabs(eta) < 2.0   ) EffArea = 0.1032;
+    else if( fabs(eta) >= 2.0   && fabs(eta) < 2.2   ) EffArea = 0.0859;
+    else if( fabs(eta) >= 2.2   && fabs(eta) < 2.3   ) EffArea = 0.1116;
+    else if( fabs(eta) >= 2.3   && fabs(eta) < 2.4   ) EffArea = 0.1321;
+    else if( fabs(eta) >= 2.4   && fabs(eta) <= 2.5  ) EffArea = 0.1654;
 
   }
 
   else if(cand->isMuon()){
-  
-  // Values from 2017 analysis. To be updated
 
-    if(      fabs(eta) >= 0   && fabs(eta) < 0.8 )   EffArea = 0.0566;
-    else if( fabs(eta) >= 0.8 && fabs(eta) < 1.3 )   EffArea = 0.0562;
-    else if( fabs(eta) >= 1.3 && fabs(eta) < 2.0 )   EffArea = 0.0363;
-    else if( fabs(eta) >= 2.0 && fabs(eta) < 2.2 )   EffArea = 0.0119;
-    else if( fabs(eta) >= 2.2 && fabs(eta) <= 2.5 )  EffArea = 0.0064;
+    // Updated values for 94X values: valid for 2017 and 2018 samples
+    if     ( fabs(eta) >= 0   && fabs(eta) < 0.8  ) EffArea = 0.0566;
+    else if( fabs(eta) >= 0.8 && fabs(eta) < 1.3  ) EffArea = 0.0562;
+    else if( fabs(eta) >= 1.3 && fabs(eta) < 2.0  ) EffArea = 0.0363;
+    else if( fabs(eta) >= 2.0 && fabs(eta) < 2.2  ) EffArea = 0.0119;
+    else if( fabs(eta) >= 2.2 && fabs(eta) <= 2.5 ) EffArea = 0.0064;
     
   }
 
