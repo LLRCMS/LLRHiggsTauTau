@@ -421,15 +421,6 @@ git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X
 git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
 git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 
-# Egamma Energy corrections
-git cms-addpkg EgammaAnalysis/ElectronTools
-rm EgammaAnalysis/ElectronTools/data -rf
-git clone git@github.com:cms-egamma/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
-cd EgammaAnalysis/ElectronTools/data
-git checkout ScalesSmearing2018_Dev
-cd -
-git cms-merge-topic cms-egamma:EgammaPostRecoTools_dev
-
 #Add DeepTau code from Tau POG repository (note "-u" option preventing checkout of unnecessary stuff)
 git cms-merge-topic -u cms-tau-pog:CMSSW_10_2_X_tau-pog_DeepTau2017v2
 

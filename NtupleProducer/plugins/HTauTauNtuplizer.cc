@@ -3413,6 +3413,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       if(userdatahelpers::getUserFloat(cand,"isEleNoIsoIDLoose") == 1) iselenoisoLoose=true;
       if(userdatahelpers::getUserFloat(cand,"isEleNoIsoID80") == 1) iselenoiso80=true;
       if(userdatahelpers::getUserFloat(cand,"isEleNoIsoID90") == 1) iselenoiso90=true;
+      elemva=(userdatahelpers::getUserFloat(cand,"mvaValue_Iso"));
+      elemva_HZZ=(userdatahelpers::getUserFloat(cand,"mvaValue_HZZ"));
       //if(userdatahelpers::getUserInt(cand,"isConversionVeto") == 1)isconversionveto=true; //FRA January2019
       error_trackpt = userdatahelpers::getUserFloat(cand,"rel_error_trackpt");
       //elemissinghits = userdatahelpers::getUserInt(cand,"missingHit"); //FRA January2019
