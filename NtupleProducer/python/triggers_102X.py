@@ -23,7 +23,7 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(999)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_IsoMu24_eta2p1_v"),  # FIXME: to be checked
+        HLT = cms.string("HLT_IsoMu24_eta2p1_v"),  # Davide: This one looks ok in HLT GUI
         path1 = cms.vstring ("hltL3crIsoL1sSingleMu22erL1f0L2f10QL3f24QL3trkIsoFiltered0p07"),
         path2 = cms.vstring (""),
         path3 = cms.vstring (""),
@@ -42,7 +42,7 @@ HLTLIST = cms.VPSet(
         ),
 ### === Single electron triggers   -- UPDATED FOR 2018 DATA
     cms.PSet (
-        HLT = cms.string("HLT_Ele28_WPTight_Gsf_v"), # FIXME: to be checked - not present at the beginning of 2018
+        HLT = cms.string("HLT_Ele28_WPTight_Gsf_v"), # Davide: not present in HLT Menu v1 and v2
         path1 = cms.vstring ("hltEle28WPTightGsfTrackIsoFilter"),
         path2 = cms.vstring (""),
         path3 = cms.vstring (""),
@@ -51,7 +51,7 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(999)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_Ele30_WPTight_Gsf_v"),  # FIXME: to be checked  - not present at the beginning of 2018
+        HLT = cms.string("HLT_Ele30_WPTight_Gsf_v"),  # Davide: not present in HLT Menu v1 and v2
         path1 = cms.vstring ("hltEle30WPTightGsfTrackIsoFilter"),
         path2 = cms.vstring (""),
         path3 = cms.vstring (""),
@@ -477,7 +477,7 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(15),
         leg2 = cms.int32(999)
         ),
-## === VBF + double-tau triggers -- CHECK FILTERS W\O HPS
+## === VBF + double-tau triggers -- Davide: These triggerslooks ok in HLT GUI
     cms.PSet (
         HLT = cms.string("HLT_VBF_DoubleLooseChargedIsoPFTauHPS20_Trk1_eta2p1_v"),
         path1 = cms.vstring ("hltHpsDoublePFTau20TrackLooseChargedIsoAgainstMuon"),                    # hadronic tau
