@@ -2971,7 +2971,8 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_py.push_back( (float) ijet->py()); //Puppi ak8 from 9X onwards
       _ak8jets_pz.push_back( (float) ijet->pz()); //Puppi ak8 from 9X onwards
       _ak8jets_e.push_back( (float) ijet->energy()); //Puppi ak8 from 9X onwards
-      _ak8jets_SoftDropMass.push_back(ijet->hasUserFloat("ak8PFJetsPuppiSoftDropMass") ? ijet->userFloat("ak8PFJetsPuppiSoftDropMass") : -999);
+      _ak8jets_SoftDropMass.push_back(ijet->groomedMass("SoftDropPuppi")); 
+      //_ak8jets_SoftDropMass.push_back(ijet->hasUserFloat("ak8PFJetsPuppiSoftDropMass") ? ijet->userFloat("ak8PFJetsPuppiSoftDropMass") : -999);
       //_ak8jets_PrunedMass.push_back (ijet->hasUserFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass") ? ijet->userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass")  : -999 );
       _ak8jets_tau1.push_back (ijet->hasUserFloat("NjettinessAK8Puppi:tau1") ? ijet->userFloat("NjettinessAK8Puppi:tau1") : -999 );
       _ak8jets_tau2.push_back (ijet->hasUserFloat("NjettinessAK8Puppi:tau2") ? ijet->userFloat("NjettinessAK8Puppi:tau2") : -999 );
