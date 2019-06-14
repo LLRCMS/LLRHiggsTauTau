@@ -744,19 +744,21 @@ else:
 ## L1 Prefiring
 ## ----------------------------------------------------------------------
 
-#if (YEAR==2016):
-#    from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
-#    process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
-#        DataEra = cms.string("2016BtoH"),
-#        UseJetEMPt = cms.bool(False),
-#        PrefiringRateSystematicUncty = cms.double(0.2))
+if (YEAR==2016):
+    from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+    process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+        DataEra = cms.string("2016BtoH"),
+        UseJetEMPt = cms.bool(False),
+        PrefiringRateSystematicUncty = cms.double(0.2),
+        SkipWarnings = False)
 
-#if (YEAR==2017):
-#    from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
-#    process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
-#        DataEra = cms.string("2017BtoF"), 
-#        UseJetEMPt = cms.bool(False),
-#        PrefiringRateSystematicUncty = cms.double(0.2))
+if (YEAR==2017 or YEAR==2018): #2018 no weights applied (added for consistency)
+    from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+    process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+        DataEra = cms.string("2017BtoF"), 
+        UseJetEMPt = cms.bool(False),
+        PrefiringRateSystematicUncty = cms.double(0.2),
+        SkipWarnings = False)
 
 
 ## ----------------------------------------------------------------------
@@ -924,7 +926,7 @@ process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
     process.egammaPostRecoSeq  +
-    #process.prefiringweight +
+    process.prefiringweight +
     #process.fullPatMetSequenceModifiedMET +
     process.nEventsTotal       +
     process.nEventsPassTrigger +

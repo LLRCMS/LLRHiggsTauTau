@@ -419,10 +419,6 @@ scram b -j 8
 git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X        # only if 2017 data/MC
 scram b -j 8
 
-# L1 Prefiring
-git cms-merge-topic lathomas:L1Prefiring_10_2_6                         # only if 2016 MC or 2017 MC
-scram b -j 8
-
 # Jets DeepFlavour
 git cms-addpkg RecoBTag/TensorFlow
 git cherry-pick 94ceae257f846998c357fcad408986cc8a039152                # not sure this is necesary in 102X
