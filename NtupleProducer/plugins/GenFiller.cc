@@ -307,7 +307,8 @@ bool GenFiller::IsInteresting (const GenParticle& p)
     bool GoodPdgId = (APdgId == 25 || APdgId == 36 || APdgId == 23 || APdgId == 24 ||// bosons
                       APdgId == 1000022 || APdgId == 1000023 || APdgId == 1000025  ||// SUSY particles
                       APdgId == 6  || // quarks
-                      APdgId == 11 || APdgId == 12 || APdgId == 13 || APdgId == 14 || APdgId == 15 || APdgId == 16); // leptons
+                      APdgId == 11 || APdgId == 12 || APdgId == 13 || APdgId == 14 || APdgId == 15 || APdgId == 16 || //leptons
+                      APdgId == 22 ); // photons
 
     if(isVBFParton(p)) return true ;
             

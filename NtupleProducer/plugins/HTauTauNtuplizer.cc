@@ -313,7 +313,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _mothers_e;
   std::vector<Long64_t> _mothers_trgSeparateMatch; // are the two legs matched to different HLT objs?
                                                    // stored bitwise for HLT paths as done for daughters_trgMatch
-
   
   // reco leptons
   //std::vector<TLorentzVector> _daughters;
@@ -347,7 +346,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _daughters_genindex;
   std::vector<Int_t> _daughters_charge;
 
-  std::vector<Int_t> _daughters_matchedJetIndex; //jet index that shares PF packed candidate with daughter
+  std::vector<std::vector<Int_t>> _daughters_matchedJetIndices;
+  std::vector<Int_t> _daughters_nmatchedJets;
+  std::vector<Int_t> _daughters_matchedMaxPtJetIndex;
 
   std::vector<const reco::Candidate*> _softLeptons;
   
@@ -1018,7 +1019,9 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_pz_TauDown.clear();
   _daughters_e_TauDown.clear();
   _daughters_charge.clear();
-  _daughters_matchedJetIndex.clear();
+  _daughters_matchedJetIndices.clear();
+  _daughters_nmatchedJets.clear();
+  _daughters_matchedMaxPtJetIndex.clear();
 
   _daughters_genindex.clear();
   _daughters_IetaIeta.clear();
@@ -1522,7 +1525,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_pz",&_daughters_pz);
   myTree->Branch("daughters_e",&_daughters_e);
   myTree->Branch("daughters_charge",&_daughters_charge);
-  myTree->Branch("daughters_matchedJetIndex",&_daughters_matchedJetIndex);
+  myTree->Branch("daughters_matchedJetIndices",&_daughters_matchedJetIndices);
+  myTree->Branch("daughters_nmatchedJets",&_daughters_nmatchedJets);
+  myTree->Branch("daughters_matchedMaxPtJetIndex",&_daughters_matchedMaxPtJetIndex);
 
   myTree->Branch("daughters_ecalEnergyErrPreCorr",&_daughters_ecalEnergyErrPreCorr);
   myTree->Branch("daughters_ecalEnergyErrPostCorr",&_daughters_ecalEnergyErrPostCorr);
@@ -3173,7 +3178,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     }
 
-    int matched_jet_index = -999;
+    vector<int> matched_jet_index;
+    matched_jet_index.clear();
+
     int number_cand = cand->numberOfSourceCandidatePtrs();    
     for(int i_cand = 0 ; i_cand < number_cand; i_cand++){
        const reco::CandidatePtr &c1s = cand->sourceCandidatePtr(i_cand); 
@@ -3184,13 +3191,39 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           for(int i_cand_jet = 0 ; i_cand_jet < number_jet; i_cand_jet++){
              const reco::CandidatePtr &c2s = my_jet->sourceCandidatePtr(i_cand_jet);
              if(c2s == c1s){
-                matched_jet_index = i_jet;
-                break;
+                matched_jet_index.push_back(i_jet);
              }
           }
        }       
     }
-    _daughters_matchedJetIndex.push_back(matched_jet_index);
+
+    sort(matched_jet_index.begin(), matched_jet_index.end());
+    vector<int>::iterator it;
+    it = unique(matched_jet_index.begin(), matched_jet_index.end()); 
+    matched_jet_index.resize(distance(matched_jet_index.begin(),it)); 
+
+    _daughters_matchedJetIndices.push_back(matched_jet_index);
+    _daughters_nmatchedJets.push_back(matched_jet_index.size());
+      
+    int maxpt_idx = -1;
+    float maxpt = 0; 
+ 
+    int jetcounter = -1;
+    for(edm::View<pat::Jet>::const_iterator my_jet = jets->begin(); my_jet!=jets->end();++my_jet){
+      jetcounter++;
+      for(unsigned int i=0; i<matched_jet_index.size(); i++){
+        if(matched_jet_index.at(i)==jetcounter){
+          float pt = (float) my_jet->pt();
+          if(pt>maxpt){
+            maxpt=pt;
+            maxpt_idx=matched_jet_index.at(i);
+          }
+        }
+      }
+    }
+  
+    _daughters_matchedMaxPtJetIndex.push_back(maxpt_idx);
+   
 
     // variables
     //float discr=-1.;
