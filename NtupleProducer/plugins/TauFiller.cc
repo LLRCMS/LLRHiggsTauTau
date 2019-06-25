@@ -160,10 +160,10 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byVTightDeepTau2017v2VSe",   
     "byVVTightDeepTau2017v2VSe",   
     
-    "byVLoosmuDmumupTau2017v2VSmu",
-    "byLoosmuDmumupTau2017v2VSmu", 
-    "byMmudiumDmumupTau2017v2VSmu",
-    "byTightDmumupTau2017v2VSmu", 
+    "byVLooseDeepTau2017v2VSmu",
+    "byLooseDeepTau2017v2VSmu", 
+    "byMediumDeepTau2017v2VSmu",
+    "byTightDeepTau2017v2VSmu", 
 
   };
 
