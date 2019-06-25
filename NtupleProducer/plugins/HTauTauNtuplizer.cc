@@ -591,10 +591,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byTightDeepTau2017v2VSe",	
    "byVTightDeepTau2017v2VSe",   
    "byVVTightDeepTau2017v2VSe",   
-   "byVLoosmuDmumupTau2017v2VSmu", 
-   "byLoosmuDmumupTau2017v2VSmu", 
-   "byMmudiumDmumupTau2017v2VSmu", 
-   "byTightDmumupTau2017v2VSmu", 
+   "byVLooseDeepTau2017v2VSmu",
+   "byLooseDeepTau2017v2VSmu", 
+   "byMediumDeepTau2017v2VSmu",
+   "byTightDeepTau2017v2VSmu", 
  };
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_full5x5_IetaIeta;
