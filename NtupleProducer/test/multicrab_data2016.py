@@ -64,6 +64,14 @@ if __name__ == '__main__':
 'Data_2016_v1_MuonEG_BlockF',
 'Data_2016_v1_MuonEG_BlockG',
 'Data_2016_v1_MuonEG_BlockH',
+# Tau
+'Data_2016_v1_Tau_BlockB',
+'Data_2016_v1_Tau_BlockC',
+'Data_2016_v1_Tau_BlockD',
+'Data_2016_v1_Tau_BlockE',
+'Data_2016_v1_Tau_BlockF',
+'Data_2016_v1_Tau_BlockG',
+'Data_2016_v1_Tau_BlockH'
 
    ]
  
@@ -109,11 +117,18 @@ datasetinputs = [
 '/MuonEG/Run2016F-17Jul2018-v1/MINIAOD',
 '/MuonEG/Run2016G-17Jul2018-v1/MINIAOD',
 '/MuonEG/Run2016H-17Jul2018-v1/MINIAOD',
+# Tau dataset : AT LEAST 1 high-energy tau
+'/Tau/Run2016B-17Jul2018_ver2-v1/MINIAOD',
+'/Tau/Run2016C-17Jul2018-v1/MINIAOD',
+'/Tau/Run2016D-17Jul2018-v1/MINIAOD',
+'/Tau/Run2016E-17Jul2018-v1/MINIAOD',
+'/Tau/Run2016F-17Jul2018-v1/MINIAOD',
+'/Tau/Run2016G-17Jul2018-v1/MINIAOD',
+'/Tau/Run2016H-17Jul2018-v1/MINIAOD'
                 
     ]
 
-#for d in range(0,len(datasetnames)):
-for d in range(0,1):
+for d in range(1,len(datasetnames)):
 
     print 'multicrab.py: Running datasetname: ', datasetnames[d]
 
@@ -137,8 +152,6 @@ for d in range(0,1):
     config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2016_v1/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d] 
-    
-    #config.Data.publication = True
 
     print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/'
 
