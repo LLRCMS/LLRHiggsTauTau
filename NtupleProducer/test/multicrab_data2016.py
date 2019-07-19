@@ -25,53 +25,53 @@ if __name__ == '__main__':
  datasetnames  = [
 
 # SingleElectron dataset :
-'Data_2016_v1_SingleEle_BlockB',
-'Data_2016_v1_SingleEle_BlockC',
-'Data_2016_v1_SingleEle_BlockD',
-'Data_2016_v1_SingleEle_BlockE',
-'Data_2016_v1_SingleEle_BlockF',
-'Data_2016_v1_SingleEle_BlockG',
-'Data_2016_v1_SingleEle_BlockH',
+'Data_2016_v2_SingleEle_BlockB',
+'Data_2016_v2_SingleEle_BlockC',
+'Data_2016_v2_SingleEle_BlockD',
+'Data_2016_v2_SingleEle_BlockE',
+'Data_2016_v2_SingleEle_BlockF',
+'Data_2016_v2_SingleEle_BlockG',
+'Data_2016_v2_SingleEle_BlockH',
 # SingleMuon dataset 
-'Data_2016_v1_SingleMu_BlockB',
-'Data_2016_v1_SingleMu_BlockC',
-'Data_2016_v1_SingleMu_BlockD',
-'Data_2016_v1_SingleMu_BlockE',
-'Data_2016_v1_SingleMu_BlockF',
-'Data_2016_v1_SingleMu_BlockG',
-'Data_2016_v1_SingleMu_BlockH',
+'Data_2016_v2_SingleMu_BlockB',
+'Data_2016_v2_SingleMu_BlockC',
+'Data_2016_v2_SingleMu_BlockD',
+'Data_2016_v2_SingleMu_BlockE',
+'Data_2016_v2_SingleMu_BlockF',
+'Data_2016_v2_SingleMu_BlockG',
+'Data_2016_v2_SingleMu_BlockH',
 # DoubleEG dataset
-'Data_2016_v1_DoubleEG_BlockB',
-'Data_2016_v1_DoubleEG_BlockC',
-'Data_2016_v1_DoubleEG_BlockD',
-'Data_2016_v1_DoubleEG_BlockE',
-'Data_2016_v1_DoubleEG_BlockF',
-'Data_2016_v1_DoubleEG_BlockG',
-'Data_2016_v1_DoubleEG_BlockH',
+'Data_2016_v2_DoubleEG_BlockB',
+'Data_2016_v2_DoubleEG_BlockC',
+'Data_2016_v2_DoubleEG_BlockD',
+'Data_2016_v2_DoubleEG_BlockE',
+'Data_2016_v2_DoubleEG_BlockF',
+'Data_2016_v2_DoubleEG_BlockG',
+'Data_2016_v2_DoubleEG_BlockH',
 # DoubleMuon
-'Data_2016_v1_DoubleMu_BlockB',
-'Data_2016_v1_DoubleMu_BlockC',
-'Data_2016_v1_DoubleMu_BlockD',
-'Data_2016_v1_DoubleMu_BlockE',
-'Data_2016_v1_DoubleMu_BlockF',
-'Data_2016_v1_DoubleMu_BlockG',
-'Data_2016_v1_DoubleMu_BlockH',
+'Data_2016_v2_DoubleMu_BlockB',
+'Data_2016_v2_DoubleMu_BlockC',
+'Data_2016_v2_DoubleMu_BlockD',
+'Data_2016_v2_DoubleMu_BlockE',
+'Data_2016_v2_DoubleMu_BlockF',
+'Data_2016_v2_DoubleMu_BlockG',
+'Data_2016_v2_DoubleMu_BlockH',
 # MuonEG
-'Data_2016_v1_MuonEG_BlockB',
-'Data_2016_v1_MuonEG_BlockC',
-'Data_2016_v1_MuonEG_BlockD',
-'Data_2016_v1_MuonEG_BlockE',
-'Data_2016_v1_MuonEG_BlockF',
-'Data_2016_v1_MuonEG_BlockG',
-'Data_2016_v1_MuonEG_BlockH',
+'Data_2016_v2_MuonEG_BlockB',
+'Data_2016_v2_MuonEG_BlockC',
+'Data_2016_v2_MuonEG_BlockD',
+'Data_2016_v2_MuonEG_BlockE',
+'Data_2016_v2_MuonEG_BlockF',
+'Data_2016_v2_MuonEG_BlockG',
+'Data_2016_v2_MuonEG_BlockH',
 # Tau
-'Data_2016_v1_Tau_BlockB',
-'Data_2016_v1_Tau_BlockC',
-'Data_2016_v1_Tau_BlockD',
-'Data_2016_v1_Tau_BlockE',
-'Data_2016_v1_Tau_BlockF',
-'Data_2016_v1_Tau_BlockG',
-'Data_2016_v1_Tau_BlockH'
+'Data_2016_v2_Tau_BlockB',
+'Data_2016_v2_Tau_BlockC',
+'Data_2016_v2_Tau_BlockD',
+'Data_2016_v2_Tau_BlockE',
+'Data_2016_v2_Tau_BlockF',
+'Data_2016_v2_Tau_BlockG',
+'Data_2016_v2_Tau_BlockH'
 
    ]
  
@@ -149,7 +149,7 @@ for d in range(1,len(datasetnames)):
     config.Data.splitting      = 'LumiBased'
     config.Data.unitsPerJob    = 30
     config.Data.lumiMask       = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
-    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2016_v1/'
+    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2016_v2/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d] 
 

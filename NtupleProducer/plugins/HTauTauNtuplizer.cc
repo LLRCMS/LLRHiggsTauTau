@@ -2339,7 +2339,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   else if(Data2016B || Data2016C || Data2016D){
     for (const auto& source: m_jec_sources) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017BCD_V11_DATA_Uncertainty_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017BCD_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
@@ -2347,7 +2347,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   else if(Data2016E || Data2016F){
     for (const auto& source: m_jec_sources) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017EF_V11_DATA_Uncertainty_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017EF_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
@@ -2355,7 +2355,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   else if(Data2016G || Data2016H){
     for (const auto& source: m_jec_sources) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017GH_V11_DATA_Uncertainty_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017GH_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }

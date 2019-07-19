@@ -62,11 +62,11 @@ if IsMC:
 	process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'
 else :
     if (YEAR == 2016): 
-	process.GlobalTag.globaltag = '94X_dataRun2_v10'
+	process.GlobalTag.globaltag = '102X_dataRun2_nanoAOD_2016_v1'
     if (YEAR == 2017): 
-	process.GlobalTag.globaltag = '94X_dataRun2_v11'
+	process.GlobalTag.globaltag = '102X_dataRun2_v8'
     if (YEAR == 2018): 
-	process.GlobalTag.globaltag = '102X_dataRun2_Sep2018Rereco_v1'
+	process.GlobalTag.globaltag = '102X_dataRun2_Sep2018ABC_v2'
 
 print "GT: ",process.GlobalTag.globaltag
 
