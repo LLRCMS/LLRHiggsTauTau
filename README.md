@@ -400,6 +400,7 @@ git config merge.renameLimit 999999
 # electron scale/smearing corrections
 # https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#2018_Preliminary_Energy_Correcti
 git cms-merge-topic cms-egamma:EgammaPostRecoTools
+git cms-merge-topic cms-egamma:slava77-btvDictFix_10210 #fixes the Run2018D dictionary issue, see https://github.com/cms-sw/cmssw/issues/26182
 scram b -j 8
 
 git clone git@github.com:cms-egamma/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
