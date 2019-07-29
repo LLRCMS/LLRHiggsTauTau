@@ -30,6 +30,9 @@ except NameError:
 try: Is25ns
 except NameError:
     Is25ns=True
+try: Is2018D
+except NameError:
+    Is2018D=False
 
 try: USE_NOHFMET
 except NameError:
@@ -54,19 +57,21 @@ from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 if IsMC:
-    if (YEAR == 2016): 
+    if (YEAR == 2016 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_mcRun2_asymptotic_v6'
-    if (YEAR == 2017): 
+    if (YEAR == 2017 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_mc2017_realistic_v6'
-    if (YEAR == 2018): 
+    if (YEAR == 2018 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'
 else :
-    if (YEAR == 2016): 
+    if (YEAR == 2016 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_dataRun2_nanoAOD_2016_v1'
-    if (YEAR == 2017): 
+    if (YEAR == 2017 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_dataRun2_v8'
-    if (YEAR == 2018): 
+    if (YEAR == 2018 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_dataRun2_Sep2018ABC_v2'
+    if (YEAR == 2018 and Is2018D == True):
+        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v13'
 
 print "GT: ",process.GlobalTag.globaltag
 

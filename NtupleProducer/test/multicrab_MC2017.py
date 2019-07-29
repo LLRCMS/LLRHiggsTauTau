@@ -207,8 +207,6 @@ if __name__ == '__main__':
     ]
 
 
-#for d in range(0,len(datasetnames)):
-#for d in range(0,1):
 for d in range(0,len(datasetnames)):
     print 'multicrab.py: Running datasetname: ', datasetnames[d]
 

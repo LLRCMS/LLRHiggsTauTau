@@ -7,8 +7,8 @@ import os, re
 PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
 #YEAR = 2016
-YEAR = 2017
-#YEAR = 2018
+#YEAR = 2017
+YEAR = 2018
 print "YEAR: ",YEAR
 
 #apply corrections?
@@ -91,11 +91,14 @@ process.source = cms.Source("PoolSource",
  
     #2017 ttH
     #'/store/mc/RunIIFall17MiniAODv2/ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/100000/7C60AC2B-E76F-E811-9D60-0025905B860C.root',
-    '/store/data/Run2017B/SingleElectron/MINIAOD/31Mar2018-v1/60000/0C348251-AC37-E811-A760-008CFAC9196C.root'
 
     #2018 ttH 
     #'/store/mc/RunIIAutumn18MiniAOD/ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/270000/A912BBFA-D1A1-8544-A430-8C98C0767737.root',
-
+    #'/store/data/Run2018A/SingleMuon/MINIAOD/17Sep2018-v2/00000/3DBA0757-94BE-DC49-AB5A-BBFAB34D46C3.root'
+    #'/store/data/Run2018A/SingleMuon/MINIAOD/17Sep2018-v2/100000/36AA0F7B-CF4F-1E4B-8DAC-F9CFBBAAC70C.root'
+    #'/store/data/Run2018B/SingleMuon/MINIAOD/17Sep2018-v1/00000/0038D2C7-ADC4-E14E-9644-D6794B8EDF69.root'
+    #'/store/data/Run2018C/SingleMuon/MINIAOD/17Sep2018-v1/00000/01F7D352-6206-CB4E-9412-473614AFFEED.root'
+    '/store/data/Run2018D/SingleMuon/MINIAOD/PromptReco-v2/000/320/500/00000/12C8CC7E-8C95-E811-BDA3-FA163EA1F576.root'
     )
 )
 
@@ -103,7 +106,7 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 100
+process.maxEvents.input = 10
 #process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
