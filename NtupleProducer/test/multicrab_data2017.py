@@ -115,7 +115,7 @@ for d in range(0,len(datasetnames)):
 
     config.section_('JobType')
     config.JobType.pluginName  = 'Analysis'
-    config.JobType.psetName    = 'analyzer_2017.py'
+    config.JobType.psetName    = 'analyzer_data2017.py'
     config.JobType.sendExternalFolder = True
     config.JobType.inputFiles  = ['JECUncertaintySources']
 

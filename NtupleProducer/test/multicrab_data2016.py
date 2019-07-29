@@ -128,7 +128,7 @@ datasetinputs = [
                 
     ]
 
-for d in range(1,len(datasetnames)):
+for d in range(0,len(datasetnames)):
 
     print 'multicrab.py: Running datasetname: ', datasetnames[d]
 
@@ -139,7 +139,7 @@ for d in range(1,len(datasetnames)):
 
     config.section_('JobType')
     config.JobType.pluginName  = 'Analysis'
-    config.JobType.psetName    = 'analyzer_2016.py'
+    config.JobType.psetName    = 'analyzer_data2016.py'
     config.JobType.sendExternalFolder = True
     config.JobType.inputFiles  = ['JECUncertaintySources']
 
