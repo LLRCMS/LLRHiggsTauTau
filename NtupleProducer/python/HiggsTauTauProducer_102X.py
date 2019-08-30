@@ -55,13 +55,14 @@ except NameError:
 from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+
 if IsMC:
-    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'  # 2018 MC
+    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'  # 2018 MC
 else :
     if PERIOD=="D":
-        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v13'    # 2018D Data --> FRA: need to understand how to use it
+        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v14'    # 2018D Data --> FRA: need to understand how to use it
     else:
-        process.GlobalTag.globaltag = '102X_dataRun2_Sep2018ABC_v2'  # 2018ABC Data
+        process.GlobalTag.globaltag = '102X_dataRun2_v11'  # 2018ABC Data
 
 print "GT: ",process.GlobalTag.globaltag
 
