@@ -39,7 +39,6 @@ IsMC=True
 #IsMC=False
 print "IsMC: ", IsMC
 Is25ns=True
-Is2018D=False
 
 HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.
 if not IsMC:
@@ -88,9 +87,7 @@ process.source = cms.Source("PoolSource",
     
     #2016 ttH
     '/store/mc/RunIISummer16MiniAODv3/ttHToNonbb_M125_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v2/120000/F24F2D5E-DDEC-E811-AF50-90B11C08AD7D.root',
-    # Data
-    #'/store/data/Run2016B/SingleElectron/MINIAOD/17Jul2018_ver2-v1/50000/5425F2E7-CC8B-E811-B2D8-A0369F83635A.root' 
-
+ 
     #2017 ttH
     #'/store/mc/RunIIFall17MiniAODv2/ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8/MINIAODSIM/PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/100000/7C60AC2B-E76F-E811-9D60-0025905B860C.root',
 
@@ -104,8 +101,8 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-#process.maxEvents.input = 100
 process.maxEvents.input = 10
+#process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file

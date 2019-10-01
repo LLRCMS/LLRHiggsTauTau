@@ -286,6 +286,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _PFMETsignif;
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
+  Float_t _MC_weight_originalXWGTUP;
+  std::vector<Float_t> _MC_weights;
+  std::vector<Float_t> _MC_weights_rwgt;
+  Float_t _MC_weights_rwgt_sum;
   Int_t _npv;
   Float_t _lheHt;
   Int_t   _lheNOutPartons;
@@ -1363,6 +1367,10 @@ void HTauTauNtuplizer::Initialize(){
   _PFMETCov11=0.;
   _PFMETsignif=0.;
   _MC_weight=0.;
+  _MC_weight_originalXWGTUP=0.;
+  _MC_weights.clear();
+  _MC_weights_rwgt.clear();
+  _MC_weights_rwgt_sum=0.;
   _npv=0;
   _lheHt=0;
   _lheNOutPartons=0;
@@ -1681,6 +1689,10 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("MC_weight_scale_muF2",&_MC_weight_scale_muF2,"MC_weight_scale_muF2/F");
     myTree->Branch("MC_weight_scale_muR0p5",&_MC_weight_scale_muR0p5,"MC_weight_scale_muR0p5/F");
     myTree->Branch("MC_weight_scale_muR2",&_MC_weight_scale_muR2,"MC_weight_scale_muR2/F");
+    myTree->Branch("MC_weight_originalXWGTUP",&_MC_weight_originalXWGTUP,"MC_weight_originalXWGTUP/F");
+    myTree->Branch("MC_weights",&_MC_weights);
+    myTree->Branch("MC_weights_rwgt",&_MC_weights_rwgt);
+    myTree->Branch("MC_weights_rwgt_sum",&_MC_weights_rwgt_sum,"MC_weights_rwgt_sum/F");
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("lheNOutPartons", &_lheNOutPartons, "lheNOutPartons/I");
     myTree->Branch("lheNOutB", &_lheNOutB, "lheNOutB/I");
@@ -2245,6 +2257,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(prefweightdown_token,theprefweightdown);
 
   if(theisMC){
+
     edm::Handle<LHEEventProduct> lheeventinfo;
     event.getByToken(theLHEPTag,lheeventinfo);
 
@@ -2253,16 +2266,45 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     _aMCatNLOweight=genEvt->weight();
     _MC_weight = _aMCatNLOweight; // duplicated
 
+    float MC_weights_rwgt_sum = 0;
+
     if (lheeventinfo.isValid()) {
-      _nup=lheeventinfo->hepeup().NUP;
-      if (lheeventinfo->weights().size() > 6) // access weights only if weights() is filled
-      {
-        _MC_weight_scale_muF0p5 = _aMCatNLOweight*(lheeventinfo->weights()[2].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 0.5 | muR = 1
-        _MC_weight_scale_muF2 = _aMCatNLOweight*(lheeventinfo->weights()[1].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 2 | muR = 1
-        _MC_weight_scale_muR0p5 = _aMCatNLOweight*(lheeventinfo->weights()[6].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 0.5
-        _MC_weight_scale_muR2 = _aMCatNLOweight*(lheeventinfo->weights()[3].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 2
-      }
+
+       _nup=lheeventinfo->hepeup().NUP;
+       _MC_weight_originalXWGTUP = lheeventinfo->originalXWGTUP();
+
+       if (lheeventinfo->weights().size()>0){
+       
+         //ID=1 to ID=9 is vector indices i=0 to i=8 
+         _MC_weight_scale_muF0p5 = _aMCatNLOweight*(lheeventinfo->weights()[2].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 0.5 | muR = 1
+         _MC_weight_scale_muF2 = _aMCatNLOweight*(lheeventinfo->weights()[1].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 2 | muR = 1
+         _MC_weight_scale_muR0p5 = _aMCatNLOweight*(lheeventinfo->weights()[6].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 0.5
+         _MC_weight_scale_muR2 = _aMCatNLOweight*(lheeventinfo->weights()[3].wgt)/(lheeventinfo->originalXWGTUP()); // muF = 1 | muR = 2
+
+         for (unsigned int i=0; i<lheeventinfo->weights().size(); i++){
+         
+           if(!lheeventinfo->weights()[i].wgt) continue;
+  
+           //std::cout << "i: "<<i<<"lhe weight id " <<  lheeventinfo->weights()[i].id << std::endl;
+
+           //https://twiki.cern.ch/twiki/bin/view/Main/TheoreticalUncertainty
+           //ID=1 to ID=9 is vector indices i=0 to i=8 
+           if(i<9) _MC_weights.push_back(lheeventinfo->weights()[i].wgt);
+       
+           //https://twiki.cern.ch/twiki/pub/CMS/SingleTopHiggsGeneration13TeV/reweight_encondig.txt
+           //https://gitlab.cern.ch/ttH_leptons/doc/blob/master/Legacy/list_tH_weighs.md  
+           if( (lheeventinfo->weights()[i].id.find("rwgt")!=std::string::npos) || (lheeventinfo->weights()[i].id.find("mg_reweight")!=std::string::npos) ){
+              _MC_weights_rwgt.push_back(lheeventinfo->weights()[i].wgt);
+              MC_weights_rwgt_sum += lheeventinfo->weights()[i].wgt;
+           }
+   
+         }
+    
+       }
+
     }
+
+    _MC_weights_rwgt_sum = MC_weights_rwgt_sum;
 
   }
 
