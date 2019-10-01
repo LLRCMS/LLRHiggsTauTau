@@ -25,41 +25,41 @@ if __name__ == '__main__':
  datasetnames  = [
 
 # SingleElectron dataset :
-'Data_2017_v1_SingleEle_BlockB',
-'Data_2017_v1_SingleEle_BlockC',
-'Data_2017_v1_SingleEle_BlockD',
-'Data_2017_v1_SingleEle_BlockE',
-'Data_2017_v1_SingleEle_BlockF',
+'Data_2017_Oct19_SingleEle_BlockB',
+'Data_2017_Oct19_SingleEle_BlockC',
+'Data_2017_Oct19_SingleEle_BlockD',
+'Data_2017_Oct19_SingleEle_BlockE',
+'Data_2017_Oct19_SingleEle_BlockF',
 # SingleMuon dataset 
-'Data_2017_v1_SingleMu_BlockB',
-'Data_2017_v1_SingleMu_BlockC',
-'Data_2017_v1_SingleMu_BlockD',
-'Data_2017_v1_SingleMu_BlockE',
-'Data_2017_v1_SingleMu_BlockF',
+'Data_2017_Oct19_SingleMu_BlockB',
+'Data_2017_Oct19_SingleMu_BlockC',
+'Data_2017_Oct19_SingleMu_BlockD',
+'Data_2017_Oct19_SingleMu_BlockE',
+'Data_2017_Oct19_SingleMu_BlockF',
 # DoubleEG dataset
-'Data_2017_v1_DoubleEG_BlockB',
-'Data_2017_v1_DoubleEG_BlockC',
-'Data_2017_v1_DoubleEG_BlockD',
-'Data_2017_v1_DoubleEG_BlockE',
-'Data_2017_v1_DoubleEG_BlockF',
+'Data_2017_Oct19_DoubleEG_BlockB',
+'Data_2017_Oct19_DoubleEG_BlockC',
+'Data_2017_Oct19_DoubleEG_BlockD',
+'Data_2017_Oct19_DoubleEG_BlockE',
+'Data_2017_Oct19_DoubleEG_BlockF',
 # DoubleMuon
-'Data_2017_v1_DoubleMu_BlockB',
-'Data_2017_v1_DoubleMu_BlockC',
-'Data_2017_v1_DoubleMu_BlockD',
-'Data_2017_v1_DoubleMu_BlockE',
-'Data_2017_v1_DoubleMu_BlockF',
+'Data_2017_Oct19_DoubleMu_BlockB',
+'Data_2017_Oct19_DoubleMu_BlockC',
+'Data_2017_Oct19_DoubleMu_BlockD',
+'Data_2017_Oct19_DoubleMu_BlockE',
+'Data_2017_Oct19_DoubleMu_BlockF',
 # MuonEG
-'Data_2017_v1_MuonEG_BlockB',
-'Data_2017_v1_MuonEG_BlockC',
-'Data_2017_v1_MuonEG_BlockD',
-'Data_2017_v1_MuonEG_BlockE',
-'Data_2017_v1_MuonEG_BlockF',
+'Data_2017_Oct19_MuonEG_BlockB',
+'Data_2017_Oct19_MuonEG_BlockC',
+'Data_2017_Oct19_MuonEG_BlockD',
+'Data_2017_Oct19_MuonEG_BlockE',
+'Data_2017_Oct19_MuonEG_BlockF',
 # Tau
-'Data_2017_v1_Tau_BlockB',
-'Data_2017_v1_Tau_BlockC',
-'Data_2017_v1_Tau_BlockD',
-'Data_2017_v1_Tau_BlockE',
-'Data_2017_v1_Tau_BlockF'
+'Data_2017_Oct19_Tau_BlockB',
+'Data_2017_Oct19_Tau_BlockC',
+'Data_2017_Oct19_Tau_BlockD',
+'Data_2017_Oct19_Tau_BlockE',
+'Data_2017_Oct19_Tau_BlockF'
 
    ]
  
@@ -110,7 +110,7 @@ for d in range(0,len(datasetnames)):
 
     config.section_('General')
     config.General.requestName = datasetnames[d]
-    config.General.workArea    = 'crab3'
+    config.General.workArea    = 'crab3_Oct19'
     config.General.transferLogs = True
 
     config.section_('JobType')
@@ -122,10 +122,12 @@ for d in range(0,len(datasetnames)):
     config.section_('Data')
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS       = 'global'
-    config.Data.splitting      = 'LumiBased'
-    config.Data.unitsPerJob    = 30
+    #config.Data.splitting      = 'LumiBased'
+    #config.Data.unitsPerJob    = 30
+    config.Data.splitting      = 'Automatic'
+    config.Data.unitsPerJob    = 180
     config.Data.lumiMask       = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt'
-    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2017_v1/'
+    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2017_Oct19/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d] 
 

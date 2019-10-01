@@ -23,85 +23,85 @@ if __name__ == '__main__':
  datasetnames  = [
 
 # signal
-'MC_2016_v1_TTHnobb', #0
-'MC_2016_v1_ttHnobb', #1
+'MC_2016_Oct19_TTHnobb', #0
+'MC_2016_Oct19_ttHnobb', #1
 # TH
-'MC_2016_v1_THQ_TuneCP5_ctcvcp', #2
-'MC_2016_v1_THQ_Tune8M1_ctcvcp', #3
-'MC_2016_v1_THQ', #4
-'MC_2016_v1_THW_TuneCP5_ctcvcp', #5
-'MC_2016_v1_THW_Tune8M1_ctcvcp', #6
-'MC_2016_v1_THW', #7
+'MC_2016_Oct19_THQ_TuneCP5_ctcvcp', #2
+'MC_2016_Oct19_THQ_Tune8M1_ctcvcp', #3
+'MC_2016_Oct19_THQ', #4
+'MC_2016_Oct19_THW_TuneCP5_ctcvcp', #5
+'MC_2016_Oct19_THW_Tune8M1_ctcvcp', #6
+'MC_2016_Oct19_THW', #7
 # TTZ
-'MC_2016_v1_TTZ_M1to10', #8
-'MC_2016_v1_TTZ_M10_ext1', #9
-'MC_2016_v1_TTZ_M10_ext2', #10
+'MC_2016_Oct19_TTZ_M1to10', #8
+'MC_2016_Oct19_TTZ_M10_ext1', #9
+'MC_2016_Oct19_TTZ_M10_ext2', #10
 # TTW
-'MC_2016_v1_TTWJets', #11
+'MC_2016_Oct19_TTWJets', #11
 # TTWW
-'MC_2016_v1_TTWW', #12
+'MC_2016_Oct19_TTWW', #12
 # ST
-'MC_2016_v1_ST_sCh_lepDecay', #13
-'MC_2016_v1_ST_sCh_lepDecay_PS', #14
-'MC_2016_v1_ST_tCh_top', #15
-'MC_2016_v1_ST_tCh_antitop', #16
-'MC_2016_v1_ST_tCh_antitop_PS', #17
-'MC_2016_v1_ST_tW_top', #18
-'MC_2016_v1_ST_tW_antitop', #19
-'MC_2016_v1_tWll', #20 
+'MC_2016_Oct19_ST_sCh_lepDecay', #13
+'MC_2016_Oct19_ST_sCh_lepDecay_PS', #14
+'MC_2016_Oct19_ST_tCh_top', #15
+'MC_2016_Oct19_ST_tCh_antitop', #16
+'MC_2016_Oct19_ST_tCh_antitop_PS', #17
+'MC_2016_Oct19_ST_tW_top', #18
+'MC_2016_Oct19_ST_tW_antitop', #19
+'MC_2016_Oct19_tWll', #20 
 # TT
-'MC_2016_v1_TTTo2L_PS', #21
-'MC_2016_v1_TTToSemiLep_PS', #22
-'MC_2016_v1_TTToHad_PS', #23
-'MC_2016_v1_TTJets_DiLep_v1', #24
-'MC_2016_v1_TTJets_DiLep_ext', #25
-'MC_2016_v1_TTJets_TToSingleLep_v1', #26
-'MC_2016_v1_TTJets_TToSingleLep_ext', #27
-'MC_2016_v1_TTJets_TbarToSingleLep_v1', #28
-'MC_2016_v1_TTJets_TbarToSingleLep_ext', #29
+'MC_2016_Oct19_TTTo2L_PS', #21
+'MC_2016_Oct19_TTToSemiLep_PS', #22
+'MC_2016_Oct19_TTToHad_PS', #23
+'MC_2016_Oct19_TTJets_DiLep_v1', #24
+'MC_2016_Oct19_TTJets_DiLep_ext', #25
+'MC_2016_Oct19_TTJets_TToSingleLep_v1', #26
+'MC_2016_Oct19_TTJets_TToSingleLep_ext', #27
+'MC_2016_Oct19_TTJets_TbarToSingleLep_v1', #28
+'MC_2016_Oct19_TTJets_TbarToSingleLep_ext', #29
 # Triboson
-'MC_2016_v1_WWW', #30 
-'MC_2016_v1_WWZ', #31
-'MC_2016_v1_WZZ', #32
-'MC_2016_v1_ZZZ', #33
+'MC_2016_Oct19_WWW', #30 
+'MC_2016_Oct19_WWZ', #31
+'MC_2016_Oct19_WZZ', #32
+'MC_2016_Oct19_ZZZ', #33
 # Conversions
-'MC_2016_v1_WZG', #34
-'MC_2016_v1_WGToLNuG_ext1', #35
-'MC_2016_v1_WGToLNuG_ext2', #36
-'MC_2016_v1_WGToLNuG_ext3', #37
-'MC_2016_v1_ZGToLLG',  #38
-'MC_2016_v1_TGJetsLep', #39
-'MC_2016_v1_TTGJets_v1', #40
-'MC_2016_v1_TTGJets_ext', #41
+'MC_2016_Oct19_WZG', #34
+'MC_2016_Oct19_WGToLNuG_ext1', #35
+'MC_2016_Oct19_WGToLNuG_ext2', #36
+'MC_2016_Oct19_WGToLNuG_ext3', #37
+'MC_2016_Oct19_ZGToLLG',  #38
+'MC_2016_Oct19_TGJetsLep', #39
+'MC_2016_Oct19_TTGJets_v1', #40
+'MC_2016_Oct19_TTGJets_ext', #41
 # ggF
-'MC_2016_v1_GGHToTauTau', #42
+'MC_2016_Oct19_GGHToTauTau', #42
 # VBF
-'MC_2016_v1_VBFHToTauTau', #43
+'MC_2016_Oct19_VBFHToTauTau', #43
 # tZq
-'MC_2016_v1_tZq_ext', #44
-'MC_2016_v1_tZq_PS', #45
+'MC_2016_Oct19_tZq_ext', #44
+'MC_2016_Oct19_tZq_PS', #45
 # WpWp
-'MC_2016_v1_WpWpJJ', #46
+'MC_2016_Oct19_WpWpJJ', #46
 # WW DS
-'MC_2016_v1_WW_DS', #47
+'MC_2016_Oct19_WW_DS', #47
 # TTTT
-'MC_2016_v1_TTTT', #48
+'MC_2016_Oct19_TTTT', #48
 # VH
-'MC_2016_v1_VHToNonbb', #49
-'MC_2016_v1_ZHTobb', #50
-'MC_2016_v1_ZHToTauTau', #51
+'MC_2016_Oct19_VHToNonbb', #49
+'MC_2016_Oct19_ZHTobb', #50
+'MC_2016_Oct19_ZHToTauTau', #51
 # DY
-'MC_2016_v1_DYJets_M10to50', #52
-'MC_2016_v1_DYJets_M50', #53
+'MC_2016_Oct19_DYJets_M10to50', #52
+'MC_2016_Oct19_DYJets_M50', #53
 #EWK
-'MC_2016_v1_WJets_v1', #54
-'MC_2016_v1_WJets_ext', #55
-'MC_2016_v1_WWTo2LNu', #56
-'MC_2016_v1_WZTo3LNu', #57
-'MC_2016_v1_ZZTo4L', #58
+'MC_2016_Oct19_WJets_v1', #54
+'MC_2016_Oct19_WJets_ext', #55
+'MC_2016_Oct19_WWTo2LNu', #56
+'MC_2016_Oct19_WZTo3LNu', #57
+'MC_2016_Oct19_ZZTo4L', #58
 # Training
-'MC_2016_v1_ttZ', #59
-'MC_2016_v1_ttW', #60
+'MC_2016_Oct19_ttZ', #59
+'MC_2016_Oct19_ttW', #60
 
     ]
 
@@ -195,7 +195,7 @@ for d in range(0,len(datasetnames)):
 
     config.section_('General')
     config.General.requestName = datasetnames[d]
-    config.General.workArea    = 'crab3'
+    config.General.workArea    = 'crab3_Oct19'
     config.General.transferLogs = True
 
     config.section_('JobType')
@@ -209,14 +209,16 @@ for d in range(0,len(datasetnames)):
     config.Data.inputDBS = 'global'
     config.JobType.maxMemoryMB = 2000 # Default == 2Gb : maximum guaranteed to run on all sites
     config.Data.inputDBS       = 'global'
-    config.Data.splitting      = 'FileBased'
-    config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
+    #config.Data.splitting      = 'FileBased'
+    #config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
+    config.Data.splitting      = 'Automatic'
+    config.Data.unitsPerJob    = 180
     config.Data.unitsPerJob    = 1
-    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2016_v1/'
+    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2016_Oct19/'
     config.Data.publication = True
     config.Data.outputDatasetTag = datasetnames[d]    
 
-    print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/MC_2016_v1/'
+    print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/MC_2016_Oct19/'
     #config.Data.publication = True
 
     config.section_('Site')

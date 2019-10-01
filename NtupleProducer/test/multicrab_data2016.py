@@ -25,53 +25,53 @@ if __name__ == '__main__':
  datasetnames  = [
 
 # SingleElectron dataset :
-'Data_2016_v2_SingleEle_BlockB',
-'Data_2016_v2_SingleEle_BlockC',
-'Data_2016_v2_SingleEle_BlockD',
-'Data_2016_v2_SingleEle_BlockE',
-'Data_2016_v2_SingleEle_BlockF',
-'Data_2016_v2_SingleEle_BlockG',
-'Data_2016_v2_SingleEle_BlockH',
+'Data_2016_Oct19_SingleEle_BlockB',
+'Data_2016_Oct19_SingleEle_BlockC',
+'Data_2016_Oct19_SingleEle_BlockD',
+'Data_2016_Oct19_SingleEle_BlockE',
+'Data_2016_Oct19_SingleEle_BlockF',
+'Data_2016_Oct19_SingleEle_BlockG',
+'Data_2016_Oct19_SingleEle_BlockH',
 # SingleMuon dataset 
-'Data_2016_v2_SingleMu_BlockB',
-'Data_2016_v2_SingleMu_BlockC',
-'Data_2016_v2_SingleMu_BlockD',
-'Data_2016_v2_SingleMu_BlockE',
-'Data_2016_v2_SingleMu_BlockF',
-'Data_2016_v2_SingleMu_BlockG',
-'Data_2016_v2_SingleMu_BlockH',
+'Data_2016_Oct19_SingleMu_BlockB',
+'Data_2016_Oct19_SingleMu_BlockC',
+'Data_2016_Oct19_SingleMu_BlockD',
+'Data_2016_Oct19_SingleMu_BlockE',
+'Data_2016_Oct19_SingleMu_BlockF',
+'Data_2016_Oct19_SingleMu_BlockG',
+'Data_2016_Oct19_SingleMu_BlockH',
 # DoubleEG dataset
-'Data_2016_v2_DoubleEG_BlockB',
-'Data_2016_v2_DoubleEG_BlockC',
-'Data_2016_v2_DoubleEG_BlockD',
-'Data_2016_v2_DoubleEG_BlockE',
-'Data_2016_v2_DoubleEG_BlockF',
-'Data_2016_v2_DoubleEG_BlockG',
-'Data_2016_v2_DoubleEG_BlockH',
+'Data_2016_Oct19_DoubleEG_BlockB',
+'Data_2016_Oct19_DoubleEG_BlockC',
+'Data_2016_Oct19_DoubleEG_BlockD',
+'Data_2016_Oct19_DoubleEG_BlockE',
+'Data_2016_Oct19_DoubleEG_BlockF',
+'Data_2016_Oct19_DoubleEG_BlockG',
+'Data_2016_Oct19_DoubleEG_BlockH',
 # DoubleMuon
-'Data_2016_v2_DoubleMu_BlockB',
-'Data_2016_v2_DoubleMu_BlockC',
-'Data_2016_v2_DoubleMu_BlockD',
-'Data_2016_v2_DoubleMu_BlockE',
-'Data_2016_v2_DoubleMu_BlockF',
-'Data_2016_v2_DoubleMu_BlockG',
-'Data_2016_v2_DoubleMu_BlockH',
+'Data_2016_Oct19_DoubleMu_BlockB',
+'Data_2016_Oct19_DoubleMu_BlockC',
+'Data_2016_Oct19_DoubleMu_BlockD',
+'Data_2016_Oct19_DoubleMu_BlockE',
+'Data_2016_Oct19_DoubleMu_BlockF',
+'Data_2016_Oct19_DoubleMu_BlockG',
+'Data_2016_Oct19_DoubleMu_BlockH',
 # MuonEG
-'Data_2016_v2_MuonEG_BlockB',
-'Data_2016_v2_MuonEG_BlockC',
-'Data_2016_v2_MuonEG_BlockD',
-'Data_2016_v2_MuonEG_BlockE',
-'Data_2016_v2_MuonEG_BlockF',
-'Data_2016_v2_MuonEG_BlockG',
-'Data_2016_v2_MuonEG_BlockH',
+'Data_2016_Oct19_MuonEG_BlockB',
+'Data_2016_Oct19_MuonEG_BlockC',
+'Data_2016_Oct19_MuonEG_BlockD',
+'Data_2016_Oct19_MuonEG_BlockE',
+'Data_2016_Oct19_MuonEG_BlockF',
+'Data_2016_Oct19_MuonEG_BlockG',
+'Data_2016_Oct19_MuonEG_BlockH',
 # Tau
-'Data_2016_v2_Tau_BlockB',
-'Data_2016_v2_Tau_BlockC',
-'Data_2016_v2_Tau_BlockD',
-'Data_2016_v2_Tau_BlockE',
-'Data_2016_v2_Tau_BlockF',
-'Data_2016_v2_Tau_BlockG',
-'Data_2016_v2_Tau_BlockH'
+'Data_2016_Oct19_Tau_BlockB',
+'Data_2016_Oct19_Tau_BlockC',
+'Data_2016_Oct19_Tau_BlockD',
+'Data_2016_Oct19_Tau_BlockE',
+'Data_2016_Oct19_Tau_BlockF',
+'Data_2016_Oct19_Tau_BlockG',
+'Data_2016_Oct19_Tau_BlockH'
 
    ]
  
@@ -134,7 +134,7 @@ for d in range(0,len(datasetnames)):
 
     config.section_('General')
     config.General.requestName = datasetnames[d]
-    config.General.workArea    = 'crab3'
+    config.General.workArea    = 'crab3_Oct19'
     config.General.transferLogs = True
 
     config.section_('JobType')
@@ -146,10 +146,12 @@ for d in range(0,len(datasetnames)):
     config.section_('Data')
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS       = 'global'
-    config.Data.splitting      = 'LumiBased'
-    config.Data.unitsPerJob    = 30
+    #config.Data.splitting      = 'LumiBased'
+    #config.Data.unitsPerJob    = 30
+    config.Data.splitting      = 'Automatic'
+    config.Data.unitsPerJob    = 180
     config.Data.lumiMask       = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
-    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2016_v2/'
+    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2016_Oct19/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d] 
 

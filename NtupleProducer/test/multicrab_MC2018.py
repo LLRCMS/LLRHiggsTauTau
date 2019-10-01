@@ -23,74 +23,74 @@ if __name__ == '__main__':
  datasetnames  = [
 
 # signal
-'MC_2018_v1_ttHToNonbb', #0
-'MC_2018_v1_ttHJetToNonbb', #1
-'MC_2018_v1_TTH_ctcvcp', #2
+'MC_2018_Oct19_ttHToNonbb', #0
+'MC_2018_Oct19_ttHJetToNonbb', #1
+'MC_2018_Oct19_TTH_ctcvcp', #2
 # TH
-'MC_2018_v1_THQ_ctcvcp', #3
-'MC_2018_v1_THW_ctcvcp', #4
+'MC_2018_Oct19_THQ_ctcvcp', #3
+'MC_2018_Oct19_THW_ctcvcp', #4
 # TTZ
-'MC_2018_v1_TTZ_M10', #5
-'MC_2018_v1_TTZ_M1to10', #6
+'MC_2018_Oct19_TTZ_M10', #5
+'MC_2018_Oct19_TTZ_M1to10', #6
 # TTW
-'MC_2018_v1_TTWJets', #7
+'MC_2018_Oct19_TTWJets', #7
 # TTWW
-'MC_2018_v1_TTWW', #8
+'MC_2018_Oct19_TTWW', #8
 # ST
-'MC_2018_v1_ST_sCh_lepDecay', #9
-'MC_2018_v1_ST_tCh_top', #10
-'MC_2018_v1_ST_tCh_antitop', #11
-'MC_2018_v1_ST_tW_top', #12
-'MC_2018_v1_ST_tW_antitop', #13
-'MC_2018_v1_tWll', #14
+'MC_2018_Oct19_ST_sCh_lepDecay', #9
+'MC_2018_Oct19_ST_tCh_top', #10
+'MC_2018_Oct19_ST_tCh_antitop', #11
+'MC_2018_Oct19_ST_tW_top', #12
+'MC_2018_Oct19_ST_tW_antitop', #13
+'MC_2018_Oct19_tWll', #14
 # TT
-'MC_2018_v1_TTTo2L', #15
-'MC_2018_v1_TTToSemiLep', #16
-'MC_2018_v1_TTToHad', #17
-'MC_2018_v1_TTJets_DiLep', #18
-'MC_2018_v1_TTJets_TToSingleLep', #19
-'MC_2018_v1_TTJets_TbarToSingleLep', #20
+'MC_2018_Oct19_TTTo2L', #15
+'MC_2018_Oct19_TTToSemiLep', #16
+'MC_2018_Oct19_TTToHad', #17
+'MC_2018_Oct19_TTJets_DiLep', #18
+'MC_2018_Oct19_TTJets_TToSingleLep', #19
+'MC_2018_Oct19_TTJets_TbarToSingleLep', #20
 # Triboson
-'MC_2018_v1_WWW', #21
-'MC_2018_v1_WWZ', #22
-'MC_2018_v1_WZZ', #23
-'MC_2018_v1_ZZZ', #24
+'MC_2018_Oct19_WWW', #21
+'MC_2018_Oct19_WWZ', #22
+'MC_2018_Oct19_WZZ', #23
+'MC_2018_Oct19_ZZZ', #24
 # Conversions
-'MC_2018_v1_WZG', #25
-'MC_2018_v1_WGToLNuG', #26
-'MC_2018_v1_ZGToLLG',  #27
-'MC_2018_v1_TGJetsLep', #28
-'MC_2018_v1_TTGJets', #29
+'MC_2018_Oct19_WZG', #25
+'MC_2018_Oct19_WGToLNuG', #26
+'MC_2018_Oct19_ZGToLLG',  #27
+'MC_2018_Oct19_TGJetsLep', #28
+'MC_2018_Oct19_TTGJets', #29
 # ggF
-'MC_2018_v1_GGHToTauTau', #30
+'MC_2018_Oct19_GGHToTauTau', #30
 # VBF
-'MC_2018_v1_VBFHToTauTau', #31
+'MC_2018_Oct19_VBFHToTauTau', #31
 # tZq
-'MC_2018_v1_tZq', #32
+'MC_2018_Oct19_tZq', #32
 # WpWp
-'MC_2018_v1_WpWpJJ', #33
+'MC_2018_Oct19_WpWpJJ', #33
 # WW DS
-'MC_2018_v1_WW_DS', #34
+'MC_2018_Oct19_WW_DS', #34
 # TTTT
-'MC_2018_v1_TTTT', #35
+'MC_2018_Oct19_TTTT', #35
 # VH
-'MC_2018_v1_VHToNonbb', #36
-'MC_2018_v1_ZHTobb', #37
-'MC_2018_v1_ZHTobb_ext', #38
-'MC_2018_v1_ZHToTauTau', #39
+'MC_2018_Oct19_VHToNonbb', #36
+'MC_2018_Oct19_ZHTobb', #37
+'MC_2018_Oct19_ZHTobb_ext', #38
+'MC_2018_Oct19_ZHToTauTau', #39
 # DY
-'MC_2018_v1_DYJets_M10to50', #40
-'MC_2018_v1_DYJets_M50', #41
-'MC_2018_v1_DYJets_M50_ext', #42
+'MC_2018_Oct19_DYJets_M10to50', #40
+'MC_2018_Oct19_DYJets_M50', #41
+'MC_2018_Oct19_DYJets_M50_ext', #42
 #EWK
-'MC_2018_v1_WJets', #43
-'MC_2018_v1_WWTo2LNu', #44
-'MC_2018_v1_WZTo3LNu_ext', #45
-'MC_2018_v1_ZZTo4L_ext1', #46
-'MC_2018_v1_ZZTo4L_ext2', #47
+'MC_2018_Oct19_WJets', #43
+'MC_2018_Oct19_WWTo2LNu', #44
+'MC_2018_Oct19_WZTo3LNu_ext', #45
+'MC_2018_Oct19_ZZTo4L_ext1', #46
+'MC_2018_Oct19_ZZTo4L_ext2', #47
 # Training
-'MC_2018_v1_ttZ', #48
-'MC_2018_v1_ttW', #49
+'MC_2018_Oct19_ttZ', #48
+'MC_2018_Oct19_ttW', #49
 
     ]
 
@@ -174,7 +174,7 @@ for d in range(0,len(datasetnames)):
 
     config.section_('General')
     config.General.requestName = datasetnames[d]
-    config.General.workArea    = 'crab3'
+    config.General.workArea    = 'crab3_Oct19'
     config.General.transferLogs = True
 
     config.section_('JobType')
@@ -188,14 +188,16 @@ for d in range(0,len(datasetnames)):
     config.Data.inputDBS = 'global'
     config.JobType.maxMemoryMB = 2000 # Default == 2Gb : maximum guaranteed to run on all sites
     config.Data.inputDBS       = 'global'
-    config.Data.splitting      = 'FileBased'
-    config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
+    #config.Data.splitting      = 'FileBased'
+    #config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
+    config.Data.splitting      = 'Automatic'
+    config.Data.unitsPerJob    = 180
     config.Data.unitsPerJob    = 1
-    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2018_v1/'
+    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2018_Oct19/'
     config.Data.publication = True
     config.Data.outputDatasetTag = datasetnames[d]    
 
-    print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/MC_2018_v1/'
+    print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/MC_2018_Oct19/'
     #config.Data.publication = True
 
     config.section_('Site')

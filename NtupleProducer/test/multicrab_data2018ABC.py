@@ -25,25 +25,25 @@ if __name__ == '__main__':
  datasetnames  = [
 
 # EGamma dataset (SingleElectron + SinglePhoton + DoubleEG)
-'Data_2018_v1_EGamma_BlockA',
-'Data_2018_v1_EGamma_BlockB',
-'Data_2018_v1_EGamma_BlockC',
+'Data_2018_Oct19_EGamma_BlockA',
+'Data_2018_Oct19_EGamma_BlockB',
+'Data_2018_Oct19_EGamma_BlockC',
 # SingleMuon dataset 
-'Data_2018_v1_SingleMu_BlockA',
-'Data_2018_v1_SingleMu_BlockB',
-'Data_2018_v1_SingleMu_BlockC',
+'Data_2018_Oct19_SingleMu_BlockA',
+'Data_2018_Oct19_SingleMu_BlockB',
+'Data_2018_Oct19_SingleMu_BlockC',
 # DoubleMuon
-'Data_2018_v1_DoubleMu_BlockA',
-'Data_2018_v1_DoubleMu_BlockB',
-'Data_2018_v1_DoubleMu_BlockC',
+'Data_2018_Oct19_DoubleMu_BlockA',
+'Data_2018_Oct19_DoubleMu_BlockB',
+'Data_2018_Oct19_DoubleMu_BlockC',
 # MuonEG
-'Data_2018_v1_MuonEG_BlockA',
-'Data_2018_v1_MuonEG_BlockB',
-'Data_2018_v1_MuonEG_BlockC',
+'Data_2018_Oct19_MuonEG_BlockA',
+'Data_2018_Oct19_MuonEG_BlockB',
+'Data_2018_Oct19_MuonEG_BlockC',
 # Tau
-'Data_2018_v1_Tau_BlockA',
-'Data_2018_v1_Tau_BlockB',
-'Data_2018_v1_Tau_BlockC',
+'Data_2018_Oct19_Tau_BlockA',
+'Data_2018_Oct19_Tau_BlockB',
+'Data_2018_Oct19_Tau_BlockC',
 
    ]
  
@@ -78,7 +78,7 @@ for d in range(0,len(datasetnames)):
 
     config.section_('General')
     config.General.requestName = datasetnames[d]
-    config.General.workArea    = 'crab3'
+    config.General.workArea    = 'crab3_Oct19'
     config.General.transferLogs = True
 
     config.section_('JobType')
@@ -90,10 +90,12 @@ for d in range(0,len(datasetnames)):
     config.section_('Data')
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS       = 'global'
-    config.Data.splitting      = 'LumiBased'
-    config.Data.unitsPerJob    = 30
+    #config.Data.splitting      = 'LumiBased'
+    #config.Data.unitsPerJob    = 30
+    config.Data.splitting      = 'Automatic'
+    config.Data.unitsPerJob    = 180
     config.Data.lumiMask       = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
-    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2018_v1/'
+    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2018_Oct19/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d] 
 

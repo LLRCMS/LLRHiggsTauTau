@@ -388,14 +388,14 @@ scram b -j 8
 ### Instructions for 102X_ttH
 
 ```
-# NOTE: from poluiXX, use the singularity for installation:
+# NOTE: from poluiXX, use the singularity for compilation:
 /opt/exp_soft/vo.gridcl.fr/singularity/ui_sl6
 voms-proxy-init -voms cms
 source /cvmfs/cms.cern.ch/cmsset_default.sh 
 
 # INSTALATION 
 
-cmsrel CMSSW_10_2_14
+cmsrel CMSSW_10_2_16
 cd CMSSW_10_2_14/src/
 cmsenv
 
@@ -409,13 +409,6 @@ git config merge.renameLimit 999999
 git cms-merge-topic cms-egamma:EgammaPostRecoTools
 git cms-merge-topic cms-egamma:slava77-btvDictFix_10210 #fixes the Run2018D dictionary issue, see https://github.com/cms-sw/cmssw/issues/26182
 scram b -j 8
-
-#git clone git@github.com:cms-egamma/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
-#cd EgammaAnalysis/ElectronTools/data
-#git checkout ScalesSmearing2018_Dev
-#cd -
-#git cms-merge-topic cms-egamma:EgammaPostRecoTools_dev
-#scram b -j 8
 
 # scale and smearing for 2018
 git cms-addpkg EgammaAnalysis/ElectronTools
@@ -440,9 +433,8 @@ git cherry-pick 94ceae257f846998c357fcad408986cc8a039152                # not su
 scram b -j 8
 
 # Tau ID DNN
-# https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20
-git cms-merge-topic -u cms-tau-pog:CMSSW_10_2_X_tau-pog_DeepTau2017v2
-git clone -b DeepTau2017v2_alone https://github.com/cms-tau-pog/RecoTauTag-TrainingFiles.git RecoTauTag/TrainingFiles/data
+#https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20
+git cms-merge-topic -u cms-tau-pog:CMSSW_10_2_X_tau-pog_DeepTau2017v2p1_nanoAOD
 scram b -j 8
 
 # Z-recoil corrections
