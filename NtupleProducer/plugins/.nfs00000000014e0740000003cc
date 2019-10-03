@@ -2199,6 +2199,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       int lheNOutB = 0;
       int lheNOutC = 0;
       size_t numParticles = lheParticles.size();
+    
+      std::cout<<"--- #partons: "<<numParticles<<std::endl;
+      /*std::vector<float> lhePartons_px;
+      std::vector<float> lhePartons_py;
+      std::vector<float> lhePartons_pz;
+      std::vector<float> lhePartons_e;
+      std::vector<float> lhePartons_PdgId;
+      lhePartons_px.clear();
+      lhePartons_py.clear();
+      lhePartons_pz.clear();
+      lhePartons_e.clear();
+      lhePartons_PdgId.clear();*/
 
       for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
         int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
@@ -2218,12 +2230,14 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
            float pz    = lheParticles[idxParticle][2];
            float e     = lheParticles[idxParticle][3];
            
-           _lhePartons_px.push_back(px);
-           _lhePartons_py.push_back(py);
-           _lhePartons_pz.push_back(pz);
-           _lhePartons_e.push_back(e);
-           _lhePartons_PdgId.push_back(PdgId);
-           //std::cout<<"px "<<px<<",py "<<py<<",pz "<<pz<<",e "<<e<<",pdg "<<PdgId<<std::endl;
+           lhePartons_px.push_back(px);
+           lhePartons_py.push_back(py);
+           lhePartons_pz.push_back(pz);
+           lhePartons_e.push_back(e);
+           lhePartons_PdgId.push_back(PdgId);
+
+           std::cout<<"px "<<px<<",py "<<py<<",pz "<<pz<<",e "<<e<<",pdg "<<PdgId<<std::endl;
+
         }
   
       }
