@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
  datasetinputs = [
 
- # Signal -> datacards
+ # Signal
  '/ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v2/MINIAODSIM', #0
  '/THQ_ctcvcp_HIncl_M125_TuneCP5_13TeV-madgraph-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1/MINIAODSIM', #1
  '/THW_ctcvcp_HIncl_M125_TuneCP5_13TeV-madgraph-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1/MINIAODSIM', #2
@@ -312,7 +312,6 @@ for d in range(0,len(datasetnames)):
     config.Data.splitting      = 'Automatic'
     #config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
     config.Data.unitsPerJob    = 180
-    config.Data.unitsPerJob    = 1
     config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2016_Oct19v1/'
     config.Data.publication = True
     config.Data.outputDatasetTag = datasetnames[d]    
