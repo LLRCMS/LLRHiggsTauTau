@@ -300,20 +300,19 @@ for d in range(0,len(datasetnames)):
     config.JobType.pluginName  = 'Analysis'
     config.JobType.psetName    = 'analyzer_MC2016.py'
     config.JobType.sendExternalFolder = True
-    config.JobType.maxMemoryMB = 2000
+    config.JobType.maxMemoryMB = 2000 # Default == 2Gb : maximum guaranteed to run on all sites
     config.JobType.inputFiles=['JECUncertaintySources']
 
     config.section_("Data")
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS = 'global'
-    config.JobType.maxMemoryMB = 2000 # Default == 2Gb : maximum guaranteed to run on all sites
     config.Data.inputDBS       = 'global'
     #config.Data.splitting      = 'FileBased'
     config.Data.splitting      = 'Automatic'
     #config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
     config.Data.unitsPerJob    = 180
     config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2016_Oct19v1/'
-    config.Data.publication = True
+    config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d]    
 
     print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/MC_2016_Oct19v1/'

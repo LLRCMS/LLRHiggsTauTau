@@ -334,13 +334,12 @@ for d in range(0,len(datasetnames)):
     config.JobType.pluginName  = 'Analysis'
     config.JobType.psetName    = 'analyzer_MC2017.py'
     config.JobType.sendExternalFolder = True
-    config.JobType.maxMemoryMB = 2000
+    config.JobType.maxMemoryMB = 2000 # Default == 2Gb : maximum guaranteed to run on all sites
     config.JobType.inputFiles=['JECUncertaintySources']
 
     config.section_("Data")
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS = 'global'
-    config.JobType.maxMemoryMB = 2000 # Default == 2Gb : maximum guaranteed to run on all sites
     config.Data.inputDBS       = 'global'
     #config.Data.splitting      = 'FileBased'
     config.Data.splitting      = 'Automatic'
