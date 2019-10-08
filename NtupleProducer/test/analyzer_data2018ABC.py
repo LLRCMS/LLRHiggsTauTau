@@ -98,7 +98,8 @@ process.source = cms.Source("PoolSource",
     #'/store/data/Run2018A/SingleMuon/MINIAOD/17Sep2018-v2/100000/36AA0F7B-CF4F-1E4B-8DAC-F9CFBBAAC70C.root'
     #'/store/data/Run2018B/SingleMuon/MINIAOD/17Sep2018-v1/00000/0038D2C7-ADC4-E14E-9644-D6794B8EDF69.root'
     #'/store/data/Run2018C/SingleMuon/MINIAOD/17Sep2018-v1/00000/01F7D352-6206-CB4E-9412-473614AFFEED.root'
-    '/store/data/Run2018D/SingleMuon/MINIAOD/PromptReco-v2/000/320/500/00000/12C8CC7E-8C95-E811-BDA3-FA163EA1F576.root'
+    #'/store/data/Run2018D/SingleMuon/MINIAOD/PromptReco-v2/000/320/500/00000/12C8CC7E-8C95-E811-BDA3-FA163EA1F576.root'
+    '/store/data/Run2018C/MuonEG/MINIAOD/17Sep2018-v1/810000/50DC9A8B-BB5C-8640-8DD2-BB037CC5807C.root'
     )
 )
 
@@ -106,8 +107,8 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-#process.maxEvents.input = 10
-process.maxEvents.input = -1
+process.maxEvents.input = 10
+#process.maxEvents.input = -1
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file

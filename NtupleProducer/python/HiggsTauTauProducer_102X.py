@@ -69,9 +69,9 @@ else :
     if (YEAR == 2017 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_dataRun2_v8'
     if (YEAR == 2018 and Is2018D == False): 
-	process.GlobalTag.globaltag = '102X_dataRun2_Sep2018ABC_v2'
+	process.GlobalTag.globaltag = '102X_dataRun2_v12'
     if (YEAR == 2018 and Is2018D == True):
-        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v13'
+        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v15'
 
 print "GT: ",process.GlobalTag.globaltag
 

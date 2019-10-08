@@ -717,6 +717,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_py;
   std::vector<Float_t> _jets_pz;
   std::vector<Float_t> _jets_e;
+  std::vector<Float_t> _jets_pt;
+  std::vector<Float_t> _jets_eta;
+  std::vector<Float_t> _jets_phi;
+  std::vector<Float_t> _jets_mass;
   std::vector<Float_t> _jets_rawPt;
   std::vector<Float_t> _jets_area;
   std::vector<Float_t> _jets_mT;
@@ -1404,6 +1408,10 @@ void HTauTauNtuplizer::Initialize(){
   _jets_py.clear();
   _jets_pz.clear();
   _jets_e.clear();
+  _jets_pt.clear();
+  _jets_eta.clear();
+  _jets_phi.clear();
+  _jets_mass.clear();
   _jets_rawPt.clear();
   _jets_area.clear();
   _jets_mT.clear();
@@ -1912,6 +1920,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_py",&_jets_py);
   myTree->Branch("jets_pz",&_jets_pz);
   myTree->Branch("jets_e",&_jets_e);
+  myTree->Branch("jets_pt",&_jets_pt);
+  myTree->Branch("jets_eta",&_jets_eta);
+  myTree->Branch("jets_phi",&_jets_phi);
+  myTree->Branch("jets_mass",&_jets_mass);
   myTree->Branch("jets_rawPt", &_jets_rawPt);
   myTree->Branch("jets_area", &_jets_area);
   myTree->Branch("jets_mT", &_jets_mT);
@@ -2506,7 +2518,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   else if(MC2018){
     for (const auto& source: m_jec_sources_2018) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_V8_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_V19_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
@@ -2514,7 +2526,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   else if(Data2018A){
     for (const auto& source: m_jec_sources_2018) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunA_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunA_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
@@ -2522,7 +2534,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   else if(Data2018B){
     for (const auto& source: m_jec_sources_2018) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunB_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunB_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
@@ -2530,7 +2542,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   else if(Data2018C){
     for (const auto& source: m_jec_sources_2018) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunC_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunC_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
@@ -2538,7 +2550,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
   else if(Data2018D){
     for (const auto& source: m_jec_sources_2018) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunD_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunD_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
       jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
     }
@@ -2926,6 +2938,10 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_py.push_back( (float) ijet->py());
     _jets_pz.push_back( (float) ijet->pz());
     _jets_e.push_back( (float) ijet->energy());    
+    _jets_pt.push_back( (float) ijet->pt());
+    _jets_eta.push_back( (float) ijet->eta());
+    _jets_phi.push_back( (float) ijet->phi());
+    _jets_mass.push_back( (float) ijet->mass());
     _jets_mT.push_back( (float) ijet->mt());
     _jets_Flavour.push_back(ijet->partonFlavour());
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
