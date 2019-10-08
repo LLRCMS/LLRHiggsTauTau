@@ -518,7 +518,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight)
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 79;
+  static const int ntauIds = 59; //79
   TString tauIDStrings[ntauIds] = {
    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
@@ -559,7 +559,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
    "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
    "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
-   "byVVVLooseDeepTau2017v2VSjet",
+   /*"byVVVLooseDeepTau2017v2VSjet",
    "byVVLooseDeepTau2017v2VSjet", 
    "byVLooseDeepTau2017v2VSjet",  
    "byLooseDeepTau2017v2VSjet",   
@@ -578,7 +578,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byVLooseDeepTau2017v2VSmu",
    "byLooseDeepTau2017v2VSmu",
    "byMediumDeepTau2017v2VSmu",
-   "byTightDeepTau2017v2VSmu",  
+   "byTightDeepTau2017v2VSmu",  */
    "byVVVLooseDeepTau2017v2p1VSjet",
    "byVVLooseDeepTau2017v2p1VSjet",
    "byVLooseDeepTau2017v2p1VSjet",
@@ -650,9 +650,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //FRA
   std::vector<Float_t> _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //FRA
   std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017; //FRA
-  std::vector<Float_t> _daughters_byDeepTau2017v2VSjetraw;
-  std::vector<Float_t> _daughters_byDeepTau2017v2VSeraw;
-  std::vector<Float_t> _daughters_byDeepTau2017v2VSmuraw;
+  //std::vector<Float_t> _daughters_byDeepTau2017v2VSjetraw;
+  //std::vector<Float_t> _daughters_byDeepTau2017v2VSeraw;
+  //std::vector<Float_t> _daughters_byDeepTau2017v2VSmuraw;
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSjetraw;
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSeraw;
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSmuraw;
@@ -1140,9 +1140,9 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.clear();      //FRA
   _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.clear();      //FRA
   _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.clear(); //FRA
-  _daughters_byDeepTau2017v2VSjetraw.clear();
-  _daughters_byDeepTau2017v2VSeraw.clear();
-  _daughters_byDeepTau2017v2VSmuraw.clear();
+  //_daughters_byDeepTau2017v2VSjetraw.clear();
+  //_daughters_byDeepTau2017v2VSeraw.clear();
+  //_daughters_byDeepTau2017v2VSmuraw.clear();
   _daughters_byDeepTau2017v2p1VSjetraw.clear();
   _daughters_byDeepTau2017v2p1VSeraw.clear();
   _daughters_byDeepTau2017v2p1VSmuraw.clear();
@@ -1845,9 +1845,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
   myTree->Branch("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
   myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
-  myTree->Branch("daughters_byDeepTau2017v2VSjetraw",&_daughters_byDeepTau2017v2VSjetraw);
-  myTree->Branch("daughters_byDeepTau2017v2VSeraw",&_daughters_byDeepTau2017v2VSeraw);
-  myTree->Branch("daughters_byDeepTau2017v2VSmuraw",&_daughters_byDeepTau2017v2VSmuraw);
+  //myTree->Branch("daughters_byDeepTau2017v2VSjetraw",&_daughters_byDeepTau2017v2VSjetraw);
+  //myTree->Branch("daughters_byDeepTau2017v2VSeraw",&_daughters_byDeepTau2017v2VSeraw);
+  //myTree->Branch("daughters_byDeepTau2017v2VSmuraw",&_daughters_byDeepTau2017v2VSmuraw);
   myTree->Branch("daughters_byDeepTau2017v2p1VSjetraw",&_daughters_byDeepTau2017v2p1VSjetraw);
   myTree->Branch("daughters_byDeepTau2017v2p1VSeraw",&_daughters_byDeepTau2017v2p1VSeraw);
   myTree->Branch("daughters_byDeepTau2017v2p1VSmuraw",&_daughters_byDeepTau2017v2p1VSmuraw);
@@ -3460,7 +3460,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float leadChargedParticlePt=-1., trackRefPt=-1.;
     int typeOfMuon=0;
     float byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1, byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=-1; //FRA
-    float byDeepTau2017v2VSjetraw=-1, byDeepTau2017v2VSeraw=-1, byDeepTau2017v2VSmuraw=-1;
+    //float byDeepTau2017v2VSjetraw=-1, byDeepTau2017v2VSeraw=-1, byDeepTau2017v2VSmuraw=-1;
     float byDeepTau2017v2p1VSjetraw=-1, byDeepTau2017v2p1VSeraw=-1, byDeepTau2017v2p1VSmuraw=-1;
     Long64_t tauIDflag = 0;
     float footprintCorrection, neutralIsoPtSumWeight, photonPtSumOutsideSignalCone;
@@ -3620,9 +3620,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       byIsolationMVArun2017v2DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMwLTraw2017"); //FRA
       byIsolationMVArun2017v1DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v1DBoldDMwLTraw2017"); //FRA
       byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017"); //FRA
-      byDeepTau2017v2VSjetraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSjetraw");
-      byDeepTau2017v2VSeraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSeraw");
-      byDeepTau2017v2VSmuraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSmuraw");
+      //byDeepTau2017v2VSjetraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSjetraw");
+      //byDeepTau2017v2VSeraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSeraw");
+      //byDeepTau2017v2VSmuraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2VSmuraw");
       byDeepTau2017v2p1VSjetraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSjetraw");
       byDeepTau2017v2p1VSeraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSeraw");
       byDeepTau2017v2p1VSmuraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSmuraw");
@@ -3729,9 +3729,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
     _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
     _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
-    _daughters_byDeepTau2017v2VSjetraw.push_back(byDeepTau2017v2VSjetraw);
-    _daughters_byDeepTau2017v2VSeraw.push_back(byDeepTau2017v2VSeraw);
-    _daughters_byDeepTau2017v2VSmuraw.push_back(byDeepTau2017v2VSmuraw);
+    //_daughters_byDeepTau2017v2VSjetraw.push_back(byDeepTau2017v2VSjetraw);
+    //_daughters_byDeepTau2017v2VSeraw.push_back(byDeepTau2017v2VSeraw);
+    //_daughters_byDeepTau2017v2VSmuraw.push_back(byDeepTau2017v2VSmuraw);
     _daughters_byDeepTau2017v2p1VSjetraw.push_back(byDeepTau2017v2p1VSjetraw);
     _daughters_byDeepTau2017v2p1VSeraw.push_back(byDeepTau2017v2p1VSeraw);
     _daughters_byDeepTau2017v2p1VSmuraw.push_back(byDeepTau2017v2p1VSmuraw);

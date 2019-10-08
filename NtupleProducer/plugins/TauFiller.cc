@@ -128,7 +128,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
     "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
 
-    "byVVVLooseDeepTau2017v2VSjet",
+    /*"byVVVLooseDeepTau2017v2VSjet",
     "byVVLooseDeepTau2017v2VSjet",
     "byVLooseDeepTau2017v2VSjet",
     "byLooseDeepTau2017v2VSjet",
@@ -147,7 +147,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byVLooseDeepTau2017v2VSmu",
     "byLooseDeepTau2017v2VSmu",
     "byMediumDeepTau2017v2VSmu",
-    "byTightDeepTau2017v2VSmu",
+    "byTightDeepTau2017v2VSmu",*/
 
     "byVVVLooseDeepTau2017v2p1VSjet",
     "byVVLooseDeepTau2017v2p1VSjet",
@@ -186,9 +186,9 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byIsolationMVArun2017v1DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", //FRA syncApr2018
-    "byDeepTau2017v2VSjetraw",  
+    /*"byDeepTau2017v2VSjetraw",  
     "byDeepTau2017v2VSeraw",  
-    "byDeepTau2017v2VSmuraw",
+    "byDeepTau2017v2VSmuraw",*/
     "byDeepTau2017v2p1VSjetraw",
     "byDeepTau2017v2p1VSeraw",
     "byDeepTau2017v2p1VSmuraw",

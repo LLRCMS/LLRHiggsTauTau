@@ -326,8 +326,8 @@ for d in range(0,len(datasetnames)):
     print 'multicrab.py: Running datasetname: ', datasetnames[d]
 
     config.section_('General')
-    config.General.requestName = datasetnames[d]
-    config.General.workArea    = 'crab3_Oct19'
+    config.General.requestName  = datasetnames[d]
+    config.General.workArea     = 'crab3_Oct19'
     config.General.transferLogs = True
 
     config.section_('JobType')
@@ -335,21 +335,21 @@ for d in range(0,len(datasetnames)):
     config.JobType.psetName    = 'analyzer_MC2017.py'
     config.JobType.sendExternalFolder = True
     config.JobType.maxMemoryMB = 2000 # Default == 2Gb : maximum guaranteed to run on all sites
-    config.JobType.inputFiles=['JECUncertaintySources']
+    config.JobType.inputFiles  = ['JECUncertaintySources']
 
-    config.section_("Data")
+    config.section_('Data')
+    config.Data.allowNonValidInputDataset = True
     config.Data.inputDataset   = datasetinputs[d]
-    config.Data.inputDBS = 'global'
     config.Data.inputDBS       = 'global'
     #config.Data.splitting      = 'FileBased'
     config.Data.splitting      = 'Automatic'
     #config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
     config.Data.unitsPerJob    = 180
-    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2017_Oct19v1/'
+    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2017_Oct19/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d]    
 
-    print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/MC_2017_Oct19v1/'
+    print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/MC_2017_Oct19/'
     #config.Data.publication = True
 
     config.section_('Site')
