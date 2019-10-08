@@ -84,7 +84,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byMediumCombinedIsolationDeltaBetaCorr3Hits",
     "byTightCombinedIsolationDeltaBetaCorr3Hits",
     
-    "byVLooseIsolationMVArun2v1DBoldDMwLT",
+    /*"byVLooseIsolationMVArun2v1DBoldDMwLT",
     "byLooseIsolationMVArun2v1DBoldDMwLT",
     "byMediumIsolationMVArun2v1DBoldDMwLT",
     "byTightIsolationMVArun2v1DBoldDMwLT",
@@ -94,12 +94,12 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byLooseIsolationMVArun2v1DBnewDMwLT",
     "byMediumIsolationMVArun2v1DBnewDMwLT",
     "byTightIsolationMVArun2v1DBnewDMwLT",
-    "byVTightIsolationMVArun2v1DBnewDMwLT",
+    "byVTightIsolationMVArun2v1DBnewDMwLT",*/
 
-    "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
+    /*"byLooseIsolationMVArun2v1DBdR03oldDMwLT",
     "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
     "byTightIsolationMVArun2v1DBdR03oldDMwLT",
-    "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
+    "byVTightIsolationMVArun2v1DBdR03oldDMwLT",*/
     
     "againstMuonLoose3",
     "againstMuonTight3",
@@ -110,7 +110,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "againstElectronTightMVA6",
     "againstElectronVTightMVA6",
     
-    "byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
+    /*"byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byLooseIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
     "byMediumIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
@@ -120,7 +120,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
     "byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
     "byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
-    "byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    "byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018*/
     
     "byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
     "byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
@@ -175,7 +175,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   tauFloatDiscrims_ =
   {
     "byCombinedIsolationDeltaBetaCorrRaw3Hits",
-    "byIsolationMVArun2v1DBoldDMwLTraw",
+    //"byIsolationMVArun2v1DBoldDMwLTraw",
     "byPhotonPtSumOutsideSignalCone",
     "footprintCorrection",
     "neutralIsoPtSumWeight",
@@ -183,7 +183,7 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "chargedIsoPtSum",
     "neutralIsoPtSum",
     "puCorrPtSum",
-    "byIsolationMVArun2017v1DBoldDMwLTraw2017",      //FRA syncApr2018
+    //"byIsolationMVArun2017v1DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", //FRA syncApr2018
     /*"byDeepTau2017v2VSjetraw",  
