@@ -25,41 +25,41 @@ if __name__ == '__main__':
  datasetnames  = [
 
 # SingleElectron dataset :
-'Data_2017_Oct19_SingleEle_BlockB',
-'Data_2017_Oct19_SingleEle_BlockC',
-'Data_2017_Oct19_SingleEle_BlockD',
-'Data_2017_Oct19_SingleEle_BlockE',
-'Data_2017_Oct19_SingleEle_BlockF',
+'Oct19v1_Data_2017_Oct19_SingleEle_BlockB',
+'Oct19v1_Data_2017_Oct19_SingleEle_BlockC',
+'Oct19v1_Data_2017_Oct19_SingleEle_BlockD',
+'Oct19v1_Data_2017_Oct19_SingleEle_BlockE',
+'Oct19v1_Data_2017_Oct19_SingleEle_BlockF',
 # SingleMuon dataset 
-'Data_2017_Oct19_SingleMu_BlockB',
-'Data_2017_Oct19_SingleMu_BlockC',
-'Data_2017_Oct19_SingleMu_BlockD',
-'Data_2017_Oct19_SingleMu_BlockE',
-'Data_2017_Oct19_SingleMu_BlockF',
+'Oct19v1_Data_2017_Oct19_SingleMu_BlockB',
+'Oct19v1_Data_2017_Oct19_SingleMu_BlockC',
+'Oct19v1_Data_2017_Oct19_SingleMu_BlockD',
+'Oct19v1_Data_2017_Oct19_SingleMu_BlockE',
+'Oct19v1_Data_2017_Oct19_SingleMu_BlockF',
 # DoubleEG dataset
-'Data_2017_Oct19_DoubleEG_BlockB',
-'Data_2017_Oct19_DoubleEG_BlockC',
-'Data_2017_Oct19_DoubleEG_BlockD',
-'Data_2017_Oct19_DoubleEG_BlockE',
-'Data_2017_Oct19_DoubleEG_BlockF',
+'Oct19v1_Data_2017_Oct19_DoubleEG_BlockB',
+'Oct19v1_Data_2017_Oct19_DoubleEG_BlockC',
+'Oct19v1_Data_2017_Oct19_DoubleEG_BlockD',
+'Oct19v1_Data_2017_Oct19_DoubleEG_BlockE',
+'Oct19v1_Data_2017_Oct19_DoubleEG_BlockF',
 # DoubleMuon
-'Data_2017_Oct19_DoubleMu_BlockB',
-'Data_2017_Oct19_DoubleMu_BlockC',
-'Data_2017_Oct19_DoubleMu_BlockD',
-'Data_2017_Oct19_DoubleMu_BlockE',
-'Data_2017_Oct19_DoubleMu_BlockF',
+'Oct19v1_Data_2017_Oct19_DoubleMu_BlockB',
+'Oct19v1_Data_2017_Oct19_DoubleMu_BlockC',
+'Oct19v1_Data_2017_Oct19_DoubleMu_BlockD',
+'Oct19v1_Data_2017_Oct19_DoubleMu_BlockE',
+'Oct19v1_Data_2017_Oct19_DoubleMu_BlockF',
 # MuonEG
-'Data_2017_Oct19_MuonEG_BlockB',
-'Data_2017_Oct19_MuonEG_BlockC',
-'Data_2017_Oct19_MuonEG_BlockD',
-'Data_2017_Oct19_MuonEG_BlockE',
-'Data_2017_Oct19_MuonEG_BlockF',
+'Oct19v1_Data_2017_Oct19_MuonEG_BlockB',
+'Oct19v1_Data_2017_Oct19_MuonEG_BlockC',
+'Oct19v1_Data_2017_Oct19_MuonEG_BlockD',
+'Oct19v1_Data_2017_Oct19_MuonEG_BlockE',
+'Oct19v1_Data_2017_Oct19_MuonEG_BlockF',
 # Tau
-'Data_2017_Oct19_Tau_BlockB',
-'Data_2017_Oct19_Tau_BlockC',
-'Data_2017_Oct19_Tau_BlockD',
-'Data_2017_Oct19_Tau_BlockE',
-'Data_2017_Oct19_Tau_BlockF'
+'Oct19v1_Data_2017_Oct19_Tau_BlockB',
+'Oct19v1_Data_2017_Oct19_Tau_BlockC',
+'Oct19v1_Data_2017_Oct19_Tau_BlockD',
+'Oct19v1_Data_2017_Oct19_Tau_BlockE',
+'Oct19v1_Data_2017_Oct19_Tau_BlockF'
 
    ]
  
@@ -109,31 +109,31 @@ for d in range(0,len(datasetnames)):
     print 'multicrab.py: Running datasetname: ', datasetnames[d]
 
     config.section_('General')
-    config.General.requestName = datasetnames[d]
-    config.General.workArea    = 'crab3_Oct19'
+    config.General.requestName  = datasetnames[d]
+    config.General.workArea     = 'crab3_Oct19'
     config.General.transferLogs = True
 
     config.section_('JobType')
     config.JobType.pluginName  = 'Analysis'
     config.JobType.psetName    = 'analyzer_data2017.py'
     config.JobType.sendExternalFolder = True
+    config.JobType.maxMemoryMB = 2000 # Default == 2Gb : maximum guaranteed to run on all sites
     config.JobType.inputFiles  = ['JECUncertaintySources']
 
     config.section_('Data')
+    config.Data.allowNonValidInputDataset = True
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS       = 'global'
-    #config.Data.splitting      = 'LumiBased'
-    #config.Data.unitsPerJob    = 30
-    config.Data.splitting      = 'Automatic'
-    config.Data.unitsPerJob    = 180
+    config.Data.splitting      = 'LumiBased'
+    config.Data.unitsPerJob    = 30    
     config.Data.lumiMask       = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt'
-    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2017_Oct19/'
+    config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2016_Oct19/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d] 
 
-    print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/'
+    print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/Data_2016_Oct19/'
 
     config.section_('Site')
-    config.Site.storageSite    = 'T2_FR_GRIF_LLR'
+    config.Site.storageSite    = 'T2_FR_GRIF_IRFU' #'T2_FR_GRIF_LLR'
     print 'multicrab.py: Submitting Jobs'
     submit(config)

@@ -148,10 +148,8 @@ for d in range(0,len(datasetnames)):
     config.Data.allowNonValidInputDataset = True
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS       = 'global'
-    #config.Data.splitting      = 'LumiBased'
-    config.Data.splitting      = 'Automatic'
-    #config.Data.unitsPerJob    = 30
-    config.Data.unitsPerJob    = 180
+    config.Data.splitting      = 'LumiBased'
+    config.Data.unitsPerJob    = 30
     config.Data.lumiMask       = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
     config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/Data_2016_Oct19/'
     config.Data.publication    = True
@@ -160,6 +158,6 @@ for d in range(0,len(datasetnames)):
     print 'multicrab.py: outLFNDirBase = /store/user/cmartinp/ttH_Legacy/Data_2016_Oct19/'
 
     config.section_('Site')
-    config.Site.storageSite    = 'T2_FR_GRIF_LLR' #T2_FR_GRIF_IRFU
+    config.Site.storageSite    = 'T2_FR_GRIF_IRFU' #'T2_FR_GRIF_LLR'
     print 'multicrab.py: Submitting Jobs'
     submit(config)

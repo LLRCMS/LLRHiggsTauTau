@@ -100,26 +100,27 @@ if __name__ == '__main__':
  'Oct19v1_MC_2018_WJetsToLNu', #54
  'Oct19v1_MC_2018_WWTo2L2Nu', #55
  'Oct19v1_MC_2018_WZTo3LNu', #56
- 'Oct19v1_MC_2018_ZZTo4L', #57
- 'Oct19v1_MC_2018_ZZTo4L_ext2', #58
+ 'Oct19v1_MC_2018_WZTo3LNu_ext1', #57
+ 'Oct19v1_MC_2018_ZZTo4L', #58
+ 'Oct19v1_MC_2018_ZZTo4L_ext2', #59
  
  # TTVH
- 'Oct19v1_MC_2018_TTWH', #59
- 'Oct19v1_MC_2018_TTZH', #60
+ 'Oct19v1_MC_2018_TTWH', #60
+ 'Oct19v1_MC_2018_TTZH', #61
 
  # HH
- 'GluGluToHHTo2B2Tau_node_SM', #61
- 'GluGluToHHTo2B2Tau_node_2', #62
- 'GluGluToHHTo2B2Tau_node_3', #63
- 'GluGluToHHTo2B2Tau_node_4', #64
- 'GluGluToHHTo2B2Tau_node_5', #65
- 'GluGluToHHTo2B2Tau_node_6', #66
- 'GluGluToHHTo2B2Tau_node_7', #67
- 'GluGluToHHTo2B2Tau_node_8', #68
- 'GluGluToHHTo2B2Tau_node_9', #69
- 'GluGluToHHTo2B2Tau_node_10', #70
- 'GluGluToHHTo2B2Tau_node_11', #71
- 'GluGluToHHTo2B2Tau_node_12', #72
+ 'GluGluToHHTo2B2Tau_node_SM', #62
+ 'GluGluToHHTo2B2Tau_node_2', #63
+ 'GluGluToHHTo2B2Tau_node_3', #64
+ 'GluGluToHHTo2B2Tau_node_4', #65
+ 'GluGluToHHTo2B2Tau_node_5', #66
+ 'GluGluToHHTo2B2Tau_node_6', #67
+ 'GluGluToHHTo2B2Tau_node_7', #68
+ 'GluGluToHHTo2B2Tau_node_8', #69
+ 'GluGluToHHTo2B2Tau_node_9', #70
+ 'GluGluToHHTo2B2Tau_node_10', #71
+ 'GluGluToHHTo2B2Tau_node_11', #72
+ 'GluGluToHHTo2B2Tau_node_12', #73
 
 
     ]
@@ -201,27 +202,28 @@ if __name__ == '__main__':
  '/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext2-v1/MINIAODSIM', #53
  '/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v2/MINIAODSIM', #54
  '/WWTo2L2Nu_NNPDF31_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #55
- '/WZTo3LNu_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM', #56
- '/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM', #57
- '/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext2-v2/MINIAODSIM', #58
+ '/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #56
+ '/WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM', #57
+ '/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM', #58
+ '/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext2-v2/MINIAODSIM', #59
 
  # TTVH
- '/TTWH_TuneCP5_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM', #59
- '/TTZH_TuneCP5_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM', #60
+ '/TTWH_TuneCP5_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM', #60
+ '/TTZH_TuneCP5_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext1-v2/MINIAODSIM', #61
 
  # HH
- '/GluGluToHHTo2B2Tau_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #61
- '/GluGluToHHTo2B2Tau_node_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #62
- '/GluGluToHHTo2B2Tau_node_3_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #63
- '/GluGluToHHTo2B2Tau_node_4_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #64
- '/GluGluToHHTo2B2Tau_node_5_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #65
- '/GluGluToHHTo2B2Tau_node_6_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #66
- '/GluGluToHHTo2B2Tau_node_7_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #67
- '/GluGluToHHTo2B2Tau_node_8_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #68
- '/GluGluToHHTo2B2Tau_node_9_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #69
- '/GluGluToHHTo2B2Tau_node_10_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #70
- '/GluGluToHHTo2B2Tau_node_11_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #71
- '/GluGluToHHTo2B2Tau_node_12_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #72
+ '/GluGluToHHTo2B2Tau_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #62
+ '/GluGluToHHTo2B2Tau_node_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #63
+ '/GluGluToHHTo2B2Tau_node_3_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #64
+ '/GluGluToHHTo2B2Tau_node_4_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #65
+ '/GluGluToHHTo2B2Tau_node_5_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #66
+ '/GluGluToHHTo2B2Tau_node_6_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #67
+ '/GluGluToHHTo2B2Tau_node_7_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #68
+ '/GluGluToHHTo2B2Tau_node_8_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #69
+ '/GluGluToHHTo2B2Tau_node_9_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #70
+ '/GluGluToHHTo2B2Tau_node_10_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #71
+ '/GluGluToHHTo2B2Tau_node_11_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #72
+ '/GluGluToHHTo2B2Tau_node_12_TuneCP5_PSWeights_13TeV-madgraph-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', #73
 
     ]
 
@@ -246,10 +248,9 @@ for d in range(0,len(datasetnames)):
     config.Data.allowNonValidInputDataset = True
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS       = 'global'
-    #config.Data.splitting      = 'FileBased'
-    config.Data.splitting      = 'Automatic'
-    #config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
-    config.Data.unitsPerJob    = 180
+    config.Data.splitting      = 'FileBased'
+    config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
+    config.Data.unitsPerJob    = 1
     config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2018_Oct19/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d]    
@@ -258,6 +259,6 @@ for d in range(0,len(datasetnames)):
     #config.Data.publication = True
 
     config.section_('Site')
-    config.Site.storageSite    = 'T2_FR_GRIF_LLR' #T2_FR_GRIF_IRFU
+    config.Site.storageSite    = 'T2_FR_GRIF_IRFU' #'T2_FR_GRIF_LLR'
     print 'multicrab.py: Submitting Jobs'
     submit(config)

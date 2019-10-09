@@ -62,7 +62,7 @@ if IsMC:
     if (YEAR == 2017 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_mc2017_realistic_v6'
     if (YEAR == 2018 and Is2018D == False): 
-	process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'
+	process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v20'
 else :
     if (YEAR == 2016 and Is2018D == False): 
 	process.GlobalTag.globaltag = '102X_dataRun2_nanoAOD_2016_v1'
@@ -397,7 +397,7 @@ updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Id
 
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False,
                     updatedTauName = updatedTauName,
-                    toKeep = ["deepTau2017v2p1", "2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1","deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0","deepTau2017v2"] discriminators in this line are based on DNN
+                    toKeep = ["deepTau2017v2p1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1","deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0","deepTau2017v2"] discriminators in this line are based on DNN
    )
 
 tauIdEmbedder.runTauID()
@@ -560,7 +560,7 @@ updateJetCollection(
       	'pfDeepFlavourJetTags:probuds',
       	'pfDeepFlavourJetTags:probg'
       ],
-   postfix='NewDFTraining'
+   postfix='NewDFTraining',
 )
 
 jetsNameAK4="selectedUpdatedPatJetsNewDFTraining"

@@ -240,7 +240,7 @@ if __name__ == '__main__':
  '/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext2-v2/MINIAODSIM', #62
  '/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2/MINIAODSIM', #63
  '/WWTo2L2Nu_13TeV-powheg/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2/MINIAODSIM', #64
- '/WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v1/MINIAODSIM', #65
+ '/WZTo3LNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2/MINIAODSIM', #65
  '/ZZTo4L_13TeV_powheg_pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1/MINIAODSIM', #66
 
  # TTVH
@@ -307,10 +307,9 @@ for d in range(0,len(datasetnames)):
     config.Data.allowNonValidInputDataset = True
     config.Data.inputDataset   = datasetinputs[d]
     config.Data.inputDBS       = 'global'
-    #config.Data.splitting      = 'FileBased'
-    config.Data.splitting      = 'Automatic'
-    #config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
-    config.Data.unitsPerJob    = 180
+    config.Data.splitting      = 'FileBased'
+    config.Data.totalUnits     = 40000 #With 'FileBased' splitting tells how many files to analyse
+    config.Data.unitsPerJob    = 1
     config.Data.outLFNDirBase  = '/store/user/cmartinp/ttH_Legacy/MC_2016_Oct19/'
     config.Data.publication    = True
     config.Data.outputDatasetTag = datasetnames[d]    
@@ -319,6 +318,6 @@ for d in range(0,len(datasetnames)):
     #config.Data.publication = True
 
     config.section_('Site')
-    config.Site.storageSite    = 'T2_FR_GRIF_LLR' #T2_FR_GRIF_IRFU
+    config.Site.storageSite    = 'T2_FR_GRIF_IRFU' #'T2_FR_GRIF_LLR'
     print 'multicrab.py: Submitting Jobs'
     submit(config)
