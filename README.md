@@ -395,27 +395,29 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 
 # INSTALATION 
 
+mkdir <directory>
+cd <directory>
+
 cmsrel CMSSW_10_2_16
 cd CMSSW_10_2_16/src/
 cmsenv
 
 git cms-init
 
-# set merge limit variable
+# Set merge limit variable
 git config merge.renameLimit 999999
 
-# pt-dependent JER-SF and phi-dependent JEC application in PAT (will be integrated in CMS_11_X)
+# Add pt-dependent JER SFs and phi-dependent JEC (will be integrated in CMS_11_X)
 # https://github.com/cms-sw/cmssw/pull/28098
 git cms-merge-topic 28098
 scram b -j 8
 
-# electron scale/smearing corrections
+# Electron scale/smearing corrections
 # https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#2018_Preliminary_Energy_Correcti
-git cms-merge-topic cms-egamma:EgammaPostRecoTools
-git cms-merge-topic cms-egamma:slava77-btvDictFix_10210 #fixes the Run2018D dictionary issue, see https://github.com/cms-sw/cmssw/issues/26182
-scram b -j 8
-
-# scale and smearing for 2018
+git cms-merge-topic cms-egamma:EgammaPostRecoTools   #just adds in an extra file to have a setup function to make things easier 
+git cms-merge-topic cms-egamma:PhotonIDValueMapSpeedup1029   #optional but speeds up the photon ID value module
+git cms-merge-topic cms-egamma:slava77-btvDictFix_10210   #fixes the Run2018D dictionary issue, see https://github.com/cms-sw/cmssw/issues/26182
+# Scale and smearing for 2018
 git cms-addpkg EgammaAnalysis/ElectronTools
 rm EgammaAnalysis/ElectronTools/data -rf
 git clone git@github.com:cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
@@ -423,21 +425,21 @@ scram b -j 8
 
 # MET filters
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-git cms-addpkg RecoMET/METFilters    # only if 2017 data/MC or 2018 data/MC
+git cms-addpkg RecoMET/METFilters   # only if 2017 data/MC or 2018 data/MC
 scram b -j 8
 
-# MET corrections with EE nosie fix
+# MET corrections with EE noise fix
 # https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription#Instructions_for_9_4_X_X_9_for_2
 git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X   # only if 2017 data/MC
 scram b -j 8
 
-# Jets DeepFlavour
+# Jets b-tag DeepFlavour
 git cms-addpkg RecoBTag/TensorFlow
 git cherry-pick 94ceae257f846998c357fcad408986cc8a039152   # not sure this is necesary in 102X
 scram b -j 8
 
-# Tau ID DNN
-#https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20
+# Tau ID DeepTau v2p1
+# https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePFTauID#Running_of_the_DeepTauIDs_ver_20
 git cms-merge-topic -u cms-tau-pog:CMSSW_10_2_X_tau-pog_DeepTau2017v2p1_nanoAOD
 scram b -j 8
 
@@ -463,10 +465,10 @@ scram b -j 8
 git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
 cd UFHZZAnalysisRun2
 git checkout master FSRPhotons
-# need to fix: - FSRPhotons/plugins/FSRPhotonProducer.cc
-#              - FSRPhotons/plugins/PhotonPFIsoCalculator.cc
+# fix:  ./FSRPhotons/plugins/FSRPhotonProducer.cc
+#       ./FSRPhotons/plugins/PhotonPFIsoCalculator.cc
 # replace 'std::auto_ptr' with 'std::unique_ptr' 
-# search for 'iEvent.put( XXXX );' and replace with 'iEvent.put( std::move(XXXX) );'
+# replace 'iEvent.put( XXXX )' with 'iEvent.put( std::move(XXXX) )'
 cd -
 scram b -j 8
 
@@ -476,7 +478,7 @@ git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 git clone git@github.com:veelken/SVfit_standalone.git TauAnalysis/SVfitStandalone
 cd TauAnalysis/SVfitStandalone
 git checkout HIG-16-006
-# need to fix: ./src/SVfitStandaloneQuantities.cc 
+# fix:  ./src/SVfitStandaloneQuantities.cc
 # add '#include <numeric>'
 cd -
 scram b -j 8
@@ -487,6 +489,7 @@ cd LLRHiggsTauTau
 git checkout 102X_ttH
 cd -
 scram b -j 8
+
 ```
 
 ### Quick usage:
