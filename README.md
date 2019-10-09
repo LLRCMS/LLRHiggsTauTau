@@ -396,13 +396,18 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 # INSTALATION 
 
 cmsrel CMSSW_10_2_16
-cd CMSSW_10_2_14/src/
+cd CMSSW_10_2_16/src/
 cmsenv
 
 git cms-init
 
 # set merge limit variable
 git config merge.renameLimit 999999
+
+# pt-dependent JER-SF and phi-dependent JEC application in PAT (will be integrated in CMS_11_X)
+# https://github.com/cms-sw/cmssw/pull/28098
+git cms-merge-topic 28098
+scram b -j 8
 
 # electron scale/smearing corrections
 # https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#2018_Preliminary_Energy_Correcti
@@ -414,22 +419,21 @@ scram b -j 8
 git cms-addpkg EgammaAnalysis/ElectronTools
 rm EgammaAnalysis/ElectronTools/data -rf
 git clone git@github.com:cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
-# make sure to have /home/llr/cms/mperez/dev_tests_2/CMSSW_10_2_14/src/EgammaAnalysis/ElectronTools/data/ScalesSmearings/*2018*v2*.dat
 scram b -j 8
 
 # MET filters
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-git cms-addpkg RecoMET/METFilters                                       # only if 2017 data/MC or 2018 data/MC
+git cms-addpkg RecoMET/METFilters    # only if 2017 data/MC or 2018 data/MC
 scram b -j 8
 
 # MET corrections with EE nosie fix
 # https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription#Instructions_for_9_4_X_X_9_for_2
-git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X        # only if 2017 data/MC
+git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X   # only if 2017 data/MC
 scram b -j 8
 
 # Jets DeepFlavour
 git cms-addpkg RecoBTag/TensorFlow
-git cherry-pick 94ceae257f846998c357fcad408986cc8a039152                # not sure this is necesary in 102X
+git cherry-pick 94ceae257f846998c357fcad408986cc8a039152   # not sure this is necesary in 102X
 scram b -j 8
 
 # Tau ID DNN
