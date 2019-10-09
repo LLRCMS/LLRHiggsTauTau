@@ -110,7 +110,7 @@ for d in range(0,len(datasetnames)):
 
     config.section_('General')
     config.General.requestName  = datasetnames[d]
-    config.General.workArea     = 'crab3_Oct19'
+    config.General.workArea     = 'crab3'
     config.General.transferLogs = True
 
     config.section_('JobType')
