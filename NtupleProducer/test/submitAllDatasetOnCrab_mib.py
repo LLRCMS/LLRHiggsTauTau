@@ -42,11 +42,27 @@ import re
 #tag = "Data2017BF_31Mar2018ReReco_17May2018"
 #datasetsFile = "datasets_Fall17_15May2018.txt"
 
-PROCESS = ["MINIAODFALL17v2"]
-tag = "MC_25June2018"
-datasetsFile = "datasets_Fall17_15May2018.txt"
+#PROCESS = ["MINIAODFALL17v2"]
+#tag = "MC_25June2018"
+#datasetsFile = "datasets_Fall17_15May2018.txt"
 
-isMC = True
+#PROCESS = ["BACKGROUNDS_Autumn2018_June2019"]
+#tag = "MC_31July2019"
+#datasetsFile = "datasetsAutumn18_June2019.txt"
+
+#PROCESS = ["BACKGROUNDS_Autumn2018_June2019_FileBased"]
+#tag = "MC_28July2019"
+#datasetsFile = "datasetsAutumn18_June2019.txt"
+
+#PROCESS = ["SIGNALS_Autumn2018_June2019"]
+#tag = "Sig_30July2019"
+#datasetsFile = "datasetsAutumn18_June2019.txt"
+
+PROCESS = ["DATA2018"]
+tag = "Data_29Aug2019"
+datasetsFile = "datasetsAutumn18_June2019.txt"
+
+isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -79,10 +95,11 @@ isMC = True
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PromptReco/Cert_294927-302663_13TeV_PromptReco_Collisions17_JSON.txt'
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
 
-## 15 May 2018 Golden JSON 2017
+## 06 June 2019 ReReco Golden JSON 2018
 # https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
-lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
 
 FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
@@ -185,7 +202,8 @@ for dtset in dtsetToLaunch:
     command += " Data.inputDataset=%s" % dtset
     #command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
     #command += " Data.outLFNDirBase=/store/user/camendol/HHNtuples2017/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
-    command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
+    #command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
+    command += " Data.outLFNDirBase=/store/user/dzuolo/HHbbtautauNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
     #command += " Data.splitting='Automatic'"
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
