@@ -272,7 +272,7 @@ updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Id
 
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True,
                     updatedTauName = updatedTauName,
-                    toKeep = ["deepTau2017v2", "2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
+                    toKeep = ["deepTau2017v2p1", "2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
 		                                                                                           #"deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0"] discriminators in this line are based on DNN
 )
 
