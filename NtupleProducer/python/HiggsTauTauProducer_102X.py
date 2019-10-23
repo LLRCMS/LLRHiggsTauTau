@@ -55,13 +55,14 @@ except NameError:
 from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+
 if IsMC:
-    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v18'  # 2018 MC
+    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'  # 2018 MC
 else :
     if PERIOD=="D":
-        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v13'    # 2018D Data --> FRA: need to understand how to use it
+        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v14'    # 2018D Data --> FRA: need to understand how to use it
     else:
-        process.GlobalTag.globaltag = '102X_dataRun2_Sep2018ABC_v2'  # 2018ABC Data
+        process.GlobalTag.globaltag = '102X_dataRun2_v11'  # 2018ABC Data
 
 print "GT: ",process.GlobalTag.globaltag
 
@@ -271,7 +272,7 @@ updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Id
 
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True,
                     updatedTauName = updatedTauName,
-                    toKeep = ["deepTau2017v2", "2017v1", "2017v2", "dR0p32017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
+                    toKeep = ["deepTau2017v2p1", "2017v2"] # pick the one you need: ["2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
 		                                                                                           #"deepTau2017v1", "deepTau2017v2","DPFTau_2016_v0"] discriminators in this line are based on DNN
 )
 

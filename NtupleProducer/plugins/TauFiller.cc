@@ -142,28 +142,28 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
     "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
     
-    "byVVVLooseDeepTau2017v2VSjet",
-    "byVVLooseDeepTau2017v2VSjet", 
-    "byVLooseDeepTau2017v2VSjet",  
-    "byLooseDeepTau2017v2VSjet",   
-    "byMediumDeepTau2017v2VSjet",  
-    "byTightDeepTau2017v2VSjet",   
-    "byVTightDeepTau2017v2VSjet",  
-    "byVVTightDeepTau2017v2VSjet", 
+    "byVVVLooseDeepTau2017v2p1VSjet",
+    "byVVLooseDeepTau2017v2p1VSjet", 
+    "byVLooseDeepTau2017v2p1VSjet",  
+    "byLooseDeepTau2017v2p1VSjet",   
+    "byMediumDeepTau2017v2p1VSjet",  
+    "byTightDeepTau2017v2p1VSjet",   
+    "byVTightDeepTau2017v2p1VSjet",  
+    "byVVTightDeepTau2017v2p1VSjet", 
     
-    "byVVVLooseDeepTau2017v2VSe",  
-    "byVVLooseDeepTau2017v2VSe", 
-    "byVLooseDeepTau2017v2VSe",   
-    "byLooseDeepTau2017v2VSe",   
-    "byMediumDeepTau2017v2VSe",   
-    "byTightDeepTau2017v2VSe",   
-    "byVTightDeepTau2017v2VSe",   
-    "byVVTightDeepTau2017v2VSe",   
+    "byVVVLooseDeepTau2017v2p1VSe",  
+    "byVVLooseDeepTau2017v2p1VSe", 
+    "byVLooseDeepTau2017v2p1VSe",   
+    "byLooseDeepTau2017v2p1VSe",   
+    "byMediumDeepTau2017v2p1VSe",   
+    "byTightDeepTau2017v2p1VSe",   
+    "byVTightDeepTau2017v2p1VSe",   
+    "byVVTightDeepTau2017v2p1VSe",   
     
-    "byVLoosmuDmumupTau2017v2VSmu",
-    "byLoosmuDmumupTau2017v2VSmu", 
-    "byMmudiumDmumupTau2017v2VSmu",
-    "byTightDmumupTau2017v2VSmu", 
+    "byVLooseDeepTau2017v2p1VSmu",
+    "byLooseDeepTau2017v2p1VSmu", 
+    "byMediumDeepTau2017v2p1VSmu",
+    "byTightDeepTau2017v2p1VSmu", 
 
   };
 
@@ -181,9 +181,9 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byIsolationMVArun2017v1DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", //FRA syncApr2018
-    "byDeepTau2017v2VSjetraw",  
-    "byDeepTau2017v2VSeraw",  
-    "byDeepTau2017v2VSmuraw",
+    "byDeepTau2017v2p1VSjetraw",  
+    "byDeepTau2017v2p1VSeraw",  
+    "byDeepTau2017v2p1VSmuraw",
    };
 
 
