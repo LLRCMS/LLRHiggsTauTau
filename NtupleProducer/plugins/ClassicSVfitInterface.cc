@@ -888,12 +888,13 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (dau2->pt() < 20.)
       return false;
 
-    if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1) // decayModeFinding == decayModeFindingOldDMs
+    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1) // decayModeFinding == decayModeFindingOldDMs
       return false;
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1); //FRA 2017
 
     if (!iso1 || !iso2)
       return false;
@@ -912,12 +913,13 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (dau2->pt() < 20.)
       return false;
 
-    if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
+    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
     bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1); //FRA 2017
 
     if (!iso1 || !iso2)
       return false;
@@ -938,16 +940,18 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (dau2->pt() < 20.)
       return false;
     
-    if (userdatahelpers::getUserInt(l1,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
+    if (userdatahelpers::getUserInt(l1,"decayModeFindingNewDMs") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
     
-    if (userdatahelpers::getUserInt(l2,"decayModeFinding") != 1)  // decayModeFinding == decayModeFindingOldDMs
+    if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
     //bool iso1 = (userdatahelpers::getUserInt(l1,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
-    bool iso1 = (userdatahelpers::getUserInt(l1,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    //bool iso1 = (userdatahelpers::getUserInt(l1,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
+    bool iso1 = (userdatahelpers::getUserInt(l1,"byVVVLooseDeepTau2017v2p1VSjet") == 1); //FRA 2017
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1); //FRA 2017
 
     if (!iso1 || !iso2)
       return false;
