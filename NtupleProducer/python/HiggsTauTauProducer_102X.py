@@ -57,12 +57,18 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 if IsMC:
+  if YEAR == 2017:
+    process.GlobalTag.globaltag = '94X_mc2017_realistic_v14'        # 2017 MC
+  if YEAR == 2018:
     process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'  # 2018 MC
 else :
+  if YEAR == 2017:
+    process.GlobalTag.globaltag = '94X_dataRun2_ReReco_EOY17_v6'    # 2017 Data
+  if YEAR == 2018:
     if PERIOD=="D":
         process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v14'    # 2018D Data --> FRA: need to understand how to use it
     else:
-        process.GlobalTag.globaltag = '102X_dataRun2_v11'  # 2018ABC Data
+        process.GlobalTag.globaltag = '102X_dataRun2_v11'           # 2018ABC Data
 
 print "GT: ",process.GlobalTag.globaltag
 
@@ -148,8 +154,8 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
 
-#2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-# FIXME: to be updated to 2018 --> remained the same for 2018
+# 2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
+# Remained the same for 2017 and 2018
 process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
 
 baddetEcallist = cms.vuint32(
@@ -216,9 +222,12 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
 from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+EgammaPostRecoSeq_ERA = '2017-Nov17ReReco' # 2017 data
+if YEAR == 2018:
+  EgammaPostRecoSeq_ERA = '2018-Prompt'    # 2018 data
 setupEgammaPostRecoSeq(process,
                        runEnergyCorrections=False,
-                       era='2018-Prompt')
+                       era=EgammaPostRecoSeq_ERA)
 		       
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
@@ -229,6 +238,8 @@ process.softElectrons = cms.EDProducer("EleFiller",
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
    cut = cms.string(ELECUT)
    )
+
+import pdb; pdb.set_trace()
 
 process.electrons = cms.Sequence(process.softElectrons+process.egammaPostRecoSeq)
 
@@ -319,8 +330,31 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
         finalCut = cms.string(' '),
 )
 
+# TES corrections: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Tau_energy_scale_for_MVA_tau_id
 # NominalTESCorrection=-1#in percent\
 APPLYTESCORRECTION = APPLYTESCORRECTION if IsMC else False # always false if data
+
+# 2017 data
+NomTESUnc1Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+NomTESUnc1PrPi0   = cms.double(0.8)  # in percent, up/down uncertainty of TES
+NomTESUnc3Pr      = cms.double(0.9)  # in percent, up/down uncertainty of TES
+NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
+NomTESCor1Pr      = cms.double(0.7)  # DecayMode==0
+NomTESCor1PrPi0   = cms.double(-0.2) # DecayMode==1
+NomTESCor3Pr      = cms.double(0.1)  # DecayMode==10
+NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11
+
+# 2018 data
+if YEAR == 2018:
+    NomTESUnc1Pr      = cms.double(1.1)  # in percent, up/down uncertainty of TES
+    NomTESUnc1PrPi0   = cms.double(0.9)  # in percent, up/down uncertainty of TES
+    NomTESUnc3Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+    NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017
+    NomTESCor1Pr      = cms.double(-1.3) # DecayMode==0
+    NomTESCor1PrPi0   = cms.double(-0.5) # DecayMode==1
+    NomTESCor3Pr      = cms.double(-1.2) # DecayMode==10
+    NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11 -- Missing for 2018, kept the same of 2017
+
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
    genCollection = cms.InputTag("prunedGenParticles"),
@@ -328,15 +362,14 @@ process.softTaus = cms.EDProducer("TauFiller",
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
 
-   # --> Correct values for 2018 data - Davide update May2019
-   NominalTESUncertainty1Pr         = cms.double(1.1) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty1PrPi0      = cms.double(0.9) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty3Pr         = cms.double(0.8) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty3PrPi0      = cms.double(1.0) , # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017      
-   NominalTESCorrection1Pr          = cms.double(-1.3), #DecayMode==0                                 
-   NominalTESCorrection1PrPi0       = cms.double(-0.5), #DecayMode==1                                 
-   NominalTESCorrection3Pr          = cms.double(-1.2), #DecayMode==10                                
-   NominalTESCorrection3PrPi0       = cms.double(-0.1), #DecayMode==11 -- Missing for 2018, kept the same of 2017                               
+   NominalTESUncertainty1Pr         = NomTESUnc1Pr,
+   NominalTESUncertainty1PrPi0      = NomTESUnc1PrPi0,
+   NominalTESUncertainty3Pr         = NomTESUnc3Pr,
+   NominalTESUncertainty3PrPi0      = NomTESUnc3PrPi0,
+   NominalTESCorrection1Pr          = NomTESCor1Pr,
+   NominalTESCorrection1PrPi0       = NomTESCor1PrPi0,
+   NominalTESCorrection3Pr          = NomTESCor3Pr,
+   NominalTESCorrection3PrPi0       = NomTESCor3PrPi0,
 
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
@@ -344,7 +377,6 @@ process.softTaus = cms.EDProducer("TauFiller",
         isGood = cms.string("")
         )
    )
-
 
 process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTausNewID + process.bareTaus + process.softTaus)
 
