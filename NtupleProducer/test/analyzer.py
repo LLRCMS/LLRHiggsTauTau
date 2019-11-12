@@ -168,7 +168,10 @@ process.maxEvents.input = -1
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
 if not IsMC:
-  execfile(PyFilePath+"python/lumiMask.py")
+  if YEAR == 2017:
+    execfile(PyFilePath+"python/lumiMask_2017.py")
+  if YEAR == 2018:
+    execfile(PyFilePath+"python/lumiMask_2018.py")
   process.source.lumisToProcess = LUMIMASK
 
 ##
