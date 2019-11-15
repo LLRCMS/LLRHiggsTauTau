@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-execfile(PyFilePath+"python/triggers_102X.py") # contains the list of triggers and filters
 
 process = cms.Process("TEST")
 
@@ -48,6 +47,18 @@ except NameError:
 try: HLTProcessName
 except NameError:
     HLTProcessName='HLT'
+
+
+### ----------------------------------------------------------------------
+### Trigger list
+### ----------------------------------------------------------------------
+if YEAR == 2017:
+  print 'Using HLT trigger 2017'
+  execfile(PyFilePath+"python/triggers_92X.py") # 2017 triggers and filters
+if YEAR == 2018:
+  print 'Using HLT trigger 2018'
+  execfile(PyFilePath+"python/triggers_102X.py") # 2018 triggers and filters
+
 
 ### ----------------------------------------------------------------------
 ### Set the GT
@@ -238,8 +249,6 @@ process.softElectrons = cms.EDProducer("EleFiller",
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
    cut = cms.string(ELECUT)
    )
-
-import pdb; pdb.set_trace()
 
 process.electrons = cms.Sequence(process.softElectrons+process.egammaPostRecoSeq)
 
