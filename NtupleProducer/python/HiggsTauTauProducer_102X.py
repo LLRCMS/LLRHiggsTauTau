@@ -580,20 +580,19 @@ else:
     process.METSequence += process.ShiftMETforTES
 
 
-
-from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-
-runMetCorAndUncFromMiniAOD (
-        process,
-        isData = (not IsMC),
-        fixEE2017 = False, 
-        fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
-        postfix = "ModifiedMET"
-)
-
-# if running in schedule mode add this to your path
-process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
-
+## Since release 10_2_X (X >=7) this is included in CMSSW
+#from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+#
+#runMetCorAndUncFromMiniAOD (
+#        process,
+#        isData = (not IsMC),
+#        fixEE2017 = False,
+#        fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+#        postfix = "ModifiedMET"
+#)
+#
+## if running in schedule mode add this to your path
+#process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
 
 
 ## ----------------------------------------------------------------------
@@ -715,7 +714,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),
                       #metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
-                      metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
+                      #metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
+                      metERCollection = cms.InputTag("slimmedMETs","","TEST"),
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
 )
 if USE_NOHFMET:
