@@ -340,29 +340,51 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
 )
 
 # TES corrections: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Tau_energy_scale_for_MVA_tau_id
+# for DeepTau: https://indico.cern.ch/event/864131/contributions/3644021/attachments/1946837/3230164/Izaak_TauPOG_TauES_20191118.pdf
 # NominalTESCorrection=-1#in percent\
 APPLYTESCORRECTION = APPLYTESCORRECTION if IsMC else False # always false if data
 
-# 2017 data
-NomTESUnc1Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
-NomTESUnc1PrPi0   = cms.double(0.8)  # in percent, up/down uncertainty of TES
-NomTESUnc3Pr      = cms.double(0.9)  # in percent, up/down uncertainty of TES
-NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
-NomTESCor1Pr      = cms.double(0.7)  # DecayMode==0
-NomTESCor1PrPi0   = cms.double(-0.2) # DecayMode==1
-NomTESCor3Pr      = cms.double(0.1)  # DecayMode==10
-NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11
+# 2017 data - MVAoldDM2017v2
+#NomTESUnc1Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#NomTESUnc1PrPi0   = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#NomTESUnc3Pr      = cms.double(0.9)  # in percent, up/down uncertainty of TES
+#NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
+#NomTESCor1Pr      = cms.double(0.7)  # DecayMode==0
+#NomTESCor1PrPi0   = cms.double(-0.2) # DecayMode==1
+#NomTESCor3Pr      = cms.double(0.1)  # DecayMode==10
+#NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11
 
-# 2018 data
+# 2018 data - MVAoldDM2017v2
+#if YEAR == 2018:
+#    NomTESUnc1Pr      = cms.double(1.1)  # in percent, up/down uncertainty of TES
+#    NomTESUnc1PrPi0   = cms.double(0.9)  # in percent, up/down uncertainty of TES
+#    NomTESUnc3Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#    NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017
+#    NomTESCor1Pr      = cms.double(-1.3) # DecayMode==0
+#    NomTESCor1PrPi0   = cms.double(-0.5) # DecayMode==1
+#    NomTESCor3Pr      = cms.double(-1.2) # DecayMode==10
+#    NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11 -- Missing for 2018, kept the same of 2017
+
+# 2017 data - DeepTau2017v2p1
+NomTESUnc1Pr      = cms.double(0.7)  # in percent, up/down uncertainty of TES
+NomTESUnc1PrPi0   = cms.double(0.3)  # in percent, up/down uncertainty of TES
+NomTESUnc3Pr      = cms.double(0.5)  # in percent, up/down uncertainty of TES
+NomTESUnc3PrPi0   = cms.double(0.6)  # in percent, up/down uncertainty of TES
+NomTESCor1Pr      = cms.double(-0.7) # DecayMode==0
+NomTESCor1PrPi0   = cms.double(-1.1) # DecayMode==1
+NomTESCor3Pr      = cms.double(0.5)  # DecayMode==10
+NomTESCor3PrPi0   = cms.double(1.7)  # DecayMode==11
+
+# 2018 data - DeepTau2017v2p1
 if YEAR == 2018:
-    NomTESUnc1Pr      = cms.double(1.1)  # in percent, up/down uncertainty of TES
-    NomTESUnc1PrPi0   = cms.double(0.9)  # in percent, up/down uncertainty of TES
-    NomTESUnc3Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
-    NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017
-    NomTESCor1Pr      = cms.double(-1.3) # DecayMode==0
-    NomTESCor1PrPi0   = cms.double(-0.5) # DecayMode==1
-    NomTESCor3Pr      = cms.double(-1.2) # DecayMode==10
-    NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11 -- Missing for 2018, kept the same of 2017
+    NomTESUnc1Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+    NomTESUnc1PrPi0   = cms.double(0.3)  # in percent, up/down uncertainty of TES
+    NomTESUnc3Pr      = cms.double(0.4)  # in percent, up/down uncertainty of TES
+    NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
+    NomTESCor1Pr      = cms.double(-1.6) # DecayMode==0
+    NomTESCor1PrPi0   = cms.double(0.8)  # DecayMode==1
+    NomTESCor3Pr      = cms.double(-0.9) # DecayMode==10
+    NomTESCor3PrPi0   = cms.double(1.3)  # DecayMode==11
 
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
