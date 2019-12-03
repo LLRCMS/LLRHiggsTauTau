@@ -63,7 +63,7 @@ class triggerhelper {
   //static const int nMETs =6; //FRA: OLD 2016 data 80X
   //static const int nMETs =9; //FRA: Fall17 94X
   //static const int nMETs =8; //Chia update Jan19: Fall17 94X
-  static const int nMETs =8; //FRA: 2018 data 102X
+  static const int nMETs =8; //FRA: ok for 2017 and 2018 data
   string metlist[nMETs];
 
 };

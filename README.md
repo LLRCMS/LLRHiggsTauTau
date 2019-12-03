@@ -414,9 +414,6 @@ cd -
 # bad MET filter fix
 git cms-addpkg RecoMET/METFilters
 
-# MET - EE noise mitigation
-git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X
-
 # SVfit
 git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
 git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF

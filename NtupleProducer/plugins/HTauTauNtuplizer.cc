@@ -168,7 +168,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, edm::EventSetup const&, JetCorrectionUncertainty*, myJECMap*);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets, const BXVector<l1t::Tau>* l1taus);
-  void VBFtrigMatch(const edm::View<pat::Jet>* jet, const edm::Event&); //FRA
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
@@ -668,8 +667,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //Jets variables
   Int_t _numberOfJets;
   //std::vector<TLorentzVector> _jets;
-  //std::vector<std::vector<Long64_t>> _jets_VBFfirstTrigMatch; //FRA January2019
-  //std::vector<std::vector<Long64_t>> _jets_VBFsecondTrigMatch; //FRA January2019
   std::vector<Long64_t> _jets_VBFleadFilterMatch;    //FRA
   std::vector<Long64_t> _jets_VBFsubleadFilterMatch; //FRA
   std::vector<Float_t> _jets_px;
@@ -761,7 +758,36 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_jetUnc_SinglePionHCAL_dw;
   std::vector<Float_t> _jets_jetUnc_TimePtEta_dw;
   myJECMap jecSourceUncProviders;
-  std::vector<std::string> m_jec_sources = {
+  std::vector<std::string> m_jec_sources_2017 = {
+    "AbsoluteFlavMap",
+    "AbsoluteMPFBias",
+    "AbsoluteScale",
+    "AbsoluteStat",
+    "FlavorQCD",
+    "Fragmentation",
+    "PileUpDataMC",
+    "PileUpPtBB",
+    "PileUpPtEC1",
+    "PileUpPtEC2",
+    "PileUpPtHF",
+    "PileUpPtRef",
+    "RelativeBal",
+    "RelativeFSR",
+    "RelativeJEREC1",
+    "RelativeJEREC2",
+    "RelativeJERHF",
+    "RelativePtBB",
+    "RelativePtEC1",
+    "RelativePtEC2",
+    "RelativePtHF",
+    "RelativeSample",
+    "RelativeStatEC",
+    "RelativeStatFSR",
+    "RelativeStatHF",
+    "SinglePionECAL",
+    "SinglePionHCAL",
+    "TimePtEta" };
+  std::vector<std::string> m_jec_sources_2018 = {
     "AbsoluteFlavMap",
     "AbsoluteMPFBias",
     "AbsoluteSample",  //FRA: new for 2018 data
@@ -784,7 +810,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
     "RelativePtEC1",
     "RelativePtEC2",
     "RelativePtHF",
-    "RelativeSample", //FRA: added for 2018 data, was forgotten in 2017
+    "RelativeSample",
     "RelativeStatEC",
     "RelativeStatFSR",
     "RelativeStatHF",
@@ -1308,8 +1334,6 @@ void HTauTauNtuplizer::Initialize(){
   _MC_weight_scale_muR2=0.;
 
   //_jets.clear();
-  //_jets_VBFfirstTrigMatch.clear(); //FRA January2019
-  //_jets_VBFsecondTrigMatch.clear(); //FRA January2019
   _jets_VBFleadFilterMatch.clear();    //FRA
   _jets_VBFsubleadFilterMatch.clear(); //FRA
   _jets_px.clear();
@@ -1810,8 +1834,6 @@ void HTauTauNtuplizer::beginJob(){
   }
 
   myTree->Branch("JetsNumber",&_numberOfJets,"JetsNumber/I");
-  //myTree->Branch("jets_VBFfirstTrigMatch",&_jets_VBFfirstTrigMatch); //FRA January2019
-  //myTree->Branch("jets_VBFsecondTrigMatch",&_jets_VBFsecondTrigMatch); //FRA January2019
   myTree->Branch("jets_VBFleadFilterMatch"   , &_jets_VBFleadFilterMatch   ); //FRA
   myTree->Branch("jets_VBFsubleadFilterMatch", &_jets_VBFsubleadFilterMatch); //FRA
   myTree->Branch("jets_px",&_jets_px);
@@ -2038,7 +2060,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // Down variations
   _SourceUncVal_dw.emplace("AbsoluteFlavMap" ,_jets_jetUnc_AbsoluteFlavMap_dw);
   _SourceUncVal_dw.emplace("AbsoluteMPFBias" ,_jets_jetUnc_AbsoluteMPFBias_dw);
-  _SourceUncVal_up.emplace("AbsoluteSample"  ,_jets_jetUnc_AbsoluteSample_dw);
+  _SourceUncVal_dw.emplace("AbsoluteSample"  ,_jets_jetUnc_AbsoluteSample_dw);
   _SourceUncVal_dw.emplace("AbsoluteScale"   ,_jets_jetUnc_AbsoluteScale_dw);
   _SourceUncVal_dw.emplace("AbsoluteStat"    ,_jets_jetUnc_AbsoluteStat_dw);
   _SourceUncVal_dw.emplace("FlavorQCD"       ,_jets_jetUnc_FlavorQCD_dw);
@@ -2058,7 +2080,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _SourceUncVal_dw.emplace("RelativePtEC1"   ,_jets_jetUnc_RelativePtEC1_dw);
   _SourceUncVal_dw.emplace("RelativePtEC2"   ,_jets_jetUnc_RelativePtEC2_dw);
   _SourceUncVal_dw.emplace("RelativePtHF"    ,_jets_jetUnc_RelativePtHF_dw);
-  _SourceUncVal_up.emplace("RelativeSample"  ,_jets_jetUnc_RelativeSample_dw);
+  _SourceUncVal_dw.emplace("RelativeSample"  ,_jets_jetUnc_RelativeSample_dw);
   _SourceUncVal_dw.emplace("RelativeStatEC"  ,_jets_jetUnc_RelativeStatEC_dw);
   _SourceUncVal_dw.emplace("RelativeStatFSR" ,_jets_jetUnc_RelativeStatFSR_dw);
   _SourceUncVal_dw.emplace("RelativeStatHF"  ,_jets_jetUnc_RelativeStatHF_dw);
@@ -2280,42 +2302,82 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
-  bool RunA = (_runNumber >= 315252 && _runNumber <= 316995);
-  bool RunB = (_runNumber >= 316998 && _runNumber <= 319312);
-  bool RunC = (_runNumber >= 319313 && _runNumber <= 320393);
-  bool RunD = (_runNumber >= 320394 && _runNumber <= 325273);
+  bool Run2017B = (_runNumber >= 297046 && _runNumber <= 299329);
+  bool Run2017C = (_runNumber >= 299368 && _runNumber <= 302029);
+  bool Run2017D = (_runNumber >= 302030 && _runNumber <= 303434);
+  bool Run2017E = (_runNumber >= 303824 && _runNumber <= 304797);
+  bool Run2017F = (_runNumber >= 305040 && _runNumber <= 306462);
+  bool Run2018A = (_runNumber >= 315252 && _runNumber <= 316995);
+  bool Run2018B = (_runNumber >= 316998 && _runNumber <= 319312);
+  bool Run2018C = (_runNumber >= 319313 && _runNumber <= 320393);
+  bool Run2018D = (_runNumber >= 320394 && _runNumber <= 325273);
 
   // Accessing the JEC uncertainties sources - !! FIXME !! - seems like uncertainty sources are all the same for MC and DATA (all eras)
   if(theisMC)
   {
-    for (const auto& source: m_jec_sources) {
-      JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_V8_MC_UncertaintySources_AK4PFchs.txt", source);
-      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-      jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+    if (theYear == 2017)
+    {
+      for (const auto& source: m_jec_sources_2017) {
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
+        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }
+    else if (theYear == 2018)
+    {
+      for (const auto& source: m_jec_sources_2018) {
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_V8_MC_UncertaintySources_AK4PFchs.txt", source);
+        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
     }
   }
   else
   {
-    if(RunA){
-      for (const auto& source: m_jec_sources) {
+    if(Run2017B){
+      for (const auto& source: m_jec_sources_2017) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(Run2017C){
+      for (const auto& source: m_jec_sources_2017) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017C_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(Run2017D || Run2017E){
+      for (const auto& source: m_jec_sources_2017) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017DE_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(Run2017F){
+      for (const auto& source: m_jec_sources_2017) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017F_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(Run2018A){
+      for (const auto& source: m_jec_sources_2018) {
 	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunA_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if(RunB){
-      for (const auto& source: m_jec_sources) {
+    }else if(Run2018B){
+      for (const auto& source: m_jec_sources_2018) {
 	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunB_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if(RunC){
-      for (const auto& source: m_jec_sources) {
+    }else if(Run2018C){
+      for (const auto& source: m_jec_sources_2018) {
 	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunC_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if(RunD){
-      for (const auto& source: m_jec_sources) {
+    }else if(Run2018D){
+      for (const auto& source: m_jec_sources_2018) {
 	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunD_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
@@ -2339,10 +2401,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   }
   if(writeFatJets) FillFatJet(fatjets, event);
   if(writeL1 && theisMC) FillL1Obj(L1Tau, L1Jet, event);
-  
-  //FRA: Matching jets with trigger filters for VBF
-  //VBFtrigMatch(jets, event); //FRA January2019
-    
+
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
   for(edm::View<pat::CompositeCandidate>::const_iterator candi = cands->begin(); candi!=cands->end();++candi){
@@ -2607,155 +2666,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //return;
 }
 
-//FRA: VBF trigger matching for jets in the VBF topology
-void HTauTauNtuplizer::VBFtrigMatch (const edm::View<pat::Jet> *jets, const edm::Event& event){
-
-  edm::Handle<edm::TriggerResults> triggerBits;
-  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
-
-  event.getByToken(triggerObjects_, triggerObjects);
-  event.getByToken(triggerBits_, triggerBits);
-  const edm::TriggerNames &names = event.triggerNames(*triggerBits);
-
-  // Variables for storing the result
-  std::vector<Long64_t> VBFfirstTrigMatched;
-  std::vector<Long64_t> VBFsecondTrigMatched;
-  
-  //int numero = 0;
-  
-  // Loop on the jets in the event
-  for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet)
-  {
-    //numero = numero+1; //FRA
-    //std::cout << "Jet " << numero << std::endl; //FRA
-    //std::cout << " -- pt:  " << ijet->pt() << std::endl; //FRA
-    //std::cout << " -- phi: " << ijet->phi() << std::endl; //FRA
-    
-    // For each jet, check all the trigger objects, both 'path3' and 'path4'
-    Long64_t firstJetMatched  = 0;
-    Long64_t secondJetMatched = 0;
-  
-    // Loop on the Trigger Objects in the event
-    for (size_t idxto = 0; idxto < triggerObjects->size(); ++idxto)
-    {
-      pat::TriggerObjectStandAlone obj = triggerObjects->at(idxto);
-      
-      // Check if the TO type is a jet, otherwise continue with next TO
-      if (obj.type(85) != true ) continue;
-    
-      // DeltaR2 match between jet and trigger object
-      if(deltaR2(obj,*ijet)<0.25)
-      {
-        // Unpacking Filter Labels
-        obj.unpackFilterLabels(event,*triggerBits);
-        
-        // Unpacking Path Names
-        obj.unpackPathNames(names);
-        std::vector<std::string> pathNamesAll  = obj.pathNames(false);
-        std::vector<std::string> pathNamesLast = obj.pathNames(true);
-        
-        // debug: checking TO filter labels //FRA
-        //if ( obj.type(85))
-        //{
-          //const std::vector<std::string>& VLabels = obj.filterLabels(); //FRA
-          //printing TO labels //FRA
-          //std::cout << " -- VLabels for TO "<< idxto << " - pt: " << obj.pt() << " - phi: " << obj.phi() << std::endl; //FRA
-          //for (uint ll = 0; ll < VLabels.size(); ++ll) cout << "    -- " << VLabels.at(ll) << endl; //FRA
-        //}
-        
-        // Loop on the HLT path names in the Trigger Object
-        for (unsigned h = 0, n = pathNamesAll.size(); h < n; ++h)
-        {
-          int triggerbit = myTriggerHelper->FindTriggerNumber(pathNamesAll[h],true);
-          if (triggerbit < 0) continue ; // not a path I want to save
-          
-          triggerMapper trgmap = myTriggerHelper->GetTriggerMap(pathNamesAll[h]);
-          
-          /*if (trgmap.GetNfiltersleg3() > 0)
-          {
-            std::cout << "HLTPath: " << trgmap.GetHLTPath() << std::endl;
-            std::cout << "trgmap.GetNfiltersleg3(): " << trgmap.GetNfiltersleg3() << std::endl;
-            std::cout << "trgmap.GetNfiltersleg4(): " << trgmap.GetNfiltersleg4() << std::endl;
-            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++) std::cout << " - Leg 1 : " << trgmap.Getfilter(true,ifilt) << std::endl;
-            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg2();ifilt++) std::cout << " - Leg 2 : " << trgmap.Getfilter(false,ifilt) << std::endl;
-            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg3();ifilt++) std::cout << " - Leg 3 : " << trgmap.GetfilterVBF(true,ifilt) << std::endl;
-            for (int ifilt=0;ifilt<trgmap.GetNfiltersleg4();ifilt++) std::cout << " - Leg 4 : " << trgmap.GetfilterVBF(false,ifilt) << std::endl;
-          }*/
-          
-          bool VBFfirstMatch = true;
-          bool VBFsecondMatch = true;
-          
-          // TO filter labels
-          const std::vector<std::string>& vLabels = obj.filterLabels();
-        
-          // Loop on Leg3 filter (2 jets with pt40)
-          if (trgmap.GetNfiltersleg3()>0)
-          {
-            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg3();ifilt++) //change to leg3
-            {
-              string label = trgmap.GetfilterVBF(true,ifilt);
-              //std::cout << " ---------------------------------------------- @@ leg 3 looking for " << label << std::endl;
-              if (label.empty()) {VBFfirstMatch=false; continue;}
-              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) VBFfirstMatch=false;
-            }
-          }
-          else VBFfirstMatch = false;
-          //std::cout << "VBFfirstMatch: " << VBFfirstMatch << std::endl; //FRA
-          
-          // Loop on Leg4 filter (1 jet with pt115)
-          if (trgmap.GetNfiltersleg4()>0)
-          {
-            for(int ifilt=0;ifilt<trgmap.GetNfiltersleg4();ifilt++) //change to leg4
-            {
-              string label = trgmap.GetfilterVBF(false,ifilt);
-              //std::cout << " ---------------------------------------------- @@ leg 4 looking for " << label << std::endl;
-              if (label.empty()) {VBFsecondMatch=false; continue;}
-              if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) VBFsecondMatch=false;
-            }
-          }
-          else VBFsecondMatch = false;
-          //std::cout << "VBFsecondMatch: " << VBFsecondMatch << std::endl; //FRA
-
-          
-          // If two jets matching the VBF filters are found, the events has
-          // the event has fired the VBF HLT path
-          //std::cout << "first: " << VBFfirstMatch << " - second: " << VBFsecondMatch << std::endl;
-          if(VBFfirstMatch)
-          {
-            //std::cout << " ###### GOOD FIRST VBF MATCH ######" << std::endl; //FRA
-            //std::cout << " ***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
-            //std::cout << " --> triggerbit: " << triggerbit << std::endl; //FRA
-            //std::cout << "TO filters: " << std::endl;
-            //for (unsigned int kj=0;kj<vLabels.size();kj++) std::cout << " - filter : " << vLabels[kj] << std::endl;
-            firstJetMatched |= (long(1) <<triggerbit);
-          }
-          
-          if(VBFsecondMatch)
-          {
-            //std::cout << " ###### GOOD SECOND VBF MATCH ######" << std::endl; //FRA
-            //std::cout << " ***** searching trigger : " << myTriggerHelper -> printTriggerName(triggerbit) << " " << trgmap.GetHLTPath() << std::endl; //FRA
-            //std::cout << " --> triggerbit: " << triggerbit << std::endl; //FRA
-            //std::cout << "TO filters: " << std::endl;
-            //for (unsigned int kj=0;kj<vLabels.size();kj++) std::cout << " - filter : " << vLabels[kj] << std::endl;
-            secondJetMatched |= (long(1) <<triggerbit);
-          }
-        } // Loop on HLT paths
-        
-      } // DeltaR2 match
-      
-    } // Loop on Trigger Objects
-    
-    VBFfirstTrigMatched.push_back(firstJetMatched);
-    VBFsecondTrigMatched.push_back(secondJetMatched);
-    
-  } // Loop on jets
-  
-  // Fill the tree variable
-  //_jets_VBFfirstTrigMatch.push_back(VBFfirstTrigMatched); //FRA January2019
-  //_jets_VBFsecondTrigMatch.push_back(VBFsecondTrigMatched); //FRA January2019
-
-}
-
 
 //Fill jets quantities
 //int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
@@ -2777,7 +2687,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     pat::TriggerObjectStandAlone TO = triggerObjects->at(idxto);
     TO.unpackFilterLabels(event,*triggerBits);
 
-    if ( (TO.type(85)==true) && (TO.hasFilterLabel("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTau20") || TO.hasFilterLabel("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleLooseChargedIsoPFTau20") ) )
+    if ( (TO.type(85)==true) && ( TO.hasFilterLabel("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTau20") || TO.hasFilterLabel("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleLooseChargedIsoPFTau20") || TO.hasFilterLabel("hltMatchedVBFOnePFJet2CrossCleanedFromDoubleLooseChargedIsoPFTauHPS20") || TO.hasFilterLabel("hltMatchedVBFTwoPFJets2CrossCleanedFromDoubleLooseChargedIsoPFTauHPS20") ) )
       goodTOs.push_back(TO);
   }
 
@@ -2902,30 +2812,55 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
 
     // JetID
-    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2018
+    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
+    // 2017 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
+    // 2018 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2018
     int jetid=0;
     bool tightJetID = false;
     bool tightLepVetoJetID = false;
-    if (absjeta <= 2.6)
+    // 2017 data
+    if (theYear == 2017)
     {
-      tightJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0 && CHM>0 );
-      tightLepVetoJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8 && CHF>0 && CHM>0 && CEMF<0.80 );
+      if (absjeta <= 2.7)
+      {
+        tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0) || absjeta>2.4) );
+        tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.80) || absjeta>2.4) );
+      }
+      else if (absjeta <= 3.0)
+      {
+        tightJetID = (NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
+      }
+      else
+      {
+        tightJetID = (NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 );
+      }
+      if (tightJetID) ++jetid;
+      if (tightLepVetoJetID) ++jetid;
     }
-    else if (absjeta>2.6 && absjeta <= 2.7)
+    // 2018 data
+    else if (theYear == 2018)
     {
-      tightJetID = ( NHF<0.90 && NEMF<0.99 && CHM>0 );
-      tightLepVetoJetID = ( NHF<0.90 && NEMF<0.99 && MUF<0.8 && CHM>0 && CEMF<0.80 );
+      if (absjeta <= 2.6)
+      {
+        tightJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0 && CHM>0 );
+        tightLepVetoJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8 && CHF>0 && CHM>0 && CEMF<0.80 );
+      }
+      else if (absjeta>2.6 && absjeta <= 2.7)
+      {
+        tightJetID = ( NHF<0.90 && NEMF<0.99 && CHM>0 );
+        tightLepVetoJetID = ( NHF<0.90 && NEMF<0.99 && MUF<0.8 && CHM>0 && CEMF<0.80 );
+      }
+      else if (absjeta>2.7 && absjeta <= 3.0)
+      {
+        tightJetID = ( NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
+      }
+      else
+      {
+        tightJetID = (NEMF<0.90 && NHF>0.2 && NumNeutralParticles>10 );
+      }
+      if (tightJetID) ++jetid;
+      if (tightLepVetoJetID) ++jetid;
     }
-    else if (absjeta>2.7 && absjeta <= 3.0)
-    {
-      tightJetID = ( NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
-    }
-    else
-    {
-      tightJetID = (NEMF<0.90 && NHF>0.2 && NumNeutralParticles>10 );
-    }
-    if (tightJetID) ++jetid;
-    if (tightLepVetoJetID) ++jetid;
 
     _jetID.push_back(jetid);
     float jecFactor = ijet->jecFactor("Uncorrected") ;

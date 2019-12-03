@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-execfile(PyFilePath+"python/triggers_102X.py") # contains the list of triggers and filters
 
 process = cms.Process("TEST")
 
@@ -49,6 +48,18 @@ try: HLTProcessName
 except NameError:
     HLTProcessName='HLT'
 
+
+### ----------------------------------------------------------------------
+### Trigger list
+### ----------------------------------------------------------------------
+if YEAR == 2017:
+  print 'Using HLT trigger 2017'
+  execfile(PyFilePath+"python/triggers_92X.py") # 2017 triggers and filters
+if YEAR == 2018:
+  print 'Using HLT trigger 2018'
+  execfile(PyFilePath+"python/triggers_102X.py") # 2018 triggers and filters
+
+
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
@@ -57,12 +68,18 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 if IsMC:
+  if YEAR == 2017:
+    process.GlobalTag.globaltag = '94X_mc2017_realistic_v14'        # 2017 MC
+  if YEAR == 2018:
     process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'  # 2018 MC
 else :
+  if YEAR == 2017:
+    process.GlobalTag.globaltag = '94X_dataRun2_ReReco_EOY17_v6'    # 2017 Data
+  if YEAR == 2018:
     if PERIOD=="D":
         process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v14'    # 2018D Data --> FRA: need to understand how to use it
     else:
-        process.GlobalTag.globaltag = '102X_dataRun2_v11'  # 2018ABC Data
+        process.GlobalTag.globaltag = '102X_dataRun2_v11'           # 2018ABC Data
 
 print "GT: ",process.GlobalTag.globaltag
 
@@ -148,8 +165,8 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
 
-#2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-# FIXME: to be updated to 2018 --> remained the same for 2018
+# 2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
+# Remained the same for 2017 and 2018
 process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
 
 baddetEcallist = cms.vuint32(
@@ -216,9 +233,12 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
 from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+EgammaPostRecoSeq_ERA = '2017-Nov17ReReco' # 2017 data
+if YEAR == 2018:
+  EgammaPostRecoSeq_ERA = '2018-Prompt'    # 2018 data
 setupEgammaPostRecoSeq(process,
                        runEnergyCorrections=False,
-                       era='2018-Prompt')
+                       era=EgammaPostRecoSeq_ERA)
 		       
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
@@ -319,8 +339,53 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
         finalCut = cms.string(' '),
 )
 
+# TES corrections: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Tau_energy_scale_for_MVA_tau_id
+# for DeepTau: https://indico.cern.ch/event/864131/contributions/3644021/attachments/1946837/3230164/Izaak_TauPOG_TauES_20191118.pdf
 # NominalTESCorrection=-1#in percent\
 APPLYTESCORRECTION = APPLYTESCORRECTION if IsMC else False # always false if data
+
+# 2017 data - MVAoldDM2017v2
+#NomTESUnc1Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#NomTESUnc1PrPi0   = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#NomTESUnc3Pr      = cms.double(0.9)  # in percent, up/down uncertainty of TES
+#NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
+#NomTESCor1Pr      = cms.double(0.7)  # DecayMode==0
+#NomTESCor1PrPi0   = cms.double(-0.2) # DecayMode==1
+#NomTESCor3Pr      = cms.double(0.1)  # DecayMode==10
+#NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11
+
+# 2018 data - MVAoldDM2017v2
+#if YEAR == 2018:
+#    NomTESUnc1Pr      = cms.double(1.1)  # in percent, up/down uncertainty of TES
+#    NomTESUnc1PrPi0   = cms.double(0.9)  # in percent, up/down uncertainty of TES
+#    NomTESUnc3Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#    NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017
+#    NomTESCor1Pr      = cms.double(-1.3) # DecayMode==0
+#    NomTESCor1PrPi0   = cms.double(-0.5) # DecayMode==1
+#    NomTESCor3Pr      = cms.double(-1.2) # DecayMode==10
+#    NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11 -- Missing for 2018, kept the same of 2017
+
+# 2017 data - DeepTau2017v2p1
+NomTESUnc1Pr      = cms.double(0.7)  # in percent, up/down uncertainty of TES
+NomTESUnc1PrPi0   = cms.double(0.3)  # in percent, up/down uncertainty of TES
+NomTESUnc3Pr      = cms.double(0.5)  # in percent, up/down uncertainty of TES
+NomTESUnc3PrPi0   = cms.double(0.6)  # in percent, up/down uncertainty of TES
+NomTESCor1Pr      = cms.double(-0.7) # DecayMode==0
+NomTESCor1PrPi0   = cms.double(-1.1) # DecayMode==1
+NomTESCor3Pr      = cms.double(0.5)  # DecayMode==10
+NomTESCor3PrPi0   = cms.double(1.7)  # DecayMode==11
+
+# 2018 data - DeepTau2017v2p1
+if YEAR == 2018:
+    NomTESUnc1Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+    NomTESUnc1PrPi0   = cms.double(0.3)  # in percent, up/down uncertainty of TES
+    NomTESUnc3Pr      = cms.double(0.4)  # in percent, up/down uncertainty of TES
+    NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
+    NomTESCor1Pr      = cms.double(-1.6) # DecayMode==0
+    NomTESCor1PrPi0   = cms.double(0.8)  # DecayMode==1
+    NomTESCor3Pr      = cms.double(-0.9) # DecayMode==10
+    NomTESCor3PrPi0   = cms.double(1.3)  # DecayMode==11
+
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
    genCollection = cms.InputTag("prunedGenParticles"),
@@ -328,15 +393,14 @@ process.softTaus = cms.EDProducer("TauFiller",
    cut = cms.string(TAUCUT),
    discriminator = cms.string(TAUDISCRIMINATOR),
 
-   # --> Correct values for 2018 data - Davide update May2019
-   NominalTESUncertainty1Pr         = cms.double(1.1) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty1PrPi0      = cms.double(0.9) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty3Pr         = cms.double(0.8) , # in percent, up/down uncertainty of TES      
-   NominalTESUncertainty3PrPi0      = cms.double(1.0) , # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017      
-   NominalTESCorrection1Pr          = cms.double(-1.3), #DecayMode==0                                 
-   NominalTESCorrection1PrPi0       = cms.double(-0.5), #DecayMode==1                                 
-   NominalTESCorrection3Pr          = cms.double(-1.2), #DecayMode==10                                
-   NominalTESCorrection3PrPi0       = cms.double(-0.1), #DecayMode==11 -- Missing for 2018, kept the same of 2017                               
+   NominalTESUncertainty1Pr         = NomTESUnc1Pr,
+   NominalTESUncertainty1PrPi0      = NomTESUnc1PrPi0,
+   NominalTESUncertainty3Pr         = NomTESUnc3Pr,
+   NominalTESUncertainty3PrPi0      = NomTESUnc3PrPi0,
+   NominalTESCorrection1Pr          = NomTESCor1Pr,
+   NominalTESCorrection1PrPi0       = NomTESCor1PrPi0,
+   NominalTESCorrection3Pr          = NomTESCor3Pr,
+   NominalTESCorrection3PrPi0       = NomTESCor3PrPi0,
 
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
@@ -344,7 +408,6 @@ process.softTaus = cms.EDProducer("TauFiller",
         isGood = cms.string("")
         )
    )
-
 
 process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTausNewID + process.bareTaus + process.softTaus)
 
@@ -539,20 +602,19 @@ else:
     process.METSequence += process.ShiftMETforTES
 
 
-
-from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-
-runMetCorAndUncFromMiniAOD (
-        process,
-        isData = (not IsMC),
-        fixEE2017 = False, 
-        fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
-        postfix = "ModifiedMET"
-)
-
-# if running in schedule mode add this to your path
-process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
-
+## Since release 10_2_X (X >=7) this is included in CMSSW
+#from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+#
+#runMetCorAndUncFromMiniAOD (
+#        process,
+#        isData = (not IsMC),
+#        fixEE2017 = False,
+#        fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+#        postfix = "ModifiedMET"
+#)
+#
+## if running in schedule mode add this to your path
+#process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
 
 
 ## ----------------------------------------------------------------------
@@ -674,7 +736,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),
                       #metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
-                      metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
+                      #metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
+                      metERCollection = cms.InputTag("slimmedMETs","","TEST"),
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
 )
 if USE_NOHFMET:
