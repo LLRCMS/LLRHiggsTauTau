@@ -2813,13 +2813,33 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
     // JetID
     // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
+    // 2016 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
     // 2017 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
     // 2018 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2018
     int jetid=0;
     bool tightJetID = false;
     bool tightLepVetoJetID = false;
+    //2016 data
+    if (theYear == 2016)
+    {
+      if (absjeta <= 2.7)
+      {
+        tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
+        tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
+      }
+      else if (absjeta <= 3.0)
+      {
+        tightJetID = (NEMF>0.01 && NHF<0.98 && NumNeutralParticles>2 );
+      }
+      else
+      {
+        tightJetID = (NEMF<0.90 && NumNeutralParticles>10 );
+      }
+      if (tightJetID) ++jetid;
+      if (tightLepVetoJetID) ++jetid;
+    }
     // 2017 data
-    if (theYear == 2017)
+    else if (theYear == 2017)
     {
       if (absjeta <= 2.7)
       {
