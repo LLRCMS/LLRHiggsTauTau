@@ -55,7 +55,7 @@ namespace LeptonIsoHelper {
   float isoSumRaw(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_Iso, float dR, float innerR, float threshold, SelfVetoPolicy::SelfVetoPolicy selfVeto, int pdgId=-1);
   float PfIsoCharged(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, float miniIsoR);
   float PfIsoNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float miniIsoR);
-  std::pair<float,float> miniRelIso_ChargedNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float rho);
+  std::pair<float,float> miniRelIso_ChargedNeutral(const reco::Candidate* cand, const std::vector<const pat::PackedCandidate *> pfCands_charged, const std::vector<const pat::PackedCandidate *> pfCands_neutral, float rho, int year);
 
   //Used for lepton MVA
   int jetNDauChargedMVASel(const reco::Candidate* cand, pat::Jet jet);
