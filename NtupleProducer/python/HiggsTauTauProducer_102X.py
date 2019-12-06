@@ -237,9 +237,11 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
 from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-EgammaPostRecoSeq_ERA = '2017-Nov17ReReco' # 2017 data
+EgammaPostRecoSeq_ERA = '2016-Legacy'        # 2016 data
+if YEAR==2017:
+  EgammaPostRecoSeq_ERA = '2017-Nov17ReReco' # 2017 data
 if YEAR == 2018:
-  EgammaPostRecoSeq_ERA = '2018-Prompt'    # 2018 data
+  EgammaPostRecoSeq_ERA = '2018-Prompt'      # 2018 data
 setupEgammaPostRecoSeq(process,
                        runEnergyCorrections=False,
                        era=EgammaPostRecoSeq_ERA)
