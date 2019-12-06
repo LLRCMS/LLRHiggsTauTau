@@ -170,7 +170,7 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
 )
 
 # 2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-# Remained the same for 2017 and 2018
+# Ok for 2016, 2017 and 2018
 process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
 
 baddetEcallist = cms.vuint32(
