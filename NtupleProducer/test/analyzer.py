@@ -28,7 +28,7 @@ APPLYMETCORR=False # flag to enable (True) and disable (False) Z-recoil correcti
 USE_NOHFMET = False # True to exclude HF and run on silver json
 
 
-SVFITBYPASS=True # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
+SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy userfloats for MET and SVfit mass
 #USECLASSICSVFIT=True # if True use the ClassicSVfit package, if False use the SVFitStandAlone package
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
@@ -168,6 +168,8 @@ process.maxEvents.input = -1
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
 if not IsMC:
+  if YEAR == 2016:
+    execfile(PyFilePath+"python/lumiMask_2016.py")
   if YEAR == 2017:
     execfile(PyFilePath+"python/lumiMask_2017.py")
   if YEAR == 2018:
