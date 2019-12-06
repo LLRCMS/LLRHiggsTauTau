@@ -525,6 +525,10 @@ process.jets = cms.EDFilter("PATJetRefSelector",
 
 if COMPUTEQGVAR:
 
+    QGlikelihood_tag = 'QGLikelihoodObject_v1_AK4PFchs'
+    if YEAR == 2017 or YEAR == 2018:
+      QGlikelihood_tag = 'QGLikelihoodObject_v1_AK4PFchs_2017'
+
     from CondCore.CondDB.CondDB_cfi import CondDB
      
     process.QGPoolDBESSource = cms.ESSource("PoolDBESSource",
@@ -534,7 +538,7 @@ if COMPUTEQGVAR:
       toGet = cms.VPSet(
         cms.PSet(
           record = cms.string('QGLikelihoodRcd'),
-          tag    = cms.string('QGLikelihoodObject_v1_AK4PFchs_2017'),
+          tag    = cms.string(QGlikelihood_tag),
           label  = cms.untracked.string('QGL_AK4PFchs'),
         ),
       ),
