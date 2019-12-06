@@ -393,7 +393,7 @@ NomTESCor3Pr      = cms.double(0.0)  # DecayMode==10
 NomTESCor3PrPi0   = cms.double(2.6)  # DecayMode==11
 
 # 2017 data - DeepTau2017v2p1
-if YEAR == 2017
+if YEAR == 2017:
     NomTESUnc1Pr      = cms.double(0.7)  # in percent, up/down uncertainty of TES
     NomTESUnc1PrPi0   = cms.double(0.3)  # in percent, up/down uncertainty of TES
     NomTESUnc3Pr      = cms.double(0.5)  # in percent, up/down uncertainty of TES
