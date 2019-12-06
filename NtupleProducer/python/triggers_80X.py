@@ -105,7 +105,7 @@ HLTLIST = cms.VPSet(
          leg1 = cms.int32(11),
          leg2 = cms.int32(999)
          ),
-### === mu tauh triggers
+### === ele tauh triggers
     cms.PSet (
         HLT = cms.string("HLT_Ele25_eta2p1_WPTight_Gsf_v"),
         path1 = cms.vstring ("hltEle25erWPTightGsfTrackIsoFilter"), #FIXME: to check

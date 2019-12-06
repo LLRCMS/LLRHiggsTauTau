@@ -52,9 +52,12 @@ except NameError:
 ### ----------------------------------------------------------------------
 ### Trigger list
 ### ----------------------------------------------------------------------
+if YEAR == 2016:
+  print 'Using HLT trigger 2016'
+  execfile(PyFilePath+"python/triggers_80X.py")  # 2016 triggers and filters
 if YEAR == 2017:
   print 'Using HLT trigger 2017'
-  execfile(PyFilePath+"python/triggers_92X.py") # 2017 triggers and filters
+  execfile(PyFilePath+"python/triggers_92X.py")  # 2017 triggers and filters
 if YEAR == 2018:
   print 'Using HLT trigger 2018'
   execfile(PyFilePath+"python/triggers_102X.py") # 2018 triggers and filters
