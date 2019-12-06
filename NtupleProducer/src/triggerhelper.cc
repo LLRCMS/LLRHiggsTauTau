@@ -26,7 +26,7 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   //cout << "nTriggers: " << nTriggers << endl;
   triggerlist=HLTPaths;
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2017 and 2018 data
+    //FRA: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
@@ -48,7 +48,7 @@ triggerhelper::triggerhelper(TH1F* hCounter){
   }
 
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2017 and 2018 data
+    //FRA: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
@@ -65,7 +65,7 @@ triggerhelper::triggerhelper(TH1F* hCounter){
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2017 and 2018 data
+    //FRA: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
