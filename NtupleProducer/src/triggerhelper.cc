@@ -223,6 +223,22 @@ triggerMapper triggerhelper::GetTriggerMap(int idx){
   return triggerMapper();  
 }
 
+bool triggerhelper::HasTriggerMap(string path)
+{
+  bool res = false;
+  for(int i=0;i<(int)triggerMap.size();i++)
+    if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos)
+      res = true;
+  return res;
+}
+
+void triggerhelper::ChangeTriggerMap(string path, std::vector<std::string> new_filters)
+{
+  for(int i=0;i<(int)triggerMap.size();i++)
+    if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos)
+      triggerMap.at(i).Setfilters(new_filters);
+}
+
 int triggerhelper::FindTriggerNumber(string triggername, bool isTrigger){ 
   if (isTrigger) return FindTriggerNumberTrig (triggername);
   else return FindTriggerNumberMET (triggername);

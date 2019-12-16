@@ -54,6 +54,9 @@ class triggerhelper {
   int GetNTriggers(){return triggerlist.size();}
   string printTriggerName(int ntrigger);
 
+  bool HasTriggerMap(string trigger);
+  void ChangeTriggerMap(string trigger, std::vector<std::string> new_filters);
+
   ~triggerhelper();
 
  private:
