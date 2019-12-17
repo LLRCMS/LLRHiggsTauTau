@@ -248,6 +248,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //edm::EDGetTokenT<int> theNBadMuTag; //FRA January2019
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
   edm::EDGetTokenT< bool >ecalBadCalibFilterUpdate_token ;
+  edm::EDGetTokenT< double > prefweight_token;
+  edm::EDGetTokenT< double > prefweightup_token;
+  edm::EDGetTokenT< double > prefweightdown_token;
 
   //flags
   //static const int nOutVars =14;
@@ -268,6 +271,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _metfilterbit;
   //Int_t _NBadMu;  //FRA January2019
   Bool_t _passecalBadCalibFilterUpdate;
+  Float_t _prefiringweight;
+  Float_t _prefiringweightup;
+  Float_t _prefiringweightdown;
   Float_t _met;
   Float_t _metphi;
   Float_t _met_er;
@@ -758,6 +764,35 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_jetUnc_SinglePionHCAL_dw;
   std::vector<Float_t> _jets_jetUnc_TimePtEta_dw;
   myJECMap jecSourceUncProviders;
+  std::vector<std::string> m_jec_sources_2016 = {
+    "AbsoluteFlavMap",
+    "AbsoluteMPFBias",
+    "AbsoluteScale",
+    "AbsoluteStat",
+    "FlavorQCD",
+    "Fragmentation",
+    "PileUpDataMC",
+    "PileUpPtBB",
+    "PileUpPtEC1",
+    "PileUpPtEC2",
+    "PileUpPtHF",
+    "PileUpPtRef",
+    "RelativeBal",
+    "RelativeFSR",
+    "RelativeJEREC1",
+    "RelativeJEREC2",
+    "RelativeJERHF",
+    "RelativePtBB",
+    "RelativePtEC1",
+    "RelativePtEC2",
+    "RelativePtHF",
+    "RelativeSample",
+    "RelativeStatEC",
+    "RelativeStatFSR",
+    "RelativeStatHF",
+    "SinglePionECAL",
+    "SinglePionHCAL",
+    "TimePtEta" };
   std::vector<std::string> m_jec_sources_2017 = {
     "AbsoluteFlavMap",
     "AbsoluteMPFBias",
@@ -932,7 +967,10 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theL1JetTag          (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
   //theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))), //FRA January2019
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
-  ecalBadCalibFilterUpdate_token  (consumes< bool >                      (pset.getParameter<edm::InputTag>("ecalBadCalibReducedMINIAODFilter")))
+  ecalBadCalibFilterUpdate_token  (consumes< bool >                      (pset.getParameter<edm::InputTag>("ecalBadCalibReducedMINIAODFilter"))),
+  prefweight_token     (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProb"))),
+  prefweightup_token   (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbUp"))),
+  prefweightdown_token (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbDown")))
 
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
@@ -1304,6 +1342,9 @@ void HTauTauNtuplizer::Initialize(){
   _year=0;
   //_NBadMu=0;  //FRA January2019
   _passecalBadCalibFilterUpdate=false;
+  _prefiringweight = 1.;
+  _prefiringweightup = 1.;
+  _prefiringweightdown = 1.;
   _triggerbit=0;
   _metfilterbit=0;
   _met=0;
@@ -1514,6 +1555,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("year",&_year,"year/I");
   //myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");  //FRA January2019
   myTree->Branch("passecalBadCalibFilterUpdate",&_passecalBadCalibFilterUpdate,"passecalBadCalibFilterUpdate/O");
+  myTree->Branch("prefiringweight",&_prefiringweight,"prefiringweight/F");
+  myTree->Branch("prefiringweightup",&_prefiringweightup,"prefiringweightup/F");
+  myTree->Branch("prefiringweightdown",&_prefiringweightdown,"prefiringweightdown/F");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
@@ -2192,6 +2236,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
   edm::Handle< bool > passecalBadCalibFilterUpdate ;
+  edm::Handle< double > theprefweight;
+  edm::Handle< double > theprefweightup;
+  edm::Handle< double > theprefweightdown;
 
   // protect in case of events where trigger hasn't fired --> no collection created 
   event.getByToken(theCandTag,candHandle);
@@ -2212,6 +2259,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
   event.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
+  event.getByToken(prefweight_token, theprefweight);
+  event.getByToken(prefweightup_token, theprefweightup);
+  event.getByToken(prefweightdown_token, theprefweightdown);
 
   if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
@@ -2280,6 +2330,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PFMETsignif = (*METsignficanceHandle);
   //_NBadMu = (*NBadMuHandle); //FRA January2019
   _passecalBadCalibFilterUpdate =  (*passecalBadCalibFilterUpdate );
+  if (theisMC && (theYear==2016 || theYear==2017))
+  {
+    _prefiringweight = (*theprefweight);
+    _prefiringweightup =(*theprefweightup);
+    _prefiringweightdown =(*theprefweightdown);
+  }
+
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
   if(DEBUG)printf("===New Event===\n");
@@ -2302,6 +2359,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
+  bool Run2016B = (_runNumber >= 272007 && _runNumber <= 275376);
+  bool Run2016C = (_runNumber >= 275657 && _runNumber <= 276283);
+  bool Run2016D = (_runNumber >= 276315 && _runNumber <= 276811);
+  bool Run2016E = (_runNumber >= 276831 && _runNumber <= 277420);
+  bool Run2016F = (_runNumber >= 277772 && _runNumber <= 278808);
+  bool Run2016G = (_runNumber >= 278820 && _runNumber <= 280385);
+  bool Run2016H = (_runNumber >= 280919 && _runNumber <= 284044);
   bool Run2017B = (_runNumber >= 297046 && _runNumber <= 299329);
   bool Run2017C = (_runNumber >= 299368 && _runNumber <= 302029);
   bool Run2017D = (_runNumber >= 302030 && _runNumber <= 303434);
@@ -2312,10 +2376,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   bool Run2018C = (_runNumber >= 319313 && _runNumber <= 320393);
   bool Run2018D = (_runNumber >= 320394 && _runNumber <= 325273);
 
-  // Accessing the JEC uncertainties sources - !! FIXME !! - seems like uncertainty sources are all the same for MC and DATA (all eras)
   if(theisMC)
   {
-    if (theYear == 2017)
+    if (theYear == 2016)
+    {
+      for (const auto& source: m_jec_sources_2016) {
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017_V11_MC_UncertaintySources_AK4PFchs.txt", source);
+        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }
+    else if (theYear == 2017)
     {
       for (const auto& source: m_jec_sources_2017) {
         JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
@@ -2326,7 +2397,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     else if (theYear == 2018)
     {
       for (const auto& source: m_jec_sources_2018) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_V8_MC_UncertaintySources_AK4PFchs.txt", source);
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_V19_MC_UncertaintySources_AK4PFchs.txt", source);
         std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
         jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2334,7 +2405,25 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   }
   else
   {
-    if(Run2017B){
+    if(Run2016B || Run2016C || Run2016D){
+      for (const auto& source: m_jec_sources_2016) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017BCD_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if (Run2016E || Run2016F){
+      for (const auto& source: m_jec_sources_2016) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017EF_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if (Run2016G || Run2016H){
+      for (const auto& source: m_jec_sources_2016) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017GH_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(Run2017B){
       for (const auto& source: m_jec_sources_2017) {
 	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
@@ -2360,25 +2449,25 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       }
     }else if(Run2018A){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunA_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunA_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018B){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunB_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunB_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018C){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunC_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunC_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018D){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunD_V8_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunD_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2813,13 +2902,33 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
     // JetID
     // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
+    // 2016 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
     // 2017 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
     // 2018 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2018
     int jetid=0;
     bool tightJetID = false;
     bool tightLepVetoJetID = false;
+    //2016 data
+    if (theYear == 2016)
+    {
+      if (absjeta <= 2.7)
+      {
+        tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
+        tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
+      }
+      else if (absjeta <= 3.0)
+      {
+        tightJetID = (NEMF>0.01 && NHF<0.98 && NumNeutralParticles>2 );
+      }
+      else
+      {
+        tightJetID = (NEMF<0.90 && NumNeutralParticles>10 );
+      }
+      if (tightJetID) ++jetid;
+      if (tightLepVetoJetID) ++jetid;
+    }
     // 2017 data
-    if (theYear == 2017)
+    else if (theYear == 2017)
     {
       if (absjeta <= 2.7)
       {
@@ -3320,7 +3429,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       sip = userdatahelpers::getUserFloat(cand,"SIP");
 
       jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
-      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso);
+      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso, theYear);
       miniRelIsoCharged = miniRelIso.first;
       miniRelIsoNeutral = miniRelIso.second;
 
@@ -3360,7 +3469,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
       sip = userdatahelpers::getUserFloat(cand,"SIP");
       jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
-      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso);
+      std::pair<float,float> miniRelIso = LeptonIsoHelper::miniRelIso_ChargedNeutral(cand, pfCands_charged, pfCands_neutral, rho_miniRelIso, theYear);
       miniRelIsoCharged = miniRelIso.first;
       miniRelIsoNeutral = miniRelIso.second;
       
@@ -4043,6 +4152,37 @@ void HTauTauNtuplizer::endJob(){
 
 
 void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
+  // For 2018 data (run < 315974) the muon filters of the MuTau triggers (leg1) need to be customized
+  if (!theisMC && theYear==2018 && iRun.run()<315974)
+  {
+    // HLT paths with "HPS"
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+
+    // HLT paths without "HPS"
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+  }
 
   Bool_t changedConfig = false;
  

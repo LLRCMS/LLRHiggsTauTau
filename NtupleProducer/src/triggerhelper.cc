@@ -26,7 +26,7 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   //cout << "nTriggers: " << nTriggers << endl;
   triggerlist=HLTPaths;
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2017 and 2018 data
+    //FRA: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
@@ -48,7 +48,7 @@ triggerhelper::triggerhelper(TH1F* hCounter){
   }
 
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2017 and 2018 data
+    //FRA: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
@@ -65,7 +65,7 @@ triggerhelper::triggerhelper(TH1F* hCounter){
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2017 and 2018 data
+    //FRA: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
@@ -221,6 +221,22 @@ triggerMapper triggerhelper::GetTriggerMap(int idx){
   if (idx < (int)triggerMap.size()) return triggerMap.at(idx);
   cout << "** trigger mapper : error : index idx exceeds size of triggerMap stored = " << triggerMap.size() << " , return empty map" << endl;
   return triggerMapper();  
+}
+
+bool triggerhelper::HasTriggerMap(string path)
+{
+  bool res = false;
+  for(int i=0;i<(int)triggerMap.size();i++)
+    if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos)
+      res = true;
+  return res;
+}
+
+void triggerhelper::ChangeTriggerMap(string path, std::vector<std::string> new_filters)
+{
+  for(int i=0;i<(int)triggerMap.size();i++)
+    if (path.find(triggerMap.at(i).GetHLTPath()) != std::string::npos)
+      triggerMap.at(i).Setfilters(new_filters);
 }
 
 int triggerhelper::FindTriggerNumber(string triggername, bool isTrigger){ 

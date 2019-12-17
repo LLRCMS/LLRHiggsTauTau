@@ -52,9 +52,12 @@ except NameError:
 ### ----------------------------------------------------------------------
 ### Trigger list
 ### ----------------------------------------------------------------------
+if YEAR == 2016:
+  print 'Using HLT trigger 2016'
+  execfile(PyFilePath+"python/triggers_80X.py")  # 2016 triggers and filters
 if YEAR == 2017:
   print 'Using HLT trigger 2017'
-  execfile(PyFilePath+"python/triggers_92X.py") # 2017 triggers and filters
+  execfile(PyFilePath+"python/triggers_92X.py")  # 2017 triggers and filters
 if YEAR == 2018:
   print 'Using HLT trigger 2018'
   execfile(PyFilePath+"python/triggers_102X.py") # 2018 triggers and filters
@@ -68,16 +71,20 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 if IsMC:
+  if YEAR == 2016:
+    process.GlobalTag.globaltag = '94X_mcRun2_asymptotic_v3'        # 2016 MC
   if YEAR == 2017:
-    process.GlobalTag.globaltag = '94X_mc2017_realistic_v14'        # 2017 MC
+    process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'        # 2017 MC
   if YEAR == 2018:
     process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'  # 2018 MC
 else :
+  if YEAR == 2016:
+    process.GlobalTag.globaltag = '94X_dataRun2_v10'                # 2016 Data
   if YEAR == 2017:
-    process.GlobalTag.globaltag = '94X_dataRun2_ReReco_EOY17_v6'    # 2017 Data
+    process.GlobalTag.globaltag = '94X_dataRun2_v11'                # 2017 Data
   if YEAR == 2018:
     if PERIOD=="D":
-        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v14'    # 2018D Data --> FRA: need to understand how to use it
+        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v14'    # 2018D Data
     else:
         process.GlobalTag.globaltag = '102X_dataRun2_v11'           # 2018ABC Data
 
@@ -125,6 +132,21 @@ process.hltFilter = hlt.hltHighLevel.clone(
     throw = cms.bool(False) #if True: throws exception if a trigger path is invalid
 )
 
+### ----------------------------------------------------------------------
+### L1ECALPrefiringWeightRecipe (for 2016 and 2017 MC only)
+### https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
+### ----------------------------------------------------------------------
+prefireEra = "2016BtoH"
+if YEAR==2017: prefireEra = "2017BtoF"
+
+from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+  DataEra = cms.string(prefireEra),
+  UseJetEMPt = cms.bool(False),
+  PrefiringRateSystematicUncty = cms.double(0.2),
+  SkipWarnings = False
+)
+
 # Trigger Unpacker Module
 #process.patTriggerUnpacker = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
 #                                            patTriggerObjectsStandAlone = cms.InputTag("slimmedPatTrigger"),
@@ -166,7 +188,7 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
 )
 
 # 2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-# Remained the same for 2017 and 2018
+# Ok for 2016, 2017 and 2018
 process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
 
 baddetEcallist = cms.vuint32(
@@ -233,9 +255,11 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
 from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-EgammaPostRecoSeq_ERA = '2017-Nov17ReReco' # 2017 data
+EgammaPostRecoSeq_ERA = '2016-Legacy'        # 2016 data
+if YEAR==2017:
+  EgammaPostRecoSeq_ERA = '2017-Nov17ReReco' # 2017 data
 if YEAR == 2018:
-  EgammaPostRecoSeq_ERA = '2018-Prompt'    # 2018 data
+  EgammaPostRecoSeq_ERA = '2018-Prompt'      # 2018 data
 setupEgammaPostRecoSeq(process,
                        runEnergyCorrections=False,
                        era=EgammaPostRecoSeq_ERA)
@@ -344,36 +368,58 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
 # NominalTESCorrection=-1#in percent\
 APPLYTESCORRECTION = APPLYTESCORRECTION if IsMC else False # always false if data
 
+# 2016 data - MVAoldDM2017v2
+#NomTESUnc1Pr      = cms.double(1.0)  # in percent, up/down uncertainty of TES
+#NomTESUnc1PrPi0   = cms.double(0.9)  # in percent, up/down uncertainty of TES
+#NomTESUnc3Pr      = cms.double(1.1)  # in percent, up/down uncertainty of TES
+#NomTESUnc3PrPi0   = --> Missing <--  # in percent, up/down uncertainty of TES
+#NomTESCor1Pr      = cms.double(-0.6) # DecayMode==0
+#NomTESCor1PrPi0   = cms.double(-0.5) # DecayMode==1
+#NomTESCor3Pr      = cms.double(0.0)  # DecayMode==10
+#NomTESCor3PrPi0   = --> Missing <--  # DecayMode==11
+
 # 2017 data - MVAoldDM2017v2
-#NomTESUnc1Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
-#NomTESUnc1PrPi0   = cms.double(0.8)  # in percent, up/down uncertainty of TES
-#NomTESUnc3Pr      = cms.double(0.9)  # in percent, up/down uncertainty of TES
-#NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
-#NomTESCor1Pr      = cms.double(0.7)  # DecayMode==0
-#NomTESCor1PrPi0   = cms.double(-0.2) # DecayMode==1
-#NomTESCor3Pr      = cms.double(0.1)  # DecayMode==10
-#NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11
+#if YEAR == 2017:
+#    NomTESUnc1Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#    NomTESUnc1PrPi0   = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#    NomTESUnc3Pr      = cms.double(0.9)  # in percent, up/down uncertainty of TES
+#    NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
+#    NomTESCor1Pr      = cms.double(0.7)  # DecayMode==0
+#    NomTESCor1PrPi0   = cms.double(-0.2) # DecayMode==1
+#    NomTESCor3Pr      = cms.double(0.1)  # DecayMode==10
+#    NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11
 
 # 2018 data - MVAoldDM2017v2
 #if YEAR == 2018:
 #    NomTESUnc1Pr      = cms.double(1.1)  # in percent, up/down uncertainty of TES
 #    NomTESUnc1PrPi0   = cms.double(0.9)  # in percent, up/down uncertainty of TES
 #    NomTESUnc3Pr      = cms.double(0.8)  # in percent, up/down uncertainty of TES
-#    NomTESUnc3PrPi0   = cms.double(1.0)  # in percent, up/down uncertainty of TES -- Missing for 2018, kept the same of 2017
+#    NomTESUnc3PrPi0   = --> Missing <--  # in percent, up/down uncertainty of TES
 #    NomTESCor1Pr      = cms.double(-1.3) # DecayMode==0
 #    NomTESCor1PrPi0   = cms.double(-0.5) # DecayMode==1
 #    NomTESCor3Pr      = cms.double(-1.2) # DecayMode==10
-#    NomTESCor3PrPi0   = cms.double(-0.1) # DecayMode==11 -- Missing for 2018, kept the same of 2017
+#    NomTESCor3PrPi0   = --> Missing <--  # DecayMode==11
 
-# 2017 data - DeepTau2017v2p1
+# 2016 data - DeepTau2017v2p1
 NomTESUnc1Pr      = cms.double(0.7)  # in percent, up/down uncertainty of TES
 NomTESUnc1PrPi0   = cms.double(0.3)  # in percent, up/down uncertainty of TES
-NomTESUnc3Pr      = cms.double(0.5)  # in percent, up/down uncertainty of TES
+NomTESUnc3Pr      = cms.double(0.4)  # in percent, up/down uncertainty of TES
 NomTESUnc3PrPi0   = cms.double(0.6)  # in percent, up/down uncertainty of TES
-NomTESCor1Pr      = cms.double(-0.7) # DecayMode==0
-NomTESCor1PrPi0   = cms.double(-1.1) # DecayMode==1
-NomTESCor3Pr      = cms.double(0.5)  # DecayMode==10
-NomTESCor3PrPi0   = cms.double(1.7)  # DecayMode==11
+NomTESCor1Pr      = cms.double(-1.0) # DecayMode==0
+NomTESCor1PrPi0   = cms.double(-0.1) # DecayMode==1
+NomTESCor3Pr      = cms.double(0.0)  # DecayMode==10
+NomTESCor3PrPi0   = cms.double(2.6)  # DecayMode==11
+
+# 2017 data - DeepTau2017v2p1
+if YEAR == 2017:
+    NomTESUnc1Pr      = cms.double(0.7)  # in percent, up/down uncertainty of TES
+    NomTESUnc1PrPi0   = cms.double(0.3)  # in percent, up/down uncertainty of TES
+    NomTESUnc3Pr      = cms.double(0.5)  # in percent, up/down uncertainty of TES
+    NomTESUnc3PrPi0   = cms.double(0.6)  # in percent, up/down uncertainty of TES
+    NomTESCor1Pr      = cms.double(-0.7) # DecayMode==0
+    NomTESCor1PrPi0   = cms.double(-1.1) # DecayMode==1
+    NomTESCor3Pr      = cms.double(0.5)  # DecayMode==10
+    NomTESCor3PrPi0   = cms.double(1.7)  # DecayMode==11
 
 # 2018 data - DeepTau2017v2p1
 if YEAR == 2018:
@@ -494,6 +540,10 @@ process.jets = cms.EDFilter("PATJetRefSelector",
 
 if COMPUTEQGVAR:
 
+    QGlikelihood_tag = 'QGLikelihoodObject_v1_AK4PFchs'
+    if YEAR == 2017 or YEAR == 2018:
+      QGlikelihood_tag = 'QGLikelihoodObject_v1_AK4PFchs_2017'
+
     from CondCore.CondDB.CondDB_cfi import CondDB
      
     process.QGPoolDBESSource = cms.ESSource("PoolDBESSource",
@@ -503,7 +553,7 @@ if COMPUTEQGVAR:
       toGet = cms.VPSet(
         cms.PSet(
           record = cms.string('QGLikelihoodRcd'),
-          tag    = cms.string('QGLikelihoodObject_v1_AK4PFchs_2017'),
+          tag    = cms.string(QGlikelihood_tag),
           label  = cms.untracked.string('QGL_AK4PFchs'),
         ),
       ),
@@ -738,7 +788,10 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       #metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
                       #metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
                       metERCollection = cms.InputTag("slimmedMETs","","TEST"),
-                      ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
+                      ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter"),
+                      L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
+                      L1prefireProbUp   = cms.InputTag("prefiringweight:nonPrefiringProbUp"),
+                      L1prefireProbDown = cms.InputTag("prefiringweight:nonPrefiringProbDown")
 )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
@@ -769,6 +822,7 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
 process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
+process.l1ECALPref = cms.Path(process.prefiringweight)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(

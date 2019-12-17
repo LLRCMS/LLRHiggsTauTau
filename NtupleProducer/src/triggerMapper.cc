@@ -248,3 +248,10 @@ int triggerMapper::GetLegFromID(int ID)
   if (ID == leg2ID) return 2;
   return 0;
 }
+
+void triggerMapper::Setfilters(std::vector<std::string> filters1)
+{
+  filter_leg1.clear();
+  int n1 = filters1.size();
+  for(int i=0;i<n1;i++) filter_leg1.push_back(filters1.at(i));
+}
