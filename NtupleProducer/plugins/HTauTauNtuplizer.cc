@@ -248,6 +248,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //edm::EDGetTokenT<int> theNBadMuTag; //FRA January2019
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
   edm::EDGetTokenT< bool >ecalBadCalibFilterUpdate_token ;
+  edm::EDGetTokenT< double > prefweight_token;
+  edm::EDGetTokenT< double > prefweightup_token;
+  edm::EDGetTokenT< double > prefweightdown_token;
 
   //flags
   //static const int nOutVars =14;
@@ -268,6 +271,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t _metfilterbit;
   //Int_t _NBadMu;  //FRA January2019
   Bool_t _passecalBadCalibFilterUpdate;
+  Float_t _prefiringweight;
+  Float_t _prefiringweightup;
+  Float_t _prefiringweightdown;
   Float_t _met;
   Float_t _metphi;
   Float_t _met_er;
@@ -961,7 +967,10 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theL1JetTag          (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
   //theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))), //FRA January2019
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
-  ecalBadCalibFilterUpdate_token  (consumes< bool >                      (pset.getParameter<edm::InputTag>("ecalBadCalibReducedMINIAODFilter")))
+  ecalBadCalibFilterUpdate_token  (consumes< bool >                      (pset.getParameter<edm::InputTag>("ecalBadCalibReducedMINIAODFilter"))),
+  prefweight_token     (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProb"))),
+  prefweightup_token   (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbUp"))),
+  prefweightdown_token (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbDown")))
 
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
@@ -1333,6 +1342,9 @@ void HTauTauNtuplizer::Initialize(){
   _year=0;
   //_NBadMu=0;  //FRA January2019
   _passecalBadCalibFilterUpdate=false;
+  _prefiringweight = 1.;
+  _prefiringweightup = 1.;
+  _prefiringweightdown = 1.;
   _triggerbit=0;
   _metfilterbit=0;
   _met=0;
@@ -1543,6 +1555,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("year",&_year,"year/I");
   //myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");  //FRA January2019
   myTree->Branch("passecalBadCalibFilterUpdate",&_passecalBadCalibFilterUpdate,"passecalBadCalibFilterUpdate/O");
+  myTree->Branch("prefiringweight",&_prefiringweight,"prefiringweight/F");
+  myTree->Branch("prefiringweightup",&_prefiringweightup,"prefiringweightup/F");
+  myTree->Branch("prefiringweightdown",&_prefiringweightdown,"prefiringweightdown/F");
   myTree->Branch("triggerbit",&_triggerbit,"triggerbit/L");
   myTree->Branch("metfilterbit",&_metfilterbit,"metfilterbit/I");
   myTree->Branch("met",&_met,"met/F");
@@ -2221,6 +2236,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
   edm::Handle< bool > passecalBadCalibFilterUpdate ;
+  edm::Handle< double > theprefweight;
+  edm::Handle< double > theprefweightup;
+  edm::Handle< double > theprefweightdown;
 
   // protect in case of events where trigger hasn't fired --> no collection created 
   event.getByToken(theCandTag,candHandle);
@@ -2241,6 +2259,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
   event.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
+  event.getByToken(prefweight_token, theprefweight);
+  event.getByToken(prefweightup_token, theprefweightup);
+  event.getByToken(prefweightdown_token, theprefweightdown);
 
   if(theisMC){
     edm::Handle<LHEEventProduct> lheeventinfo;
@@ -2309,6 +2330,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PFMETsignif = (*METsignficanceHandle);
   //_NBadMu = (*NBadMuHandle); //FRA January2019
   _passecalBadCalibFilterUpdate =  (*passecalBadCalibFilterUpdate );
+  if (theisMC && (theYear==2016 || theYear==2017))
+  {
+    _prefiringweight = (*theprefweight);
+    _prefiringweightup =(*theprefweightup);
+    _prefiringweightdown =(*theprefweightdown);
+  }
+
   //Do all the stuff here
   //Compute the variables needed for the output and store them in the ntuple
   if(DEBUG)printf("===New Event===\n");

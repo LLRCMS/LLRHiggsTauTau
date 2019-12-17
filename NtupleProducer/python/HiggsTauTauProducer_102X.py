@@ -132,6 +132,21 @@ process.hltFilter = hlt.hltHighLevel.clone(
     throw = cms.bool(False) #if True: throws exception if a trigger path is invalid
 )
 
+### ----------------------------------------------------------------------
+### L1ECALPrefiringWeightRecipe (for 2016 and 2017 MC only)
+### https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
+### ----------------------------------------------------------------------
+prefireEra = "2016BtoH"
+if YEAR==2017: prefireEra = "2017BtoF"
+
+from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+  DataEra = cms.string(prefireEra),
+  UseJetEMPt = cms.bool(False),
+  PrefiringRateSystematicUncty = cms.double(0.2),
+  SkipWarnings = False
+)
+
 # Trigger Unpacker Module
 #process.patTriggerUnpacker = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
 #                                            patTriggerObjectsStandAlone = cms.InputTag("slimmedPatTrigger"),
@@ -773,7 +788,10 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       #metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
                       #metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
                       metERCollection = cms.InputTag("slimmedMETs","","TEST"),
-                      ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter")
+                      ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter"),
+                      L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
+                      L1prefireProbUp   = cms.InputTag("prefiringweight:nonPrefiringProbUp"),
+                      L1prefireProbDown = cms.InputTag("prefiringweight:nonPrefiringProbDown")
 )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
@@ -804,6 +822,7 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
 process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
+process.l1ECALPref = cms.Path(process.prefiringweight)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
