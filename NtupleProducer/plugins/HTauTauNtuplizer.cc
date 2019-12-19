@@ -335,16 +335,24 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_neutral_pz;
   std::vector<Float_t> _daughters_neutral_e;
 
-  std::vector<Int_t> _daughters_TauUpExists;
+  std::vector<Int_t> _daughters_hasTES;
   std::vector<Float_t> _daughters_px_TauUp;
   std::vector<Float_t> _daughters_py_TauUp;
   std::vector<Float_t> _daughters_pz_TauUp;
   std::vector<Float_t> _daughters_e_TauUp;
-  std::vector<Int_t> _daughters_TauDownExists;
   std::vector<Float_t> _daughters_px_TauDown;
   std::vector<Float_t> _daughters_py_TauDown;
   std::vector<Float_t> _daughters_pz_TauDown;
   std::vector<Float_t> _daughters_e_TauDown;
+  std::vector<Int_t> _daughters_hasEES;
+  std::vector<Float_t> _daughters_px_EleUp;
+  std::vector<Float_t> _daughters_py_EleUp;
+  std::vector<Float_t> _daughters_pz_EleUp;
+  std::vector<Float_t> _daughters_e_EleUp;
+  std::vector<Float_t> _daughters_px_EleDown;
+  std::vector<Float_t> _daughters_py_EleDown;
+  std::vector<Float_t> _daughters_pz_EleDown;
+  std::vector<Float_t> _daughters_e_EleDown;
   std::vector<Int_t> _daughters_genindex;
   std::vector<Int_t> _daughters_charge;
   std::vector<Int_t> _daughters_isTauMatched;
@@ -489,14 +497,18 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
-  std::vector<Float_t> _metx_up;
-  std::vector<Float_t> _mety_up;
-  std::vector<Float_t> _metx_down;
-  std::vector<Float_t> _mety_down;
+  std::vector<Float_t> _metx_up_jes;
+  std::vector<Float_t> _mety_up_jes;
+  std::vector<Float_t> _metx_down_jes;
+  std::vector<Float_t> _mety_down_jes;
   std::vector<Float_t> _metx_up_tes;
   std::vector<Float_t> _mety_up_tes;
   std::vector<Float_t> _metx_down_tes;
   std::vector<Float_t> _mety_down_tes;
+  std::vector<Float_t> _metx_up_ees;
+  std::vector<Float_t> _mety_up_ees;
+  std::vector<Float_t> _metx_down_ees;
+  std::vector<Float_t> _mety_down_ees;
   std::vector<Float_t> _uncorrmetx;
   std::vector<Float_t> _uncorrmety;
   std::vector<Float_t> _metCov00;
@@ -1077,16 +1089,24 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_neutral_pz.clear();
   _daughters_neutral_e.clear();
    
-  _daughters_TauUpExists.clear();
+  _daughters_hasTES.clear();
   _daughters_px_TauUp.clear();
   _daughters_py_TauUp.clear();
   _daughters_pz_TauUp.clear();
   _daughters_e_TauUp.clear();
-  _daughters_TauDownExists.clear();
   _daughters_px_TauDown.clear();
   _daughters_py_TauDown.clear();
   _daughters_pz_TauDown.clear();
   _daughters_e_TauDown.clear();
+  _daughters_hasEES.clear();
+  _daughters_px_EleUp.clear();
+  _daughters_py_EleUp.clear();
+  _daughters_pz_EleUp.clear();
+  _daughters_e_EleUp.clear();
+  _daughters_px_EleDown.clear();
+  _daughters_py_EleDown.clear();
+  _daughters_pz_EleDown.clear();
+  _daughters_e_EleDown.clear();
   _daughters_charge.clear();
   _daughters_isTauMatched.clear();
   _daughters_genindex.clear();
@@ -1308,14 +1328,18 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_highestEt_L1IsoTauMatched.clear();
   _metx.clear();
   _mety.clear();
-  _metx_up.clear();
-  _mety_up.clear();
-  _metx_down.clear();
-  _mety_down.clear();
+  _metx_up_jes.clear();
+  _mety_up_jes.clear();
+  _metx_down_jes.clear();
+  _mety_down_jes.clear();
   _metx_up_tes.clear();
   _mety_up_tes.clear();
   _metx_down_tes.clear();
   _mety_down_tes.clear();
+  _metx_up_ees.clear();
+  _mety_up_ees.clear();
+  _metx_down_ees.clear();
+  _mety_down_ees.clear();
   _uncorrmetx.clear();
   _uncorrmety.clear();
   _metCov00.clear();
@@ -1634,18 +1658,27 @@ void HTauTauNtuplizer::beginJob(){
 
      myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
      if(theisMC){ 
-     myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
+     myTree->Branch("daughters_hasTES",&_daughters_hasTES);
       myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
       myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
       myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
       myTree->Branch("daughters_e_TauUp",&_daughters_e_TauUp);
-      myTree->Branch("daughters_isTauMatched",&_daughters_isTauMatched);
-
-      myTree->Branch("daughters_TauDownExists",&_daughters_TauDownExists);
       myTree->Branch("daughters_px_TauDown",&_daughters_px_TauDown);
       myTree->Branch("daughters_py_TauDown",&_daughters_py_TauDown);
       myTree->Branch("daughters_pz_TauDown",&_daughters_pz_TauDown);
       myTree->Branch("daughters_e_TauDown",&_daughters_e_TauDown);
+     myTree->Branch("daughters_hasEES",&_daughters_hasEES);
+      myTree->Branch("daughters_px_EleUp",&_daughters_px_EleUp);
+      myTree->Branch("daughters_py_EleUp",&_daughters_py_EleUp);
+      myTree->Branch("daughters_pz_EleUp",&_daughters_pz_EleUp);
+      myTree->Branch("daughters_e_EleUp",&_daughters_e_EleUp);
+      myTree->Branch("daughters_px_EleDown",&_daughters_px_EleDown);
+      myTree->Branch("daughters_py_EleDown",&_daughters_py_EleDown);
+      myTree->Branch("daughters_pz_EleDown",&_daughters_pz_EleDown);
+      myTree->Branch("daughters_e_EleDown",&_daughters_e_EleDown);
+
+      myTree->Branch("daughters_isTauMatched",&_daughters_isTauMatched);
+
     //myTree->Branch("genDaughters",&_genDaughters);
     //myTree->Branch("quarks_px",&_bquarks_px);
     //myTree->Branch("quarks_py",&_bquarks_py);
@@ -1770,14 +1803,18 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
-  myTree->Branch("METx_UP",&_metx_up);
-  myTree->Branch("METy_UP",&_mety_up);
-  myTree->Branch("METx_DOWN",&_metx_down);
-  myTree->Branch("METy_DOWN",&_mety_down);
+  myTree->Branch("METx_UP_JES",&_metx_up_jes);
+  myTree->Branch("METy_UP_JES",&_mety_up_jes);
+  myTree->Branch("METx_DOWN_JES",&_metx_down_jes);
+  myTree->Branch("METy_DOWN_JES",&_mety_down_jes);
   myTree->Branch("METx_UP_TES",&_metx_up_tes);
   myTree->Branch("METy_UP_TES",&_mety_up_tes);
   myTree->Branch("METx_DOWN_TES",&_metx_down_tes);
   myTree->Branch("METy_DOWN_TES",&_mety_down_tes);
+  myTree->Branch("METx_UP_EES",&_metx_up_ees);
+  myTree->Branch("METy_UP_EES",&_mety_up_ees);
+  myTree->Branch("METx_DOWN_EES",&_metx_down_ees);
+  myTree->Branch("METy_DOWN_EES",&_mety_down_ees);
   myTree->Branch("uncorrMETx",&_uncorrmetx);
   myTree->Branch("uncorrMETy",&_uncorrmety);
   myTree->Branch("MET_cov00",&_metCov00);
@@ -2512,14 +2549,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     float thisMETpx = cand.userFloat("MEt_px");
     float thisMETpy = cand.userFloat("MEt_py");
-    float thisMETpx_up = cand.userFloat("MEt_px_UP");
-    float thisMETpy_up = cand.userFloat("MEt_py_UP");
-    float thisMETpx_down = cand.userFloat("MEt_px_DOWN");
-    float thisMETpy_down = cand.userFloat("MEt_py_DOWN");
+    float thisMETpx_up_jes = cand.userFloat("MEt_px_UP_JES");
+    float thisMETpy_up_jes = cand.userFloat("MEt_py_UP_JES");
+    float thisMETpx_down_jes = cand.userFloat("MEt_px_DOWN_JES");
+    float thisMETpy_down_jes = cand.userFloat("MEt_py_DOWN_JES");
     float thisMETpx_up_tes = cand.userFloat("MEt_px_UP_TES");
     float thisMETpy_up_tes = cand.userFloat("MEt_py_UP_TES");
     float thisMETpx_down_tes = cand.userFloat("MEt_px_DOWN_TES");
     float thisMETpy_down_tes = cand.userFloat("MEt_py_DOWN_TES");
+    float thisMETpx_up_ees = cand.userFloat("MEt_px_UP_EES");
+    float thisMETpy_up_ees = cand.userFloat("MEt_py_UP_EES");
+    float thisMETpx_down_ees = cand.userFloat("MEt_px_DOWN_EES");
+    float thisMETpy_down_ees = cand.userFloat("MEt_py_DOWN_EES");
     float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
     float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
@@ -2602,14 +2643,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);
-    _metx_up.push_back(thisMETpx_up);
-    _mety_up.push_back(thisMETpy_up);
-    _metx_down.push_back(thisMETpx_down);
-    _mety_down.push_back(thisMETpy_down);
+    _metx_up_jes.push_back(thisMETpx_up_jes);
+    _mety_up_jes.push_back(thisMETpy_up_jes);
+    _metx_down_jes.push_back(thisMETpx_down_jes);
+    _mety_down_jes.push_back(thisMETpy_down_jes);
     _metx_up_tes.push_back(thisMETpx_up_tes);
     _mety_up_tes.push_back(thisMETpy_up_tes);
     _metx_down_tes.push_back(thisMETpx_down_tes);
     _mety_down_tes.push_back(thisMETpy_down_tes);
+    _metx_up_ees.push_back(thisMETpx_up_ees);
+    _mety_up_ees.push_back(thisMETpy_up_ees);
+    _metx_down_ees.push_back(thisMETpx_down_ees);
+    _mety_down_ees.push_back(thisMETpy_down_ees);
     _uncorrmetx.push_back(thisMETpx_uncorr);
     _uncorrmety.push_back(thisMETpy_uncorr);
     _metCov00.push_back(cand.userFloat("MEt_cov00"));
@@ -3267,30 +3312,35 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     
     TLorentzVector pfourTauUp;
     TLorentzVector pfourTauDown;
+    TLorentzVector pfourEleUp;
+    TLorentzVector pfourEleDown;
 
-    bool existUp   = userdatahelpers::hasUserInt(cand,"TauUpExists"); // simply to check if the userfloat exists, i.e. if it is a tau
-    bool existDown = userdatahelpers::hasUserInt(cand,"TauDownExists"); // simply to check if the userfloat exists, i.e. if it is a tau
+    bool existTESshift = userdatahelpers::hasUserInt(cand,"isTESShifted"); // simply to check if the userfloat exists
+    bool existEESshift = userdatahelpers::hasUserInt(cand,"isEESShifted"); // simply to check if the userfloat exists
     bool isTauMatched = userdatahelpers::hasUserInt(cand,"isTauMatched"); // check if it is a tau
-
-    int hasUp   = ( existUp   ? userdatahelpers::getUserInt(cand,"TauUpExists")   : false) ;   // actual check of the value of the userfloat
-    int hasDown = ( existDown ? userdatahelpers::getUserInt(cand,"TauDownExists") : false) ; // actual check of the value of the userfloat
-   
     
-    if(hasUp)
+    int (hasTES) = ( existTESshift ? userdatahelpers::getUserInt(cand,"isTESShifted") : false) ;   // actual check of the value of the userfloat
+    int (hasEES) = ( existEESshift ? userdatahelpers::getUserInt(cand,"isEESShifted") : false) ;   // actual check of the value of the userfloat
+
+    if(hasTES)
     {
       pfourTauUp.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauUp"),userdatahelpers::getUserFloat(cand,"py_TauUp"),userdatahelpers::getUserFloat(cand,"pz_TauUp"),userdatahelpers::getUserFloat(cand,"e_TauUp"));
-    }
-    else
-    {
-      pfourTauUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
-    }
-    if(hasDown)
-    {
       pfourTauDown.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauDown"),userdatahelpers::getUserFloat(cand,"py_TauDown"),userdatahelpers::getUserFloat(cand,"pz_TauDown"),userdatahelpers::getUserFloat(cand,"e_TauDown"));
     }
     else
     {
+      pfourTauUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
       pfourTauDown.SetPxPyPzE(-999.,-999.,-999.,-999.);
+    }
+    if(hasEES)
+    {
+      pfourEleUp.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_EleUp"),userdatahelpers::getUserFloat(cand,"py_EleUp"),userdatahelpers::getUserFloat(cand,"pz_EleUp"),userdatahelpers::getUserFloat(cand,"e_EleUp"));
+      pfourEleDown.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_EleDown"),userdatahelpers::getUserFloat(cand,"py_EleDown"),userdatahelpers::getUserFloat(cand,"pz_EleDown"),userdatahelpers::getUserFloat(cand,"e_EleDown"));
+    }
+    else
+    {
+      pfourEleUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
+      pfourEleDown.SetPxPyPzE(-999.,-999.,-999.,-999.);
     }
     
     if(theFSR){
@@ -3318,19 +3368,27 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_pz.push_back( (float) pfour.Z());
     _daughters_e.push_back( (float) pfour.T());
 
-    _daughters_TauUpExists.push_back( (existUp ? hasUp : 0) );
+    _daughters_hasTES.push_back( (hasTES ? 1 : 0) );
     _daughters_px_TauUp.push_back((float)pfourTauUp.Px());
     _daughters_py_TauUp.push_back((float)pfourTauUp.Py());
     _daughters_pz_TauUp.push_back((float)pfourTauUp.Pz());
     _daughters_e_TauUp.push_back((float)pfourTauUp.E());
-
-    _daughters_TauDownExists.push_back( (existDown ? hasDown : 0) );
     _daughters_px_TauDown.push_back((float)pfourTauDown.Px());
     _daughters_py_TauDown.push_back((float)pfourTauDown.Py());
     _daughters_pz_TauDown.push_back((float)pfourTauDown.Pz());
     _daughters_e_TauDown.push_back((float)pfourTauDown.E());
 
-    _daughters_isTauMatched.push_back( (isTauMatched ? hasUp : 0) );
+    _daughters_hasEES.push_back( (hasEES ? 1 : 0) );
+    _daughters_px_EleUp.push_back((float)pfourEleUp.Px());
+    _daughters_py_EleUp.push_back((float)pfourEleUp.Py());
+    _daughters_pz_EleUp.push_back((float)pfourEleUp.Pz());
+    _daughters_e_EleUp.push_back((float)pfourEleUp.E());
+    _daughters_px_EleDown.push_back((float)pfourEleDown.Px());
+    _daughters_py_EleDown.push_back((float)pfourEleDown.Py());
+    _daughters_pz_EleDown.push_back((float)pfourEleDown.Pz());
+    _daughters_e_EleDown.push_back((float)pfourEleDown.E());
+
+    _daughters_isTauMatched.push_back( (isTauMatched ? 1 : 0) );
 
     // gen info
     

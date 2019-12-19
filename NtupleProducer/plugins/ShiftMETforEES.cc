@@ -1,9 +1,9 @@
 /*
-** class  : ShiftMETforTES
+** class  : ShiftMETforEES
 ** author : F. Brivio (MIB)
-** date   : 20 June 2018
-** brief  : takes pat::MET and taus in input and produces 4 doubles for the shifts of the MET due to TES:
-**          MET_dx_UP, MET_dy_UP, MET_dx_DOWN, MET_dy_DOWN
+** date   : 19 December 2019
+** brief  : takes pat::MET and taus in input and produces 4 doubles for the shifts of the MET due to Ele->tau ES:
+**          METdxUP_EES, METdyUP_EES, METdxDOWN_EES, METdyDOWN_EES
 */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -31,12 +31,12 @@ using namespace reco;
 
 using LorentzVectorE = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double>>;
 
-class ShiftMETforTES : public edm::EDProducer {
+class ShiftMETforEES : public edm::EDProducer {
     public: 
         /// Constructor
-        explicit ShiftMETforTES(const edm::ParameterSet&);
+        explicit ShiftMETforEES(const edm::ParameterSet&);
         /// Destructor
-        ShiftMETforTES(){};
+        ShiftMETforEES(){};
 
     private:
         virtual void beginJob(){};  
@@ -47,18 +47,18 @@ class ShiftMETforTES : public edm::EDProducer {
         edm::EDGetTokenT<pat::TauCollection> theTauTag;
 };
 
-ShiftMETforTES::ShiftMETforTES(const edm::ParameterSet& iConfig) :
+ShiftMETforEES::ShiftMETforEES(const edm::ParameterSet& iConfig) :
 theMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
 theTauTag(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("tauCollection")))
 {
-    produces<double>("METdxUP");
-    produces<double>("METdyUP");
-    produces<double>("METdxDOWN");
-    produces<double>("METdyDOWN");
+    produces<double>("METdxUP_EES");
+    produces<double>("METdyUP_EES");
+    produces<double>("METdxDOWN_EES");
+    produces<double>("METdyDOWN_EES");
     
 }
 
-void ShiftMETforTES::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void ShiftMETforEES::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // Declare ptrs to save MET variations
     std::unique_ptr<double> dx_UP_ptr   (new double);
@@ -103,19 +103,19 @@ void ShiftMETforTES::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       pfour.SetPxPyPzE (l->px(), l->py(), l->pz(), l->energy());
       
       // Shifted taus
-      TLorentzVector pfourTauUp;
-      TLorentzVector pfourTauDown;
+      TLorentzVector pfourEleUp;
+      TLorentzVector pfourEleDown;
 
-      bool existTESshift = userdatahelpers::hasUserInt(l,"isTESShifted"); // simply to check if the userfloat exists
-      int hasTES = ( existTESshift ? userdatahelpers::getUserInt(l,"isTESShifted") : false) ;   // actual check of the value of the userfloat
+      bool existEESshift = userdatahelpers::hasUserInt(l,"isEESShifted"); // simply to check if the userfloat exists
+      int hasEES = ( existEESshift ? userdatahelpers::getUserInt(l,"isEESShifted") : false) ;   // actual check of the value of the userfloat
       //cout << "---> exist/user/has: " << existUp << " / " << userdatahelpers::getUserInt(l,"TauUpExists") << " / " << hasUp << endl;
-      if(hasTES)
+      if(hasEES)
       {
-        pfourTauUp.SetPxPyPzE ( userdatahelpers::getUserFloat(l,"px_TauUp"), userdatahelpers::getUserFloat(l,"py_TauUp"), userdatahelpers::getUserFloat(l,"pz_TauUp"), userdatahelpers::getUserFloat(l,"e_TauUp"));
-        deltaTaus_UP += ( pfourTauUp - pfour );
+        pfourEleUp.SetPxPyPzE ( userdatahelpers::getUserFloat(l,"px_EleUp"), userdatahelpers::getUserFloat(l,"py_EleUp"), userdatahelpers::getUserFloat(l,"pz_EleUp"), userdatahelpers::getUserFloat(l,"e_EleUp"));
+        deltaTaus_UP += ( pfourEleUp - pfour );
 
-        pfourTauDown.SetPxPyPzE ( userdatahelpers::getUserFloat(l,"px_TauDown"), userdatahelpers::getUserFloat(l,"py_TauDown"), userdatahelpers::getUserFloat(l,"pz_TauDown"), userdatahelpers::getUserFloat(l,"e_TauDown"));
-        deltaTaus_DOWN += ( pfourTauDown - pfour );
+        pfourEleDown.SetPxPyPzE ( userdatahelpers::getUserFloat(l,"px_EleDown"), userdatahelpers::getUserFloat(l,"py_EleDown"), userdatahelpers::getUserFloat(l,"pz_EleDown"), userdatahelpers::getUserFloat(l,"e_EleDown"));
+        deltaTaus_DOWN += ( pfourEleDown - pfour );
 
         //cout << "---> deltaTaus_MID: " << deltaTaus_UP.Px() << " / " << deltaTaus_UP.Py() << endl;
         //cout << "---> pfour       : " << pfour.Px() << " / " << pfour.Py() << endl;
@@ -143,12 +143,12 @@ void ShiftMETforTES::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //cout << "SHIFTED UP  : " << *dx_UP_ptr << " / " << *dy_UP_ptr << endl;
     //cout << "SHIFTED DOWN: " << *dx_DOWN_ptr << " / " << *dy_DOWN_ptr << endl;
 
-    iEvent.put( std::move(dx_UP_ptr)  , "METdxUP"   );
-    iEvent.put( std::move(dy_UP_ptr)  , "METdyUP"   );
-    iEvent.put( std::move(dx_DOWN_ptr), "METdxDOWN" );
-    iEvent.put( std::move(dy_DOWN_ptr), "METdyDOWN" );
+    iEvent.put( std::move(dx_UP_ptr)  , "METdxUP_EES"   );
+    iEvent.put( std::move(dy_UP_ptr)  , "METdyUP_EES"   );
+    iEvent.put( std::move(dx_DOWN_ptr), "METdxDOWN_EES" );
+    iEvent.put( std::move(dy_DOWN_ptr), "METdyDOWN_EES" );
     
 }
 
 #include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(ShiftMETforTES);
+DEFINE_FWK_MODULE(ShiftMETforEES);

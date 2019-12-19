@@ -238,9 +238,10 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double shiftMass = 1.;
     bool isTESShifted = false;
     bool isTauMatched = false;
+    bool isEESShifted = false;
 
     //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr) // 2016 data
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15.)   // 2017 data
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15. && ApplyTESCentralCorr)   // 2017 data
     {
       isTauMatched = true;
       isTESShifted = true;
@@ -316,15 +317,16 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(ApplyTESCentralCorr){
       if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0)  {
 	shiftP    = EFakeShift1Pr;     // 1prong
-	isTESShifted = true;
+	shiftMass = 1.;
+	isEESShifted = true;
       }
       if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1) {
-	shiftP    = EFakeShift1PrPi0;// 1prong+pi0
-	isTESShifted = true;
+	shiftP    = EFakeShift1PrPi0;  // 1prong+pi0
+	shiftMass = EFakeShift1PrPi0;
+	isEESShifted = true;
       }
 
     }
-
 
     double pxS_Nominal = l.px()*shiftP;
     double pyS_Nominal = l.py()*shiftP;
@@ -333,7 +335,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double enS_Nominal = TMath::Sqrt(pxS_Nominal*pxS_Nominal + pyS_Nominal*pyS_Nominal + pzS_Nominal*pzS_Nominal + massS_Nominal*massS_Nominal);
     math::XYZTLorentzVectorD p4S_Nominal( pxS_Nominal, pyS_Nominal, pzS_Nominal, enS_Nominal );
 
-    //l.setP4( p4S_Nominal ); // was here for 2016 data, now it's moved almost at the end of taufiller
 
     //Up and Down variations: NominalTESUncertainty from python cfg
     //const float udShift[2] = {1.03, 0.97}; // 0: UP, 1: DOWN
@@ -341,9 +342,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     float udshiftP[2] = {1., 1.};
     float udshiftMass[2] = {1., 1.};
-
-    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8.) { // 2016 data
-    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15.) { // 2017 data
 
     if(isTauMatched){
 
@@ -394,18 +392,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //else isTESShifted = false;
     }
 
-    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0){
-      udshiftP[0]    =  Shift1Pr + (NominalEFakeESUncertainty1Pr/100.); //udShift[0]; // up
-      udshiftP[1]    =  Shift1Pr - (NominalEFakeESUncertainty1Pr/100.); //udShift[1]; // down
-    }
-    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1){
-      udshiftP[0]    = Shift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); //udShift[0]; // up
-      udshiftP[1]    = Shift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); //udShift[1]; // down
-    }
-
-
-
-    if (ApplyTESCentralCorr)
+    if (ApplyTESCentralCorr && isTESShifted)
     {
       // up shift
       double pxS = l.px()*udshiftP[0];
@@ -435,8 +422,54 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       l.addUserFloat("e_TauDown",p4SDOWN.energy());
       l.addUserFloat("m_TauDown",p4SDOWN.mass());
     }
-    l.addUserInt("TauUpExists", isTESShifted ? 1 : 0);
-    l.addUserInt("TauDownExists", isTESShifted ? 1 : 0);
+
+    // Up Down shifts for e->tau fES
+    float udEFakeshiftP[2] = {1., 1.};
+    float udEFakeshiftMass[2] = {1., 1.};
+
+    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0){
+      udEFakeshiftP[0]    =  EFakeShift1Pr + (NominalEFakeESUncertainty1Pr/100.); // up
+      udEFakeshiftP[1]    =  EFakeShift1Pr - (NominalEFakeESUncertainty1Pr/100.); // down
+      udEFakeshiftMass[0] = udEFakeshiftMass[1] = 1.; // no mass shift for pi0
+
+    }
+    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1){
+      udEFakeshiftP[0]    = EFakeShift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); // up
+      udEFakeshiftP[1]    = EFakeShift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); // down
+      udEFakeshiftMass[0] = EFakeShift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); // up
+      udEFakeshiftMass[1] = EFakeShift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); // down
+    }
+
+    if (ApplyTESCentralCorr && isEESShifted)
+    {
+      // up shift
+      double pxEFakeS = l.px()*udEFakeshiftP[0];
+      double pyEFakeS = l.py()*udEFakeshiftP[0];
+      double pzEFakeS = l.pz()*udEFakeshiftP[0];
+      double massEFakeS = l.mass()*udEFakeshiftMass[0];
+      double enEFakeS = TMath::Sqrt(pxEFakeS*pxEFakeS + pyEFakeS*pyEFakeS + pzEFakeS*pzEFakeS + massEFakeS*massEFakeS);
+      math::XYZTLorentzVectorD p4EFakeSUP( pxEFakeS, pyEFakeS, pzEFakeS, enEFakeS );
+      // set userfloats
+      l.addUserFloat("px_EleUp",p4EFakeSUP.px());
+      l.addUserFloat("py_EleUp",p4EFakeSUP.py());
+      l.addUserFloat("pz_EleUp",p4EFakeSUP.pz());
+      l.addUserFloat("e_EleUp",p4EFakeSUP.energy());
+      l.addUserFloat("m_EleUp",p4EFakeSUP.mass());
+
+      // down shift
+      pxEFakeS = l.px()*udEFakeshiftP[1];
+      pyEFakeS = l.py()*udEFakeshiftP[1];
+      pzEFakeS = l.pz()*udEFakeshiftP[1];
+      massEFakeS = l.mass()*udEFakeshiftMass[1];
+      enEFakeS = TMath::Sqrt(pxEFakeS*pxEFakeS + pyEFakeS*pyEFakeS + pzEFakeS*pzEFakeS + massEFakeS*massEFakeS);
+      math::XYZTLorentzVectorD p4EFakeSDOWN( pxEFakeS, pyEFakeS, pzEFakeS, enEFakeS );
+      // set userfloats
+      l.addUserFloat("px_EleDown",p4EFakeSDOWN.px());
+      l.addUserFloat("py_EleDown",p4EFakeSDOWN.py());
+      l.addUserFloat("pz_EleDown",p4EFakeSDOWN.pz());
+      l.addUserFloat("e_EleDown",p4EFakeSDOWN.energy());
+      l.addUserFloat("m_EleDown",p4EFakeSDOWN.mass());
+    }
 
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();
@@ -496,6 +529,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
     //--- Embed user variables
     l.addUserInt("isTESShifted",isTESShifted);
+    l.addUserInt("isEESShifted",isEESShifted);
     l.addUserInt("isTauMatched",isTauMatched);
     l.addUserFloat("HPSDiscriminator",tauid); 
     l.addUserFloat("decayMode",l.decayMode()); 

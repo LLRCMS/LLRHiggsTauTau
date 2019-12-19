@@ -458,8 +458,8 @@ process.softTaus = cms.EDProducer("TauFiller",
    NominalTESCorrection1PrPi0       = NomTESCor1PrPi0,
    NominalTESCorrection3Pr          = NomTESCor3Pr,
    NominalTESCorrection3PrPi0       = NomTESCor3PrPi0,
-   NominalEFakeESCorrection1Pr      = NominalEFakeESCor1Pr, 
-   NominalEFakeESCorrection1PrPi0   = NominalEFakeESCor1PrPi0, 
+   NominalEFakeESCorrection1Pr       = NominalEFakeESCor1Pr,
+   NominalEFakeESCorrection1PrPi0    = NominalEFakeESCor1PrPi0,
    NominalEFakeESUncertainty1Pr      = NominalEFakeESUnc1Pr, 
    NominalEFakeESUncertainty1PrPi0   = NominalEFakeESUnc1PrPi0, 
 
@@ -662,9 +662,16 @@ else:
                                              tauCollection = cms.InputTag("softTaus")
                                              )
 
+    # add variables with MET shifted for EES corrections (E->tau ES)
+    process.ShiftMETforEES = cms.EDProducer ("ShiftMETforEES",
+                                             srcMET  = cms.InputTag("slimmedMETs","","TEST"),
+                                             tauCollection = cms.InputTag("softTaus")
+                                             )
+
     process.METSequence += process.fullPatMetSequence
     process.METSequence += process.METSignificance
     process.METSequence += process.ShiftMETforTES
+    process.METSequence += process.ShiftMETforEES
 
 
 ## Since release 10_2_X (X >=7) this is included in CMSSW
@@ -730,7 +737,11 @@ process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
                                   METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
                                   METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
                                   METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
-                                  METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
+                                  METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN"),
+                                  METdxUP_EES   = cms.InputTag("ShiftMETforEES", "METdxUP_EES"),
+                                  METdyUP_EES   = cms.InputTag("ShiftMETforEES", "METdyUP_EES"),
+                                  METdxDOWN_EES = cms.InputTag("ShiftMETforEES", "METdxDOWN_EES"),
+                                  METdyDOWN_EES = cms.InputTag("ShiftMETforEES", "METdyDOWN_EES")
 )
 #else:
 #    print "Using STANDALONE_SV_FIT"
@@ -755,7 +766,11 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
                                     METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
                                     METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
-                                    METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
+                                    METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN"),
+                                    METdxUP_EES   = cms.InputTag("ShiftMETforEES", "METdxUP"),
+                                    METdyUP_EES   = cms.InputTag("ShiftMETforEES", "METdyUP"),
+                                    METdxDOWN_EES = cms.InputTag("ShiftMETforEES", "METdxDOWN"),
+                                    METdyDOWN_EES = cms.InputTag("ShiftMETforEES", "METdyDOWN")
 )
 
 
