@@ -62,6 +62,12 @@ class TauFiller : public edm::EDProducer {
   const double NominalTESUncertainty3Pr;      // Up/Down uncertainty for TES 
   const double NominalTESUncertainty3PrPi0;      // Up/Down uncertainty for TES 
 
+  const double NominalEFakeESCorrection1Pr;    // DM==0  - correction of central e->tauh ES
+  const double NominalEFakeESCorrection1PrPi0; // DM==1  - correction of central e->tauh ES
+  const double NominalEFakeESUncertainty1Pr;    // DM==0  - correction of central e->tauh ES
+  const double NominalEFakeESUncertainty1PrPi0; // DM==1  - correction of central e->tauh ES
+
+
   vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
   vector<string> tauFloatDiscrims_; // tau discrims to be added as userFloats
 };
@@ -83,7 +89,12 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   NominalTESUncertainty1Pr(iConfig.getParameter<double>("NominalTESUncertainty1Pr")),
   NominalTESUncertainty1PrPi0(iConfig.getParameter<double>("NominalTESUncertainty1PrPi0")),
   NominalTESUncertainty3Pr(iConfig.getParameter<double>("NominalTESUncertainty3Pr")),
-  NominalTESUncertainty3PrPi0(iConfig.getParameter<double>("NominalTESUncertainty3PrPi0"))
+  NominalTESUncertainty3PrPi0(iConfig.getParameter<double>("NominalTESUncertainty3PrPi0")),
+  NominalEFakeESCorrection1Pr(iConfig.getParameter<double>("NominalEFakeESCorrection1Pr")),
+  NominalEFakeESCorrection1PrPi0(iConfig.getParameter<double>("NominalEFakeESCorrection1PrPi0")),
+  NominalEFakeESUncertainty1Pr(iConfig.getParameter<double>("NominalEFakeESUncertainty1Pr")),
+  NominalEFakeESUncertainty1PrPi0(iConfig.getParameter<double>("NominalEFakeESUncertainty1PrPi0"))
+
 {
   produces<pat::TauCollection>();
 
@@ -204,6 +215,9 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<vector<Vertex> >  vertexs;
   iEvent.getByToken(theVtxTag, vertexs);
 
+  edm::Handle<edm::View<reco::GenParticle> > genHandle;
+  iEvent.getByToken(theGenTag, genHandle);
+
   // Output collection
   //auto_ptr<pat::TauCollection> result( new pat::TauCollection() );
   std::unique_ptr<pat::TauCollection> result( new pat::TauCollection() );
@@ -217,13 +231,19 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double Shift1PrPi0 = 1. + NominalTESCorrection1PrPi0/100.;
     double Shift3Pr    = 1. + NominalTESCorrection3Pr/100.;
     double Shift3PrPi0  = 1. + NominalTESCorrection3PrPi0/100.;
+    double EFakeShift1Pr    = 1. + NominalEFakeESCorrection1Pr/100.;
+    double EFakeShift1PrPi0 = 1. + NominalEFakeESCorrection1PrPi0/100.;
+
     double shiftP = 1.;
     double shiftMass = 1.;
-    
-    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr) // 2016 data
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15. && ApplyTESCentralCorr)   // 2017 data
-    {
+    bool isTESShifted = false;
+    bool isTauMatched = false;
 
+    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr) // 2016 data
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15.)   // 2017 data
+    {
+      isTauMatched = true;
+      isTESShifted = true;
       //cout << "---- gen get pt: " << l.genJet()->pt() << endl;
       if (l.decayMode()==0)       // 1prong
       {
@@ -247,6 +267,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       else  // these are not real taus and will be rejected --> we don't care about the shift and just put 1
       {
+        isTESShifted = false;
+        isTauMatched = false;
         shiftP    = 1.;
         shiftMass = 1.;
       }
@@ -259,6 +281,50 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //  shiftMass = 1.;
       //}
     }
+    
+    //https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
+    //https://github.com/KIT-CMS/Artus/blob/dictchanges/KappaAnalysis/src/Utility/GeneratorInfo.cc#L77-L165    
+    GenParticle closest = (GenParticle) (*genHandle)[0] ;
+    double closestDR = 999;
+    int genmatch = 6; // 6 = fake
+    if (isTauMatched)
+      {
+        genmatch = 5;
+      }else{
+      for (unsigned int iGen = 0; iGen < genHandle->size(); iGen++)
+	{
+	  const GenParticle& genP = (*genHandle)[iGen];
+
+	  double tmpDR = deltaR(l.p4(), genP.p4());
+	  if (tmpDR < closestDR)
+	    {
+	      closest = genP;
+	      closestDR = tmpDR;
+	    }
+	}
+      if (closestDR < 0.2){
+        int pdgId = std::abs(closest.pdgId());
+        if (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 1;
+        else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 2;
+	else if (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 3;
+        else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 4;
+      }
+    }
+
+    //E->tau ES
+
+    if(ApplyTESCentralCorr){
+      if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0)  {
+	shiftP    = EFakeShift1Pr;     // 1prong
+	isTESShifted = true;
+      }
+      if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1) {
+	shiftP    = EFakeShift1PrPi0;// 1prong+pi0
+	isTESShifted = true;
+      }
+
+    }
+
 
     double pxS_Nominal = l.px()*shiftP;
     double pyS_Nominal = l.py()*shiftP;
@@ -275,11 +341,11 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     float udshiftP[2] = {1., 1.};
     float udshiftMass[2] = {1., 1.};
-    bool isTESShifted = false;
-    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8.) { // 2016 data
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15.) { // 2017 data
 
-      isTESShifted = true;
+    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8.) { // 2016 data
+    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15.) { // 2017 data
+
+    if(isTauMatched){
 
       if (l.decayMode()==0)       // 1prong
       {
@@ -328,7 +394,18 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //else isTESShifted = false;
     }
 
-    if (isTESShifted)
+    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0){
+      udshiftP[0]    =  Shift1Pr + (NominalEFakeESUncertainty1Pr/100.); //udShift[0]; // up
+      udshiftP[1]    =  Shift1Pr - (NominalEFakeESUncertainty1Pr/100.); //udShift[1]; // down
+    }
+    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1){
+      udshiftP[0]    = Shift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); //udShift[0]; // up
+      udshiftP[1]    = Shift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); //udShift[1]; // down
+    }
+
+
+
+    if (ApplyTESCentralCorr)
     {
       // up shift
       double pxS = l.px()*udshiftP[0];
@@ -419,10 +496,12 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
     //--- Embed user variables
     l.addUserInt("isTESShifted",isTESShifted);
+    l.addUserInt("isTauMatched",isTauMatched);
     l.addUserFloat("HPSDiscriminator",tauid); 
     l.addUserFloat("decayMode",l.decayMode()); 
     l.addUserFloat("dxy",dxy); 
     l.addUserFloat("dz",dz); 
+    l.addUserFloat("genmatch",genmatch);
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso); 
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso); 
     l.addUserFloat("PFPhotonIso",PFPhotonIso); 

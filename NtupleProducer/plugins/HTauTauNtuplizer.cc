@@ -347,6 +347,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_e_TauDown;
   std::vector<Int_t> _daughters_genindex;
   std::vector<Int_t> _daughters_charge;
+  std::vector<Int_t> _daughters_isTauMatched;
 
   std::vector<const reco::Candidate*> _softLeptons;
   
@@ -536,6 +537,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<bool>  _daughters_iseleChargeConsistent;
   //std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight) //FRA January2019
   std::vector<Int_t> _decayType;//for taus only
+  std::vector<Int_t> _genmatch;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
   static const int ntauIds = 61;
   TString tauIDStrings[ntauIds] = {
@@ -1086,6 +1088,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_pz_TauDown.clear();
   _daughters_e_TauDown.clear();
   _daughters_charge.clear();
+  _daughters_isTauMatched.clear();
   _daughters_genindex.clear();
   _daughters_IetaIeta.clear();
   _daughters_full5x5_IetaIeta.clear();
@@ -1333,6 +1336,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_rel_error_trackpt.clear();
   _SIP.clear();
   _decayType.clear();
+  _genmatch.clear();
   _daughters_tauID.clear();
   _combreliso.clear();
   _combreliso03.clear();
@@ -1635,6 +1639,7 @@ void HTauTauNtuplizer::beginJob(){
       myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
       myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
       myTree->Branch("daughters_e_TauUp",&_daughters_e_TauUp);
+      myTree->Branch("daughters_isTauMatched",&_daughters_isTauMatched);
 
       myTree->Branch("daughters_TauDownExists",&_daughters_TauDownExists);
       myTree->Branch("daughters_px_TauDown",&_daughters_px_TauDown);
@@ -1810,6 +1815,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_iseleChargeConsistent",&_daughters_iseleChargeConsistent);
   //myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT); //FRA January2019
   myTree->Branch("decayMode",&_decayType);
+  myTree->Branch("genmatch",&_genmatch);
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("combreliso03",& _combreliso03);
@@ -3264,6 +3270,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     bool existUp   = userdatahelpers::hasUserInt(cand,"TauUpExists"); // simply to check if the userfloat exists, i.e. if it is a tau
     bool existDown = userdatahelpers::hasUserInt(cand,"TauDownExists"); // simply to check if the userfloat exists, i.e. if it is a tau
+    bool isTauMatched = userdatahelpers::hasUserInt(cand,"isTauMatched"); // check if it is a tau
 
     int hasUp   = ( existUp   ? userdatahelpers::getUserInt(cand,"TauUpExists")   : false) ;   // actual check of the value of the userfloat
     int hasDown = ( existDown ? userdatahelpers::getUserInt(cand,"TauDownExists") : false) ; // actual check of the value of the userfloat
@@ -3322,6 +3329,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_py_TauDown.push_back((float)pfourTauDown.Py());
     _daughters_pz_TauDown.push_back((float)pfourTauDown.Pz());
     _daughters_e_TauDown.push_back((float)pfourTauDown.E());
+
+    _daughters_isTauMatched.push_back( (isTauMatched ? hasUp : 0) );
 
     // gen info
     
@@ -3385,6 +3394,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     bool iselechargeconsistent=false;
 
     int decay=-1;
+    int genmatch = -1;
+
     float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1; //SCeta=-999.; //FRA January2019
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
@@ -3484,6 +3495,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     }else if(type==ParticleType::TAU){
       //discr=userdatahelpers::getUserFloat(cand,"HPSDiscriminator");
       decay = userdatahelpers::getUserFloat(cand,"decayMode");
+      genmatch = userdatahelpers::getUserFloat(cand,"genmatch");
       decayModeFindingOldDMs = userdatahelpers::getUserInt (cand, "decayModeFinding");
       decayModeFindingNewDMs = userdatahelpers::getUserInt (cand, "decayModeFindingNewDMs");
       for (uint itau =0; itau<ntauIds; itau++){
@@ -3559,6 +3571,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
     //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT")); //FRA January2019
     _decayType.push_back(decay);
+    _genmatch.push_back(genmatch);
     _daughters_IetaIeta.push_back(ieta);
     _daughters_full5x5_IetaIeta.push_back(full5x5_ieta);
     _daughters_hOverE.push_back(hOverE);

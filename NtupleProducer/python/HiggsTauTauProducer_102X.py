@@ -409,7 +409,10 @@ NomTESCor1Pr      = cms.double(-1.0) # DecayMode==0
 NomTESCor1PrPi0   = cms.double(-0.1) # DecayMode==1
 NomTESCor3Pr      = cms.double(0.0)  # DecayMode==10
 NomTESCor3PrPi0   = cms.double(2.6)  # DecayMode==11
-
+NominalEFakeESCor1Pr      = cms.double(-0.5) #DecayMode==0
+NominalEFakeESCor1PrPi0   = cms.double(6) #DecayMode==1
+NominalEFakeESUnc1Pr     = cms.double(0.) #DecayMode==0
+NominalEFakeESUnc1PrPi0  = cms.double(0.) #DecayMode==1
 # 2017 data - DeepTau2017v2p1
 if YEAR == 2017:
     NomTESUnc1Pr      = cms.double(0.7)  # in percent, up/down uncertainty of TES
@@ -419,7 +422,11 @@ if YEAR == 2017:
     NomTESCor1Pr      = cms.double(-0.7) # DecayMode==0
     NomTESCor1PrPi0   = cms.double(-1.1) # DecayMode==1
     NomTESCor3Pr      = cms.double(0.5)  # DecayMode==10
-    NomTESCor3PrPi0   = cms.double(1.7)  # DecayMode==11
+    NomTESCor3PrPi0   = cms.double(1.7)  # DecayMode==1
+    NominalEFakeESCor1Pr      = cms.double(-1.8) #DecayMode==0
+    NominalEFakeESCor1PrPi0   = cms.double(1.8) #DecayMode==1
+    NominalEFakeESUnc1Pr     = cms.double(0.) #DecayMode==0
+    NominalEFakeESUnc1PrPi0  = cms.double(0.) #DecayMode==1
 
 # 2018 data - DeepTau2017v2p1
 if YEAR == 2018:
@@ -431,6 +438,10 @@ if YEAR == 2018:
     NomTESCor1PrPi0   = cms.double(0.8)  # DecayMode==1
     NomTESCor3Pr      = cms.double(-0.9) # DecayMode==10
     NomTESCor3PrPi0   = cms.double(1.3)  # DecayMode==11
+    NominalEFakeESCor1Pr      = cms.double(-3.2) #DecayMode==0
+    NominalEFakeESCor1PrPi0   = cms.double(2.6) #DecayMode==1
+    NominalEFakeESUnc1Pr     = cms.double(0.) #DecayMode==0
+    NominalEFakeESUnc1PrPi0  = cms.double(0.) #DecayMode==1
 
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
@@ -447,6 +458,10 @@ process.softTaus = cms.EDProducer("TauFiller",
    NominalTESCorrection1PrPi0       = NomTESCor1PrPi0,
    NominalTESCorrection3Pr          = NomTESCor3Pr,
    NominalTESCorrection3PrPi0       = NomTESCor3PrPi0,
+   NominalEFakeESCorrection1Pr      = NominalEFakeESCor1Pr, 
+   NominalEFakeESCorrection1PrPi0   = NominalEFakeESCor1PrPi0, 
+   NominalEFakeESUncertainty1Pr      = NominalEFakeESUnc1Pr, 
+   NominalEFakeESUncertainty1PrPi0   = NominalEFakeESUnc1PrPi0, 
 
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
