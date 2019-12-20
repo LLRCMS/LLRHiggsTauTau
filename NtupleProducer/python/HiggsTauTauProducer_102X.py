@@ -738,10 +738,10 @@ process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
                                   METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
                                   METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
                                   METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN"),
-                                  METdxUP_EES   = cms.InputTag("ShiftMETforEES", "METdxUP_EES"),
-                                  METdyUP_EES   = cms.InputTag("ShiftMETforEES", "METdyUP_EES"),
-                                  METdxDOWN_EES = cms.InputTag("ShiftMETforEES", "METdxDOWN_EES"),
-                                  METdyDOWN_EES = cms.InputTag("ShiftMETforEES", "METdyDOWN_EES")
+                                  METdxUP_EES   = cms.InputTag("ShiftMETforEES", "METdxUPEES"),
+                                  METdyUP_EES   = cms.InputTag("ShiftMETforEES", "METdyUPEES"),
+                                  METdxDOWN_EES = cms.InputTag("ShiftMETforEES", "METdxDOWNEES"),
+                                  METdyDOWN_EES = cms.InputTag("ShiftMETforEES", "METdyDOWNEES")
 )
 #else:
 #    print "Using STANDALONE_SV_FIT"
@@ -767,10 +767,10 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
                                     METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
                                     METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN"),
-                                    METdxUP_EES   = cms.InputTag("ShiftMETforEES", "METdxUP"),
-                                    METdyUP_EES   = cms.InputTag("ShiftMETforEES", "METdyUP"),
-                                    METdxDOWN_EES = cms.InputTag("ShiftMETforEES", "METdxDOWN"),
-                                    METdyDOWN_EES = cms.InputTag("ShiftMETforEES", "METdyDOWN")
+                                    METdxUP_EES   = cms.InputTag("ShiftMETforEES", "METdxUPEES"),
+                                    METdyUP_EES   = cms.InputTag("ShiftMETforEES", "METdyUPEES"),
+                                    METdxDOWN_EES = cms.InputTag("ShiftMETforEES", "METdxDOWNEES"),
+                                    METdyDOWN_EES = cms.InputTag("ShiftMETforEES", "METdyDOWNEES")
 )
 
 

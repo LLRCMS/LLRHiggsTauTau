@@ -3,7 +3,7 @@
 ** author : F. Brivio (MIB)
 ** date   : 19 December 2019
 ** brief  : takes pat::MET and taus in input and produces 4 doubles for the shifts of the MET due to Ele->tau ES:
-**          METdxUP_EES, METdyUP_EES, METdxDOWN_EES, METdyDOWN_EES
+**          METdxUPEES, METdyUPEES, METdxDOWNEES, METdyDOWNEES
 */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -51,10 +51,10 @@ ShiftMETforEES::ShiftMETforEES(const edm::ParameterSet& iConfig) :
 theMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
 theTauTag(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("tauCollection")))
 {
-    produces<double>("METdxUP_EES");
-    produces<double>("METdyUP_EES");
-    produces<double>("METdxDOWN_EES");
-    produces<double>("METdyDOWN_EES");
+    produces<double>("METdxUPEES");
+    produces<double>("METdyUPEES");
+    produces<double>("METdxDOWNEES");
+    produces<double>("METdyDOWNEES");
     
 }
 
@@ -143,10 +143,10 @@ void ShiftMETforEES::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //cout << "SHIFTED UP  : " << *dx_UP_ptr << " / " << *dy_UP_ptr << endl;
     //cout << "SHIFTED DOWN: " << *dx_DOWN_ptr << " / " << *dy_DOWN_ptr << endl;
 
-    iEvent.put( std::move(dx_UP_ptr)  , "METdxUP_EES"   );
-    iEvent.put( std::move(dy_UP_ptr)  , "METdyUP_EES"   );
-    iEvent.put( std::move(dx_DOWN_ptr), "METdxDOWN_EES" );
-    iEvent.put( std::move(dy_DOWN_ptr), "METdyDOWN_EES" );
+    iEvent.put( std::move(dx_UP_ptr)  , "METdxUPEES"   );
+    iEvent.put( std::move(dy_UP_ptr)  , "METdyUPEES"   );
+    iEvent.put( std::move(dx_DOWN_ptr), "METdxDOWNEES" );
+    iEvent.put( std::move(dy_DOWN_ptr), "METdyDOWNEES" );
     
 }
 
