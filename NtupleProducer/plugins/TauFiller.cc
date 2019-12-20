@@ -282,35 +282,42 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //  shiftMass = 1.;
       //}
     }
-    
-    //https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
-    //https://github.com/KIT-CMS/Artus/blob/dictchanges/KappaAnalysis/src/Utility/GeneratorInfo.cc#L77-L165    
-    GenParticle closest = (GenParticle) (*genHandle)[0] ;
-    double closestDR = 999;
+
     int genmatch = 6; // 6 = fake
     if (isTauMatched)
-      {
-        genmatch = 5;
-      }else{
-      for (unsigned int iGen = 0; iGen < genHandle->size(); iGen++)
-	{
-	  const GenParticle& genP = (*genHandle)[iGen];
-
-	  double tmpDR = deltaR(l.p4(), genP.p4());
-	  if (tmpDR < closestDR)
-	    {
-	      closest = genP;
-	      closestDR = tmpDR;
-	    }
-	}
-      if (closestDR < 0.2){
-        int pdgId = std::abs(closest.pdgId());
-        if (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 1;
-        else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 2;
-	else if (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 3;
-        else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 4;
-      }
+    {
+      genmatch = 5;
     }
+    else // !isTauMatched
+    {
+      //https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
+      //https://github.com/KIT-CMS/Artus/blob/dictchanges/KappaAnalysis/src/Utility/GeneratorInfo.cc#L77-L165
+      if (genHandle.isValid())
+      {
+        GenParticle closest = (GenParticle) (*genHandle)[0] ;
+        double closestDR = 999;
+
+        for (unsigned int iGen = 0; iGen < genHandle->size(); iGen++)
+        {
+          const GenParticle& genP = (*genHandle)[iGen];
+          double tmpDR = deltaR(l.p4(), genP.p4());
+          if (tmpDR < closestDR)
+          {
+            closest = genP;
+            closestDR = tmpDR;
+          }
+        }
+
+        if (closestDR < 0.2)
+        {
+          int pdgId = std::abs(closest.pdgId());
+          if      (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 1;
+          else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 2;
+          else if (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 3;
+          else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 4;
+        }
+      } // end genHandle.isValid()
+    } // end !isTauMatched
 
     //E->tau ES
 
