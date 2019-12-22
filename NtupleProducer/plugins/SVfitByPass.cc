@@ -54,6 +54,10 @@ class SVfitBypass : public edm::EDProducer {
   edm::EDGetTokenT<double> theMETdyUPTag;
   edm::EDGetTokenT<double> theMETdxDOWNTag;
   edm::EDGetTokenT<double> theMETdyDOWNTag;
+  edm::EDGetTokenT<double> theMETdxUPEESTag;
+  edm::EDGetTokenT<double> theMETdyUPEESTag;
+  edm::EDGetTokenT<double> theMETdxDOWNEESTag;
+  edm::EDGetTokenT<double> theMETdyDOWNEESTag;
 
   //int sampleType;
   bool _usePairMET;
@@ -72,7 +76,11 @@ theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("sr
 theMETdxUPTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxUP"))),
 theMETdyUPTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyUP"))),
 theMETdxDOWNTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxDOWN"))),
-theMETdyDOWNTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyDOWN")))
+theMETdyDOWNTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyDOWN"))),
+theMETdxUPEESTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxUP_EES"))),
+theMETdyUPEESTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyUP_EES"))),
+theMETdxDOWNEESTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxDOWN_EES"))),
+theMETdyDOWNEESTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyDOWN_EES")))
 {
   //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   //_useMVAMET = iConfig.getUntrackedParameter<bool>("useMVAMET");
@@ -113,16 +121,22 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<View<pat::MET> > METHandle;
 
   // JES shift
-  double METx_UP   = 0.;
-  double METy_UP   = 0.;
-  double METx_DOWN = 0.;
-  double METy_DOWN = 0.;
+  double METx_UP_JES   = 0.;
+  double METy_UP_JES   = 0.;
+  double METx_DOWN_JES = 0.;
+  double METy_DOWN_JES = 0.;
 
   // TES shift
   double METx_UP_TES = 0.;
   double METy_UP_TES = 0.;
   double METx_DOWN_TES = 0.;
   double METy_DOWN_TES = 0.;
+
+  // EES shift
+  double METx_UP_EES = 0.;
+  double METy_UP_EES = 0.;
+  double METx_DOWN_EES = 0.;
+  double METy_DOWN_EES = 0.;
 
   if (!_usePairMET)
   {
@@ -142,12 +156,12 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     significance = (float) (*significanceHandle);
 
      // now get the MET shifted UP/DOWN by the JES
-     LorentzVector patMET_UP   = patMET.shiftedP4(METUncertainty::JetEnUp);
-     METx_UP = patMET_UP.px();
-     METy_UP = patMET_UP.py();
-     LorentzVector patMET_DOWN = patMET.shiftedP4(METUncertainty::JetEnDown);
-     METx_DOWN = patMET_DOWN.px();
-     METy_DOWN = patMET_DOWN.py();
+     LorentzVector patMET_UP_JES   = patMET.shiftedP4(METUncertainty::JetEnUp);
+     METx_UP_JES = patMET_UP_JES.px();
+     METy_UP_JES = patMET_UP_JES.py();
+     LorentzVector patMET_DOWN_JES = patMET.shiftedP4(METUncertainty::JetEnDown);
+     METx_DOWN_JES = patMET_DOWN_JES.px();
+     METy_DOWN_JES = patMET_DOWN_JES.py();
 
      // TES shift of MET
      Handle<double> METxUPHandle;
@@ -164,6 +178,22 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      METy_UP_TES   = *METyUPHandle;
      METx_DOWN_TES = *METxDOWNHandle;
      METy_DOWN_TES = *METyDOWNHandle;
+
+     // EES shift of MET (E->tau ES)
+     Handle<double> METxUPEESHandle;
+     Handle<double> METyUPEESHandle;
+     Handle<double> METxDOWNEESHandle;
+     Handle<double> METyDOWNEESHandle;
+
+     iEvent.getByToken (theMETdxUPEESTag, METxUPEESHandle);
+     iEvent.getByToken (theMETdyUPEESTag, METyUPEESHandle);
+     iEvent.getByToken (theMETdxDOWNEESTag, METxDOWNEESHandle);
+     iEvent.getByToken (theMETdyDOWNEESTag, METyDOWNEESHandle);
+
+     METx_UP_EES   = *METxUPEESHandle;
+     METy_UP_EES   = *METyUPEESHandle;
+     METx_DOWN_EES = *METxDOWNEESHandle;
+     METy_DOWN_EES = *METyDOWNEESHandle;
   }
 
   // loop on all the pairs
@@ -193,12 +223,12 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       covMET[1][1] = covMETbuf(1,1);
 
      // now get the MET shifted UP/DOWN by the JES
-     LorentzVector patMET_UP   = patMET->shiftedP4(METUncertainty::JetEnUp);
-     METx_UP = patMET_UP.px();
-     METy_UP = patMET_UP.py();
-     LorentzVector patMET_DOWN = patMET->shiftedP4(METUncertainty::JetEnDown);
-     METx_DOWN = patMET_DOWN.px();
-     METy_DOWN = patMET_DOWN.py();
+     LorentzVector patMET_UP_JES   = patMET->shiftedP4(METUncertainty::JetEnUp);
+     METx_UP_JES = patMET_UP_JES.px();
+     METy_UP_JES = patMET_UP_JES.py();
+     LorentzVector patMET_DOWN_JES = patMET->shiftedP4(METUncertainty::JetEnDown);
+     METx_DOWN_JES = patMET_DOWN_JES.px();
+     METy_DOWN_JES = patMET_DOWN_JES.py();
 
      // TES shift of MET
      Handle<double> METxUPHandle;
@@ -215,6 +245,22 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      METy_UP_TES   = *METyUPHandle;
      METx_DOWN_TES = *METxDOWNHandle;
      METy_DOWN_TES = *METyDOWNHandle;
+
+     // EES shift of MET (E->tau ES)
+     Handle<double> METxUPEESHandle;
+     Handle<double> METyUPEESHandle;
+     Handle<double> METxDOWNEESHandle;
+     Handle<double> METyDOWNEESHandle;
+
+     iEvent.getByToken (theMETdxUPEESTag, METxUPEESHandle);
+     iEvent.getByToken (theMETdyUPEESTag, METyUPEESHandle);
+     iEvent.getByToken (theMETdxDOWNEESTag, METxDOWNEESHandle);
+     iEvent.getByToken (theMETdyDOWNEESTag, METyDOWNEESHandle);
+
+     METx_UP_EES   = *METxUPEESHandle;
+     METy_UP_EES   = *METyUPEESHandle;
+     METx_DOWN_EES = *METxDOWNEESHandle;
+     METy_DOWN_EES = *METyDOWNEESHandle;
     }
 
     // Get the pair and the two leptons composing it
@@ -244,14 +290,18 @@ void SVfitBypass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pair.addUserFloat("MEt_cov10", (float) covMET[1][0]);
     pair.addUserFloat("MEt_cov11", (float) covMET[1][1]);
     pair.addUserFloat("MEt_significance", significance);
-    pair.addUserFloat("MEt_px_UP", (float) METx_UP);
-    pair.addUserFloat("MEt_py_UP", (float) METy_UP);
-    pair.addUserFloat("MEt_px_DOWN", (float) METx_DOWN);
-    pair.addUserFloat("MEt_py_DOWN", (float) METy_DOWN);
+    pair.addUserFloat("MEt_px_UP_JES", (float) METx_UP_JES);
+    pair.addUserFloat("MEt_py_UP_JES", (float) METy_UP_JES);
+    pair.addUserFloat("MEt_px_DOWN_JES", (float) METx_DOWN_JES);
+    pair.addUserFloat("MEt_py_DOWN_JES", (float) METy_DOWN_JES);
     pair.addUserFloat("MEt_px_UP_TES", (float) METx_UP_TES);
     pair.addUserFloat("MEt_py_UP_TES", (float) METy_UP_TES);
     pair.addUserFloat("MEt_px_DOWN_TES", (float) METx_DOWN_TES);
     pair.addUserFloat("MEt_py_DOWN_TES", (float) METy_DOWN_TES);
+    pair.addUserFloat("MEt_px_UP_EES", (float) METx_UP_EES);
+    pair.addUserFloat("MEt_py_UP_EES", (float) METy_UP_EES);
+    pair.addUserFloat("MEt_px_DOWN_EES", (float) METx_DOWN_EES);
+    pair.addUserFloat("MEt_py_DOWN_EES", (float) METy_DOWN_EES);
 
     result->push_back(pair);
   }

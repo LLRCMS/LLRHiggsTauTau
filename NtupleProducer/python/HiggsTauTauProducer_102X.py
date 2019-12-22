@@ -76,7 +76,7 @@ if IsMC:
   if YEAR == 2017:
     process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'        # 2017 MC
   if YEAR == 2018:
-    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'  # 2018 MC
+    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v20'  # 2018 MC
 else :
   if YEAR == 2016:
     process.GlobalTag.globaltag = '94X_dataRun2_v10'                # 2016 Data
@@ -84,9 +84,9 @@ else :
     process.GlobalTag.globaltag = '94X_dataRun2_v11'                # 2017 Data
   if YEAR == 2018:
     if PERIOD=="D":
-        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v14'    # 2018D Data
+        process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v15'    # 2018D Data
     else:
-        process.GlobalTag.globaltag = '102X_dataRun2_v11'           # 2018ABC Data
+        process.GlobalTag.globaltag = '102X_dataRun2_v12'           # 2018ABC Data
 
 print "GT: ",process.GlobalTag.globaltag
 
@@ -316,7 +316,7 @@ updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Id
 
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True,
                     updatedTauName = updatedTauName,
-                    toKeep = ["deepTau2017v2p1", "2017v1", "2017v2", "dR0p32017v2"] #Always keep because names are hardcoded in TauFiller.cc and HTauTauNtuplizer.cc
+                    toKeep = ["deepTau2017v2p1", "2017v2"]  #["2017v1", "dR0p32017v2"]
 )
 
 tauIdEmbedder.runTauID()
@@ -458,8 +458,8 @@ process.softTaus = cms.EDProducer("TauFiller",
    NominalTESCorrection1PrPi0       = NomTESCor1PrPi0,
    NominalTESCorrection3Pr          = NomTESCor3Pr,
    NominalTESCorrection3PrPi0       = NomTESCor3PrPi0,
-   NominalEFakeESCorrection1Pr      = NominalEFakeESCor1Pr, 
-   NominalEFakeESCorrection1PrPi0   = NominalEFakeESCor1PrPi0, 
+   NominalEFakeESCorrection1Pr       = NominalEFakeESCor1Pr,
+   NominalEFakeESCorrection1PrPi0    = NominalEFakeESCor1PrPi0,
    NominalEFakeESUncertainty1Pr      = NominalEFakeESUnc1Pr, 
    NominalEFakeESUncertainty1PrPi0   = NominalEFakeESUnc1PrPi0, 
 
@@ -662,9 +662,16 @@ else:
                                              tauCollection = cms.InputTag("softTaus")
                                              )
 
+    # add variables with MET shifted for EES corrections (E->tau ES)
+    process.ShiftMETforEES = cms.EDProducer ("ShiftMETforEES",
+                                             srcMET  = cms.InputTag("slimmedMETs","","TEST"),
+                                             tauCollection = cms.InputTag("softTaus")
+                                             )
+
     process.METSequence += process.fullPatMetSequence
     process.METSequence += process.METSignificance
     process.METSequence += process.ShiftMETforTES
+    process.METSequence += process.ShiftMETforEES
 
 
 ## Since release 10_2_X (X >=7) this is included in CMSSW
@@ -730,7 +737,11 @@ process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
                                   METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
                                   METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
                                   METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
-                                  METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
+                                  METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN"),
+                                  METdxUP_EES   = cms.InputTag("ShiftMETforEES", "METdxUPEES"),
+                                  METdyUP_EES   = cms.InputTag("ShiftMETforEES", "METdyUPEES"),
+                                  METdxDOWN_EES = cms.InputTag("ShiftMETforEES", "METdxDOWNEES"),
+                                  METdyDOWN_EES = cms.InputTag("ShiftMETforEES", "METdyDOWNEES")
 )
 #else:
 #    print "Using STANDALONE_SV_FIT"
@@ -755,7 +766,11 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
                                     METdyUP    = cms.InputTag("ShiftMETforTES", "METdyUP"),
                                     METdxDOWN  = cms.InputTag("ShiftMETforTES", "METdxDOWN"),
-                                    METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN")
+                                    METdyDOWN  = cms.InputTag("ShiftMETforTES", "METdyDOWN"),
+                                    METdxUP_EES   = cms.InputTag("ShiftMETforEES", "METdxUPEES"),
+                                    METdyUP_EES   = cms.InputTag("ShiftMETforEES", "METdyUPEES"),
+                                    METdxDOWN_EES = cms.InputTag("ShiftMETforEES", "METdxDOWNEES"),
+                                    METdyDOWN_EES = cms.InputTag("ShiftMETforEES", "METdyDOWNEES")
 )
 
 

@@ -335,16 +335,24 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_neutral_pz;
   std::vector<Float_t> _daughters_neutral_e;
 
-  std::vector<Int_t> _daughters_TauUpExists;
+  std::vector<Int_t> _daughters_hasTES;
   std::vector<Float_t> _daughters_px_TauUp;
   std::vector<Float_t> _daughters_py_TauUp;
   std::vector<Float_t> _daughters_pz_TauUp;
   std::vector<Float_t> _daughters_e_TauUp;
-  std::vector<Int_t> _daughters_TauDownExists;
   std::vector<Float_t> _daughters_px_TauDown;
   std::vector<Float_t> _daughters_py_TauDown;
   std::vector<Float_t> _daughters_pz_TauDown;
   std::vector<Float_t> _daughters_e_TauDown;
+  std::vector<Int_t> _daughters_hasEES;
+  std::vector<Float_t> _daughters_px_EleUp;
+  std::vector<Float_t> _daughters_py_EleUp;
+  std::vector<Float_t> _daughters_pz_EleUp;
+  std::vector<Float_t> _daughters_e_EleUp;
+  std::vector<Float_t> _daughters_px_EleDown;
+  std::vector<Float_t> _daughters_py_EleDown;
+  std::vector<Float_t> _daughters_pz_EleDown;
+  std::vector<Float_t> _daughters_e_EleDown;
   std::vector<Int_t> _daughters_genindex;
   std::vector<Int_t> _daughters_charge;
   std::vector<Int_t> _daughters_isTauMatched;
@@ -420,83 +428,111 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _SVmassTauDown;
   std::vector<Float_t> _SVmassMETUp;
   std::vector<Float_t> _SVmassMETDown;
+  std::vector<Float_t> _SVmassEleUp;
+  std::vector<Float_t> _SVmassEleDown;
 
   std::vector<Float_t> _SVmassUnc;
   std::vector<Float_t> _SVmassUncTauUp;
   std::vector<Float_t> _SVmassUncTauDown;
   std::vector<Float_t> _SVmassUncMETUp;
   std::vector<Float_t> _SVmassUncMETDown;
+  std::vector<Float_t> _SVmassUncEleUp;
+  std::vector<Float_t> _SVmassUncEleDown;
 
   std::vector<Float_t> _SVmassTransverse;
   std::vector<Float_t> _SVmassTransverseTauUp;
   std::vector<Float_t> _SVmassTransverseTauDown;
   std::vector<Float_t> _SVmassTransverseMETUp;
   std::vector<Float_t> _SVmassTransverseMETDown;
+  std::vector<Float_t> _SVmassTransverseEleUp;
+  std::vector<Float_t> _SVmassTransverseEleDown;
 
   std::vector<Float_t> _SVmassTransverseUnc;
   std::vector<Float_t> _SVmassTransverseUncTauUp;
   std::vector<Float_t> _SVmassTransverseUncTauDown;
   std::vector<Float_t> _SVmassTransverseUncMETUp;
   std::vector<Float_t> _SVmassTransverseUncMETDown;
+  std::vector<Float_t> _SVmassTransverseUncEleUp;
+  std::vector<Float_t> _SVmassTransverseUncEleDown;
 
   std::vector<Float_t> _SVpt;
   std::vector<Float_t> _SVptTauUp;
   std::vector<Float_t> _SVptTauDown;
   std::vector<Float_t> _SVptMETUp;
   std::vector<Float_t> _SVptMETDown;
+  std::vector<Float_t> _SVptEleUp;
+  std::vector<Float_t> _SVptEleDown;
 
   std::vector<Float_t> _SVptUnc;
   std::vector<Float_t> _SVptUncTauUp;
   std::vector<Float_t> _SVptUncTauDown;
   std::vector<Float_t> _SVptUncMETUp;
   std::vector<Float_t> _SVptUncMETDown;
+  std::vector<Float_t> _SVptUncEleUp;
+  std::vector<Float_t> _SVptUncEleDown;
 
   std::vector<Float_t> _SVeta;
   std::vector<Float_t> _SVetaTauUp;
   std::vector<Float_t> _SVetaTauDown;
   std::vector<Float_t> _SVetaMETUp;
   std::vector<Float_t> _SVetaMETDown;
+  std::vector<Float_t> _SVetaEleUp;
+  std::vector<Float_t> _SVetaEleDown;
 
   std::vector<Float_t> _SVetaUnc;
   std::vector<Float_t> _SVetaUncTauUp;
   std::vector<Float_t> _SVetaUncTauDown;
   std::vector<Float_t> _SVetaUncMETUp;
   std::vector<Float_t> _SVetaUncMETDown;
+  std::vector<Float_t> _SVetaUncEleUp;
+  std::vector<Float_t> _SVetaUncEleDown;
 
   std::vector<Float_t> _SVphi;
   std::vector<Float_t> _SVphiTauUp;
   std::vector<Float_t> _SVphiTauDown;
   std::vector<Float_t> _SVphiMETUp;
   std::vector<Float_t> _SVphiMETDown;
+  std::vector<Float_t> _SVphiEleUp;
+  std::vector<Float_t> _SVphiEleDown;
 
   std::vector<Float_t> _SVphiUnc;
   std::vector<Float_t> _SVphiUncTauUp;
   std::vector<Float_t> _SVphiUncTauDown;
   std::vector<Float_t> _SVphiUncMETUp;
   std::vector<Float_t> _SVphiUncMETDown;
+  std::vector<Float_t> _SVphiUncEleUp;
+  std::vector<Float_t> _SVphiUncEleDown;
 
   std::vector<Float_t> _SVMetRho;
   std::vector<Float_t> _SVMetRhoTauUp;
   std::vector<Float_t> _SVMetRhoTauDown;
   std::vector<Float_t> _SVMetRhoMETUp;
   std::vector<Float_t> _SVMetRhoMETDown;
+  std::vector<Float_t> _SVMetRhoEleUp;
+  std::vector<Float_t> _SVMetRhoEleDown;
 
   std::vector<Float_t> _SVMetPhi;
   std::vector<Float_t> _SVMetPhiTauUp;
   std::vector<Float_t> _SVMetPhiTauDown;
   std::vector<Float_t> _SVMetPhiMETUp;
   std::vector<Float_t> _SVMetPhiMETDown;
+  std::vector<Float_t> _SVMetPhiEleUp;
+  std::vector<Float_t> _SVMetPhiEleDown;
 
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
-  std::vector<Float_t> _metx_up;
-  std::vector<Float_t> _mety_up;
-  std::vector<Float_t> _metx_down;
-  std::vector<Float_t> _mety_down;
+  std::vector<Float_t> _metx_up_jes;
+  std::vector<Float_t> _mety_up_jes;
+  std::vector<Float_t> _metx_down_jes;
+  std::vector<Float_t> _mety_down_jes;
   std::vector<Float_t> _metx_up_tes;
   std::vector<Float_t> _mety_up_tes;
   std::vector<Float_t> _metx_down_tes;
   std::vector<Float_t> _mety_down_tes;
+  std::vector<Float_t> _metx_up_ees;
+  std::vector<Float_t> _mety_up_ees;
+  std::vector<Float_t> _metx_down_ees;
+  std::vector<Float_t> _mety_down_ees;
   std::vector<Float_t> _uncorrmetx;
   std::vector<Float_t> _uncorrmety;
   std::vector<Float_t> _metCov00;
@@ -539,7 +575,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Int_t> _genmatch;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 61;
+  static const int ntauIds = 37;
   TString tauIDStrings[ntauIds] = {
    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
@@ -551,25 +587,25 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "againstElectronMediumMVA6",
    "againstElectronTightMVA6",
    "againstElectronVTightMVA6",
-   "byVLooseIsolationMVArun2v1DBoldDMwLT",
-   "byLooseIsolationMVArun2v1DBoldDMwLT",
-   "byMediumIsolationMVArun2v1DBoldDMwLT",
-   "byTightIsolationMVArun2v1DBoldDMwLT",
-   "byVTightIsolationMVArun2v1DBoldDMwLT",
-   "byVLooseIsolationMVArun2v1DBnewDMwLT",
-   "byLooseIsolationMVArun2v1DBnewDMwLT",
-   "byMediumIsolationMVArun2v1DBnewDMwLT",
-   "byTightIsolationMVArun2v1DBnewDMwLT",
-   "byVTightIsolationMVArun2v1DBnewDMwLT",
-   "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
-   "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
-   "byTightIsolationMVArun2v1DBdR03oldDMwLT",
-   "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
-   "byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
-   "byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
-   "byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
-   "byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
-   "byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+   //"byVLooseIsolationMVArun2v1DBoldDMwLT",
+   //"byLooseIsolationMVArun2v1DBoldDMwLT",
+   //"byMediumIsolationMVArun2v1DBoldDMwLT",
+   //"byTightIsolationMVArun2v1DBoldDMwLT",
+   //"byVTightIsolationMVArun2v1DBoldDMwLT",
+   //"byVLooseIsolationMVArun2v1DBnewDMwLT",
+   //"byLooseIsolationMVArun2v1DBnewDMwLT",
+   //"byMediumIsolationMVArun2v1DBnewDMwLT",
+   //"byTightIsolationMVArun2v1DBnewDMwLT",
+   //"byVTightIsolationMVArun2v1DBnewDMwLT",
+   //"byLooseIsolationMVArun2v1DBdR03oldDMwLT",
+   //"byMediumIsolationMVArun2v1DBdR03oldDMwLT",
+   //"byTightIsolationMVArun2v1DBdR03oldDMwLT",
+   //"byVTightIsolationMVArun2v1DBdR03oldDMwLT",
+   //"byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+   //"byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+   //"byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+   //"byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+   //"byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
    "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
    "byVLooseIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
    "byLooseIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
@@ -577,14 +613,14 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byTightIsolationMVArun2017v2DBoldDMwLT2017",  //FRA syncApr2018
    "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
    "byVVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
-   "byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
-   "byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
-   "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
-   "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
-   "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+   //"byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+   //"byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+   //"byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+   //"byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+   //"byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
    "byVVVLooseDeepTau2017v2p1VSjet",
    "byVVLooseDeepTau2017v2p1VSjet", 
-   "byVLooseDeepTau2017v2p1VSjet",  
+   "byVLooseDeepTau2017v2p1VSjet",
    "byLooseDeepTau2017v2p1VSjet",   
    "byMediumDeepTau2017v2p1VSjet",  
    "byTightDeepTau2017v2p1VSjet",   
@@ -594,7 +630,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byVVLooseDeepTau2017v2p1VSe", 
    "byVLooseDeepTau2017v2p1VSe",   
    "byLooseDeepTau2017v2p1VSe",	
-   "byMediumDeepTau2017v2p1VSe",   
+   "byMediumDeepTau2017v2p1VSe",
    "byTightDeepTau2017v2p1VSe",	
    "byVTightDeepTau2017v2p1VSe",   
    "byVVTightDeepTau2017v2p1VSe",   
@@ -620,10 +656,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_photonPtSumOutsideSignalCone;
   std::vector<Int_t> _daughters_decayModeFindingNewDMs;
   std::vector<Float_t> _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
-  std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTraw;
+  //std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTraw;
   std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017; //FRA
-  std::vector<Float_t> _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //FRA
-  std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017; //FRA
+  //std::vector<Float_t> _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017; //FRA
+  //std::vector<Float_t> _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017; //FRA
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSjetraw;
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSeraw;
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSmuraw;
@@ -1077,16 +1113,24 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_neutral_pz.clear();
   _daughters_neutral_e.clear();
    
-  _daughters_TauUpExists.clear();
+  _daughters_hasTES.clear();
   _daughters_px_TauUp.clear();
   _daughters_py_TauUp.clear();
   _daughters_pz_TauUp.clear();
   _daughters_e_TauUp.clear();
-  _daughters_TauDownExists.clear();
   _daughters_px_TauDown.clear();
   _daughters_py_TauDown.clear();
   _daughters_pz_TauDown.clear();
   _daughters_e_TauDown.clear();
+  _daughters_hasEES.clear();
+  _daughters_px_EleUp.clear();
+  _daughters_py_EleUp.clear();
+  _daughters_pz_EleUp.clear();
+  _daughters_e_EleUp.clear();
+  _daughters_px_EleDown.clear();
+  _daughters_py_EleDown.clear();
+  _daughters_pz_EleDown.clear();
+  _daughters_e_EleDown.clear();
   _daughters_charge.clear();
   _daughters_isTauMatched.clear();
   _daughters_genindex.clear();
@@ -1104,10 +1148,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_decayModeFindingOldDMs.clear();
   _daughters_decayModeFindingNewDMs.clear();
   _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits.clear();
-  _daughters_byIsolationMVArun2v1DBoldDMwLTraw.clear();
+  //_daughters_byIsolationMVArun2v1DBoldDMwLTraw.clear();
   _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.clear();      //FRA
-  _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.clear();      //FRA
-  _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.clear(); //FRA
+  //_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.clear();      //FRA
+  //_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.clear(); //FRA
   _daughters_byDeepTau2017v2p1VSjetraw.clear();
   _daughters_byDeepTau2017v2p1VSeraw.clear();
   _daughters_byDeepTau2017v2p1VSmuraw.clear();
@@ -1235,72 +1279,96 @@ void HTauTauNtuplizer::Initialize(){
   _SVmassTauDown.clear();
   _SVmassMETUp.clear();
   _SVmassMETDown.clear();
+  _SVmassEleUp.clear();
+  _SVmassEleDown.clear();
 
   _SVmassUnc.clear();
   _SVmassUncTauUp.clear();
   _SVmassUncTauDown.clear();
   _SVmassUncMETUp.clear();
   _SVmassUncMETDown.clear();
+  _SVmassUncEleUp.clear();
+  _SVmassUncEleDown.clear();
 
   _SVmassTransverse.clear();
   _SVmassTransverseTauUp.clear();
   _SVmassTransverseTauDown.clear();
   _SVmassTransverseMETUp.clear();
   _SVmassTransverseMETDown.clear();
+  _SVmassTransverseEleUp.clear();
+  _SVmassTransverseEleDown.clear();
 
   _SVmassTransverseUnc.clear();
   _SVmassTransverseUncTauUp.clear();
   _SVmassTransverseUncTauDown.clear();
   _SVmassTransverseUncMETUp.clear();
   _SVmassTransverseUncMETDown.clear();
+  _SVmassTransverseUncEleUp.clear();
+  _SVmassTransverseUncEleDown.clear();
 
   _SVpt.clear();
   _SVptTauUp.clear();
   _SVptTauDown.clear();
   _SVptMETUp.clear();
   _SVptMETDown.clear();
+  _SVptEleUp.clear();
+  _SVptEleDown.clear();
 
   _SVptUnc.clear();
   _SVptUncTauUp.clear();
   _SVptUncTauDown.clear();
   _SVptUncMETUp.clear();
   _SVptUncMETDown.clear();
+  _SVptUncEleUp.clear();
+  _SVptUncEleDown.clear();
 
   _SVeta.clear();
   _SVetaTauUp.clear();
   _SVetaTauDown.clear();
   _SVetaMETUp.clear();
   _SVetaMETDown.clear();
+  _SVetaEleUp.clear();
+  _SVetaEleDown.clear();
 
   _SVetaUnc.clear();
   _SVetaUncTauUp.clear();
   _SVetaUncTauDown.clear();
   _SVetaUncMETUp.clear();
   _SVetaUncMETDown.clear();
+  _SVetaUncEleUp.clear();
+  _SVetaUncEleDown.clear();
 
   _SVphi.clear();
   _SVphiTauUp.clear();
   _SVphiTauDown.clear();
   _SVphiMETUp.clear();
   _SVphiMETDown.clear();
+  _SVphiEleUp.clear();
+  _SVphiEleDown.clear();
 
   _SVphiUnc.clear();
   _SVphiUncTauUp.clear();
   _SVphiUncTauDown.clear();
   _SVphiUncMETUp.clear();
   _SVphiUncMETDown.clear();
+  _SVphiUncEleUp.clear();
+  _SVphiUncEleDown.clear();
 
   _SVMetRho.clear();
   _SVMetRhoTauUp.clear();
   _SVMetRhoTauDown.clear();
   _SVMetRhoMETUp.clear();
   _SVMetRhoMETDown.clear();
+  _SVMetRhoEleUp.clear();
+  _SVMetRhoEleDown.clear();
 
   _SVMetPhi.clear();
   _SVMetPhiTauUp.clear();
   _SVMetPhiTauDown.clear();
   _SVMetPhiMETUp.clear();
   _SVMetPhiMETDown.clear();
+  _SVMetPhiEleUp.clear();
+  _SVMetPhiEleDown.clear();
 
   _isOSCand.clear();
   _daughters_HLTpt.clear();
@@ -1308,14 +1376,18 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_highestEt_L1IsoTauMatched.clear();
   _metx.clear();
   _mety.clear();
-  _metx_up.clear();
-  _mety_up.clear();
-  _metx_down.clear();
-  _mety_down.clear();
+  _metx_up_jes.clear();
+  _mety_up_jes.clear();
+  _metx_down_jes.clear();
+  _mety_down_jes.clear();
   _metx_up_tes.clear();
   _mety_up_tes.clear();
   _metx_down_tes.clear();
   _mety_down_tes.clear();
+  _metx_up_ees.clear();
+  _mety_up_ees.clear();
+  _metx_down_ees.clear();
+  _mety_down_ees.clear();
   _uncorrmetx.clear();
   _uncorrmety.clear();
   _metCov00.clear();
@@ -1634,18 +1706,27 @@ void HTauTauNtuplizer::beginJob(){
 
      myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
      if(theisMC){ 
-     myTree->Branch("daughters_TauUpExists",&_daughters_TauUpExists);
+     myTree->Branch("daughters_hasTES",&_daughters_hasTES);
       myTree->Branch("daughters_px_TauUp",&_daughters_px_TauUp);
       myTree->Branch("daughters_py_TauUp",&_daughters_py_TauUp);
       myTree->Branch("daughters_pz_TauUp",&_daughters_pz_TauUp);
       myTree->Branch("daughters_e_TauUp",&_daughters_e_TauUp);
-      myTree->Branch("daughters_isTauMatched",&_daughters_isTauMatched);
-
-      myTree->Branch("daughters_TauDownExists",&_daughters_TauDownExists);
       myTree->Branch("daughters_px_TauDown",&_daughters_px_TauDown);
       myTree->Branch("daughters_py_TauDown",&_daughters_py_TauDown);
       myTree->Branch("daughters_pz_TauDown",&_daughters_pz_TauDown);
       myTree->Branch("daughters_e_TauDown",&_daughters_e_TauDown);
+     myTree->Branch("daughters_hasEES",&_daughters_hasEES);
+      myTree->Branch("daughters_px_EleUp",&_daughters_px_EleUp);
+      myTree->Branch("daughters_py_EleUp",&_daughters_py_EleUp);
+      myTree->Branch("daughters_pz_EleUp",&_daughters_pz_EleUp);
+      myTree->Branch("daughters_e_EleUp",&_daughters_e_EleUp);
+      myTree->Branch("daughters_px_EleDown",&_daughters_px_EleDown);
+      myTree->Branch("daughters_py_EleDown",&_daughters_py_EleDown);
+      myTree->Branch("daughters_pz_EleDown",&_daughters_pz_EleDown);
+      myTree->Branch("daughters_e_EleDown",&_daughters_e_EleDown);
+
+      myTree->Branch("daughters_isTauMatched",&_daughters_isTauMatched);
+
     //myTree->Branch("genDaughters",&_genDaughters);
     //myTree->Branch("quarks_px",&_bquarks_px);
     //myTree->Branch("quarks_py",&_bquarks_py);
@@ -1706,52 +1787,78 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("NUP", &_nup,"NUP/I");
     myTree->Branch("SVfit_fitMETPhiTauUp", &_SVMetPhiTauUp);
     myTree->Branch("SVfit_fitMETPhiTauDown", &_SVMetPhiTauDown);
-    myTree->Branch("SVfit_fitMETPhiMETUp", &_SVMetPhiMETUp);
-    myTree->Branch("SVfit_fitMETPhiMETDown", &_SVMetPhiMETDown);
     myTree->Branch("SVfit_fitMETRhoTauUp", &_SVMetRhoTauUp);
     myTree->Branch("SVfit_fitMETRhoTauDown", &_SVMetRhoTauDown);
-    myTree->Branch("SVfit_fitMETRhoMETUp", &_SVMetRhoMETUp);
-    myTree->Branch("SVfit_fitMETRhoMETDown", &_SVMetRhoMETDown);
     myTree->Branch("SVfit_phiUncTauUp", &_SVphiUncTauUp);
     myTree->Branch("SVfit_phiUncTauDown", &_SVphiUncTauDown);
-    myTree->Branch("SVfit_phiUncMETUp", &_SVphiUncMETUp);
-    myTree->Branch("SVfit_phiUncMETDown", &_SVphiUncMETDown);
     myTree->Branch("SVfit_phiTauUp", &_SVphiTauUp);
     myTree->Branch("SVfit_phiTauDown", &_SVphiTauDown);
-    myTree->Branch("SVfit_phiMETUp", &_SVphiMETUp);
-    myTree->Branch("SVfit_phiMETDown", &_SVphiMETDown);
     myTree->Branch("SVfit_etaUncTauUp", &_SVetaUncTauUp);
     myTree->Branch("SVfit_etaUncTauDown", &_SVetaUncTauDown);
-    myTree->Branch("SVfit_etaUncMETUp", &_SVetaUncMETUp);
-    myTree->Branch("SVfit_etaUncMETDown", &_SVetaUncMETDown);
     myTree->Branch("SVfit_etaTauUp", &_SVetaTauUp);
     myTree->Branch("SVfit_etaTauDown", &_SVetaTauDown);
-    myTree->Branch("SVfit_etaMETUp", &_SVetaMETUp);
-    myTree->Branch("SVfit_etaMETDown", &_SVetaMETDown);
     myTree->Branch("SVfit_ptUncTauUp", &_SVptUncTauUp);
     myTree->Branch("SVfit_ptUncTauDown", &_SVptUncTauDown);
-    myTree->Branch("SVfit_ptUncMETUp", &_SVptUncMETUp);
-    myTree->Branch("SVfit_ptUncMETDown", &_SVptUncMETDown);
     myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
     myTree->Branch("SVfit_ptTauDown", &_SVptTauDown);
-    myTree->Branch("SVfit_ptMETUp", &_SVptMETUp);
-    myTree->Branch("SVfit_ptMETDown", &_SVptMETDown);
     myTree->Branch("SVfitTransverseMassUncTauUp",&_SVmassTransverseUncTauUp);
     myTree->Branch("SVfitTransverseMassUncTauDown",&_SVmassTransverseUncTauDown);
-    myTree->Branch("SVfitTransverseMassUncMETUp",&_SVmassTransverseUncMETUp);
-    myTree->Branch("SVfitTransverseMassUncMETDown",&_SVmassTransverseUncMETDown);
     myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
     myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
-    myTree->Branch("SVfitTransverseMassMETUp",&_SVmassTransverseMETUp);
-    myTree->Branch("SVfitTransverseMassMETDown",&_SVmassTransverseMETDown);
     myTree->Branch("SVfitMassUncTauUp",&_SVmassUncTauUp);
     myTree->Branch("SVfitMassUncTauDown",&_SVmassUncTauDown);
-    myTree->Branch("SVfitMassUncMETUp",&_SVmassUncMETUp);
-    myTree->Branch("SVfitMassUncMETDown",&_SVmassUncMETDown);
     myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
     myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
+
+    myTree->Branch("SVfit_fitMETPhiMETUp", &_SVMetPhiMETUp);
+    myTree->Branch("SVfit_fitMETPhiMETDown", &_SVMetPhiMETDown);
+    myTree->Branch("SVfit_fitMETRhoMETUp", &_SVMetRhoMETUp);
+    myTree->Branch("SVfit_fitMETRhoMETDown", &_SVMetRhoMETDown);
+    myTree->Branch("SVfit_phiUncMETUp", &_SVphiUncMETUp);
+    myTree->Branch("SVfit_phiUncMETDown", &_SVphiUncMETDown);
+    myTree->Branch("SVfit_phiMETUp", &_SVphiMETUp);
+    myTree->Branch("SVfit_phiMETDown", &_SVphiMETDown);
+    myTree->Branch("SVfit_etaUncMETUp", &_SVetaUncMETUp);
+    myTree->Branch("SVfit_etaUncMETDown", &_SVetaUncMETDown);
+    myTree->Branch("SVfit_etaMETUp", &_SVetaMETUp);
+    myTree->Branch("SVfit_etaMETDown", &_SVetaMETDown);
+    myTree->Branch("SVfit_ptUncMETUp", &_SVptUncMETUp);
+    myTree->Branch("SVfit_ptUncMETDown", &_SVptUncMETDown);
+    myTree->Branch("SVfit_ptMETUp", &_SVptMETUp);
+    myTree->Branch("SVfit_ptMETDown", &_SVptMETDown);
+    myTree->Branch("SVfitTransverseMassUncMETUp",&_SVmassTransverseUncMETUp);
+    myTree->Branch("SVfitTransverseMassUncMETDown",&_SVmassTransverseUncMETDown);
+    myTree->Branch("SVfitTransverseMassMETUp",&_SVmassTransverseMETUp);
+    myTree->Branch("SVfitTransverseMassMETDown",&_SVmassTransverseMETDown);
+    myTree->Branch("SVfitMassUncMETUp",&_SVmassUncMETUp);
+    myTree->Branch("SVfitMassUncMETDown",&_SVmassUncMETDown);
     myTree->Branch("SVfitMassMETUp",&_SVmassMETUp);
     myTree->Branch("SVfitMassMETDown",&_SVmassMETDown);
+
+    myTree->Branch("SVfit_fitMETPhiEleUp", &_SVMetPhiEleUp);
+    myTree->Branch("SVfit_fitMETPhiEleDown", &_SVMetPhiEleDown);
+    myTree->Branch("SVfit_fitMETRhoEleUp", &_SVMetRhoEleUp);
+    myTree->Branch("SVfit_fitMETRhoEleDown", &_SVMetRhoEleDown);
+    myTree->Branch("SVfit_phiUncEleUp", &_SVphiUncEleUp);
+    myTree->Branch("SVfit_phiUncEleDown", &_SVphiUncEleDown);
+    myTree->Branch("SVfit_phiEleUp", &_SVphiEleUp);
+    myTree->Branch("SVfit_phiEleDown", &_SVphiEleDown);
+    myTree->Branch("SVfit_etaUncEleUp", &_SVetaUncEleUp);
+    myTree->Branch("SVfit_etaUncEleDown", &_SVetaUncEleDown);
+    myTree->Branch("SVfit_etaEleUp", &_SVetaEleUp);
+    myTree->Branch("SVfit_etaEleDown", &_SVetaEleDown);
+    myTree->Branch("SVfit_ptUncEleUp", &_SVptUncEleUp);
+    myTree->Branch("SVfit_ptUncEleDown", &_SVptUncEleDown);
+    myTree->Branch("SVfit_ptEleUp", &_SVptEleUp);
+    myTree->Branch("SVfit_ptEleDown", &_SVptEleDown);
+    myTree->Branch("SVfitTransverseMassUncEleUp",&_SVmassTransverseUncEleUp);
+    myTree->Branch("SVfitTransverseMassUncEleDown",&_SVmassTransverseUncEleDown);
+    myTree->Branch("SVfitTransverseMassEleUp",&_SVmassTransverseEleUp);
+    myTree->Branch("SVfitTransverseMassEleDown",&_SVmassTransverseEleDown);
+    myTree->Branch("SVfitMassUncEleUp",&_SVmassUncEleUp);
+    myTree->Branch("SVfitMassUncEleDown",&_SVmassUncEleDown);
+    myTree->Branch("SVfitMassEleUp",&_SVmassEleUp);
+    myTree->Branch("SVfitMassEleDown",&_SVmassEleDown);
   }// end if isMC
   //myTree->Branch("daughters2",&_daughter2);
 
@@ -1770,14 +1877,18 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
-  myTree->Branch("METx_UP",&_metx_up);
-  myTree->Branch("METy_UP",&_mety_up);
-  myTree->Branch("METx_DOWN",&_metx_down);
-  myTree->Branch("METy_DOWN",&_mety_down);
+  myTree->Branch("METx_UP_JES",&_metx_up_jes);
+  myTree->Branch("METy_UP_JES",&_mety_up_jes);
+  myTree->Branch("METx_DOWN_JES",&_metx_down_jes);
+  myTree->Branch("METy_DOWN_JES",&_mety_down_jes);
   myTree->Branch("METx_UP_TES",&_metx_up_tes);
   myTree->Branch("METy_UP_TES",&_mety_up_tes);
   myTree->Branch("METx_DOWN_TES",&_metx_down_tes);
   myTree->Branch("METy_DOWN_TES",&_mety_down_tes);
+  myTree->Branch("METx_UP_EES",&_metx_up_ees);
+  myTree->Branch("METy_UP_EES",&_mety_up_ees);
+  myTree->Branch("METx_DOWN_EES",&_metx_down_ees);
+  myTree->Branch("METy_DOWN_EES",&_mety_down_ees);
   myTree->Branch("uncorrMETx",&_uncorrmetx);
   myTree->Branch("uncorrMETy",&_uncorrmety);
   myTree->Branch("MET_cov00",&_metCov00);
@@ -1829,10 +1940,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("photonPtSumOutsideSignalCone",&_daughters_photonPtSumOutsideSignalCone);
   myTree->Branch("daughters_decayModeFindingNewDMs", &_daughters_decayModeFindingNewDMs);
   myTree->Branch("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
-  myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTraw",&_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
+  //myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTraw",&_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
   myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
-  myTree->Branch("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
-  myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
+  //myTree->Branch("daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017",&_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
+  //myTree->Branch("daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017",&_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
   myTree->Branch("daughters_byDeepTau2017v2p1VSjetraw",&_daughters_byDeepTau2017v2p1VSjetraw);
   myTree->Branch("daughters_byDeepTau2017v2p1VSeraw",&_daughters_byDeepTau2017v2p1VSeraw);
   myTree->Branch("daughters_byDeepTau2017v2p1VSmuraw",&_daughters_byDeepTau2017v2p1VSmuraw);
@@ -2512,104 +2623,138 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     float thisMETpx = cand.userFloat("MEt_px");
     float thisMETpy = cand.userFloat("MEt_py");
-    float thisMETpx_up = cand.userFloat("MEt_px_UP");
-    float thisMETpy_up = cand.userFloat("MEt_py_UP");
-    float thisMETpx_down = cand.userFloat("MEt_px_DOWN");
-    float thisMETpy_down = cand.userFloat("MEt_py_DOWN");
+    float thisMETpx_up_jes = cand.userFloat("MEt_px_UP_JES");
+    float thisMETpy_up_jes = cand.userFloat("MEt_py_UP_JES");
+    float thisMETpx_down_jes = cand.userFloat("MEt_px_DOWN_JES");
+    float thisMETpy_down_jes = cand.userFloat("MEt_py_DOWN_JES");
     float thisMETpx_up_tes = cand.userFloat("MEt_px_UP_TES");
     float thisMETpy_up_tes = cand.userFloat("MEt_py_UP_TES");
     float thisMETpx_down_tes = cand.userFloat("MEt_px_DOWN_TES");
     float thisMETpy_down_tes = cand.userFloat("MEt_py_DOWN_TES");
+    float thisMETpx_up_ees = cand.userFloat("MEt_px_UP_EES");
+    float thisMETpy_up_ees = cand.userFloat("MEt_py_UP_EES");
+    float thisMETpx_down_ees = cand.userFloat("MEt_px_DOWN_EES");
+    float thisMETpy_down_ees = cand.userFloat("MEt_py_DOWN_EES");
     float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
     float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
-    bool hasUp   = cand.hasUserFloat ("SVfitMassTauUp");
-    bool hasDown = cand.hasUserFloat ("SVfitMassTauDown");
+    bool hasTESUp   = cand.hasUserFloat ("SVfitMassTauUp");
+    bool hasTESDown = cand.hasUserFloat ("SVfitMassTauDown");
     bool hasMETUp   = cand.hasUserFloat ("SVfitMassMETUp");
     bool hasMETDown = cand.hasUserFloat ("SVfitMassMETDown");
+    bool hasEESUp   = cand.hasUserFloat ("SVfitMassEleUp");
+    bool hasEESDown = cand.hasUserFloat ("SVfitMassEleDown");
 
     _SVmass.push_back(cand.userFloat("SVfitMass"));
-    _SVmassTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
-    _SVmassTauDown.push_back( (hasDown ? cand.userFloat("SVfitMassTauDown") : -999. ));
+    _SVmassTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
+    _SVmassTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitMassTauDown") : -999. ));
     _SVmassMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitMassMETUp")   : -999. ));
     _SVmassMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitMassMETDown") : -999. ));
+    _SVmassEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitMassEleUp")   : -999. ));
+    _SVmassEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitMassEleDown") : -999. ));
 
     _SVmassUnc.push_back(cand.userFloat("SVfitMassUnc"));
-    _SVmassUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitMassUncTauUp")   : -999. ));
-    _SVmassUncTauDown.push_back( (hasDown ? cand.userFloat("SVfitMassUncTauDown") : -999. ));
+    _SVmassUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitMassUncTauUp")   : -999. ));
+    _SVmassUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitMassUncTauDown") : -999. ));
     _SVmassUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitMassUncMETUp")   : -999. ));
     _SVmassUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitMassUncMETDown") : -999. ));
+    _SVmassUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitMassUncEleUp")   : -999. ));
+    _SVmassUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitMassUncEleDown") : -999. ));
 
     _SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
-    _SVmassTransverseTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitTransverseMassTauUp")  : -999. ));
-    _SVmassTransverseTauDown.push_back( (hasDown ? cand.userFloat("SVfitTransverseMassTauDown"): -999. ));
+    _SVmassTransverseTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitTransverseMassTauUp")  : -999. ));
+    _SVmassTransverseTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitTransverseMassTauDown"): -999. ));
     _SVmassTransverseMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitTransverseMassMETUp")  : -999. ));
     _SVmassTransverseMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitTransverseMassMETDown"): -999. ));
+    _SVmassTransverseEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitTransverseMassEleUp")  : -999. ));
+    _SVmassTransverseEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitTransverseMassEleDown"): -999. ));
 
     _SVmassTransverseUnc.push_back(cand.userFloat("SVfitTransverseMassUnc"));
-    _SVmassTransverseUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfitTransverseMassUncTauUp")  : -999. ));
-    _SVmassTransverseUncTauDown.push_back( (hasDown ? cand.userFloat("SVfitTransverseMassUncTauDown"): -999. ));
+    _SVmassTransverseUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitTransverseMassUncTauUp")  : -999. ));
+    _SVmassTransverseUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitTransverseMassUncTauDown"): -999. ));
     _SVmassTransverseUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitTransverseMassUncMETUp")  : -999. ));
     _SVmassTransverseUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitTransverseMassUncMETDown"): -999. ));
+    _SVmassTransverseUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitTransverseMassUncEleUp")  : -999. ));
+    _SVmassTransverseUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitTransverseMassUncEleDown"): -999. ));
 
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
-    _SVptTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_ptTauUp")  : -999. ));
-    _SVptTauDown.push_back( (hasDown ? cand.userFloat("SVfit_ptTauDown"): -999. ));
+    _SVptTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_ptTauUp")  : -999. ));
+    _SVptTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_ptTauDown"): -999. ));
     _SVptMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_ptMETUp")  : -999. ));
     _SVptMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_ptMETDown"): -999. ));
+    _SVptEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_ptEleUp")  : -999. ));
+    _SVptEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_ptEleDown"): -999. ));
 
     _SVptUnc.push_back(cand.userFloat("SVfit_ptUnc"));
-    _SVptUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_ptUncTauUp")  : -999. ));
-    _SVptUncTauDown.push_back( (hasDown ? cand.userFloat("SVfit_ptUncTauDown"): -999. ));
+    _SVptUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_ptUncTauUp")  : -999. ));
+    _SVptUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_ptUncTauDown"): -999. ));
     _SVptUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_ptUncMETUp")  : -999. ));
     _SVptUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_ptUncMETDown"): -999. ));
+    _SVptUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_ptUncEleUp")  : -999. ));
+    _SVptUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_ptUncEleDown"): -999. ));
 
     _SVeta.push_back(cand.userFloat("SVfit_eta"));
-    _SVetaTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_etaTauUp")  : -999. ));
-    _SVetaTauDown.push_back( (hasDown ? cand.userFloat("SVfit_etaTauDown"): -999. ));
+    _SVetaTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_etaTauUp")  : -999. ));
+    _SVetaTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_etaTauDown"): -999. ));
     _SVetaMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_etaMETUp")  : -999. ));
     _SVetaMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_etaMETDown"): -999. ));
+    _SVetaEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_etaEleUp")  : -999. ));
+    _SVetaEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_etaEleDown"): -999. ));
 
     _SVetaUnc.push_back(cand.userFloat("SVfit_etaUnc"));
-    _SVetaUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_etaUncTauUp")  : -999. ));
-    _SVetaUncTauDown.push_back( (hasDown ? cand.userFloat("SVfit_etaUncTauDown"): -999. ));
+    _SVetaUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_etaUncTauUp")  : -999. ));
+    _SVetaUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_etaUncTauDown"): -999. ));
     _SVetaUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_etaUncMETUp")  : -999. ));
     _SVetaUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_etaUncMETDown"): -999. ));
+    _SVetaUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_etaUncEleUp")  : -999. ));
+    _SVetaUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_etaUncEleDown"): -999. ));
 
     _SVphi.push_back(cand.userFloat("SVfit_phi"));
-    _SVphiTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_phiTauUp")  : -999. ));
-    _SVphiTauDown.push_back( (hasDown ? cand.userFloat("SVfit_phiTauDown"): -999. ));
+    _SVphiTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_phiTauUp")  : -999. ));
+    _SVphiTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_phiTauDown"): -999. ));
     _SVphiMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_phiMETUp")  : -999. ));
     _SVphiMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_phiMETDown"): -999. ));
+    _SVphiEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_phiEleUp")  : -999. ));
+    _SVphiEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_phiEleDown"): -999. ));
 
     _SVphiUnc.push_back(cand.userFloat("SVfit_phiUnc"));
-    _SVphiUncTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_phiUncTauUp")  : -999. ));
-    _SVphiUncTauDown.push_back( (hasDown ? cand.userFloat("SVfit_phiUncTauDown"): -999. ));
+    _SVphiUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_phiUncTauUp")  : -999. ));
+    _SVphiUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_phiUncTauDown"): -999. ));
     _SVphiUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_phiUncMETUp")  : -999. ));
     _SVphiUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_phiUncMETDown"): -999. ));
+    _SVphiUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_phiUncEleUp")  : -999. ));
+    _SVphiUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_phiUncEleDown"): -999. ));
 
     _SVMetRho.push_back(cand.userFloat("SVfit_METRho"));
-    _SVMetRhoTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_METRhoTauUp")  : -999. ));
-    _SVMetRhoTauDown.push_back( (hasDown ? cand.userFloat("SVfit_METRhoTauDown"): -999. ));
+    _SVMetRhoTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_METRhoTauUp")  : -999. ));
+    _SVMetRhoTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_METRhoTauDown"): -999. ));
     _SVMetRhoMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_METRhoMETUp")  : -999. ));
     _SVMetRhoMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_METRhoMETDown"): -999. ));
+    _SVMetRhoEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_METRhoEleUp")  : -999. ));
+    _SVMetRhoEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_METRhoEleDown"): -999. ));
 
     _SVMetPhi.push_back(cand.userFloat("SVfit_METPhi"));
-    _SVMetPhiTauUp.push_back  ( (hasUp   ? cand.userFloat("SVfit_METPhiTauUp")  : -999. ));
-    _SVMetPhiTauDown.push_back( (hasDown ? cand.userFloat("SVfit_METPhiTauDown"): -999. ));
+    _SVMetPhiTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_METPhiTauUp")  : -999. ));
+    _SVMetPhiTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_METPhiTauDown"): -999. ));
     _SVMetPhiMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_METPhiMETUp")  : -999. ));
     _SVMetPhiMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_METPhiMETDown"): -999. ));
+    _SVMetPhiEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_METPhiEleUp")  : -999. ));
+    _SVMetPhiEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_METPhiEleDown"): -999. ));
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);
-    _metx_up.push_back(thisMETpx_up);
-    _mety_up.push_back(thisMETpy_up);
-    _metx_down.push_back(thisMETpx_down);
-    _mety_down.push_back(thisMETpy_down);
+    _metx_up_jes.push_back(thisMETpx_up_jes);
+    _mety_up_jes.push_back(thisMETpy_up_jes);
+    _metx_down_jes.push_back(thisMETpx_down_jes);
+    _mety_down_jes.push_back(thisMETpy_down_jes);
     _metx_up_tes.push_back(thisMETpx_up_tes);
     _mety_up_tes.push_back(thisMETpy_up_tes);
     _metx_down_tes.push_back(thisMETpx_down_tes);
     _mety_down_tes.push_back(thisMETpy_down_tes);
+    _metx_up_ees.push_back(thisMETpx_up_ees);
+    _mety_up_ees.push_back(thisMETpy_up_ees);
+    _metx_down_ees.push_back(thisMETpx_down_ees);
+    _mety_down_ees.push_back(thisMETpy_down_ees);
     _uncorrmetx.push_back(thisMETpx_uncorr);
     _uncorrmety.push_back(thisMETpy_uncorr);
     _metCov00.push_back(cand.userFloat("MEt_cov00"));
@@ -3267,30 +3412,35 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     
     TLorentzVector pfourTauUp;
     TLorentzVector pfourTauDown;
+    TLorentzVector pfourEleUp;
+    TLorentzVector pfourEleDown;
 
-    bool existUp   = userdatahelpers::hasUserInt(cand,"TauUpExists"); // simply to check if the userfloat exists, i.e. if it is a tau
-    bool existDown = userdatahelpers::hasUserInt(cand,"TauDownExists"); // simply to check if the userfloat exists, i.e. if it is a tau
+    bool existTESshift = userdatahelpers::hasUserInt(cand,"isTESShifted"); // simply to check if the userfloat exists
+    bool existEESshift = userdatahelpers::hasUserInt(cand,"isEESShifted"); // simply to check if the userfloat exists
     bool isTauMatched = userdatahelpers::hasUserInt(cand,"isTauMatched"); // check if it is a tau
-
-    int hasUp   = ( existUp   ? userdatahelpers::getUserInt(cand,"TauUpExists")   : false) ;   // actual check of the value of the userfloat
-    int hasDown = ( existDown ? userdatahelpers::getUserInt(cand,"TauDownExists") : false) ; // actual check of the value of the userfloat
-   
     
-    if(hasUp)
+    int (hasTES) = ( existTESshift ? userdatahelpers::getUserInt(cand,"isTESShifted") : false) ;   // actual check of the value of the userfloat
+    int (hasEES) = ( existEESshift ? userdatahelpers::getUserInt(cand,"isEESShifted") : false) ;   // actual check of the value of the userfloat
+
+    if(hasTES)
     {
       pfourTauUp.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauUp"),userdatahelpers::getUserFloat(cand,"py_TauUp"),userdatahelpers::getUserFloat(cand,"pz_TauUp"),userdatahelpers::getUserFloat(cand,"e_TauUp"));
-    }
-    else
-    {
-      pfourTauUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
-    }
-    if(hasDown)
-    {
       pfourTauDown.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_TauDown"),userdatahelpers::getUserFloat(cand,"py_TauDown"),userdatahelpers::getUserFloat(cand,"pz_TauDown"),userdatahelpers::getUserFloat(cand,"e_TauDown"));
     }
     else
     {
+      pfourTauUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
       pfourTauDown.SetPxPyPzE(-999.,-999.,-999.,-999.);
+    }
+    if(hasEES)
+    {
+      pfourEleUp.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_EleUp"),userdatahelpers::getUserFloat(cand,"py_EleUp"),userdatahelpers::getUserFloat(cand,"pz_EleUp"),userdatahelpers::getUserFloat(cand,"e_EleUp"));
+      pfourEleDown.SetPxPyPzE(userdatahelpers::getUserFloat(cand,"px_EleDown"),userdatahelpers::getUserFloat(cand,"py_EleDown"),userdatahelpers::getUserFloat(cand,"pz_EleDown"),userdatahelpers::getUserFloat(cand,"e_EleDown"));
+    }
+    else
+    {
+      pfourEleUp.SetPxPyPzE(-999.,-999.,-999.,-999.);
+      pfourEleDown.SetPxPyPzE(-999.,-999.,-999.,-999.);
     }
     
     if(theFSR){
@@ -3318,19 +3468,27 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_pz.push_back( (float) pfour.Z());
     _daughters_e.push_back( (float) pfour.T());
 
-    _daughters_TauUpExists.push_back( (existUp ? hasUp : 0) );
+    _daughters_hasTES.push_back( (hasTES ? 1 : 0) );
     _daughters_px_TauUp.push_back((float)pfourTauUp.Px());
     _daughters_py_TauUp.push_back((float)pfourTauUp.Py());
     _daughters_pz_TauUp.push_back((float)pfourTauUp.Pz());
     _daughters_e_TauUp.push_back((float)pfourTauUp.E());
-
-    _daughters_TauDownExists.push_back( (existDown ? hasDown : 0) );
     _daughters_px_TauDown.push_back((float)pfourTauDown.Px());
     _daughters_py_TauDown.push_back((float)pfourTauDown.Py());
     _daughters_pz_TauDown.push_back((float)pfourTauDown.Pz());
     _daughters_e_TauDown.push_back((float)pfourTauDown.E());
 
-    _daughters_isTauMatched.push_back( (isTauMatched ? hasUp : 0) );
+    _daughters_hasEES.push_back( (hasEES ? 1 : 0) );
+    _daughters_px_EleUp.push_back((float)pfourEleUp.Px());
+    _daughters_py_EleUp.push_back((float)pfourEleUp.Py());
+    _daughters_pz_EleUp.push_back((float)pfourEleUp.Pz());
+    _daughters_e_EleUp.push_back((float)pfourEleUp.E());
+    _daughters_px_EleDown.push_back((float)pfourEleDown.Px());
+    _daughters_py_EleDown.push_back((float)pfourEleDown.Py());
+    _daughters_pz_EleDown.push_back((float)pfourEleDown.Pz());
+    _daughters_e_EleDown.push_back((float)pfourEleDown.E());
+
+    _daughters_isTauMatched.push_back( (isTauMatched ? 1 : 0) );
 
     // gen info
     
@@ -3402,7 +3560,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
     float leadChargedParticlePt=-1., trackRefPt=-1.;
     int typeOfMuon=0;
-    float byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1, byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=-1; //FRA
+    //float byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1, byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=-1; //FRA
+    float byIsolationMVArun2017v2DBoldDMwLTraw2017=-1; //FRA
     float byDeepTau2017v2p1VSjetraw=-1, byDeepTau2017v2p1VSeraw=-1, byDeepTau2017v2p1VSmuraw=-1;
     int  byVVLooseIsolationMVArun2017v2DBoldDMwLT2017=-1; //FRA
     Long64_t tauIDflag = 0;
@@ -3510,10 +3669,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       photonPtSumOutsideSignalCone = userdatahelpers::getUserFloat (cand, "photonPtSumOutsideSignalCone");
 
       byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
-      byIsolationMVArun2v1DBoldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTraw");
+      //byIsolationMVArun2v1DBoldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTraw");
       byIsolationMVArun2017v2DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMwLTraw2017"); //FRA
-      byIsolationMVArun2017v1DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v1DBoldDMwLTraw2017"); //FRA
-      byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017"); //FRA
+      //byIsolationMVArun2017v1DBoldDMwLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v1DBoldDMwLTraw2017"); //FRA
+      //byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017"); //FRA
       byDeepTau2017v2p1VSjetraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSjetraw");
       byDeepTau2017v2p1VSeraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSeraw");
       byDeepTau2017v2p1VSmuraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSmuraw");
@@ -3589,10 +3748,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_chargedIsoPtSum.push_back(chargedIsoPtSum);
     _daughters_neutralIsoPtSum.push_back(neutralIsoPtSum);
     _daughters_puCorrPtSum.push_back(puCorrPtSum);
-    _daughters_byIsolationMVArun2v1DBoldDMwLTraw.push_back(byIsolationMVArun2v1DBoldDMwLTraw);
+    //_daughters_byIsolationMVArun2v1DBoldDMwLTraw.push_back(byIsolationMVArun2v1DBoldDMwLTraw);
     _daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMwLTraw2017); //FRA
-    _daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
-    _daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
+    //_daughters_byIsolationMVArun2017v1DBoldDMwLTraw2017.push_back(byIsolationMVArun2017v1DBoldDMwLTraw2017); //FRA
+    //_daughters_byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017.push_back(byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017); //FRA
     _daughters_byDeepTau2017v2p1VSjetraw.push_back(byDeepTau2017v2p1VSjetraw);
     _daughters_byDeepTau2017v2p1VSeraw.push_back(byDeepTau2017v2p1VSeraw);
     _daughters_byDeepTau2017v2p1VSmuraw.push_back(byDeepTau2017v2p1VSmuraw);

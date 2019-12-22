@@ -107,22 +107,22 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byMediumCombinedIsolationDeltaBetaCorr3Hits",
     "byTightCombinedIsolationDeltaBetaCorr3Hits",
     
-    "byVLooseIsolationMVArun2v1DBoldDMwLT",
-    "byLooseIsolationMVArun2v1DBoldDMwLT",
-    "byMediumIsolationMVArun2v1DBoldDMwLT",
-    "byTightIsolationMVArun2v1DBoldDMwLT",
-    "byVTightIsolationMVArun2v1DBoldDMwLT",
+    //"byVLooseIsolationMVArun2v1DBoldDMwLT",
+    //"byLooseIsolationMVArun2v1DBoldDMwLT",
+    //"byMediumIsolationMVArun2v1DBoldDMwLT",
+    //"byTightIsolationMVArun2v1DBoldDMwLT",
+    //"byVTightIsolationMVArun2v1DBoldDMwLT",
 
-    "byVLooseIsolationMVArun2v1DBnewDMwLT",    
-    "byLooseIsolationMVArun2v1DBnewDMwLT",
-    "byMediumIsolationMVArun2v1DBnewDMwLT",
-    "byTightIsolationMVArun2v1DBnewDMwLT",
-    "byVTightIsolationMVArun2v1DBnewDMwLT",
+    //"byVLooseIsolationMVArun2v1DBnewDMwLT",
+    //"byLooseIsolationMVArun2v1DBnewDMwLT",
+    //"byMediumIsolationMVArun2v1DBnewDMwLT",
+    //"byTightIsolationMVArun2v1DBnewDMwLT",
+    //"byVTightIsolationMVArun2v1DBnewDMwLT",
 
-    "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
-    "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
-    "byTightIsolationMVArun2v1DBdR03oldDMwLT",
-    "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
+    //"byLooseIsolationMVArun2v1DBdR03oldDMwLT",
+    //"byMediumIsolationMVArun2v1DBdR03oldDMwLT",
+    //"byTightIsolationMVArun2v1DBdR03oldDMwLT",
+    //"byVTightIsolationMVArun2v1DBdR03oldDMwLT",
     
     "againstMuonLoose3",
     "againstMuonTight3",
@@ -141,17 +141,17 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     "byVVTightIsolationMVArun2017v2DBoldDMwLT2017", //FRA syncApr2018
     
-    "byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
-    "byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
-    "byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
-    "byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
-    "byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    //"byVLooseIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    //"byLooseIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+    //"byMediumIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
+    //"byTightIsolationMVArun2017v1DBoldDMwLT2017",  //FRA syncApr2018
+    //"byVTightIsolationMVArun2017v1DBoldDMwLT2017", //FRA syncApr2018
     
-    "byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
-    "byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
-    "byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
-    "byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
-    "byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+    //"byVLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+    //"byLooseIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+    //"byMediumIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
+    //"byTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017",  //FRA syncApr2018
+    //"byVTightIsolationMVArun2017v2DBoldDMdR0p3wLT2017", //FRA syncApr2018
     
     "byVVVLooseDeepTau2017v2p1VSjet",
     "byVVLooseDeepTau2017v2p1VSjet", 
@@ -189,9 +189,9 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "chargedIsoPtSum",
     "neutralIsoPtSum",
     "puCorrPtSum",
-    "byIsolationMVArun2017v1DBoldDMwLTraw2017",      //FRA syncApr2018
+    //"byIsolationMVArun2017v1DBoldDMwLTraw2017",      //FRA syncApr2018
     "byIsolationMVArun2017v2DBoldDMwLTraw2017",      //FRA syncApr2018
-    "byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", //FRA syncApr2018
+    //"byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017", //FRA syncApr2018
     "byDeepTau2017v2p1VSjetraw",  
     "byDeepTau2017v2p1VSeraw",  
     "byDeepTau2017v2p1VSmuraw",
@@ -238,9 +238,10 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double shiftMass = 1.;
     bool isTESShifted = false;
     bool isTauMatched = false;
+    bool isEESShifted = false;
 
     //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr) // 2016 data
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15.)   // 2017 data
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15. && ApplyTESCentralCorr)   // 2017 data
     {
       isTauMatched = true;
       isTESShifted = true;
@@ -281,50 +282,58 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //  shiftMass = 1.;
       //}
     }
-    
-    //https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
-    //https://github.com/KIT-CMS/Artus/blob/dictchanges/KappaAnalysis/src/Utility/GeneratorInfo.cc#L77-L165    
-    GenParticle closest = (GenParticle) (*genHandle)[0] ;
-    double closestDR = 999;
+
     int genmatch = 6; // 6 = fake
     if (isTauMatched)
-      {
-        genmatch = 5;
-      }else{
-      for (unsigned int iGen = 0; iGen < genHandle->size(); iGen++)
-	{
-	  const GenParticle& genP = (*genHandle)[iGen];
-
-	  double tmpDR = deltaR(l.p4(), genP.p4());
-	  if (tmpDR < closestDR)
-	    {
-	      closest = genP;
-	      closestDR = tmpDR;
-	    }
-	}
-      if (closestDR < 0.2){
-        int pdgId = std::abs(closest.pdgId());
-        if (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 1;
-        else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 2;
-	else if (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 3;
-        else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 4;
-      }
+    {
+      genmatch = 5;
     }
+    else // !isTauMatched
+    {
+      //https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
+      //https://github.com/KIT-CMS/Artus/blob/dictchanges/KappaAnalysis/src/Utility/GeneratorInfo.cc#L77-L165
+      if (genHandle.isValid())
+      {
+        GenParticle closest = (GenParticle) (*genHandle)[0] ;
+        double closestDR = 999;
+
+        for (unsigned int iGen = 0; iGen < genHandle->size(); iGen++)
+        {
+          const GenParticle& genP = (*genHandle)[iGen];
+          double tmpDR = deltaR(l.p4(), genP.p4());
+          if (tmpDR < closestDR)
+          {
+            closest = genP;
+            closestDR = tmpDR;
+          }
+        }
+
+        if (closestDR < 0.2)
+        {
+          int pdgId = std::abs(closest.pdgId());
+          if      (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 1;
+          else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 2;
+          else if (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 3;
+          else if (pdgId == 13 && closest.pt() > 8. && closest.statusFlags().isDirectPromptTauDecayProduct()) genmatch = 4;
+        }
+      } // end genHandle.isValid()
+    } // end !isTauMatched
 
     //E->tau ES
 
     if(ApplyTESCentralCorr){
       if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0)  {
 	shiftP    = EFakeShift1Pr;     // 1prong
-	isTESShifted = true;
+	shiftMass = 1.;
+	isEESShifted = true;
       }
       if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1) {
-	shiftP    = EFakeShift1PrPi0;// 1prong+pi0
-	isTESShifted = true;
+	shiftP    = EFakeShift1PrPi0;  // 1prong+pi0
+	shiftMass = EFakeShift1PrPi0;
+	isEESShifted = true;
       }
 
     }
-
 
     double pxS_Nominal = l.px()*shiftP;
     double pyS_Nominal = l.py()*shiftP;
@@ -333,7 +342,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double enS_Nominal = TMath::Sqrt(pxS_Nominal*pxS_Nominal + pyS_Nominal*pyS_Nominal + pzS_Nominal*pzS_Nominal + massS_Nominal*massS_Nominal);
     math::XYZTLorentzVectorD p4S_Nominal( pxS_Nominal, pyS_Nominal, pzS_Nominal, enS_Nominal );
 
-    //l.setP4( p4S_Nominal ); // was here for 2016 data, now it's moved almost at the end of taufiller
 
     //Up and Down variations: NominalTESUncertainty from python cfg
     //const float udShift[2] = {1.03, 0.97}; // 0: UP, 1: DOWN
@@ -341,9 +349,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     float udshiftP[2] = {1., 1.};
     float udshiftMass[2] = {1., 1.};
-
-    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8.) { // 2016 data
-    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15.) { // 2017 data
 
     if(isTauMatched){
 
@@ -394,18 +399,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //else isTESShifted = false;
     }
 
-    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0){
-      udshiftP[0]    =  Shift1Pr + (NominalEFakeESUncertainty1Pr/100.); //udShift[0]; // up
-      udshiftP[1]    =  Shift1Pr - (NominalEFakeESUncertainty1Pr/100.); //udShift[1]; // down
-    }
-    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1){
-      udshiftP[0]    = Shift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); //udShift[0]; // up
-      udshiftP[1]    = Shift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); //udShift[1]; // down
-    }
-
-
-
-    if (ApplyTESCentralCorr)
+    if (ApplyTESCentralCorr && isTESShifted)
     {
       // up shift
       double pxS = l.px()*udshiftP[0];
@@ -435,8 +429,54 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       l.addUserFloat("e_TauDown",p4SDOWN.energy());
       l.addUserFloat("m_TauDown",p4SDOWN.mass());
     }
-    l.addUserInt("TauUpExists", isTESShifted ? 1 : 0);
-    l.addUserInt("TauDownExists", isTESShifted ? 1 : 0);
+
+    // Up Down shifts for e->tau fES
+    float udEFakeshiftP[2] = {1., 1.};
+    float udEFakeshiftMass[2] = {1., 1.};
+
+    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0){
+      udEFakeshiftP[0]    =  EFakeShift1Pr + (NominalEFakeESUncertainty1Pr/100.); // up
+      udEFakeshiftP[1]    =  EFakeShift1Pr - (NominalEFakeESUncertainty1Pr/100.); // down
+      udEFakeshiftMass[0] = udEFakeshiftMass[1] = 1.; // no mass shift for pi0
+
+    }
+    if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1){
+      udEFakeshiftP[0]    = EFakeShift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); // up
+      udEFakeshiftP[1]    = EFakeShift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); // down
+      udEFakeshiftMass[0] = EFakeShift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); // up
+      udEFakeshiftMass[1] = EFakeShift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); // down
+    }
+
+    if (ApplyTESCentralCorr && isEESShifted)
+    {
+      // up shift
+      double pxEFakeS = l.px()*udEFakeshiftP[0];
+      double pyEFakeS = l.py()*udEFakeshiftP[0];
+      double pzEFakeS = l.pz()*udEFakeshiftP[0];
+      double massEFakeS = l.mass()*udEFakeshiftMass[0];
+      double enEFakeS = TMath::Sqrt(pxEFakeS*pxEFakeS + pyEFakeS*pyEFakeS + pzEFakeS*pzEFakeS + massEFakeS*massEFakeS);
+      math::XYZTLorentzVectorD p4EFakeSUP( pxEFakeS, pyEFakeS, pzEFakeS, enEFakeS );
+      // set userfloats
+      l.addUserFloat("px_EleUp",p4EFakeSUP.px());
+      l.addUserFloat("py_EleUp",p4EFakeSUP.py());
+      l.addUserFloat("pz_EleUp",p4EFakeSUP.pz());
+      l.addUserFloat("e_EleUp",p4EFakeSUP.energy());
+      l.addUserFloat("m_EleUp",p4EFakeSUP.mass());
+
+      // down shift
+      pxEFakeS = l.px()*udEFakeshiftP[1];
+      pyEFakeS = l.py()*udEFakeshiftP[1];
+      pzEFakeS = l.pz()*udEFakeshiftP[1];
+      massEFakeS = l.mass()*udEFakeshiftMass[1];
+      enEFakeS = TMath::Sqrt(pxEFakeS*pxEFakeS + pyEFakeS*pyEFakeS + pzEFakeS*pzEFakeS + massEFakeS*massEFakeS);
+      math::XYZTLorentzVectorD p4EFakeSDOWN( pxEFakeS, pyEFakeS, pzEFakeS, enEFakeS );
+      // set userfloats
+      l.addUserFloat("px_EleDown",p4EFakeSDOWN.px());
+      l.addUserFloat("py_EleDown",p4EFakeSDOWN.py());
+      l.addUserFloat("pz_EleDown",p4EFakeSDOWN.pz());
+      l.addUserFloat("e_EleDown",p4EFakeSDOWN.energy());
+      l.addUserFloat("m_EleDown",p4EFakeSDOWN.mass());
+    }
 
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();
@@ -496,6 +536,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
     //--- Embed user variables
     l.addUserInt("isTESShifted",isTESShifted);
+    l.addUserInt("isEESShifted",isEESShifted);
     l.addUserInt("isTauMatched",isTauMatched);
     l.addUserFloat("HPSDiscriminator",tauid); 
     l.addUserFloat("decayMode",l.decayMode()); 
