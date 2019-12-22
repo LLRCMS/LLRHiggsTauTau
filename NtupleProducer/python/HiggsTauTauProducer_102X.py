@@ -316,7 +316,7 @@ updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Id
 
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True,
                     updatedTauName = updatedTauName,
-                    toKeep = ["deepTau2017v2p1", "2017v1", "2017v2", "dR0p32017v2"] #Always keep because names are hardcoded in TauFiller.cc and HTauTauNtuplizer.cc
+                    toKeep = ["deepTau2017v2p1", "2017v2"]  #["2017v1", "dR0p32017v2"]
 )
 
 tauIdEmbedder.runTauID()
