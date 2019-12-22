@@ -53,19 +53,29 @@ class TauFiller : public edm::EDProducer {
   const CutSet<pat::Tau> flags;
   const bool ApplyTESCentralCorr; // shift the central TES value
   //const double NominalTESCorrection;     // value of correction of centrale TES value used in HIG-17-002, same for all DMs
-  const double NominalTESCorrection1Pr;    // DM==0  - correction of central TES
-  const double NominalTESCorrection1PrPi0; // DM==1  - correction of central TES
-  const double NominalTESCorrection3Pr;    // DM==10 - correction of central TES
-  const double NominalTESCorrection3PrPi0;    // DM==11 - correction of central TES
-  const double NominalTESUncertainty1Pr;      // Up/Down uncertainty for TES 
-  const double NominalTESUncertainty1PrPi0;      // Up/Down uncertainty for TES 
-  const double NominalTESUncertainty3Pr;      // Up/Down uncertainty for TES 
-  const double NominalTESUncertainty3PrPi0;      // Up/Down uncertainty for TES 
+  const double NominalTESCorrectionDM0;    // DM==0  - correction of central TES
+  const double NominalTESCorrectionDM1; // DM==1  - correction of central TES
+  const double NominalTESCorrectionDM10;    // DM==10 - correction of central TES
+  const double NominalTESCorrectionDM11;    // DM==11 - correction of central TES
+  const double NominalTESUncertaintyDM0;      // Up/Down uncertainty for TES 
+  const double NominalTESUncertaintyDM1;      // Up/Down uncertainty for TES 
+  const double NominalTESUncertaintyDM10;      // Up/Down uncertainty for TES 
+  const double NominalTESUncertaintyDM11;      // Up/Down uncertainty for TES 
 
-  const double NominalEFakeESCorrection1Pr;    // DM==0  - correction of central e->tauh ES
-  const double NominalEFakeESCorrection1PrPi0; // DM==1  - correction of central e->tauh ES
-  const double NominalEFakeESUncertainty1Pr;    // DM==0  - correction of central e->tauh ES
-  const double NominalEFakeESUncertainty1PrPi0; // DM==1  - correction of central e->tauh ES
+  const double NominalEFakeESCorrectionDM0B;       // DM==0 - barrel - correction of central e->tauh ES
+  const double NominalEFakeESUncertaintyDM0BUp;    // DM==0 - barrel - up uncertainty e->tauh ES
+  const double NominalEFakeESUncertaintyDM0BDown;  // DM==0 - barrel - down uncertainty e->tauh ES
+  const double NominalEFakeESCorrectionDM1B;       // DM==1 - barrel - correction of central e->tauh ES
+  const double NominalEFakeESUncertaintyDM1BUp;    // DM==1 - barrel - up uncertainty e->tauh ES
+  const double NominalEFakeESUncertaintyDM1BDown;  // DM==1 - barrel - down uncertainty e->tauh ES
+
+  const double NominalEFakeESCorrectionDM0E;       // DM==0 - endcaps - correction of central e->tauh ES
+  const double NominalEFakeESUncertaintyDM0EUp;    // DM==0 - endcaps - up uncertainty e->tauh ES
+  const double NominalEFakeESUncertaintyDM0EDown;  // DM==0 - endcaps - down uncertainty e->tauh ES
+  const double NominalEFakeESCorrectionDM1E;       // DM==1 - endcaps - correction of central e->tauh ES
+  const double NominalEFakeESUncertaintyDM1EUp;    // DM==1 - endcaps - up uncertainty e->tauh ES
+  const double NominalEFakeESUncertaintyDM1EDown;  // DM==1 - endcaps - down uncertainty e->tauh ES
+
 
 
   vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
@@ -82,18 +92,26 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   flags(iConfig.getParameter<ParameterSet>("flags")), 
   ApplyTESCentralCorr(iConfig.getParameter<bool>("ApplyTESCentralCorr")),
   //NominalTESCorrection(iConfig.getParameter<double>("NominalTESCorrection")), // used for HIG-17-002, same for all values
-  NominalTESCorrection1Pr(iConfig.getParameter<double>("NominalTESCorrection1Pr")),
-  NominalTESCorrection1PrPi0(iConfig.getParameter<double>("NominalTESCorrection1PrPi0")),
-  NominalTESCorrection3Pr(iConfig.getParameter<double>("NominalTESCorrection3Pr")),
-  NominalTESCorrection3PrPi0(iConfig.getParameter<double>("NominalTESCorrection3PrPi0")),
-  NominalTESUncertainty1Pr(iConfig.getParameter<double>("NominalTESUncertainty1Pr")),
-  NominalTESUncertainty1PrPi0(iConfig.getParameter<double>("NominalTESUncertainty1PrPi0")),
-  NominalTESUncertainty3Pr(iConfig.getParameter<double>("NominalTESUncertainty3Pr")),
-  NominalTESUncertainty3PrPi0(iConfig.getParameter<double>("NominalTESUncertainty3PrPi0")),
-  NominalEFakeESCorrection1Pr(iConfig.getParameter<double>("NominalEFakeESCorrection1Pr")),
-  NominalEFakeESCorrection1PrPi0(iConfig.getParameter<double>("NominalEFakeESCorrection1PrPi0")),
-  NominalEFakeESUncertainty1Pr(iConfig.getParameter<double>("NominalEFakeESUncertainty1Pr")),
-  NominalEFakeESUncertainty1PrPi0(iConfig.getParameter<double>("NominalEFakeESUncertainty1PrPi0"))
+  NominalTESCorrectionDM0(iConfig.getParameter<double>("NominalTESCorrectionDM0")),
+  NominalTESCorrectionDM1(iConfig.getParameter<double>("NominalTESCorrectionDM1")),
+  NominalTESCorrectionDM10(iConfig.getParameter<double>("NominalTESCorrectionDM10")),
+  NominalTESCorrectionDM11(iConfig.getParameter<double>("NominalTESCorrectionDM11")),
+  NominalTESUncertaintyDM0(iConfig.getParameter<double>("NominalTESUncertaintyDM0")),
+  NominalTESUncertaintyDM1(iConfig.getParameter<double>("NominalTESUncertaintyDM1")),
+  NominalTESUncertaintyDM10(iConfig.getParameter<double>("NominalTESUncertaintyDM10")),
+  NominalTESUncertaintyDM11(iConfig.getParameter<double>("NominalTESUncertaintyDM11")),
+  NominalEFakeESCorrectionDM0B(iConfig.getParameter<double>("NominalEFakeESCorrectionDM0B")),
+  NominalEFakeESUncertaintyDM0BUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0BUp")),
+  NominalEFakeESUncertaintyDM0BDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0BDown")),
+  NominalEFakeESCorrectionDM1B(iConfig.getParameter<double>("NominalEFakeESCorrectionDM1B")),
+  NominalEFakeESUncertaintyDM1BUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1BUp")),
+  NominalEFakeESUncertaintyDM1BDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1BDown")),
+  NominalEFakeESCorrectionDM0E(iConfig.getParameter<double>("NominalEFakeESCorrectionDM0E")),
+  NominalEFakeESUncertaintyDM0EUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0EUp")),
+  NominalEFakeESUncertaintyDM0EDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0EDown")),
+  NominalEFakeESCorrectionDM1E(iConfig.getParameter<double>("NominalEFakeESCorrectionDM1E")),
+  NominalEFakeESUncertaintyDM1EUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1EUp")),
+  NominalEFakeESUncertaintyDM1EDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1EDown"))
 
 {
   produces<pat::TauCollection>();
@@ -227,12 +245,14 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pat::Tau l(*((*tauHandle)[itau].get()));
     
     // Nominal TES Correction
-    double Shift1Pr    = 1. + NominalTESCorrection1Pr/100.;
-    double Shift1PrPi0 = 1. + NominalTESCorrection1PrPi0/100.;
-    double Shift3Pr    = 1. + NominalTESCorrection3Pr/100.;
-    double Shift3PrPi0  = 1. + NominalTESCorrection3PrPi0/100.;
-    double EFakeShift1Pr    = 1. + NominalEFakeESCorrection1Pr/100.;
-    double EFakeShift1PrPi0 = 1. + NominalEFakeESCorrection1PrPi0/100.;
+    double Shift1Pr    = 1. + NominalTESCorrectionDM0/100.;
+    double Shift1PrPi0 = 1. + NominalTESCorrectionDM1/100.;
+    double Shift3Pr    = 1. + NominalTESCorrectionDM10/100.;
+    double Shift3PrPi0  = 1. + NominalTESCorrectionDM11/100.;
+    double EFakeShift1PrB    = 1. + NominalEFakeESCorrectionDM0B/100.;
+    double EFakeShift1PrE    = 1. + NominalEFakeESCorrectionDM0E/100.;
+    double EFakeShift1PrPi0B = 1. + NominalEFakeESCorrectionDM1B/100.;
+    double EFakeShift1PrPi0E = 1. + NominalEFakeESCorrectionDM1E/100.;
 
     double shiftP = 1.;
     double shiftMass = 1.;
@@ -323,13 +343,18 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     if(ApplyTESCentralCorr){
       if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0)  {
-	shiftP    = EFakeShift1Pr;     // 1prong
+	shiftP    = EFakeShift1PrB;     // 1prong
+	if (fabs(l.eta())> 1.558) shiftP    = EFakeShift1PrE;
 	shiftMass = 1.;
 	isEESShifted = true;
       }
       if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1) {
-	shiftP    = EFakeShift1PrPi0;  // 1prong+pi0
-	shiftMass = EFakeShift1PrPi0;
+	shiftP    = EFakeShift1PrPi0B;  // 1prong+pi0
+	shiftMass = EFakeShift1PrPi0B;
+	if (fabs(l.eta())> 1.558) {
+	  shiftP    = EFakeShift1PrPi0E;
+	  shiftMass = EFakeShift1PrPi0E;
+	}
 	isEESShifted = true;
       }
 
@@ -354,30 +379,30 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (l.decayMode()==0)       // 1prong
       {
-        udshiftP[0]    =  Shift1Pr + (NominalTESUncertainty1Pr/100.); //udShift[0]; // up
-        udshiftP[1]    =  Shift1Pr - (NominalTESUncertainty1Pr/100.); //udShift[1]; // down
+        udshiftP[0]    =  Shift1Pr + (NominalTESUncertaintyDM0/100.); //udShift[0]; // up
+        udshiftP[1]    =  Shift1Pr - (NominalTESUncertaintyDM0/100.); //udShift[1]; // down
         udshiftMass[0] = udshiftMass[1] = 1.; // no mass shift for pi0
       }
       else if (l.decayMode()==1)  // 1prong+pi0
       {
-        udshiftP[0]    = Shift1PrPi0 + (NominalTESUncertainty1PrPi0/100.); //udShift[0]; // up
-        udshiftP[1]    = Shift1PrPi0 - (NominalTESUncertainty1PrPi0/100.); //udShift[1]; // down
-        udshiftMass[0] = Shift1PrPi0 + (NominalTESUncertainty1PrPi0/100.); //udShift[0]; // up
-        udshiftMass[1] = Shift1PrPi0 - (NominalTESUncertainty1PrPi0/100.); //udShift[1]; // down
+        udshiftP[0]    = Shift1PrPi0 + (NominalTESUncertaintyDM1/100.); //udShift[0]; // up
+        udshiftP[1]    = Shift1PrPi0 - (NominalTESUncertaintyDM1/100.); //udShift[1]; // down
+        udshiftMass[0] = Shift1PrPi0 + (NominalTESUncertaintyDM1/100.); //udShift[0]; // up
+        udshiftMass[1] = Shift1PrPi0 - (NominalTESUncertaintyDM1/100.); //udShift[1]; // down
       }
       else if (l.decayMode()==10) // 3prong
       {
-        udshiftP[0]    = Shift3Pr + (NominalTESUncertainty3Pr/100.); //udShift[0]; // up
-        udshiftP[1]    = Shift3Pr - (NominalTESUncertainty3Pr/100.); //udShift[1]; // down
-        udshiftMass[0] = Shift3Pr + (NominalTESUncertainty3Pr/100.); //udShift[0]; // up
-        udshiftMass[1] = Shift3Pr - (NominalTESUncertainty3Pr/100.); //udShift[1]; // down
+        udshiftP[0]    = Shift3Pr + (NominalTESUncertaintyDM10/100.); //udShift[0]; // up
+        udshiftP[1]    = Shift3Pr - (NominalTESUncertaintyDM10/100.); //udShift[1]; // down
+        udshiftMass[0] = Shift3Pr + (NominalTESUncertaintyDM10/100.); //udShift[0]; // up
+        udshiftMass[1] = Shift3Pr - (NominalTESUncertaintyDM10/100.); //udShift[1]; // down
       }
       else if (l.decayMode()==11) // 3prong
       {
-        udshiftP[0]    = Shift3PrPi0 + (NominalTESUncertainty3PrPi0/100.); //udShift[0]; // up
-        udshiftP[1]    = Shift3PrPi0 - (NominalTESUncertainty3PrPi0/100.); //udShift[1]; // down
-        udshiftMass[0] = Shift3PrPi0 + (NominalTESUncertainty3PrPi0/100.); //udShift[0]; // up
-        udshiftMass[1] = Shift3PrPi0 - (NominalTESUncertainty3PrPi0/100.); //udShift[1]; // down
+        udshiftP[0]    = Shift3PrPi0 + (NominalTESUncertaintyDM11/100.); //udShift[0]; // up
+        udshiftP[1]    = Shift3PrPi0 - (NominalTESUncertaintyDM11/100.); //udShift[1]; // down
+        udshiftMass[0] = Shift3PrPi0 + (NominalTESUncertaintyDM11/100.); //udShift[0]; // up
+        udshiftMass[1] = Shift3PrPi0 - (NominalTESUncertaintyDM11/100.); //udShift[1]; // down
       }
       else  // these are not real taus and will be rejected --> we don't care about the shift and just put 1
       {
@@ -435,16 +460,26 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float udEFakeshiftMass[2] = {1., 1.};
 
     if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==0){
-      udEFakeshiftP[0]    =  EFakeShift1Pr + (NominalEFakeESUncertainty1Pr/100.); // up
-      udEFakeshiftP[1]    =  EFakeShift1Pr - (NominalEFakeESUncertainty1Pr/100.); // down
+      udEFakeshiftP[0]    =  EFakeShift1PrB + (NominalEFakeESUncertaintyDM0BUp/100.); // up
+      udEFakeshiftP[1]    =  EFakeShift1PrB - (NominalEFakeESUncertaintyDM0BDown/100.); // down
+      if(fabs(l.eta())>1.558){
+	udEFakeshiftP[0]    =  EFakeShift1PrE + (NominalEFakeESUncertaintyDM0EUp/100.); // up
+	udEFakeshiftP[1]    =  EFakeShift1PrE - (NominalEFakeESUncertaintyDM0EDown/100.); // down
+      }
       udEFakeshiftMass[0] = udEFakeshiftMass[1] = 1.; // no mass shift for pi0
 
     }
     if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1){
-      udEFakeshiftP[0]    = EFakeShift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); // up
-      udEFakeshiftP[1]    = EFakeShift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); // down
-      udEFakeshiftMass[0] = EFakeShift1PrPi0 + (NominalEFakeESUncertainty1PrPi0/100.); // up
-      udEFakeshiftMass[1] = EFakeShift1PrPi0 - (NominalEFakeESUncertainty1PrPi0/100.); // down
+      udEFakeshiftP[0]    = EFakeShift1PrPi0B + (NominalEFakeESUncertaintyDM1BUp/100.);   // up
+      udEFakeshiftP[1]    = EFakeShift1PrPi0B - (NominalEFakeESUncertaintyDM1BDown/100.); // down
+      udEFakeshiftMass[0] = EFakeShift1PrPi0B + (NominalEFakeESUncertaintyDM1BUp/100.);   // up
+      udEFakeshiftMass[1] = EFakeShift1PrPi0B - (NominalEFakeESUncertaintyDM1BDown/100.); // down
+      if(fabs(l.eta())>1.558){
+	udEFakeshiftP[0]    = EFakeShift1PrPi0E + (NominalEFakeESUncertaintyDM1EUp/100.);   // up
+	udEFakeshiftP[1]    = EFakeShift1PrPi0E - (NominalEFakeESUncertaintyDM1EDown/100.); // down
+	udEFakeshiftMass[0] = EFakeShift1PrPi0E + (NominalEFakeESUncertaintyDM1EUp/100.);   // up
+	udEFakeshiftMass[1] = EFakeShift1PrPi0E - (NominalEFakeESUncertaintyDM1EDown/100.); // down
+      }
     }
 
     if (ApplyTESCentralCorr && isEESShifted)
