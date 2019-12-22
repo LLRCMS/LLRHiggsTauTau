@@ -1106,7 +1106,8 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
   ///////
 
   // switch to apply different requirements to the objects
-  if (deltaR(l1->p4(), l2->p4()) < 0.1)
+  //if (deltaR(l1->p4(), l2->p4()) < 0.1)
+  if (deltaR(l1->p4(), l2->p4()) < 0.4)
     return false; // for overlap removal
 
   ///////
@@ -1120,7 +1121,8 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     dau1 = (apdg1 == 13 ? l1 : l2);
     dau2 = (apdg1 == 13 ? l2 : l1);
 
-    if (dau1->pt() < 17.)
+    //if (dau1->pt() < 17.)
+    if (dau1->pt() < 20.)
       return false;
 
     if (dau2->pt() < 20.)
@@ -1129,10 +1131,12 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1) // decayModeFinding == decayModeFindingOldDMs
       return false;
 
-    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
+    //bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
+    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.2);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1); //FRA 2017
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseDeepTau2017v2p1VSjet") == 1);
 
     if (!iso1 || !iso2)
       return false;
@@ -1145,7 +1149,8 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     dau1 = (apdg1 == 11 ? l1 : l2);
     dau2 = (apdg1 == 11 ? l2 : l1);
 
-    if (dau1->pt() < 19.)
+    //if (dau1->pt() < 19.)
+    if (dau1->pt() < 20.)
       return false;
 
     if (dau2->pt() < 20.)
@@ -1154,10 +1159,12 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     if (userdatahelpers::getUserInt(l2,"decayModeFindingNewDMs") != 1)  // decayModeFinding == decayModeFindingOldDMs
       return false;
 
-    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
+    //bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
+    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.2);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1); //FRA 2017
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseDeepTau2017v2p1VSjet") == 1);
 
     if (!iso1 || !iso2)
       return false;
@@ -1188,8 +1195,10 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
     //bool iso1 = (userdatahelpers::getUserInt(l1,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
-    bool iso1 = (userdatahelpers::getUserInt(l1,"byVVVLooseDeepTau2017v2p1VSjet") == 1); //FRA 2017
-    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1); //FRA 2017
+    //bool iso1 = (userdatahelpers::getUserInt(l1,"byVVVLooseDeepTau2017v2p1VSjet") == 1);
+    //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1);
+    bool iso1 = (userdatahelpers::getUserInt(l1,"byVVLooseDeepTau2017v2p1VSjet") == 1);
+    bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseDeepTau2017v2p1VSjet") == 1);
 
     if (!iso1 || !iso2)
       return false;
