@@ -414,12 +414,13 @@ NomTESCorDM10     = cms.double(0.0)  # DecayMode==10
 NomTESCorDM11     = cms.double(2.6)  # DecayMode==11
 
 #EES BARREL
-NomlEFakeESCorDM0B     = cms.double(0.679) #DecayMode==0
+NomEFakeESCorDM0B     = cms.double(0.679) #DecayMode==0
 NomEFakeESUncDM0BUp    = cms.double(0.806) #DecayMode==0
 NomEFakeESUncDM0BDown  = cms.double(0.982) #DecayMode==0
 NomEFakeESCorDM1B      = cms.double(3.389) #DecayMode==1
 NomEFakeESUncDM1BUp    = cms.double(1.168) #DecayMode==1
 NomEFakeESUncDM1BDown  = cms.double(2.475) #DecayMode==1
+
 #EES ENDCAP
 NomEFakeESCorDM0E      = cms.double(-3.5)   #DecayMode==0
 NomEFakeESUncDM0EUp    = cms.double(1.808)  #DecayMode==0
