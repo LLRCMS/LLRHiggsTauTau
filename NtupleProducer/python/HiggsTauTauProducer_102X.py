@@ -76,7 +76,7 @@ if IsMC:
   if YEAR == 2017:
     process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'        # 2017 MC
   if YEAR == 2018:
-    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v19'  # 2018 MC
+    process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v20'  # 2018 MC
 else :
   if YEAR == 2016:
     process.GlobalTag.globaltag = '94X_dataRun2_v10'                # 2016 Data

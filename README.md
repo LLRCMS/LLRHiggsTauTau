@@ -378,9 +378,9 @@ scram b -j 8
 ### Instructions for 102X
 
 ```
-export SCRAM_ARCH=slc7_amd64_gcc700 # needed at LLR
-cmsrel CMSSW_10_2_16_UL
-cd CMSSW_10_2_16_UL/src
+export SCRAM_ARCH=slc7_amd64_gcc820 # needed at LLR
+cmsrel CMSSW_10_2_18
+cd CMSSW_10_2_18/src
 cmsenv
 
 # MVA EleID Fall 2018
