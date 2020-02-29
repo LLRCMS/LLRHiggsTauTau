@@ -544,29 +544,101 @@ process.pileupJetIdUpdated = process.pileupJetId.clone(
 )
 #print process.pileupJetIdUpdated.dumpConfig()
 
-# apply new jet energy corrections
+# apply new jet energy corrections and recompute btaggers
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
+# JEC corrections
 jecLevels = None
 if IsMC:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
 else:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 
+# bTaggers
+btagVector = []
+
+if YEAR == 2018:
+    btagVector.append('None')
+
+if YEAR == 2017 or YEAR == 2016:
+    btagVector2017 = [
+        'pfDeepFlavourJetTags:probb',
+        'pfDeepFlavourJetTags:probbb',
+        'pfDeepFlavourJetTags:problepb',
+        'pfDeepFlavourJetTags:probc',
+        'pfDeepFlavourJetTags:probuds',
+        'pfDeepFlavourJetTags:probg'
+    ]
+    btagVector.extend(btagVector2017)
+
+if YEAR == 2016:
+    btagVector2016 = [
+        'pfDeepFlavourJetTags:probb',
+        'pfDeepFlavourJetTags:probbb',
+        'pfDeepFlavourJetTags:problepb',
+        'pfDeepFlavourJetTags:probc',
+        'pfDeepFlavourJetTags:probuds',
+        'pfDeepFlavourJetTags:probg',
+        'pfDeepCSVJetTags:probudsg',
+        'pfDeepCSVJetTags:probb',
+        'pfDeepCSVJetTags:probc',
+        'pfDeepCSVJetTags:probbb'
+    ]
+    btagVector.extend(btagVector2016)
+
+# Update jet collection
 updateJetCollection(
    process,
    jetSource = cms.InputTag('slimmedJets'),
-   labelName = 'UpdatedJEC',
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
+   btagDiscriminators = btagVector,
+   labelName = 'UpdatedJEC'
 )
 
 process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
-process.updatedPatJetsUpdatedJEC.userData.userInts.src    += ['pileupJetIdUpdated:fullId']
-process.jecSequence = cms.Sequence(process.pileupJetIdUpdated + process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+process.updatedPatJetsUpdatedJEC.userData.userInts.src   += ['pileupJetIdUpdated:fullId']
+
+# Update the jet sequences
+if YEAR == 2016:
+    process.jecSequence = cms.Sequence(process.pileupJetIdUpdated +
+                                       process.patJetCorrFactorsUpdatedJEC *
+                                       process.updatedPatJetsUpdatedJEC *
+                                       process.patJetCorrFactorsTransientCorrectedUpdatedJEC *
+                                       process.pfImpactParameterTagInfosUpdatedJEC *
+                                       process.pfInclusiveSecondaryVertexFinderTagInfosUpdatedJEC *
+                                       process.pfDeepCSVTagInfosUpdatedJEC *
+                                       process.pfDeepCSVJetTagsUpdatedJEC *
+                                       process.pfDeepFlavourTagInfosUpdatedJEC *
+                                       process.pfDeepFlavourJetTagsUpdatedJEC *
+                                       process.updatedPatJetsTransientCorrectedUpdatedJEC *
+                                       process.selectedUpdatedPatJetsUpdatedJEC)
+
+if YEAR == 2017:
+    process.jecSequence = cms.Sequence(process.pileupJetIdUpdated +
+                                       process.patJetCorrFactorsUpdatedJEC *
+                                       process.updatedPatJetsUpdatedJEC *
+                                       process.patJetCorrFactorsTransientCorrectedUpdatedJEC *
+                                       process.pfImpactParameterTagInfosUpdatedJEC *
+                                       process.pfInclusiveSecondaryVertexFinderTagInfosUpdatedJEC *
+                                       process.pfDeepCSVTagInfosUpdatedJEC *
+                                       process.pfDeepFlavourTagInfosUpdatedJEC *
+                                       process.pfDeepFlavourJetTagsUpdatedJEC *
+                                       process.updatedPatJetsTransientCorrectedUpdatedJEC *
+                                       process.selectedUpdatedPatJetsUpdatedJEC)
+
+if YEAR == 2018:
+    process.jecSequence = cms.Sequence(process.pileupJetIdUpdated +
+                                       process.patJetCorrFactorsUpdatedJEC *
+                                       process.updatedPatJetsUpdatedJEC *
+                                       process.selectedUpdatedPatJetsUpdatedJEC)
+
 
 process.jets = cms.EDFilter("PATJetRefSelector",
                             #src = cms.InputTag("slimmedJets"),
-                            src = cms.InputTag("updatedPatJetsUpdatedJEC"),
+                            #src = cms.InputTag("updatedPatJetsUpdatedJEC"),
+                            src = cms.InputTag("selectedUpdatedPatJetsUpdatedJEC"),
                             cut = cms.string(JETCUT),
 )
 
@@ -859,7 +931,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       rhoForJER = cms.InputTag("fixedGridRhoAll"), # FRA
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
-                      JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC"),
+                      JECset = cms.untracked.string(""),   # specified later
                       computeQGVar = cms.bool(COMPUTEQGVAR),
                       QGTagger = cms.InputTag("QGTagger", "qgLikelihood"),
                       stage2TauCollection = cms.InputTag("caloStage2Digis","Tau"),
@@ -883,9 +955,6 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),
-                      #metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
-                      #metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
-                      #metERCollection = cms.InputTag(PFMetName,"","TEST"),
                       metERCollection = PFMetTag,
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter"),
                       L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
@@ -898,6 +967,10 @@ else:
     #process.HTauTauTree.metCollection = cms.InputTag(PFMetName, "", "TEST") # use TEST so that I get the corrected one
     process.HTauTauTree.metCollection = PFMetTag
 
+if YEAR == 2016 or YEAR == 2017:
+    process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedUpdatedJEC")
+if YEAR == 2018:
+    process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC")
 
 if SVFITBYPASS:
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
