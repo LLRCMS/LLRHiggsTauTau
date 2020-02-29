@@ -742,7 +742,7 @@ else:
             872421955,872421567,872437184,872421951,
             872421694,872437056,872437057,872437313])
 
-    # In 2016 not problem --> pass empty list
+    # In 2016 no problem --> pass empty list
     if YEAR == 2016:
         baddetEcallist = cms.vuint32([])
 
@@ -755,8 +755,6 @@ else:
         debug = cms.bool(False)
         )
 
-
-import pdb; pdb.set_trace()
 
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
