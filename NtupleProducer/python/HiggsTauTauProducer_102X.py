@@ -534,11 +534,21 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 
 # # add latest pileup jet ID
 process.load("RecoJets.JetProducers.PileupJetID_cfi")
+from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
+
+if YEAR == 2016:
+    PUalgo = _chsalgos_81x
+if YEAR == 2017:
+    PUalgo = _chsalgos_94x
+if YEAR == 2018:
+    PUalgo = _chsalgos_102x
+
 process.pileupJetIdUpdated = process.pileupJetId.clone(
    jets = cms.InputTag("slimmedJets"),
    inputIsCorrected = True,
    applyJec = True,
-   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
+   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
+   algos = PUalgo
 )
 #print process.pileupJetIdUpdated.dumpConfig()
 

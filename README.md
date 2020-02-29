@@ -383,9 +383,17 @@ cmsrel CMSSW_10_2_18
 cd CMSSW_10_2_18/src
 cmsenv
 
-# MVA EleID Fall 2018
 git cms-init
+
+# MVA EleID Fall 2018
 git cms-merge-topic cms-egamma:EgammaPostRecoTools  #if you want the V2 IDs, otherwise skip
+
+# PU jet ID
+git cms-addpkg RecoJets/JetProducers
+git clone -b 94X_weights_DYJets_inc_v2 git@github.com:cms-jet/PUjetID.git PUJetIDweights/
+cp PUJetIDweights/weights/pileupJetId_{94,102}X_Eta* $CMSSW_BASE/src/RecoJets/JetProducers/data/
+rm -rf PUJetIDweights/
+git cms-merge-topic -u alefisico:PUID_102X
 
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
