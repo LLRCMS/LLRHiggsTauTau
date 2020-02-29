@@ -187,32 +187,6 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
 
-# 2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-# Ok for 2016, 2017 and 2018
-process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
-
-baddetEcallist = cms.vuint32(
-    [872439604,872422825,872420274,872423218,
-     872423215,872416066,872435036,872439336,
-     872420273,872436907,872420147,872439731,
-     872436657,872420397,872439732,872439339,
-     872439603,872422436,872439861,872437051,
-     872437052,872420649,872422436,872421950,
-     872437185,872422564,872421566,872421695,
-     872421955,872421567,872437184,872421951,
-     872421694,872437056,872437057,872437313])
-     
-
-process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
-    "EcalBadCalibFilter",
-    EcalRecHitSource = cms.InputTag("reducedEgamma:reducedEERecHits"),
-    ecalMinEt        = cms.double(50.),
-    baddetEcal    = baddetEcallist, 
-    taggingMode = cms.bool(True),
-    debug = cms.bool(False)
-    )
-
-
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("slimmedMuons"),
@@ -694,48 +668,95 @@ if USEPAIRMET:
 else:
     print "Using event pfMET (same MET for all pairs)"
 
-    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-    runMetCorAndUncFromMiniAOD(
-      process,
-      isData= (not IsMC),
-    )
+    if YEAR == 2016:
+        from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+        runMetCorAndUncFromMiniAOD(
+                process,
+                isData = (not IsMC)
+        )
+
+        process.METSequence += process.fullPatMetSequence
+        PFMetName = "slimmedMETs"
+        PFMetTag = cms.InputTag(PFMetName, "", "TEST")
+
+    if YEAR == 2017:
+        from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+
+        runMetCorAndUncFromMiniAOD(
+                process,
+                isData = (not IsMC),
+                fixEE2017 = True,
+                fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+                postfix = "ModifiedMET"
+        )
+
+        # if running in schedule mode add this to your path
+        process.METSequence += process.fullPatMetSequenceModifiedMET
+        PFMetName = "slimmedMETsModifiedMET"
+        PFMetTag = cms.InputTag(PFMetName, "", "TEST")
+
+    if YEAR == 2018:
+        PFMetName = "slimmedMETs"
+        PFMetTag = cms.InputTag(PFMetName)
+
+
     # patch to get a standalone MET significance collection
     process.METSignificance = cms.EDProducer ("ExtractMETSignificance",
-                                                  srcMET=cms.InputTag("slimmedMETs","","TEST")
+                                                  #srcMET=cms.InputTag(PFMetName,"","TEST")
+                                                  srcMET=PFMetTag
                                                   )
 
     # add variables with MET shifted for TES corrections
     process.ShiftMETforTES = cms.EDProducer ("ShiftMETforTES",
-                                             srcMET  = cms.InputTag("slimmedMETs","","TEST"),
+                                             #srcMET  = cms.InputTag(PFMetName,"","TEST"),
+                                             srcMET  = PFMetTag,
                                              tauCollection = cms.InputTag("softTaus")
                                              )
 
     # add variables with MET shifted for EES corrections (E->tau ES)
     process.ShiftMETforEES = cms.EDProducer ("ShiftMETforEES",
-                                             srcMET  = cms.InputTag("slimmedMETs","","TEST"),
+                                             #srcMET  = cms.InputTag(PFMetName,"","TEST"),
+                                             srcMET  = PFMetTag,
                                              tauCollection = cms.InputTag("softTaus")
                                              )
 
-    process.METSequence += process.fullPatMetSequence
     process.METSequence += process.METSignificance
     process.METSequence += process.ShiftMETforTES
     process.METSequence += process.ShiftMETforEES
 
 
-## Since release 10_2_X (X >=7) this is included in CMSSW
-#from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-#
-#runMetCorAndUncFromMiniAOD (
-#        process,
-#        isData = (not IsMC),
-#        fixEE2017 = False,
-#        fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
-#        postfix = "ModifiedMET"
-#)
-#
-## if running in schedule mode add this to your path
-#process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
+    # 2017 and 2018 ECAL bad calibration filter to be rerun, fix from:
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
+    process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
 
+    # In 2017 and 2018 some problematic crystals --> pass list of crystals
+    if YEAR == 2017 or YEAR == 2018:
+        baddetEcallist = cms.vuint32(
+            [872439604,872422825,872420274,872423218,
+            872423215,872416066,872435036,872439336,
+            872420273,872436907,872420147,872439731,
+            872436657,872420397,872439732,872439339,
+            872439603,872422436,872439861,872437051,
+            872437052,872420649,872422436,872421950,
+            872437185,872422564,872421566,872421695,
+            872421955,872421567,872437184,872421951,
+            872421694,872437056,872437057,872437313])
+
+    # In 2016 not problem --> pass empty list
+    if YEAR == 2016:
+        baddetEcallist = cms.vuint32([])
+
+    process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
+        "EcalBadCalibFilter",
+        EcalRecHitSource = cms.InputTag("reducedEgamma:reducedEERecHits"),
+        ecalMinEt        = cms.double(50.),
+        baddetEcal    = baddetEcallist,
+        taggingMode = cms.bool(True),
+        debug = cms.bool(False)
+        )
+
+
+import pdb; pdb.set_trace()
 
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
@@ -767,7 +788,8 @@ srcMETTag = None
 if USEPAIRMET:
   srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
 else:
-  srcMETTag = cms.InputTag(PFMetName, "", "TEST")
+  #srcMETTag = cms.InputTag(PFMetName, "", "TEST")
+  srcMETTag = PFMetTag
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -865,7 +887,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       genLumiHeaderTag = cms.InputTag("generator"),
                       #metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
                       #metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
-                      metERCollection = cms.InputTag("slimmedMETs","","TEST"),
+                      #metERCollection = cms.InputTag(PFMetName,"","TEST"),
+                      metERCollection = PFMetTag,
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter"),
                       L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
                       L1prefireProbUp   = cms.InputTag("prefiringweight:nonPrefiringProbUp"),
@@ -873,9 +896,9 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
 )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
-else: 
-    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs", "", "TEST") # use TEST so that I get the corrected one
-
+else:
+    #process.HTauTauTree.metCollection = cms.InputTag(PFMetName, "", "TEST") # use TEST so that I get the corrected one
+    process.HTauTauTree.metCollection = PFMetTag
 
 
 if SVFITBYPASS:
