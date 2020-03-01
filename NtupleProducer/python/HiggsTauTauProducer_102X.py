@@ -568,7 +568,7 @@ btagVector = []
 if YEAR == 2018:
     btagVector.append('None')
 
-if YEAR == 2017 or YEAR == 2016:
+if YEAR == 2017:
     btagVector2017 = [
         'pfDeepFlavourJetTags:probb',
         'pfDeepFlavourJetTags:probbb',
