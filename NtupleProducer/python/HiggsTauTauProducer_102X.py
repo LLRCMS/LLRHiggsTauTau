@@ -401,6 +401,8 @@ NomEFakeESCorDM1E      = cms.double(5.)      #DecayMode==1
 NomEFakeESUncDM1EUp    = cms.double(6.57)   #DecayMode==1
 NomEFakeESUncDM1EDown  = cms.double(5.694)  #DecayMode==1
 
+TESyear = "2016Legacy"
+
 # 2017 data - DeepTau2017v2p1
 if YEAR == 2017:
     NomTESUncDM0      = cms.double(1.0)  # in percent, up/down uncertainty of TES
@@ -426,6 +428,8 @@ if YEAR == 2017:
     NomEFakeESCorDM1E      = cms.double(1.5)    #DecayMode==1
     NomEFakeESUncDM1EUp    = cms.double(6.461)      #DecayMode==1
     NomEFakeESUncDM1EDown  = cms.double(4.969)    #DecayMode==1
+
+    TESyear = "2017ReReco"
 
 # 2018 data - DeepTau2017v2p1
 if YEAR == 2018:
@@ -453,6 +457,7 @@ if YEAR == 2018:
     NomEFakeESUncDM1EUp    = cms.double(5.499)    #DecayMode==1
     NomEFakeESUncDM1EDown  = cms.double(4.309)    #DecayMode==1
 
+    TESyear = "2018ReReco"
 
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
@@ -487,7 +492,9 @@ process.softTaus = cms.EDProducer("TauFiller",
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
    flags = cms.PSet(
         isGood = cms.string("")
-        )
+        ),
+
+   year = cms.string(TESyear)
    )
 
 process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTausNewID + process.bareTaus + process.softTaus)

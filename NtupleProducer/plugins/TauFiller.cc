@@ -24,6 +24,9 @@
 #include <vector>
 #include <string>
 
+#include <TFile.h>   // TFile
+#include <TH1.h>     // TH1
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -36,9 +39,8 @@ class TauFiller : public edm::EDProducer {
   explicit TauFiller(const edm::ParameterSet&);
     
   /// Destructor
-  ~TauFiller(){
-    
-  };  
+  ~TauFiller();
+
   //ByIsolationMVA3oldDMwoLTraw
  private:
   virtual void beginJob(){};  
@@ -76,6 +78,11 @@ class TauFiller : public edm::EDProducer {
   const double NominalEFakeESUncertaintyDM1EUp;    // DM==1 - endcaps - up uncertainty e->tauh ES
   const double NominalEFakeESUncertaintyDM1EDown;  // DM==1 - endcaps - down uncertainty e->tauh ES
 
+  const std::string theTESYear;
+  TFile* TESFile_low;
+  TFile* TESFile_high;
+  TH1* TESh1_low;
+  TH1* TESh1_high;
 
 
   vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
@@ -111,7 +118,8 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   NominalEFakeESUncertaintyDM0EDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0EDown")),
   NominalEFakeESCorrectionDM1E(iConfig.getParameter<double>("NominalEFakeESCorrectionDM1E")),
   NominalEFakeESUncertaintyDM1EUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1EUp")),
-  NominalEFakeESUncertaintyDM1EDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1EDown"))
+  NominalEFakeESUncertaintyDM1EDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1EDown")),
+  theTESYear(iConfig.getParameter<std::string>("year"))
 
 {
   produces<pat::TauCollection>();
@@ -215,7 +223,25 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byDeepTau2017v2p1VSmuraw",
    };
 
+  // TES input files
+  edm::FileInPath TESFileName_low ("TauPOG/TauIDSFs/data/TauES_dm_DeepTau2017v2p1VSjet_"+theTESYear+".root");
+  edm::FileInPath TESFileName_high("TauPOG/TauIDSFs/data/TauES_dm_DeepTau2017v2p1VSjet_"+theTESYear+"_ptgt100.root");
+  TESFile_low  = new TFile(TESFileName_low .fullPath().data());
+  TESFile_high = new TFile(TESFileName_high.fullPath().data());
 
+  // TES input histos
+  TH1::AddDirectory(false);
+  TESh1_low  = dynamic_cast<TH1*>((const_cast<TFile*>(TESFile_low))->Get("tes"));
+  TESh1_high = dynamic_cast<TH1*>((const_cast<TFile*>(TESFile_high))->Get("tes"));
+
+}
+
+TauFiller::~TauFiller()
+{
+  delete TESFile_low;
+  delete TESFile_high;
+  delete TESh1_low;
+  delete TESh1_high;
 }
 
 using LorentzVectorE = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double>>;
@@ -236,6 +262,17 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::View<reco::GenParticle> > genHandle;
   iEvent.getByToken(theGenTag, genHandle);
 
+  // TES corrections
+  Int_t binDM0  = TESh1_low->GetXaxis()->FindBin((int)0);
+  Int_t binDM1  = TESh1_low->GetXaxis()->FindBin(1);
+  Int_t binDM10 = TESh1_low->GetXaxis()->FindBin(10);
+  Int_t binDM11 = TESh1_low->GetXaxis()->FindBin(11);
+
+  double Shift1Pr    = TESh1_low->GetBinContent(binDM0);
+  double Shift1PrPi0 = TESh1_low->GetBinContent(binDM1);
+  double Shift3Pr    = TESh1_low->GetBinContent(binDM10);
+  double Shift3PrPi0 = TESh1_low->GetBinContent(binDM11);
+
   // Output collection
   //auto_ptr<pat::TauCollection> result( new pat::TauCollection() );
   std::unique_ptr<pat::TauCollection> result( new pat::TauCollection() );
@@ -245,10 +282,10 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pat::Tau l(*((*tauHandle)[itau].get()));
     
     // Nominal TES Correction
-    double Shift1Pr    = 1. + NominalTESCorrectionDM0/100.;
-    double Shift1PrPi0 = 1. + NominalTESCorrectionDM1/100.;
-    double Shift3Pr    = 1. + NominalTESCorrectionDM10/100.;
-    double Shift3PrPi0  = 1. + NominalTESCorrectionDM11/100.;
+    //double Shift1Pr    = 1. + NominalTESCorrectionDM0/100.;
+    //double Shift1PrPi0 = 1. + NominalTESCorrectionDM1/100.;
+    //double Shift3Pr    = 1. + NominalTESCorrectionDM10/100.;
+    //double Shift3PrPi0  = 1. + NominalTESCorrectionDM11/100.;
     double EFakeShift1PrB    = 1. + NominalEFakeESCorrectionDM0B/100.;
     double EFakeShift1PrE    = 1. + NominalEFakeESCorrectionDM0E/100.;
     double EFakeShift1PrPi0B = 1. + NominalEFakeESCorrectionDM1B/100.;
@@ -372,6 +409,48 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //const float udShift[2] = {1.03, 0.97}; // 0: UP, 1: DOWN
     //const double udShift[2] = {1. + (NominalTESUncertainty/100.), 1. - (NominalTESUncertainty/100.)}; // 0: UP, 1: DOWN // unused
 
+    float shiftDM0  = 1;
+    float shiftDM1  = 1;
+    float shiftDM10 = 1;
+    float shiftDM11 = 1;
+
+    double errDM0_low = TESh1_low->GetBinError(binDM0);
+    double errDM1_low = TESh1_low->GetBinError(binDM1);
+    double errDM10_low = TESh1_low->GetBinError(binDM10);
+    double errDM11_low = TESh1_low->GetBinError(binDM11);
+
+    Int_t binDM0_high  = TESh1_high->GetXaxis()->FindBin((int)0);
+    Int_t binDM1_high  = TESh1_high->GetXaxis()->FindBin(1);
+    Int_t binDM10_high = TESh1_high->GetXaxis()->FindBin(10);
+    Int_t binDM11_high = TESh1_high->GetXaxis()->FindBin(11);
+
+    double errDM0_high = TESh1_high->GetBinError(binDM0_high);
+    double errDM1_high = TESh1_high->GetBinError(binDM1_high);
+    double errDM10_high = TESh1_high->GetBinError(binDM10_high);
+    double errDM11_high = TESh1_high->GetBinError(binDM11_high);
+
+    if      (p4S_Nominal.pt() >= 170.) /* High pt taus */
+    {
+      shiftDM0  = errDM0_high;
+      shiftDM1  = errDM1_high;
+      shiftDM10 = errDM10_high;
+      shiftDM11 = errDM11_high;
+    }
+    else if (p4S_Nominal.pt() >= 170.) /* Medium pt taus */
+    {
+      shiftDM0  = errDM0_low + (errDM0_high-errDM0_low)/(170.-34.)*(p4S_Nominal.pt()-34.);
+      shiftDM1  = errDM1_low + (errDM1_high-errDM1_low)/(170.-34.)*(p4S_Nominal.pt()-34.);
+      shiftDM10 = errDM10_low + (errDM10_high-errDM10_low)/(170.-34.)*(p4S_Nominal.pt()-34.);
+      shiftDM11 = errDM11_low + (errDM11_high-errDM11_low)/(170.-34.)*(p4S_Nominal.pt()-34.);
+    }
+    else                              /* Low pt taus */
+    {
+      shiftDM0  = errDM0_low;
+      shiftDM1  = errDM1_low;
+      shiftDM10 = errDM10_low;
+      shiftDM11 = errDM11_low;
+    }
+
     float udshiftP[2] = {1., 1.};
     float udshiftMass[2] = {1., 1.};
 
@@ -379,30 +458,30 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (l.decayMode()==0)       // 1prong
       {
-        udshiftP[0]    =  Shift1Pr + (NominalTESUncertaintyDM0/100.); //udShift[0]; // up
-        udshiftP[1]    =  Shift1Pr - (NominalTESUncertaintyDM0/100.); //udShift[1]; // down
+        udshiftP[0]    =  Shift1Pr + shiftDM0; //udShift[0]; // up
+        udshiftP[1]    =  Shift1Pr - shiftDM0; //udShift[1]; // down
         udshiftMass[0] = udshiftMass[1] = 1.; // no mass shift for pi0
       }
       else if (l.decayMode()==1)  // 1prong+pi0
       {
-        udshiftP[0]    = Shift1PrPi0 + (NominalTESUncertaintyDM1/100.); //udShift[0]; // up
-        udshiftP[1]    = Shift1PrPi0 - (NominalTESUncertaintyDM1/100.); //udShift[1]; // down
-        udshiftMass[0] = Shift1PrPi0 + (NominalTESUncertaintyDM1/100.); //udShift[0]; // up
-        udshiftMass[1] = Shift1PrPi0 - (NominalTESUncertaintyDM1/100.); //udShift[1]; // down
+        udshiftP[0]    = Shift1PrPi0 + shiftDM1; //udShift[0]; // up
+        udshiftP[1]    = Shift1PrPi0 - shiftDM1; //udShift[1]; // down
+        udshiftMass[0] = Shift1PrPi0 + shiftDM1; //udShift[0]; // up
+        udshiftMass[1] = Shift1PrPi0 - shiftDM1; //udShift[1]; // down
       }
       else if (l.decayMode()==10) // 3prong
       {
-        udshiftP[0]    = Shift3Pr + (NominalTESUncertaintyDM10/100.); //udShift[0]; // up
-        udshiftP[1]    = Shift3Pr - (NominalTESUncertaintyDM10/100.); //udShift[1]; // down
-        udshiftMass[0] = Shift3Pr + (NominalTESUncertaintyDM10/100.); //udShift[0]; // up
-        udshiftMass[1] = Shift3Pr - (NominalTESUncertaintyDM10/100.); //udShift[1]; // down
+        udshiftP[0]    = Shift3Pr + shiftDM10; //udShift[0]; // up
+        udshiftP[1]    = Shift3Pr - shiftDM10; //udShift[1]; // down
+        udshiftMass[0] = Shift3Pr + shiftDM10; //udShift[0]; // up
+        udshiftMass[1] = Shift3Pr - shiftDM10; //udShift[1]; // down
       }
       else if (l.decayMode()==11) // 3prong
       {
-        udshiftP[0]    = Shift3PrPi0 + (NominalTESUncertaintyDM11/100.); //udShift[0]; // up
-        udshiftP[1]    = Shift3PrPi0 - (NominalTESUncertaintyDM11/100.); //udShift[1]; // down
-        udshiftMass[0] = Shift3PrPi0 + (NominalTESUncertaintyDM11/100.); //udShift[0]; // up
-        udshiftMass[1] = Shift3PrPi0 - (NominalTESUncertaintyDM11/100.); //udShift[1]; // down
+        udshiftP[0]    = Shift3PrPi0 + shiftDM11; //udShift[0]; // up
+        udshiftP[1]    = Shift3PrPi0 - shiftDM11; //udShift[1]; // down
+        udshiftMass[0] = Shift3PrPi0 + shiftDM11; //udShift[0]; // up
+        udshiftMass[1] = Shift3PrPi0 - shiftDM11; //udShift[1]; // down
       }
       else  // these are not real taus and will be rejected --> we don't care about the shift and just put 1
       {

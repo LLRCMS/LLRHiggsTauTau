@@ -431,6 +431,9 @@ git cms-addpkg RecoMET/METFilters
 git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
 git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 
+#Add TauPOG corrections (TES and EES)
+git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
+
 #Add DeepTau code from Tau POG repository (note "-u" option preventing checkout of unnecessary stuff)
 git cms-merge-topic -u cms-tau-pog:CMSSW_10_2_X_tau-pog_DeepTau2017v2p1_nanoAOD
 
