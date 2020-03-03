@@ -539,26 +539,6 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 #Jets
 #
 
-# # add latest pileup jet ID
-process.load("RecoJets.JetProducers.PileupJetID_cfi")
-from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
-
-if YEAR == 2016:
-    PUalgo = _chsalgos_81x
-if YEAR == 2017:
-    PUalgo = _chsalgos_94x
-if YEAR == 2018:
-    PUalgo = _chsalgos_102x
-
-process.pileupJetIdUpdated = process.pileupJetId.clone(
-   jets = cms.InputTag("slimmedJets"),
-   inputIsCorrected = True,
-   applyJec = True,
-   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
-   algos = PUalgo
-)
-#print process.pileupJetIdUpdated.dumpConfig()
-
 # apply new jet energy corrections and recompute btaggers
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
@@ -612,13 +592,9 @@ updateJetCollection(
    labelName = 'UpdatedJEC'
 )
 
-process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
-process.updatedPatJetsUpdatedJEC.userData.userInts.src   += ['pileupJetIdUpdated:fullId']
-
 # Update the jet sequences
 if YEAR == 2016:
-    process.jecSequence = cms.Sequence(process.pileupJetIdUpdated +
-                                       process.patJetCorrFactorsUpdatedJEC *
+    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
                                        process.updatedPatJetsUpdatedJEC *
                                        process.patJetCorrFactorsTransientCorrectedUpdatedJEC *
                                        process.pfImpactParameterTagInfosUpdatedJEC *
@@ -631,8 +607,7 @@ if YEAR == 2016:
                                        process.selectedUpdatedPatJetsUpdatedJEC)
 
 if YEAR == 2017:
-    process.jecSequence = cms.Sequence(process.pileupJetIdUpdated +
-                                       process.patJetCorrFactorsUpdatedJEC *
+    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
                                        process.updatedPatJetsUpdatedJEC *
                                        process.patJetCorrFactorsTransientCorrectedUpdatedJEC *
                                        process.pfImpactParameterTagInfosUpdatedJEC *
@@ -644,19 +619,15 @@ if YEAR == 2017:
                                        process.selectedUpdatedPatJetsUpdatedJEC)
 
 if YEAR == 2018:
-    process.jecSequence = cms.Sequence(process.pileupJetIdUpdated +
-                                       process.patJetCorrFactorsUpdatedJEC *
+    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
                                        process.updatedPatJetsUpdatedJEC *
                                        process.selectedUpdatedPatJetsUpdatedJEC)
 
-
+# Jet Selector after JEC and bTagging
 process.jets = cms.EDFilter("PATJetRefSelector",
-                            #src = cms.InputTag("slimmedJets"),
-                            #src = cms.InputTag("updatedPatJetsUpdatedJEC"),
                             src = cms.InputTag("selectedUpdatedPatJetsUpdatedJEC"),
                             cut = cms.string(JETCUT),
 )
-
 
 ##
 ## QG tagging for jets
@@ -691,6 +662,26 @@ if COMPUTEQGVAR:
 
 else:
     process.jetSequence = cms.Sequence(process.jets)
+
+# Add latest pileup jet ID
+process.load("RecoJets.JetProducers.PileupJetID_cfi")
+from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
+
+if YEAR == 2016:
+    PUalgo = _chsalgos_81x
+if YEAR == 2017:
+    PUalgo = _chsalgos_94x
+if YEAR == 2018:
+    PUalgo = _chsalgos_102x
+
+process.pileupJetIdUpdated = process.pileupJetId.clone(
+   jets = cms.InputTag("jets"),
+   inputIsCorrected = True,
+   applyJec = False,
+   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
+   algos = PUalgo
+)
+process.jetSequence += cms.Sequence(process.pileupJetIdUpdated)
 
 
 # il primo legge la collezione dei leptoni e stampa quali sono
@@ -947,6 +938,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
                       JECset = cms.untracked.string(""),   # specified later
+                      pileupJetIdUpdatedDiscr = cms.InputTag("pileupJetIdUpdated", "fullDiscriminant"),
+                      pileupJetIdUpdatedWP    = cms.InputTag("pileupJetIdUpdated", "fullId"),
                       computeQGVar = cms.bool(COMPUTEQGVAR),
                       QGTagger = cms.InputTag("QGTagger", "qgLikelihood"),
                       stage2TauCollection = cms.InputTag("caloStage2Digis","Tau"),
@@ -1023,8 +1016,7 @@ process.Candidates = cms.Sequence(
     process.taus               +
     process.fsrSequence        +
     process.softLeptons        + process.barellCand +
-    #process.jets              +
-    process.jecSequence + process.jetSequence + #process.jets + 
+    process.jecSequence        + process.jetSequence +
     process.METSequence        +
     process.geninfo            +
     process.SVFit
