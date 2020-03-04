@@ -378,14 +378,26 @@ scram b -j 8
 ### Instructions for 102X
 
 ```
-export SCRAM_ARCH=slc7_amd64_gcc820 # needed at LLR
-cmsrel CMSSW_10_2_18
-cd CMSSW_10_2_18/src
+## IMPORTANT ##
+# Make sure your are on SLC6 (ssh lxplus6.cern.ch)
+# and the architecture is slc6_amd64_gcc700
+# (you can set the architecture with: export SCRAM_ARCH=slc6_amd64_gcc700 )
+
+cmsrel CMSSW_10_2_20
+cd CMSSW_10_2_20/src
 cmsenv
 
-# MVA EleID Fall 2018
 git cms-init
+
+# MVA EleID Fall 2018
 git cms-merge-topic cms-egamma:EgammaPostRecoTools  #if you want the V2 IDs, otherwise skip
+
+# PU jet ID
+git cms-addpkg RecoJets/JetProducers
+git clone -b 94X_weights_DYJets_inc_v2 git@github.com:cms-jet/PUjetID.git PUJetIDweights/
+cp PUJetIDweights/weights/pileupJetId_{94,102}X_Eta* $CMSSW_BASE/src/RecoJets/JetProducers/data/
+rm -rf PUJetIDweights/
+git cms-merge-topic alefisico:PUID_102X
 
 # Z-recoil corrections
 git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
@@ -418,6 +430,9 @@ git cms-addpkg RecoMET/METFilters
 # SVfit
 git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
 git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
+
+#Add TauPOG corrections (TES and EES)
+git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
 
 #Add DeepTau code from Tau POG repository (note "-u" option preventing checkout of unnecessary stuff)
 git cms-merge-topic -u cms-tau-pog:CMSSW_10_2_X_tau-pog_DeepTau2017v2p1_nanoAOD

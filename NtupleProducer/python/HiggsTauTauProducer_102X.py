@@ -72,16 +72,16 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 if IsMC:
   if YEAR == 2016:
-    process.GlobalTag.globaltag = '94X_mcRun2_asymptotic_v3'        # 2016 MC
+    process.GlobalTag.globaltag = '102X_mcRun2_asymptotic_v7'        # 2016 MC
   if YEAR == 2017:
-    process.GlobalTag.globaltag = '94X_mc2017_realistic_v17'        # 2017 MC
+    process.GlobalTag.globaltag = '102X_mc2017_realistic_v7'        # 2017 MC
   if YEAR == 2018:
     process.GlobalTag.globaltag = '102X_upgrade2018_realistic_v20'  # 2018 MC
 else :
   if YEAR == 2016:
-    process.GlobalTag.globaltag = '94X_dataRun2_v10'                # 2016 Data
+    process.GlobalTag.globaltag = '102X_dataRun2_v12'                # 2016 Data
   if YEAR == 2017:
-    process.GlobalTag.globaltag = '94X_dataRun2_v11'                # 2017 Data
+    process.GlobalTag.globaltag = '102X_dataRun2_v12'                # 2017 Data
   if YEAR == 2018:
     if PERIOD=="D":
         process.GlobalTag.globaltag = '102X_dataRun2_Prompt_v15'    # 2018D Data
@@ -186,32 +186,6 @@ process.goodPrimaryVertices = cms.EDFilter("VertexSelector",
   cut = cms.string(PVERTEXCUT),
   filter = cms.bool(False), # if True, rejects events . if False, produce emtpy vtx collection
 )
-
-# 2017 ECAL bad calibration filter to be rerun, fix from https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
-# Ok for 2016, 2017 and 2018
-process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
-
-baddetEcallist = cms.vuint32(
-    [872439604,872422825,872420274,872423218,
-     872423215,872416066,872435036,872439336,
-     872420273,872436907,872420147,872439731,
-     872436657,872420397,872439732,872439339,
-     872439603,872422436,872439861,872437051,
-     872437052,872420649,872422436,872421950,
-     872437185,872422564,872421566,872421695,
-     872421955,872421567,872437184,872421951,
-     872421694,872437056,872437057,872437313])
-     
-
-process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
-    "EcalBadCalibFilter",
-    EcalRecHitSource = cms.InputTag("reducedEgamma:reducedEERecHits"),
-    ecalMinEt        = cms.double(50.),
-    baddetEcal    = baddetEcallist, 
-    taggingMode = cms.bool(True),
-    debug = cms.bool(False)
-    )
-
 
 
 process.bareSoftMuons = cms.EDFilter("PATMuonRefSelector",
@@ -363,8 +337,7 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
         finalCut = cms.string(' '),
 )
 
-# TES corrections: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Tau_energy_scale_for_MVA_tau_id
-# for DeepTau: https://indico.cern.ch/event/864131/contributions/3644021/attachments/1946837/3230164/Izaak_TauPOG_TauES_20191118.pdf
+# TES corrections: https://indico.cern.ch/event/887196/contributions/3743090/attachments/1984772/3306737/TauPOG_TES_20200210.pdf
 
 # EES corrections: https://indico.cern.ch/event/868279/contributions/3665970/attachments/1959265/3267731/FES_9Dec_explained.pdf
 
@@ -372,46 +345,46 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
 APPLYTESCORRECTION = APPLYTESCORRECTION if IsMC else False # always false if data
 
 # 2016 data - MVAoldDM2017v2
-#NomTESUncDM0      = cms.double(1.0)  # in percent, up/down uncertainty of TES
+#NomTESUncDM0   = cms.double(1.0)  # in percent, up/down uncertainty of TES
 #NomTESUncDM1   = cms.double(0.9)  # in percent, up/down uncertainty of TES
-#NomTESUncDM10      = cms.double(1.1)  # in percent, up/down uncertainty of TES
-#NomTESUncDM11   = --> Missing <--  # in percent, up/down uncertainty of TES
-#NomTESCorDM0      = cms.double(-0.6) # DecayMode==0
+#NomTESUncDM10  = cms.double(1.1)  # in percent, up/down uncertainty of TES
+#NomTESUncDM11  = --> Missing <--  # in percent, up/down uncertainty of TES
+#NomTESCorDM0   = cms.double(-0.6) # DecayMode==0
 #NomTESCorDM1   = cms.double(-0.5) # DecayMode==1
-#NomTESCorDM10      = cms.double(0.0)  # DecayMode==10
-#NomTESCorDM11   = --> Missing <--  # DecayMode==11
+#NomTESCorDM10  = cms.double(0.0)  # DecayMode==10
+#NomTESCorDM11  = --> Missing <--  # DecayMode==11
 
 # 2017 data - MVAoldDM2017v2
 #if YEAR == 2017:
-#    NomTESUncDM0      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#    NomTESUncDM0   = cms.double(0.8)  # in percent, up/down uncertainty of TES
 #    NomTESUncDM1   = cms.double(0.8)  # in percent, up/down uncertainty of TES
-#    NomTESUncDM10      = cms.double(0.9)  # in percent, up/down uncertainty of TES
-#    NomTESUncDM11   = cms.double(1.0)  # in percent, up/down uncertainty of TES
-#    NomTESCorDM0      = cms.double(0.7)  # DecayMode==0
+#    NomTESUncDM10  = cms.double(0.9)  # in percent, up/down uncertainty of TES
+#    NomTESUncDM11  = cms.double(1.0)  # in percent, up/down uncertainty of TES
+#    NomTESCorDM0   = cms.double(0.7)  # DecayMode==0
 #    NomTESCorDM1   = cms.double(-0.2) # DecayMode==1
-#    NomTESCorDM10      = cms.double(0.1)  # DecayMode==10
-#    NomTESCorDM11   = cms.double(-0.1) # DecayMode==11
+#    NomTESCorDM10  = cms.double(0.1)  # DecayMode==10
+#    NomTESCorDM11  = cms.double(-0.1) # DecayMode==11
 
 # 2018 data - MVAoldDM2017v2
 #if YEAR == 2018:
-#    NomTESUncDM0      = cms.double(1.1)  # in percent, up/down uncertainty of TES
+#    NomTESUncDM0   = cms.double(1.1)  # in percent, up/down uncertainty of TES
 #    NomTESUncDM1   = cms.double(0.9)  # in percent, up/down uncertainty of TES
-#    NomTESUncDM10      = cms.double(0.8)  # in percent, up/down uncertainty of TES
-#    NomTESUncDM11   = --> Missing <--  # in percent, up/down uncertainty of TES
-#    NomTESCorDM0      = cms.double(-1.3) # DecayMode==0
+#    NomTESUncDM10  = cms.double(0.8)  # in percent, up/down uncertainty of TES
+#    NomTESUncDM11  = --> Missing <--  # in percent, up/down uncertainty of TES
+#    NomTESCorDM0   = cms.double(-1.3) # DecayMode==0
 #    NomTESCorDM1   = cms.double(-0.5) # DecayMode==1
-#    NomTESCorDM10      = cms.double(-1.2) # DecayMode==10
-#    NomTESCorDM11   = --> Missing <--  # DecayMode==11
+#    NomTESCorDM10  = cms.double(-1.2) # DecayMode==10
+#    NomTESCorDM11  = --> Missing <--  # DecayMode==11
 
 # 2016 data - DeepTau2017v2p1
-NomTESUncDM0      = cms.double(0.7)  # in percent, up/down uncertainty of TES
-NomTESUncDM1      = cms.double(0.3)  # in percent, up/down uncertainty of TES
-NomTESUncDM10     = cms.double(0.4)  # in percent, up/down uncertainty of TES
-NomTESUncDM11     = cms.double(0.6)  # in percent, up/down uncertainty of TES
-NomTESCorDM0      = cms.double(-1.0) # DecayMode==0
+NomTESUncDM0      = cms.double(0.8)  # in percent, up/down uncertainty of TES
+NomTESUncDM1      = cms.double(0.6)  # in percent, up/down uncertainty of TES
+NomTESUncDM10     = cms.double(0.8)  # in percent, up/down uncertainty of TES
+NomTESUncDM11     = cms.double(1.1)  # in percent, up/down uncertainty of TES
+NomTESCorDM0      = cms.double(-0.9) # DecayMode==0
 NomTESCorDM1      = cms.double(-0.1) # DecayMode==1
-NomTESCorDM10     = cms.double(0.0)  # DecayMode==10
-NomTESCorDM11     = cms.double(2.6)  # DecayMode==11
+NomTESCorDM10     = cms.double(0.3)  # DecayMode==10
+NomTESCorDM11     = cms.double(-0.2) # DecayMode==11
 
 #EES BARREL
 NomEFakeESCorDM0B     = cms.double(0.679) #DecayMode==0
@@ -420,7 +393,6 @@ NomEFakeESUncDM0BDown  = cms.double(0.982) #DecayMode==0
 NomEFakeESCorDM1B      = cms.double(3.389) #DecayMode==1
 NomEFakeESUncDM1BUp    = cms.double(1.168) #DecayMode==1
 NomEFakeESUncDM1BDown  = cms.double(2.475) #DecayMode==1
-
 #EES ENDCAP
 NomEFakeESCorDM0E      = cms.double(-3.5)   #DecayMode==0
 NomEFakeESUncDM0EUp    = cms.double(1.808)  #DecayMode==0
@@ -429,16 +401,18 @@ NomEFakeESCorDM1E      = cms.double(5.)      #DecayMode==1
 NomEFakeESUncDM1EUp    = cms.double(6.57)   #DecayMode==1
 NomEFakeESUncDM1EDown  = cms.double(5.694)  #DecayMode==1
 
+TESyear = "2016Legacy"
+
 # 2017 data - DeepTau2017v2p1
 if YEAR == 2017:
-    NomTESUncDM0      = cms.double(0.7)  # in percent, up/down uncertainty of TES
-    NomTESUncDM1      = cms.double(0.3)  # in percent, up/down uncertainty of TES
-    NomTESUncDM10     = cms.double(0.5)  # in percent, up/down uncertainty of TES
-    NomTESUncDM11     = cms.double(0.6)  # in percent, up/down uncertainty of TES
-    NomTESCorDM0      = cms.double(-0.7) # DecayMode==0
-    NomTESCorDM1      = cms.double(-1.1) # DecayMode==1
-    NomTESCorDM10     = cms.double(0.5)  # DecayMode==10
-    NomTESCorDM11     = cms.double(1.7)  # DecayMode==1
+    NomTESUncDM0      = cms.double(1.0)  # in percent, up/down uncertainty of TES
+    NomTESUncDM1      = cms.double(0.6)  # in percent, up/down uncertainty of TES
+    NomTESUncDM10     = cms.double(0.7)  # in percent, up/down uncertainty of TES
+    NomTESUncDM11     = cms.double(1.4)  # in percent, up/down uncertainty of TES
+    NomTESCorDM0      = cms.double(0.4)  # DecayMode==0
+    NomTESCorDM1      = cms.double(0.2)  # DecayMode==1
+    NomTESCorDM10     = cms.double(0.1)  # DecayMode==10
+    NomTESCorDM11     = cms.double(-1.3) # DecayMode==1
 
     #EES BARREL
     NomEFakeESCorDM0B      = cms.double(0.911) #DecayMode==0
@@ -455,16 +429,18 @@ if YEAR == 2017:
     NomEFakeESUncDM1EUp    = cms.double(6.461)      #DecayMode==1
     NomEFakeESUncDM1EDown  = cms.double(4.969)    #DecayMode==1
 
+    TESyear = "2017ReReco"
+
 # 2018 data - DeepTau2017v2p1
 if YEAR == 2018:
-    NomTESUncDM0          = cms.double(0.8)  # in percent, up/down uncertainty of TES
-    NomTESUncDM1          = cms.double(0.3)  # in percent, up/down uncertainty of TES
-    NomTESUncDM10         = cms.double(0.4)  # in percent, up/down uncertainty of TES
-    NomTESUncDM11         = cms.double(1.0)  # in percent, up/down uncertainty of TES
+    NomTESUncDM0          = cms.double(0.9)  # in percent, up/down uncertainty of TES
+    NomTESUncDM1          = cms.double(0.5)  # in percent, up/down uncertainty of TES
+    NomTESUncDM10         = cms.double(0.7)  # in percent, up/down uncertainty of TES
+    NomTESUncDM11         = cms.double(1.2)  # in percent, up/down uncertainty of TES
     NomTESCorDM0          = cms.double(-1.6) # DecayMode==0
-    NomTESCorDM1          = cms.double(0.8)  # DecayMode==1
-    NomTESCorDM10         = cms.double(-0.9) # DecayMode==10
-    NomTESCorDM11         = cms.double(1.3)  # DecayMode==11
+    NomTESCorDM1          = cms.double(-0.5) # DecayMode==1
+    NomTESCorDM10         = cms.double(-1.2) # DecayMode==10
+    NomTESCorDM11         = cms.double(-0.4) # DecayMode==11
 
     #EES BARREL
     NomEFakeESCorDM0B      = cms.double(1.362)    #DecayMode==0
@@ -481,6 +457,7 @@ if YEAR == 2018:
     NomEFakeESUncDM1EUp    = cms.double(5.499)    #DecayMode==1
     NomEFakeESUncDM1EDown  = cms.double(4.309)    #DecayMode==1
 
+    TESyear = "2018ReReco"
 
 process.softTaus = cms.EDProducer("TauFiller",
    src = cms.InputTag("bareTaus"),
@@ -515,7 +492,9 @@ process.softTaus = cms.EDProducer("TauFiller",
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
    flags = cms.PSet(
         isGood = cms.string("")
-        )
+        ),
+
+   year = cms.string(TESyear)
    )
 
 process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTausNewID + process.bareTaus + process.softTaus)
@@ -560,42 +539,95 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 #Jets
 #
 
-# # add latest pileup jet ID
-process.load("RecoJets.JetProducers.PileupJetID_cfi")
-process.pileupJetIdUpdated = process.pileupJetId.clone(
-   jets = cms.InputTag("slimmedJets"),
-   inputIsCorrected = True,
-   applyJec = True,
-   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
-)
-#print process.pileupJetIdUpdated.dumpConfig()
-
-# apply new jet energy corrections
+# apply new jet energy corrections and recompute btaggers
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
+# JEC corrections
 jecLevels = None
 if IsMC:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
 else:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 
+# bTaggers
+btagVector = []
+
+if YEAR == 2018:
+    btagVector.append('None')
+
+if YEAR == 2017:
+    btagVector2017 = [
+        'pfDeepFlavourJetTags:probb',
+        'pfDeepFlavourJetTags:probbb',
+        'pfDeepFlavourJetTags:problepb',
+        'pfDeepFlavourJetTags:probc',
+        'pfDeepFlavourJetTags:probuds',
+        'pfDeepFlavourJetTags:probg'
+    ]
+    btagVector.extend(btagVector2017)
+
+if YEAR == 2016:
+    btagVector2016 = [
+        'pfDeepFlavourJetTags:probb',
+        'pfDeepFlavourJetTags:probbb',
+        'pfDeepFlavourJetTags:problepb',
+        'pfDeepFlavourJetTags:probc',
+        'pfDeepFlavourJetTags:probuds',
+        'pfDeepFlavourJetTags:probg',
+        'pfDeepCSVJetTags:probudsg',
+        'pfDeepCSVJetTags:probb',
+        'pfDeepCSVJetTags:probc',
+        'pfDeepCSVJetTags:probbb'
+    ]
+    btagVector.extend(btagVector2016)
+
+# Update jet collection
 updateJetCollection(
    process,
    jetSource = cms.InputTag('slimmedJets'),
-   labelName = 'UpdatedJEC',
+   pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+   svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
+   btagDiscriminators = btagVector,
+   labelName = 'UpdatedJEC'
 )
 
-process.updatedPatJetsUpdatedJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
-process.updatedPatJetsUpdatedJEC.userData.userInts.src    += ['pileupJetIdUpdated:fullId']
-process.jecSequence = cms.Sequence(process.pileupJetIdUpdated + process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+# Update the jet sequences
+if YEAR == 2016:
+    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
+                                       process.updatedPatJetsUpdatedJEC *
+                                       process.patJetCorrFactorsTransientCorrectedUpdatedJEC *
+                                       process.pfImpactParameterTagInfosUpdatedJEC *
+                                       process.pfInclusiveSecondaryVertexFinderTagInfosUpdatedJEC *
+                                       process.pfDeepCSVTagInfosUpdatedJEC *
+                                       process.pfDeepCSVJetTagsUpdatedJEC *
+                                       process.pfDeepFlavourTagInfosUpdatedJEC *
+                                       process.pfDeepFlavourJetTagsUpdatedJEC *
+                                       process.updatedPatJetsTransientCorrectedUpdatedJEC *
+                                       process.selectedUpdatedPatJetsUpdatedJEC)
 
+if YEAR == 2017:
+    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
+                                       process.updatedPatJetsUpdatedJEC *
+                                       process.patJetCorrFactorsTransientCorrectedUpdatedJEC *
+                                       process.pfImpactParameterTagInfosUpdatedJEC *
+                                       process.pfInclusiveSecondaryVertexFinderTagInfosUpdatedJEC *
+                                       process.pfDeepCSVTagInfosUpdatedJEC *
+                                       process.pfDeepFlavourTagInfosUpdatedJEC *
+                                       process.pfDeepFlavourJetTagsUpdatedJEC *
+                                       process.updatedPatJetsTransientCorrectedUpdatedJEC *
+                                       process.selectedUpdatedPatJetsUpdatedJEC)
+
+if YEAR == 2018:
+    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
+                                       process.updatedPatJetsUpdatedJEC *
+                                       process.selectedUpdatedPatJetsUpdatedJEC)
+
+# Jet Selector after JEC and bTagging
 process.jets = cms.EDFilter("PATJetRefSelector",
-                            #src = cms.InputTag("slimmedJets"),
-                            src = cms.InputTag("updatedPatJetsUpdatedJEC"),
+                            src = cms.InputTag("selectedUpdatedPatJetsUpdatedJEC"),
                             cut = cms.string(JETCUT),
 )
-
 
 ##
 ## QG tagging for jets
@@ -630,6 +662,26 @@ if COMPUTEQGVAR:
 
 else:
     process.jetSequence = cms.Sequence(process.jets)
+
+# Add latest pileup jet ID
+process.load("RecoJets.JetProducers.PileupJetID_cfi")
+from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
+
+if YEAR == 2016:
+    PUalgo = _chsalgos_81x
+if YEAR == 2017:
+    PUalgo = _chsalgos_94x
+if YEAR == 2018:
+    PUalgo = _chsalgos_102x
+
+process.pileupJetIdUpdated = process.pileupJetId.clone(
+   jets = cms.InputTag("jets"),
+   inputIsCorrected = True,
+   applyJec = False,
+   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
+   algos = PUalgo
+)
+process.jetSequence += cms.Sequence(process.pileupJetIdUpdated)
 
 
 # il primo legge la collezione dei leptoni e stampa quali sono
@@ -694,47 +746,92 @@ if USEPAIRMET:
 else:
     print "Using event pfMET (same MET for all pairs)"
 
-    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-    runMetCorAndUncFromMiniAOD(
-      process,
-      isData= (not IsMC),
-    )
+    if YEAR == 2016:
+        from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+        runMetCorAndUncFromMiniAOD(
+                process,
+                isData = (not IsMC)
+        )
+
+        process.METSequence += process.fullPatMetSequence
+        PFMetName = "slimmedMETs"
+        PFMetTag = cms.InputTag(PFMetName, "", "TEST")
+
+    if YEAR == 2017:
+        from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+
+        runMetCorAndUncFromMiniAOD(
+                process,
+                isData = (not IsMC),
+                fixEE2017 = True,
+                fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
+                postfix = "ModifiedMET"
+        )
+
+        # if running in schedule mode add this to your path
+        process.METSequence += process.fullPatMetSequenceModifiedMET
+        PFMetName = "slimmedMETsModifiedMET"
+        PFMetTag = cms.InputTag(PFMetName, "", "TEST")
+
+    if YEAR == 2018:
+        PFMetName = "slimmedMETs"
+        PFMetTag = cms.InputTag(PFMetName)
+
+
     # patch to get a standalone MET significance collection
     process.METSignificance = cms.EDProducer ("ExtractMETSignificance",
-                                                  srcMET=cms.InputTag("slimmedMETs","","TEST")
+                                                  #srcMET=cms.InputTag(PFMetName,"","TEST")
+                                                  srcMET=PFMetTag
                                                   )
 
     # add variables with MET shifted for TES corrections
     process.ShiftMETforTES = cms.EDProducer ("ShiftMETforTES",
-                                             srcMET  = cms.InputTag("slimmedMETs","","TEST"),
+                                             #srcMET  = cms.InputTag(PFMetName,"","TEST"),
+                                             srcMET  = PFMetTag,
                                              tauCollection = cms.InputTag("softTaus")
                                              )
 
     # add variables with MET shifted for EES corrections (E->tau ES)
     process.ShiftMETforEES = cms.EDProducer ("ShiftMETforEES",
-                                             srcMET  = cms.InputTag("slimmedMETs","","TEST"),
+                                             #srcMET  = cms.InputTag(PFMetName,"","TEST"),
+                                             srcMET  = PFMetTag,
                                              tauCollection = cms.InputTag("softTaus")
                                              )
 
-    process.METSequence += process.fullPatMetSequence
     process.METSequence += process.METSignificance
     process.METSequence += process.ShiftMETforTES
     process.METSequence += process.ShiftMETforEES
 
 
-## Since release 10_2_X (X >=7) this is included in CMSSW
-#from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-#
-#runMetCorAndUncFromMiniAOD (
-#        process,
-#        isData = (not IsMC),
-#        fixEE2017 = False,
-#        fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
-#        postfix = "ModifiedMET"
-#)
-#
-## if running in schedule mode add this to your path
-#process.MET = cms.Path(process.fullPatMetSequenceModifiedMET)
+    # 2017 and 2018 ECAL bad calibration filter to be rerun, fix from:
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#How_to_run_ecal_BadCalibReducedM
+    process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
+
+    # In 2017 and 2018 some problematic crystals --> pass list of crystals
+    if YEAR == 2017 or YEAR == 2018:
+        baddetEcallist = cms.vuint32(
+            [872439604,872422825,872420274,872423218,
+            872423215,872416066,872435036,872439336,
+            872420273,872436907,872420147,872439731,
+            872436657,872420397,872439732,872439339,
+            872439603,872422436,872439861,872437051,
+            872437052,872420649,872422436,872421950,
+            872437185,872422564,872421566,872421695,
+            872421955,872421567,872437184,872421951,
+            872421694,872437056,872437057,872437313])
+
+    # In 2016 no problem --> pass empty list
+    if YEAR == 2016:
+        baddetEcallist = cms.vuint32([])
+
+    process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
+        "EcalBadCalibFilter",
+        EcalRecHitSource = cms.InputTag("reducedEgamma:reducedEERecHits"),
+        ecalMinEt        = cms.double(50.),
+        baddetEcal    = baddetEcallist,
+        taggingMode = cms.bool(True),
+        debug = cms.bool(False)
+        )
 
 
 ## ----------------------------------------------------------------------
@@ -767,7 +864,8 @@ srcMETTag = None
 if USEPAIRMET:
   srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
 else:
-  srcMETTag = cms.InputTag(PFMetName, "", "TEST")
+  #srcMETTag = cms.InputTag(PFMetName, "", "TEST")
+  srcMETTag = PFMetTag
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -839,7 +937,9 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       rhoForJER = cms.InputTag("fixedGridRhoAll"), # FRA
                       PFCandCollection = cms.InputTag("packedPFCandidates"),
                       jetCollection = cms.InputTag("jets"),
-                      JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC"),
+                      JECset = cms.untracked.string(""),   # specified later
+                      pileupJetIdUpdatedDiscr = cms.InputTag("pileupJetIdUpdated", "fullDiscriminant"),
+                      pileupJetIdUpdatedWP    = cms.InputTag("pileupJetIdUpdated", "fullId"),
                       computeQGVar = cms.bool(COMPUTEQGVAR),
                       QGTagger = cms.InputTag("QGTagger", "qgLikelihood"),
                       stage2TauCollection = cms.InputTag("caloStage2Digis","Tau"),
@@ -863,9 +963,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),
-                      #metERCollection = cms.InputTag("slimmedMETsTest","","TEST"),
-                      #metERCollection = cms.InputTag("slimmedMETsModifiedMET"),
-                      metERCollection = cms.InputTag("slimmedMETs","","TEST"),
+                      metERCollection = PFMetTag,
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter"),
                       L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
                       L1prefireProbUp   = cms.InputTag("prefiringweight:nonPrefiringProbUp"),
@@ -873,10 +971,14 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
 )
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
-else: 
-    process.HTauTauTree.metCollection = cms.InputTag("slimmedMETs", "", "TEST") # use TEST so that I get the corrected one
+else:
+    #process.HTauTauTree.metCollection = cms.InputTag(PFMetName, "", "TEST") # use TEST so that I get the corrected one
+    process.HTauTauTree.metCollection = PFMetTag
 
-
+if YEAR == 2016 or YEAR == 2017:
+    process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedUpdatedJEC")
+if YEAR == 2018:
+    process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC")
 
 if SVFITBYPASS:
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
@@ -914,8 +1016,7 @@ process.Candidates = cms.Sequence(
     process.taus               +
     process.fsrSequence        +
     process.softLeptons        + process.barellCand +
-    #process.jets              +
-    process.jecSequence + process.jetSequence + #process.jets + 
+    process.jecSequence        + process.jetSequence +
     process.METSequence        +
     process.geninfo            +
     process.SVFit

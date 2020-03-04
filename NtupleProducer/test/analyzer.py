@@ -84,77 +84,25 @@ else :
 ### ----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    # '/store/mc/RunIISpring16MiniAODv2/SMS-TChiHH_HToBB_HToTauTau_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/B8A61C30-5E12-E711-87BB-FA163E939724.root',
-    #'/store/mc/RunIISpring16MiniAODv2/SMS-TChiHH_HToBB_HToTauTau_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16Fast_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/0264645E-5E12-E711-889B-E41D2D08DD10.root',
-    # '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v2/60000/4CBBCFDF-F8C6-E611-A5C2-6CC2173BBD40.root',
-    # '/store/mc/RunIISummer16MiniAODv2/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/PUMoriond17_backup_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/00000/AC8AA010-88BB-E611-9974-FA163E1B885B.root',
-    #'/store/mc/RunIISummer16MiniAODv2/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/80000/80EA9B8A-A1C1-E611-A107-20CF3027A61A.root',
-    #'/store/data/Run2016B/SingleMuon/MINIAOD/23Sep2016-v3/120000/E6D5D5EB-8299-E611-83D1-FA163EB4F61D.root',
-    ####'/store/data/Run2016C/SingleMuon/MINIAOD/23Sep2016-v1/80000/F8F49A79-BE89-E611-A029-008CFA1974E4.root'
-    #'/store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v2/000/273/150/00000/34A57FB8-D819-E611-B0A4-02163E0144EE.root', #80X data
-    # '/store/mc/RunIISpring16MiniAODv1/GluGluToBulkGravitonToHHTo2B2Tau_M-400_narrow_13TeV-madgraph/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3_ext1-v1/30000/06E22BEA-9F10-E611-9862-1CB72C0A3A5D.root', #80X MC
-    # '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToHToTauTau_M-160_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/12184969-3DB8-E511-879B-001E67504A65.root', #76X MC
-    
-    # 2017 Data
-    # B_v1
-    #'/store/data/Run2017B/SingleMuon/MINIAOD/PromptReco-v1/000/297/046/00000/32AC3177-7A56-E711-BE34-02163E019D73.root',
-    #'/store/data/Run2017B/SingleElectron/MINIAOD/PromptReco-v1/000/297/046/00000/02CBE6D1-4456-E711-82F5-02163E019D97.root', # 5000   evts
-    #'/store/data/Run2017B/SingleElectron/MINIAOD/PromptReco-v1/000/297/050/00000/166F7BB0-3C56-E711-BD8B-02163E0145C5.root',  # 147000 evts
-    #'/store/data/Run2017B/Tau/MINIAOD/PromptReco-v1/000/297/046/00000/B600F102-4856-E711-839A-02163E01411B.root',
-    # C_v3
-    #'/store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/742/00000/0AC61DCE-457E-E711-9CAE-02163E014217.root',
-    # root://cms-xrd-global.cern.ch//store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/742/00000/240BA088-597E-E711-ADE4-02163E019C30.root
-    #'/store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/742/00000/240BA088-597E-E711-ADE4-02163E019C30.root',
-    #'/store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/742/00000/425DFEF6-5D7E-E711-8F2F-02163E01A1DD.root',
-    
-    # MC 2017 - GT:92X_upgrade2017_realistic_v10
-    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/0080A67C-FBA4-E711-A8FE-00259029E84C.root',
-    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/0678C84B-F49E-E711-B561-A0369FC51AD4.root',
-    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/NZSFlatPU28to62_HIG07_92X_upgrade2017_realistic_v10-v1/70000/088CC59F-F39C-E711-8124-549F35AF44E3.root',
-    
-    # 2017 embedded samples - GT: 92X_dataRun2_Prompt_v4
-    #'/store/user/pahrens/gc_storage/MuTau_data_2017_CMSSW923p2_freiburg_v7/TauEmbedding_MuTau_data_2017_CMSSW923p2_Run2017B/merged/1/merged_0.root',    # 688 evts
-    #'/store/user/pahrens/gc_storage/MuTau_data_2017_CMSSW923p2_freiburg_v7/TauEmbedding_MuTau_data_2017_CMSSW923p2_Run2017B/merged/1/merged_100.root',  # 715 evts
-    #'/store/user/pahrens/gc_storage/MuTau_data_2017_CMSSW923p2_freiburg_v7/TauEmbedding_MuTau_data_2017_CMSSW923p2_Run2017B/merged/1/merged_1000.root', # 657 evts
-    
-    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/92X_upgrade2017_realistic_v10-v2/50000/02098EBB-029C-E711-8FED-441EA1714E4C.root'
-    #'/store/mc/RunIISummer17MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/92X_upgrade2017_realistic_v10-v2/50000/2A50557C-829D-E711-9331-10983627C3CE.root',
-    
-    # Samples for SyncFeb2018
-    # Signal
-    #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/128F2EAF-6905-E811-810E-44A842BECCD8.root',
-    #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/F89C5A80-6905-E811-9A3F-FA163ED3ED08.root',
-    #'/store/mc/RunIIFall17MiniAOD/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/94X_mc2017_realistic_v10-v1/40000/34715D6D-6905-E811-9843-44A842CFD5BE.root',
-    # miniAOD_v2
-    #'/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/1CA54262-F442-E811-8262-0CC47A4D7694.root',
-    #'/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/5ED78A31-7243-E811-8053-484D7E8DF09F.root',
-    #'/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/8CDFDFC6-C542-E811-9360-848F69FBC12A.root',
-    #'/store/mc/RunIIFall17MiniAODv2/GluGluToBulkGravitonToHHTo2B2Tau_M-450_narrow_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/A4C07038-AC42-E811-8A74-1418776375C9.root',
-    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/Graviton450_1.root',
-    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/Graviton450_2.root',
-    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/Graviton450_3.root',
-    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/Graviton450_4.root',
 
-    # Data
-    #'/store/data/Run2017B/Tau/MINIAOD/17Nov2017-v1/40000/02D49C45-F8DD-E711-9ACC-001E675043AD.root',
-    #'/store/data/Run2017B/SingleMuon/MINIAOD/31Mar2018-v1/100000/001642F1-6638-E811-B4FA-0025905B857A.root',
-    # miniAOD_v2
-    #'/store/data/Run2017B/Tau/MINIAOD/31Mar2018-v1/00000/040B1CD3-9437-E811-8D93-A4BF01158FE0.root',
-    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/TauB.root'
-    #'/store/data/Run2017F/Tau/MINIAOD/31Mar2018-v1/00000/0089E8C0-1A37-E811-9E5C-008CFAC93D18.root',
-    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/TauF.root'
+    # - Sync files -
+    # Legacy 2016
+    #'/store/data/Run2016H/SingleElectron/MINIAOD/17Jul2018-v1/00000/0026BF69-A58A-E811-BBA8-1866DA87AB31.root'
+    #'/store/data/Run2016F/SingleMuon/MINIAOD/17Jul2018-v1/00000/002F631B-E98D-E811-A8FF-1CB72C1B64E6.root'
+    #'/store/data/Run2016C/Tau/MINIAOD/17Jul2018-v1/40000/FC60B37F-468A-E811-8C7B-0CC47A7C3424.root'
+    #'/store/mc/RunIISummer16MiniAODv3/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3_ext2-v2/270000/EC774BCF-16E9-E811-B699-AC1F6B0DE2F4.root'
 
-    # TT Fully Hadronic
-    #'/store/mc/RunIIFall17MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/94X_mc2017_realistic_v10-v1/00000/047A883D-9618-E811-B3FB-7CD30AD09FDC.root',
-    #'/store/mc/RunIIFall17MiniAODv2/TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/20000/CA2359BE-6442-E811-A7C5-9CB654AEAE02.root'
-    # miniAOD_v2
-    #'/store/mc/RunIIFall17MiniAODv2/TTJets_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/00000/0031EAB0-8442-E811-84DF-0025901AFB36.root',
-    #'file:/afs/cern.ch/work/f/fbrivio/Hhh_1718/production/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/inputFiles/TT.root',
+    # Legacy 2017
+    #'/store/data/Run2017D/SingleElectron/MINIAOD/31Mar2018-v1/90000/FEFBCFEA-5939-E811-99DA-0025905B85D6.root'
+    #'/store/data/Run2017F/SingleMuon/MINIAOD/31Mar2018-v1/80004/EEC206A7-5737-E811-8E0A-0CC47A2B0388.root'
+    #'/store/data/Run2017C/Tau/MINIAOD/31Mar2018-v1/90000/FE83BD44-CD37-E811-8731-842B2B180922.root'
+    #'/store/mc/RunIIFall17MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14_ext1-v1/20000/0056F0F4-4F44-E811-B415-FA163E5B5253.root'
 
-    # DY 2 Jets
-    #'/store/mc/RunIIFall17MiniAODv2/DY2JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/810000/BAE0A78F-7366-E811-B871-A0369FD20D18.root'
-
-    '/store/mc/RunIIAutumn18MiniAOD/GluGluToHHTo2B2Tau_node_2_TuneCP5_PSWeights_13TeV-madgraph-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/70000/F0801D64-DDFF-004A-B935-120B8090F5B8.root',
+    # Legacy 2018
+    #'/store/data/Run2018D/EGamma/MINIAOD/22Jan2019-v2/110000/2FD9167C-A197-E749-908D-3809F7B83A23.root'
+    #'/store/data/Run2018D/SingleMuon/MINIAOD/22Jan2019-v2/110000/0011A0F3-23A3-D444-AD4D-2A2FFAE23796.root'
+    #'/store/data/Run2018D/Tau/MINIAOD/PromptReco-v2/000/320/497/00000/584D46DF-5F95-E811-9646-FA163E293146.root'
+    #'/store/mc/RunIIAutumn18MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/120000/B3F93EA2-04C6-E04E-96AF-CB8FAF67E6BA.root'
 
     )
 )
@@ -180,7 +128,7 @@ if not IsMC:
 ## Output file
 ##
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
-
+#process.TFileService=cms.Service('TFileService',fileName=cms.string('refFiles/Mu16_sync.root'))
 
 if DO_ENRICHED:
     process.out = cms.OutputModule("PoolOutputModule",
