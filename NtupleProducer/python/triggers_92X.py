@@ -58,6 +58,19 @@ HLTLIST = cms.VPSet(
         pt1 = cms.double(38),
         pt2 = cms.double(-999)
         ),
+### emulated HLT_Ele32_WPTight_Gsf_v for Data// HLT_Ele32_WPTight_Gsf_v was online only from Run2017C
+    cms.PSet (
+        HLT = cms.string("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v"),
+        path1 = cms.vstring ("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEGL1SingleEGOrFilter"),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(11),
+        leg2 = cms.int32(999),
+        pt1 = cms.double(35),
+        pt2 = cms.double(-999)
+        ),
+
 ### === mu tauh triggers - OK
     cms.PSet (
         HLT = cms.string("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v"),
