@@ -165,7 +165,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
   //int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
-  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, edm::EventSetup const&, JetCorrectionUncertainty*, myJECMap*);
+  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, edm::EventSetup const&, JetCorrectionUncertainty*, myJECMap*, myJECMap*);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets, const BXVector<l1t::Tau>* l1taus);
   //void FillbQuarks(const edm::Event&);
@@ -743,6 +743,77 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t>   _jets_neMult;
   std::vector<Int_t>   _jets_chMult;
   std::vector<Float_t> _jets_jecUnc;
+
+  // JEC uncertainty sources Regrouped
+  std::vector<Float_t> _jets_jetUncRegrouped_FlavorQCD_up;              // up variations
+  std::vector<Float_t> _jets_jetUncRegrouped_RelativeBal_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_HF_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_BBEC1_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_EC2_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_Absolute_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_BBEC1_YEAR_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_EC2_YEAR_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_Absolute_YEAR_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_HF_YEAR_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_RelativeSample_YEAR_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_Total_up;
+  std::vector<Float_t> _jets_jetUncRegrouped_FlavorQCD_dw;              // down variations
+  std::vector<Float_t> _jets_jetUncRegrouped_RelativeBal_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_HF_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_BBEC1_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_EC2_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_Absolute_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_BBEC1_YEAR_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_EC2_YEAR_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_Absolute_YEAR_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_HF_YEAR_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_RelativeSample_YEAR_dw;
+  std::vector<Float_t> _jets_jetUncRegrouped_Total_dw;
+  myJECMap jecSourceUncRegroupedProviders;
+  std::vector<std::string> m_jec_sources_regrouped_2016 = {
+  "FlavorQCD",
+  "RelativeBal",
+  "HF",
+  "BBEC1",
+  "EC2",
+  "Absolute",
+  "BBEC1_2016",
+  "EC2_2016",
+  "Absolute_2016",
+  "HF_2016",
+  "RelativeSample_2016",
+  "Total"
+  };
+  std::vector<std::string> m_jec_sources_regrouped_2017 = {
+  "FlavorQCD",
+  "RelativeBal",
+  "HF",
+  "BBEC1",
+  "EC2",
+  "Absolute",
+  "BBEC1_2017",
+  "EC2_2017",
+  "Absolute_2017",
+  "HF_2017",
+  "RelativeSample_2017",
+  "Total"
+  };
+  std::vector<std::string> m_jec_sources_regrouped_2018 = {
+  "FlavorQCD",
+  "RelativeBal",
+  "HF",
+  "BBEC1",
+  "EC2",
+  "Absolute",
+  "BBEC1_2018",
+  "EC2_2018",
+  "Absolute_2018",
+  "HF_2018",
+  "RelativeSample_2018",
+  "Total"
+  };
+  std::map<std::string, std::vector<Float_t>> _SourceUncValRegrouped_up;
+  std::map<std::string, std::vector<Float_t>> _SourceUncValRegrouped_dw;
 
   // JEC uncertainty sources
   std::vector<Float_t> _jets_jetUnc_AbsoluteFlavMap_up; // up variations
@@ -1488,6 +1559,40 @@ void HTauTauNtuplizer::Initialize(){
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
   _jets_jecUnc.clear();
+  // JEC uncertainti sources Regrouped
+  _jets_jetUncRegrouped_FlavorQCD_up.clear();  // up variations
+  _jets_jetUncRegrouped_RelativeBal_up.clear();
+  _jets_jetUncRegrouped_HF_up.clear();
+  _jets_jetUncRegrouped_BBEC1_up.clear();
+  _jets_jetUncRegrouped_EC2_up.clear();
+  _jets_jetUncRegrouped_Absolute_up.clear();
+  _jets_jetUncRegrouped_BBEC1_YEAR_up.clear();
+  _jets_jetUncRegrouped_EC2_YEAR_up.clear();
+  _jets_jetUncRegrouped_Absolute_YEAR_up.clear();
+  _jets_jetUncRegrouped_HF_YEAR_up.clear();
+  _jets_jetUncRegrouped_RelativeSample_YEAR_up.clear();
+  _jets_jetUncRegrouped_Total_up.clear();
+  _jets_jetUncRegrouped_FlavorQCD_dw.clear(); // down variations
+  _jets_jetUncRegrouped_RelativeBal_dw.clear();
+  _jets_jetUncRegrouped_HF_dw.clear();
+  _jets_jetUncRegrouped_BBEC1_dw.clear();
+  _jets_jetUncRegrouped_EC2_dw.clear();
+  _jets_jetUncRegrouped_Absolute_dw.clear();
+  _jets_jetUncRegrouped_BBEC1_YEAR_dw.clear();
+  _jets_jetUncRegrouped_EC2_YEAR_dw.clear();
+  _jets_jetUncRegrouped_Absolute_YEAR_dw.clear();
+  _jets_jetUncRegrouped_HF_YEAR_dw.clear();
+  _jets_jetUncRegrouped_RelativeSample_YEAR_dw.clear();
+  _jets_jetUncRegrouped_Total_dw.clear();
+  for (std::map<std::string, std::vector<Float_t> >::iterator it=_SourceUncValRegrouped_up.begin(); it!=_SourceUncValRegrouped_up.end(); ++it)
+  {
+    it->second.clear();
+  }
+  for (std::map<std::string, std::vector<Float_t> >::iterator it=_SourceUncValRegrouped_dw.begin(); it!=_SourceUncValRegrouped_dw.end(); ++it)
+  {
+    it->second.clear();
+  }
+
   // JEC uncertainty sources
   _jets_jetUnc_AbsoluteFlavMap_up.clear(); //up variations
   _jets_jetUnc_AbsoluteMPFBias_up.clear();
@@ -2032,6 +2137,63 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_neMult" , &_jets_neMult);
   myTree->Branch("jets_chMult" , &_jets_chMult);
   myTree->Branch("jets_jecUnc" , &_jets_jecUnc);
+  // JEC Regrouped uncertainty sources
+  myTree->Branch("jets_jetUncRegrouped_FlavorQCD_up"  , &_SourceUncValRegrouped_up["FlavorQCD"]); // up variations
+  myTree->Branch("jets_jetUncRegrouped_RelativeBal_up", &_SourceUncValRegrouped_up["RelativeBal"]);
+  myTree->Branch("jets_jetUncRegrouped_HF_up"         , &_SourceUncValRegrouped_up["HF"]);
+  myTree->Branch("jets_jetUncRegrouped_BBEC1_up"      , &_SourceUncValRegrouped_up["BBEC1"]);
+  myTree->Branch("jets_jetUncRegrouped_EC2_up"        , &_SourceUncValRegrouped_up["EC2"]);
+  myTree->Branch("jets_jetUncRegrouped_Absolute_up"   , &_SourceUncValRegrouped_up["Absolute"]);
+  myTree->Branch("jets_jetUncRegrouped_Total_up"      , &_SourceUncValRegrouped_up["Total"]);
+  myTree->Branch("jets_jetUncRegrouped_FlavorQCD_dw"  , &_SourceUncValRegrouped_dw["FlavorQCD"]); // up variations
+  myTree->Branch("jets_jetUncRegrouped_RelativeBal_dw", &_SourceUncValRegrouped_dw["RelativeBal"]);
+  myTree->Branch("jets_jetUncRegrouped_HF_dw"         , &_SourceUncValRegrouped_dw["HF"]);
+  myTree->Branch("jets_jetUncRegrouped_BBEC1_dw"      , &_SourceUncValRegrouped_dw["BBEC1"]);
+  myTree->Branch("jets_jetUncRegrouped_EC2_dw"        , &_SourceUncValRegrouped_dw["EC2"]);
+  myTree->Branch("jets_jetUncRegrouped_Absolute_dw"   , &_SourceUncValRegrouped_dw["Absolute"]);
+  myTree->Branch("jets_jetUncRegrouped_Total_dw"      , &_SourceUncValRegrouped_dw["Total"]);
+  if (theYear == 2016)
+  {
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_up"         , &_SourceUncValRegrouped_up["BBEC1_2016"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_up"           , &_SourceUncValRegrouped_up["EC2_2016"]);
+    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_up"      , &_SourceUncValRegrouped_up["Absolute_2016"]);
+    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2016"]);
+    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2016"]);
+
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2016"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2016"]);
+    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2016"]);
+    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2016"]);
+    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_dw", &_SourceUncValRegrouped_dw["RelativeSample_2016"]);
+  }
+  if (theYear == 2017)
+  {
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_up"         , &_SourceUncValRegrouped_up["BBEC1_2017"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_up"           , &_SourceUncValRegrouped_up["EC2_2017"]);
+    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_up"      , &_SourceUncValRegrouped_up["Absolute_2017"]);
+    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2017"]);
+    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2017"]);
+
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2017"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2017"]);
+    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2017"]);
+    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2017"]);
+    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_dw", &_SourceUncValRegrouped_dw["RelativeSample_2017"]);
+  }
+  if (theYear == 2018)
+  {
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_up"         , &_SourceUncValRegrouped_up["BBEC1_2018"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_up"           , &_SourceUncValRegrouped_up["EC2_2018"]);
+    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_up"      , &_SourceUncValRegrouped_up["Absolute_2018"]);
+    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2018"]);
+    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2018"]);
+
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2018"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2018"]);
+    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2018"]);
+    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2018"]);
+    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_dw", &_SourceUncValRegrouped_dw["RelativeSample_2018"]);
+  }
   // JEC Uncertainty sources
   myTree->Branch("jets_jetUnc_AbsoluteFlavMap_up"  , &_SourceUncVal_up["AbsoluteFlavMap"]); // up variations
   myTree->Branch("jets_jetUnc_AbsoluteMPFBias_up"  , &_SourceUncVal_up["AbsoluteMPFBias"]);
@@ -2191,6 +2353,67 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //event.getByLabel("offlineSlimmedPrimaryVertices",vertex);
   event.getByToken(theVtxTag,vertexs);
   
+  // JEC Reduced fill map with "sourceName, var"
+  // Up variations
+  _SourceUncValRegrouped_up.emplace("FlavorQCD", _jets_jetUncRegrouped_FlavorQCD_up);
+  _SourceUncValRegrouped_up.emplace("RelativeBal", _jets_jetUncRegrouped_RelativeBal_up);
+  _SourceUncValRegrouped_up.emplace("HF", _jets_jetUncRegrouped_HF_up);
+  _SourceUncValRegrouped_up.emplace("BBEC1", _jets_jetUncRegrouped_BBEC1_up);
+  _SourceUncValRegrouped_up.emplace("EC2", _jets_jetUncRegrouped_EC2_up);
+  _SourceUncValRegrouped_up.emplace("Absolute", _jets_jetUncRegrouped_Absolute_up);
+  _SourceUncValRegrouped_up.emplace("Total", _jets_jetUncRegrouped_Total_up);
+  // Down variations
+  _SourceUncValRegrouped_dw.emplace("FlavorQCD", _jets_jetUncRegrouped_FlavorQCD_dw);
+  _SourceUncValRegrouped_dw.emplace("RelativeBal", _jets_jetUncRegrouped_RelativeBal_dw);
+  _SourceUncValRegrouped_dw.emplace("HF", _jets_jetUncRegrouped_HF_dw);
+  _SourceUncValRegrouped_dw.emplace("BBEC1", _jets_jetUncRegrouped_BBEC1_dw);
+  _SourceUncValRegrouped_dw.emplace("EC2", _jets_jetUncRegrouped_EC2_dw);
+  _SourceUncValRegrouped_dw.emplace("Absolute", _jets_jetUncRegrouped_Absolute_dw);
+  _SourceUncValRegrouped_dw.emplace("Total", _jets_jetUncRegrouped_Total_dw);
+
+  if (theYear == 2016)
+  {
+    _SourceUncValRegrouped_up.emplace("BBEC1_2016"         , _jets_jetUncRegrouped_BBEC1_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("EC2_2016"           , _jets_jetUncRegrouped_EC2_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("Absolute_2016"      , _jets_jetUncRegrouped_Absolute_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("HF_2016"            , _jets_jetUncRegrouped_HF_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("RelativeSample_2016", _jets_jetUncRegrouped_RelativeSample_YEAR_up);
+
+    _SourceUncValRegrouped_dw.emplace("BBEC1_2016"         , _jets_jetUncRegrouped_BBEC1_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("EC2_2016"           , _jets_jetUncRegrouped_EC2_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("Absolute_2016"      , _jets_jetUncRegrouped_Absolute_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("HF_2016"            , _jets_jetUncRegrouped_HF_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("RelativeSample_2016", _jets_jetUncRegrouped_RelativeSample_YEAR_dw);
+  }
+  else if (theYear == 2017)
+  {
+    _SourceUncValRegrouped_up.emplace("BBEC1_2017"         , _jets_jetUncRegrouped_BBEC1_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("EC2_2017"           , _jets_jetUncRegrouped_EC2_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("Absolute_2017"      , _jets_jetUncRegrouped_Absolute_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("HF_2017"            , _jets_jetUncRegrouped_HF_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("RelativeSample_2017", _jets_jetUncRegrouped_RelativeSample_YEAR_up);
+
+    _SourceUncValRegrouped_dw.emplace("BBEC1_2017"         , _jets_jetUncRegrouped_BBEC1_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("EC2_2017"           , _jets_jetUncRegrouped_EC2_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("Absolute_2017"      , _jets_jetUncRegrouped_Absolute_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("HF_2017"            , _jets_jetUncRegrouped_HF_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("RelativeSample_2017", _jets_jetUncRegrouped_RelativeSample_YEAR_dw);
+  }
+  else if (theYear == 2018)
+  {
+    _SourceUncValRegrouped_up.emplace("BBEC1_2018"         , _jets_jetUncRegrouped_BBEC1_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("EC2_2018"           , _jets_jetUncRegrouped_EC2_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("Absolute_2018"      , _jets_jetUncRegrouped_Absolute_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("HF_2018"            , _jets_jetUncRegrouped_HF_YEAR_up);
+    _SourceUncValRegrouped_up.emplace("RelativeSample_2018", _jets_jetUncRegrouped_RelativeSample_YEAR_up);
+
+    _SourceUncValRegrouped_dw.emplace("BBEC1_2018"         , _jets_jetUncRegrouped_BBEC1_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("EC2_2018"           , _jets_jetUncRegrouped_EC2_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("Absolute_2018"      , _jets_jetUncRegrouped_Absolute_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("HF_2018"            , _jets_jetUncRegrouped_HF_YEAR_dw);
+    _SourceUncValRegrouped_dw.emplace("RelativeSample_2018", _jets_jetUncRegrouped_RelativeSample_YEAR_dw);
+  }
+
   // JEC fill map with "sourceName, var"
   // Up variations
   _SourceUncVal_up.emplace("AbsoluteFlavMap" ,_jets_jetUnc_AbsoluteFlavMap_up);
@@ -2501,6 +2724,33 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   bool Run2018C = (_runNumber >= 319313 && _runNumber <= 320393);
   bool Run2018D = (_runNumber >= 320394 && _runNumber <= 325273);
 
+  // JEC Regrouped uncertainty sources
+  if (theYear == 2016)
+  {
+    for (const auto& source: m_jec_sources_regrouped_2016) {
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Summer16_07Aug2017_V11_MC_UncertaintySources_AK4PFchs.txt", source);
+      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
+      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
+    }
+  }
+  else if (theYear == 2017)
+  {
+    for (const auto& source: m_jec_sources_regrouped_2017) {
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
+      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
+      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
+    }
+  }
+  else if (theYear == 2018)
+  {
+    for (const auto& source: m_jec_sources_regrouped_2018) {
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Autumn18_V19_MC_UncertaintySources_AK4PFchs.txt", source);
+      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
+      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
+    }
+  }
+
+  // Full JEC uncertainty sources
   if(theisMC)
   {
     if (theYear == 2016)
@@ -2602,7 +2852,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _numberOfJets = 0;
   if(writeJets){
     //_numberOfJets = FillJet(jets, event, &jecUnc);
-    _numberOfJets = FillJet(jets, event, eSetup, &jecUnc, &jecSourceUncProviders);
+    _numberOfJets = FillJet(jets, event, eSetup, &jecUnc, &jecSourceUncProviders, &jecSourceUncRegroupedProviders);
 
     if(computeQGVar){ //Needs jetHandle + qgTaggerHandle
       for(auto jet = jetHandle->begin(); jet != jetHandle->end(); ++jet){
@@ -2926,7 +3176,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
 //Fill jets quantities
 //int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
-int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, edm::EventSetup const& iSetup, JetCorrectionUncertainty* jecUnc, myJECMap* jecSourceUncProviders){
+int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, edm::EventSetup const& iSetup, JetCorrectionUncertainty* jecUnc, myJECMap* jecSourceUncProviders, myJECMap* jecSourceUncRegroupedProviders){
 
   // TriggerBits and TriggerObjets (for VBF trigger matching)
   edm::Handle<edm::TriggerResults> triggerBits;
@@ -3206,6 +3456,23 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     jecUnc->setJetEta(ijet->eta());
     jecUnc->setJetPt(ijet->pt()); // here you must use the CORRECTED jet pt
     _jets_jecUnc.push_back(jecUnc->getUncertainty(true));
+
+    // JEC Regrouped uncertainty sources
+    for (myJECMap::iterator it=jecSourceUncRegroupedProviders->begin(); it!=jecSourceUncRegroupedProviders->end(); ++it)
+    {
+      // up variations
+      it->second->setJetEta(ijet->eta());
+      it->second->setJetPt(ijet->pt());
+      float uncertainty_up = it->second->getUncertainty(true);
+      _SourceUncValRegrouped_up[it->first].push_back(uncertainty_up);
+
+      // down variations
+      it->second->setJetEta(ijet->eta());
+      it->second->setJetPt(ijet->pt());
+      float uncertainty_dw = it->second->getUncertainty(false);
+      _SourceUncValRegrouped_dw[it->first].push_back(uncertainty_dw);
+    }
+
 
     // JEC uncertainties sources
     for (myJECMap::iterator it=jecSourceUncProviders->begin(); it!=jecSourceUncProviders->end(); ++it)
