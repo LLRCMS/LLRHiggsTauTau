@@ -430,6 +430,8 @@ git cms-addpkg RecoMET/METFilters
 # SVfit
 git clone https://github.com/SVfit/ClassicSVfit TauAnalysis/ClassicSVfit -b release_2018Mar20
 git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
+# In order to avoid memory leaking and speed up the processing
+# uncomment lines 332-335 in TauAnalysis/ClassicSVfit/src/svFitHistogramAdapter.cc
 
 #Add TauPOG corrections (TES and EES)
 git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
