@@ -126,9 +126,13 @@ theMETdyDOWNEESTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdyDO
 {
   //theCandidateTag = iConfig.getParameter<InputTag>("srcPairs");
   _usePairMET = iConfig.getParameter<bool>("usePairMET");
-  _computeForUpDownTES = iConfig.getParameter<bool>("computeForUpDownTES");
-  _computeForUpDownMET = iConfig.getParameter<bool>("computeForUpDownMET");
   
+  // Force to "false" to avoid computing SVFit for up/down variations
+  //_computeForUpDownTES = iConfig.getParameter<bool>("computeForUpDownTES");
+  //_computeForUpDownMET = iConfig.getParameter<bool>("computeForUpDownMET");
+  _computeForUpDownTES = false;
+  _computeForUpDownMET = false;
+
   // const std::vector<edm::InputTag>& inMET = iConfig.getParameter<std::vector<edm::InputTag> >("srcMET");
   // for (std::vector<edm::InputTag>::const_iterator it = inMET.begin(); it != inMET.end(); ++it)
   // {      
@@ -913,100 +917,98 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     // add user floats: SVfit mass, met properties, etc..  
     pair.addUserFloat("SVfitMass", (float) SVfitMass);
-    pair.addUserFloat("SVfitMassTauUp", (float) SVfitMassTauUp);
-    pair.addUserFloat("SVfitMassTauDown", (float) SVfitMassTauDown);
-    pair.addUserFloat("SVfitMassMETUp", (float) SVfitMassMETUp);
-    pair.addUserFloat("SVfitMassMETDown", (float) SVfitMassMETDown);
-    pair.addUserFloat("SVfitMassEleUp", (float) SVfitMassEleUp);
-    pair.addUserFloat("SVfitMassEleDown", (float) SVfitMassEleDown);
-
     pair.addUserFloat("SVfitTransverseMass", (float) SVfitTransverseMass);
-    pair.addUserFloat("SVfitTransverseMassTauUp", (float) SVfitTransverseMassTauUp);
-    pair.addUserFloat("SVfitTransverseMassTauDown", (float) SVfitTransverseMassTauDown);
-    pair.addUserFloat("SVfitTransverseMassMETUp", (float) SVfitTransverseMassMETUp);
-    pair.addUserFloat("SVfitTransverseMassMETDown", (float) SVfitTransverseMassMETDown);
-    pair.addUserFloat("SVfitTransverseMassEleUp", (float) SVfitTransverseMassEleUp);
-    pair.addUserFloat("SVfitTransverseMassEleDown", (float) SVfitTransverseMassEleDown);
-
     pair.addUserFloat("SVfit_pt", (float) SVpt);
-    pair.addUserFloat("SVfit_ptTauUp", (float) SVptTauUp);
-    pair.addUserFloat("SVfit_ptTauDown", (float) SVptTauDown);
-    pair.addUserFloat("SVfit_ptMETUp", (float) SVptMETUp);
-    pair.addUserFloat("SVfit_ptMETDown", (float) SVptMETDown);
-    pair.addUserFloat("SVfit_ptEleUp", (float) SVptEleUp);
-    pair.addUserFloat("SVfit_ptEleDown", (float) SVptEleDown);
-
     pair.addUserFloat("SVfit_eta", (float) SVeta);
-    pair.addUserFloat("SVfit_etaTauUp", (float) SVetaTauUp);
-    pair.addUserFloat("SVfit_etaTauDown", (float) SVetaTauDown);
-    pair.addUserFloat("SVfit_etaMETUp", (float) SVetaMETUp);
-    pair.addUserFloat("SVfit_etaMETDown", (float) SVetaMETDown);
-    pair.addUserFloat("SVfit_etaEleUp", (float) SVetaEleUp);
-    pair.addUserFloat("SVfit_etaEleDown", (float) SVetaEleDown);
-
     pair.addUserFloat("SVfit_phi", (float) SVphi);
-    pair.addUserFloat("SVfit_phiTauUp", (float) SVphiTauUp);
-    pair.addUserFloat("SVfit_phiTauDown", (float) SVphiTauDown);
-    pair.addUserFloat("SVfit_phiMETUp", (float) SVphiMETUp);
-    pair.addUserFloat("SVfit_phiMETDown", (float) SVphiMETDown);
-    pair.addUserFloat("SVfit_phiEleUp", (float) SVphiEleUp);
-    pair.addUserFloat("SVfit_phiEleDown", (float) SVphiEleDown);
-
     pair.addUserFloat("SVfitMassUnc", (float) SVfitMassUnc);
-    pair.addUserFloat("SVfitMassUncTauUp", (float) SVfitMassUncTauUp);
-    pair.addUserFloat("SVfitMassUncTauDown", (float) SVfitMassUncTauDown);
-    pair.addUserFloat("SVfitMassUncMETUp", (float) SVfitMassUncMETUp);
-    pair.addUserFloat("SVfitMassUncMETDown", (float) SVfitMassUncMETDown);
-    pair.addUserFloat("SVfitMassUncEleUp", (float) SVfitMassUncEleUp);
-    pair.addUserFloat("SVfitMassUncEleDown", (float) SVfitMassUncEleDown);
-
     pair.addUserFloat("SVfitTransverseMassUnc", (float) SVfitTransverseMassUnc);
-    pair.addUserFloat("SVfitTransverseMassUncTauUp", (float) SVfitTransverseMassUncTauUp);
-    pair.addUserFloat("SVfitTransverseMassUncTauDown", (float) SVfitTransverseMassUncTauDown);
-    pair.addUserFloat("SVfitTransverseMassUncMETUp", (float) SVfitTransverseMassUncMETUp);
-    pair.addUserFloat("SVfitTransverseMassUncMETDown", (float) SVfitTransverseMassUncMETDown);
-    pair.addUserFloat("SVfitTransverseMassUncEleUp", (float) SVfitTransverseMassUncEleUp);
-    pair.addUserFloat("SVfitTransverseMassUncEleDown", (float) SVfitTransverseMassUncEleDown);
-
     pair.addUserFloat("SVfit_ptUnc", (float) SVptUnc);
-    pair.addUserFloat("SVfit_ptUncTauUp", (float) SVptUncTauUp);
-    pair.addUserFloat("SVfit_ptUncTauDown", (float) SVptUncTauDown);
-    pair.addUserFloat("SVfit_ptUncMETUp", (float) SVptUncMETUp);
-    pair.addUserFloat("SVfit_ptUncMETDown", (float) SVptUncMETDown);
-    pair.addUserFloat("SVfit_ptUncEleUp", (float) SVptUncEleUp);
-    pair.addUserFloat("SVfit_ptUncEleDown", (float) SVptUncEleDown);
-
     pair.addUserFloat("SVfit_etaUnc", (float) SVetaUnc);
-    pair.addUserFloat("SVfit_etaUncTauUp", (float) SVetaUncTauUp);
-    pair.addUserFloat("SVfit_etaUncTauDown", (float) SVetaUncTauDown);
-    pair.addUserFloat("SVfit_etaUncMETUp", (float) SVetaUncMETUp);
-    pair.addUserFloat("SVfit_etaUncMETDown", (float) SVetaUncMETDown);
-    pair.addUserFloat("SVfit_etaUncEleUp", (float) SVetaUncEleUp);
-    pair.addUserFloat("SVfit_etaUncEleDown", (float) SVetaUncEleDown);
-
     pair.addUserFloat("SVfit_phiUnc", (float) SVphiUnc);
-    pair.addUserFloat("SVfit_phiUncTauUp", (float) SVphiUncTauUp);
-    pair.addUserFloat("SVfit_phiUncTauDown", (float) SVphiUncTauDown);
-    pair.addUserFloat("SVfit_phiUncMETUp", (float) SVphiUncMETUp);
-    pair.addUserFloat("SVfit_phiUncMETDown", (float) SVphiUncMETDown);
-    pair.addUserFloat("SVfit_phiUncEleUp", (float) SVphiUncEleUp);
-    pair.addUserFloat("SVfit_phiUncEleDown", (float) SVphiUncEleDown);
-
     pair.addUserFloat("SVfit_METRho", (float) SVMETRho);
-    pair.addUserFloat("SVfit_METRhoTauUp", (float) SVMETRhoTauUp);
-    pair.addUserFloat("SVfit_METRhoTauDown", (float) SVMETRhoTauDown);
-    pair.addUserFloat("SVfit_METRhoMETUp", (float) SVMETRhoMETUp);
-    pair.addUserFloat("SVfit_METRhoMETDown", (float) SVMETRhoMETDown);
-    pair.addUserFloat("SVfit_METRhoEleUp", (float) SVMETRhoEleUp);
-    pair.addUserFloat("SVfit_METRhoEleDown", (float) SVMETRhoEleDown);
-
     pair.addUserFloat("SVfit_METPhi", (float) SVMETPhi);
-    pair.addUserFloat("SVfit_METPhiTauUp", (float) SVMETPhiTauUp);
-    pair.addUserFloat("SVfit_METPhiTauDown", (float) SVMETPhiTauDown);
-    pair.addUserFloat("SVfit_METPhiMETUp", (float) SVMETPhiMETUp);
-    pair.addUserFloat("SVfit_METPhiMETDown", (float) SVMETPhiMETDown);
-    pair.addUserFloat("SVfit_METPhiEleUp", (float) SVMETPhiEleUp);
-    pair.addUserFloat("SVfit_METPhiEleDown", (float) SVMETPhiEleDown);
+
+    if (_computeForUpDownTES)
+    {
+      pair.addUserFloat("SVfitMassTauUp", (float) SVfitMassTauUp);
+      pair.addUserFloat("SVfitMassTauDown", (float) SVfitMassTauDown);
+      pair.addUserFloat("SVfitTransverseMassTauUp", (float) SVfitTransverseMassTauUp);
+      pair.addUserFloat("SVfitTransverseMassTauDown", (float) SVfitTransverseMassTauDown);
+      pair.addUserFloat("SVfit_ptTauUp", (float) SVptTauUp);
+      pair.addUserFloat("SVfit_ptTauDown", (float) SVptTauDown);
+      pair.addUserFloat("SVfit_etaTauUp", (float) SVetaTauUp);
+      pair.addUserFloat("SVfit_etaTauDown", (float) SVetaTauDown);
+      pair.addUserFloat("SVfit_phiTauUp", (float) SVphiTauUp);
+      pair.addUserFloat("SVfit_phiTauDown", (float) SVphiTauDown);
+      pair.addUserFloat("SVfitMassUncTauUp", (float) SVfitMassUncTauUp);
+      pair.addUserFloat("SVfitMassUncTauDown", (float) SVfitMassUncTauDown);
+      pair.addUserFloat("SVfitTransverseMassUncTauUp", (float) SVfitTransverseMassUncTauUp);
+      pair.addUserFloat("SVfitTransverseMassUncTauDown", (float) SVfitTransverseMassUncTauDown);
+      pair.addUserFloat("SVfit_ptUncTauUp", (float) SVptUncTauUp);
+      pair.addUserFloat("SVfit_ptUncTauDown", (float) SVptUncTauDown);
+      pair.addUserFloat("SVfit_etaUncTauUp", (float) SVetaUncTauUp);
+      pair.addUserFloat("SVfit_etaUncTauDown", (float) SVetaUncTauDown);
+      pair.addUserFloat("SVfit_phiUncTauUp", (float) SVphiUncTauUp);
+      pair.addUserFloat("SVfit_phiUncTauDown", (float) SVphiUncTauDown);
+      pair.addUserFloat("SVfit_METRhoTauUp", (float) SVMETRhoTauUp);
+      pair.addUserFloat("SVfit_METRhoTauDown", (float) SVMETRhoTauDown);
+      pair.addUserFloat("SVfit_METPhiTauUp", (float) SVMETPhiTauUp);
+      pair.addUserFloat("SVfit_METPhiTauDown", (float) SVMETPhiTauDown);
+
+      pair.addUserFloat("SVfitMassEleUp", (float) SVfitMassEleUp);
+      pair.addUserFloat("SVfitMassEleDown", (float) SVfitMassEleDown);
+      pair.addUserFloat("SVfitTransverseMassEleUp", (float) SVfitTransverseMassEleUp);
+      pair.addUserFloat("SVfitTransverseMassEleDown", (float) SVfitTransverseMassEleDown);
+      pair.addUserFloat("SVfit_ptEleUp", (float) SVptEleUp);
+      pair.addUserFloat("SVfit_ptEleDown", (float) SVptEleDown);
+      pair.addUserFloat("SVfit_etaEleUp", (float) SVetaEleUp);
+      pair.addUserFloat("SVfit_etaEleDown", (float) SVetaEleDown);
+      pair.addUserFloat("SVfit_phiEleUp", (float) SVphiEleUp);
+      pair.addUserFloat("SVfit_phiEleDown", (float) SVphiEleDown);
+      pair.addUserFloat("SVfitMassUncEleUp", (float) SVfitMassUncEleUp);
+      pair.addUserFloat("SVfitMassUncEleDown", (float) SVfitMassUncEleDown);
+      pair.addUserFloat("SVfitTransverseMassUncEleUp", (float) SVfitTransverseMassUncEleUp);
+      pair.addUserFloat("SVfitTransverseMassUncEleDown", (float) SVfitTransverseMassUncEleDown);
+      pair.addUserFloat("SVfit_ptUncEleUp", (float) SVptUncEleUp);
+      pair.addUserFloat("SVfit_ptUncEleDown", (float) SVptUncEleDown);
+      pair.addUserFloat("SVfit_etaUncEleUp", (float) SVetaUncEleUp);
+      pair.addUserFloat("SVfit_etaUncEleDown", (float) SVetaUncEleDown);
+      pair.addUserFloat("SVfit_phiUncEleUp", (float) SVphiUncEleUp);
+      pair.addUserFloat("SVfit_phiUncEleDown", (float) SVphiUncEleDown);
+      pair.addUserFloat("SVfit_METRhoEleUp", (float) SVMETRhoEleUp);
+      pair.addUserFloat("SVfit_METRhoEleDown", (float) SVMETRhoEleDown);
+      pair.addUserFloat("SVfit_METPhiEleUp", (float) SVMETPhiEleUp);
+      pair.addUserFloat("SVfit_METPhiEleDown", (float) SVMETPhiEleDown);
+    }
+
+    if (_computeForUpDownMET)
+    {
+      pair.addUserFloat("SVfitMassMETUp", (float) SVfitMassMETUp);
+      pair.addUserFloat("SVfitMassMETDown", (float) SVfitMassMETDown);
+      pair.addUserFloat("SVfitTransverseMassMETUp", (float) SVfitTransverseMassMETUp);
+      pair.addUserFloat("SVfitTransverseMassMETDown", (float) SVfitTransverseMassMETDown);
+      pair.addUserFloat("SVfit_ptMETUp", (float) SVptMETUp);
+      pair.addUserFloat("SVfit_ptMETDown", (float) SVptMETDown);
+      pair.addUserFloat("SVfit_etaMETUp", (float) SVetaMETUp);
+      pair.addUserFloat("SVfit_etaMETDown", (float) SVetaMETDown);
+      pair.addUserFloat("SVfit_phiMETUp", (float) SVphiMETUp);
+      pair.addUserFloat("SVfit_phiMETDown", (float) SVphiMETDown);
+      pair.addUserFloat("SVfitMassUncMETUp", (float) SVfitMassUncMETUp);
+      pair.addUserFloat("SVfitMassUncMETDown", (float) SVfitMassUncMETDown);
+      pair.addUserFloat("SVfitTransverseMassUncMETUp", (float) SVfitTransverseMassUncMETUp);
+      pair.addUserFloat("SVfitTransverseMassUncMETDown", (float) SVfitTransverseMassUncMETDown);
+      pair.addUserFloat("SVfit_ptUncMETUp", (float) SVptUncMETUp);
+      pair.addUserFloat("SVfit_ptUncMETDown", (float) SVptUncMETDown);
+      pair.addUserFloat("SVfit_etaUncMETUp", (float) SVetaUncMETUp);
+      pair.addUserFloat("SVfit_etaUncMETDown", (float) SVetaUncMETDown);
+      pair.addUserFloat("SVfit_phiUncMETUp", (float) SVphiUncMETUp);
+      pair.addUserFloat("SVfit_phiUncMETDown", (float) SVphiUncMETDown);
+      pair.addUserFloat("SVfit_METRhoMETUp", (float) SVMETRhoMETUp);
+      pair.addUserFloat("SVfit_METRhoMETDown", (float) SVMETRhoMETDown);
+      pair.addUserFloat("SVfit_METPhiMETUp", (float) SVMETPhiMETUp);
+      pair.addUserFloat("SVfit_METPhiMETDown", (float) SVMETPhiMETDown);
+    }
 
     pair.addUserFloat("MEt_px", (float) METx);
     pair.addUserFloat("MEt_py", (float) METy);

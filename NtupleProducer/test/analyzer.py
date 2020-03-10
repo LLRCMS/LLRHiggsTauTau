@@ -33,8 +33,8 @@ SVFITBYPASS=False # use SVFitBypass module, no SVfit computation, adds dummy use
 
 BUILDONLYOS=False #If true don't create the collection of SS candidates (and thus don't run SV fit on them)
 APPLYTESCORRECTION=True # shift the central value of the tau energy scale before computing up/down variations
-COMPUTEUPDOWNSVFIT=True # compute SVfit for up/down TES variation
-COMPUTEMETUPDOWNSVFIT=True # compute SVfit for up/down MET JES variation
+COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
+COMPUTEMETUPDOWNSVFIT=False # compute SVfit for up/down MET JES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = False # compute QG Tagger for jets
 IsMC=True
