@@ -480,6 +480,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         udshiftP[0]    =  Shift1Pr + TESshiftDM0; //udShift[0]; // up
         udshiftP[1]    =  Shift1Pr - TESshiftDM0; //udShift[1]; // down
         udshiftMass[0] = udshiftMass[1] = 1.; // no mass shift for pi0
+        l.addUserFloat("TESshiftDM0",TESshiftDM0);
       }
       else if (l.decayMode()==1)  // 1prong+pi0
       {
@@ -487,6 +488,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         udshiftP[1]    = Shift1PrPi0 - TESshiftDM1; //udShift[1]; // down
         udshiftMass[0] = Shift1PrPi0 + TESshiftDM1; //udShift[0]; // up
         udshiftMass[1] = Shift1PrPi0 - TESshiftDM1; //udShift[1]; // down
+        l.addUserFloat("TESshiftDM1",TESshiftDM1);
       }
       else if (l.decayMode()==10) // 3prong
       {
@@ -494,6 +496,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         udshiftP[1]    = Shift3Pr - TESshiftDM10; //udShift[1]; // down
         udshiftMass[0] = Shift3Pr + TESshiftDM10; //udShift[0]; // up
         udshiftMass[1] = Shift3Pr - TESshiftDM10; //udShift[1]; // down
+        l.addUserFloat("TESshiftDM10",TESshiftDM10);
       }
       else if (l.decayMode()==11) // 3prong
       {
@@ -501,6 +504,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         udshiftP[1]    = Shift3PrPi0 - TESshiftDM11; //udShift[1]; // down
         udshiftMass[0] = Shift3PrPi0 + TESshiftDM11; //udShift[0]; // up
         udshiftMass[1] = Shift3PrPi0 - TESshiftDM11; //udShift[1]; // down
+        l.addUserFloat("TESshiftDM11",TESshiftDM11);
       }
       else  // these are not real taus and will be rejected --> we don't care about the shift and just put 1
       {
@@ -579,6 +583,16 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         udEFakeshiftP[1]    =  EFakeShift1PrE - EESshiftDM0Edown; // down
       }
       udEFakeshiftMass[0] = udEFakeshiftMass[1] = 1.; // no mass shift for pi0
+      if(fabs(l.eta())<=1.5)
+      {
+        l.addUserFloat("EESshiftDM0up",EESshiftDM0Bup);
+        l.addUserFloat("EESshiftDM0dw",EESshiftDM0Bdown);
+      }
+      else
+      {
+        l.addUserFloat("EESshiftDM0up",EESshiftDM0Eup);
+        l.addUserFloat("EESshiftDM0dw",EESshiftDM0Edown);
+      }
     }
     if ((genmatch == 1 || genmatch == 3) &&l.decayMode()==1)
     {
@@ -592,6 +606,16 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         udEFakeshiftP[1]    = EFakeShift1PrPi0E - EESshiftDM1Edown; // down
         udEFakeshiftMass[0] = EFakeShift1PrPi0E + EESshiftDM1Eup;   // up
         udEFakeshiftMass[1] = EFakeShift1PrPi0E - EESshiftDM1Edown; // down
+      }
+      if(fabs(l.eta())<=1.5)
+      {
+        l.addUserFloat("EESshiftDM1up",EESshiftDM1Bup);
+        l.addUserFloat("EESshiftDM1dw",EESshiftDM1Bdown);
+      }
+      else
+      {
+        l.addUserFloat("EESshiftDM1up",EESshiftDM1Eup);
+        l.addUserFloat("EESshiftDM1dw",EESshiftDM1Edown);
       }
     }
 

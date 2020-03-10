@@ -3699,6 +3699,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     TLorentzVector pfourEleUp;
     TLorentzVector pfourEleDown;
 
+    float TESshiftDM0  = ( userdatahelpers::hasUserFloat(cand,"TESshiftDM0") ? userdatahelpers::getUserFloat(cand,"TESshiftDM0") : 0 );
+    float TESshiftDM1  = ( userdatahelpers::hasUserFloat(cand,"TESshiftDM1") ? userdatahelpers::getUserFloat(cand,"TESshiftDM1") : 0 );
+    float TESshiftDM10 = ( userdatahelpers::hasUserFloat(cand,"TESshiftDM10") ? userdatahelpers::getUserFloat(cand,"TESshiftDM10") : 0 );
+    float TESshiftDM11 = ( userdatahelpers::hasUserFloat(cand,"TESshiftDM11") ? userdatahelpers::getUserFloat(cand,"TESshiftDM11") : 0 );
+
+    float EESshiftDM0up = ( userdatahelpers::hasUserFloat(cand,"EESshiftDM0up") ? userdatahelpers::getUserFloat(cand,"EESshiftDM0up") : 0 );
+    float EESshiftDM0dw = ( userdatahelpers::hasUserFloat(cand,"EESshiftDM0dw") ? userdatahelpers::getUserFloat(cand,"EESshiftDM0dw") : 0 );
+    float EESshiftDM1up = ( userdatahelpers::hasUserFloat(cand,"EESshiftDM1up") ? userdatahelpers::getUserFloat(cand,"EESshiftDM1up") : 0 );
+    float EESshiftDM1dw = ( userdatahelpers::hasUserFloat(cand,"EESshiftDM1dw") ? userdatahelpers::getUserFloat(cand,"EESshiftDM1dw") : 0 );
+
     bool existTESshift = userdatahelpers::hasUserInt(cand,"isTESShifted"); // simply to check if the userfloat exists
     bool existEESshift = userdatahelpers::hasUserInt(cand,"isEESShifted"); // simply to check if the userfloat exists
     bool isTauMatched = userdatahelpers::hasUserInt(cand,"isTauMatched"); // check if it is a tau
@@ -3761,6 +3771,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_py_TauDown.push_back((float)pfourTauDown.Py());
     _daughters_pz_TauDown.push_back((float)pfourTauDown.Pz());
     _daughters_e_TauDown.push_back((float)pfourTauDown.E());
+    _daughters_TESshiftDM0.push_back((float)TESshiftDM0);
+    _daughters_TESshiftDM1.push_back((float)TESshiftDM1);
+    _daughters_TESshiftDM10.push_back((float)TESshiftDM10);
+    _daughters_TESshiftDM11.push_back((float)TESshiftDM11);
 
     _daughters_hasEES.push_back( (hasEES ? 1 : 0) );
     _daughters_px_EleUp.push_back((float)pfourEleUp.Px());
@@ -3771,6 +3785,10 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_py_EleDown.push_back((float)pfourEleDown.Py());
     _daughters_pz_EleDown.push_back((float)pfourEleDown.Pz());
     _daughters_e_EleDown.push_back((float)pfourEleDown.E());
+    _daughters_EESshiftDM0up.push_back((float)EESshiftDM0up);
+    _daughters_EESshiftDM0dw.push_back((float)EESshiftDM0dw);
+    _daughters_EESshiftDM1up.push_back((float)EESshiftDM1up);
+    _daughters_EESshiftDM1dw.push_back((float)EESshiftDM1dw);
 
     _daughters_isTauMatched.push_back( (isTauMatched ? 1 : 0) );
 
