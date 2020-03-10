@@ -346,6 +346,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_py_TauDown;
   std::vector<Float_t> _daughters_pz_TauDown;
   std::vector<Float_t> _daughters_e_TauDown;
+  std::vector<Float_t> _daughters_TESshiftDM0;
+  std::vector<Float_t> _daughters_TESshiftDM1;
+  std::vector<Float_t> _daughters_TESshiftDM10;
+  std::vector<Float_t> _daughters_TESshiftDM11;
   std::vector<Int_t> _daughters_hasEES;
   std::vector<Float_t> _daughters_px_EleUp;
   std::vector<Float_t> _daughters_py_EleUp;
@@ -355,6 +359,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_py_EleDown;
   std::vector<Float_t> _daughters_pz_EleDown;
   std::vector<Float_t> _daughters_e_EleDown;
+  std::vector<Float_t> _daughters_EESshiftDM0up;
+  std::vector<Float_t> _daughters_EESshiftDM0dw;
+  std::vector<Float_t> _daughters_EESshiftDM1up;
+  std::vector<Float_t> _daughters_EESshiftDM1dw;
   std::vector<Int_t> _daughters_genindex;
   std::vector<Int_t> _daughters_charge;
   std::vector<Int_t> _daughters_isTauMatched;
@@ -1197,6 +1205,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_py_TauDown.clear();
   _daughters_pz_TauDown.clear();
   _daughters_e_TauDown.clear();
+  _daughters_TESshiftDM0.clear();
+  _daughters_TESshiftDM1.clear();
+  _daughters_TESshiftDM10.clear();
+  _daughters_TESshiftDM11.clear();
   _daughters_hasEES.clear();
   _daughters_px_EleUp.clear();
   _daughters_py_EleUp.clear();
@@ -1206,6 +1218,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_py_EleDown.clear();
   _daughters_pz_EleDown.clear();
   _daughters_e_EleDown.clear();
+  _daughters_EESshiftDM0up.clear();
+  _daughters_EESshiftDM0dw.clear();
+  _daughters_EESshiftDM1up.clear();
+  _daughters_EESshiftDM1dw.clear();
   _daughters_charge.clear();
   _daughters_isTauMatched.clear();
   _daughters_genindex.clear();
@@ -1824,6 +1840,10 @@ void HTauTauNtuplizer::beginJob(){
       myTree->Branch("daughters_py_TauDown",&_daughters_py_TauDown);
       myTree->Branch("daughters_pz_TauDown",&_daughters_pz_TauDown);
       myTree->Branch("daughters_e_TauDown",&_daughters_e_TauDown);
+      myTree->Branch("daughters_TESshiftDM0",&_daughters_TESshiftDM0);
+      myTree->Branch("daughters_TESshiftDM1",&_daughters_TESshiftDM1);
+      myTree->Branch("daughters_TESshiftDM10",&_daughters_TESshiftDM10);
+      myTree->Branch("daughters_TESshiftDM11",&_daughters_TESshiftDM11);
      myTree->Branch("daughters_hasEES",&_daughters_hasEES);
       myTree->Branch("daughters_px_EleUp",&_daughters_px_EleUp);
       myTree->Branch("daughters_py_EleUp",&_daughters_py_EleUp);
@@ -1833,6 +1853,10 @@ void HTauTauNtuplizer::beginJob(){
       myTree->Branch("daughters_py_EleDown",&_daughters_py_EleDown);
       myTree->Branch("daughters_pz_EleDown",&_daughters_pz_EleDown);
       myTree->Branch("daughters_e_EleDown",&_daughters_e_EleDown);
+      myTree->Branch("_daughters_EESshiftDM0up",&_daughters_EESshiftDM0up);
+      myTree->Branch("_daughters_EESshiftDM0dw",&_daughters_EESshiftDM0dw);
+      myTree->Branch("_daughters_EESshiftDM1up",&_daughters_EESshiftDM1up);
+      myTree->Branch("_daughters_EESshiftDM1dw",&_daughters_EESshiftDM1dw);
 
       myTree->Branch("daughters_isTauMatched",&_daughters_isTauMatched);
 
