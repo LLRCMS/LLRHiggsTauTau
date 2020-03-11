@@ -650,6 +650,16 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       l.addUserFloat("m_EleDown",p4EFakeSDOWN.mass());
     }
 
+    // MES: muon->tauh fake ES
+    // no central correction needed
+    // up/down uncertainties are set at 1%
+    if ( genmatch == 2 || genmatch == 4 )
+    {
+      float MESshift = 0.01;
+      l.addUserFloat("MESshiftup",MESshift);
+      l.addUserFloat("MESshiftdw",MESshift);
+    }
+
     //--- PF ISO
     float PFChargedHadIso   = l.chargedHadronIso();
     float PFNeutralHadIso   = l.neutralHadronIso();
