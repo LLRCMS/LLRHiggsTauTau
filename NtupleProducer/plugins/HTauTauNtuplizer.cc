@@ -2169,7 +2169,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_jetUncRegrouped_EC2_up"        , &_SourceUncValRegrouped_up["EC2"]);
   myTree->Branch("jets_jetUncRegrouped_Absolute_up"   , &_SourceUncValRegrouped_up["Absolute"]);
   myTree->Branch("jets_jetUncRegrouped_Total_up"      , &_SourceUncValRegrouped_up["Total"]);
-  myTree->Branch("jets_jetUncRegrouped_FlavorQCD_dw"  , &_SourceUncValRegrouped_dw["FlavorQCD"]); // up variations
+  myTree->Branch("jets_jetUncRegrouped_FlavorQCD_dw"  , &_SourceUncValRegrouped_dw["FlavorQCD"]); // down variations
   myTree->Branch("jets_jetUncRegrouped_RelativeBal_dw", &_SourceUncValRegrouped_dw["RelativeBal"]);
   myTree->Branch("jets_jetUncRegrouped_HF_dw"         , &_SourceUncValRegrouped_dw["HF"]);
   myTree->Branch("jets_jetUncRegrouped_BBEC1_dw"      , &_SourceUncValRegrouped_dw["BBEC1"]);
@@ -2184,7 +2184,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2016"]);
     myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2016"]);
 
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2016"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2016"]); // down variations
     myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2016"]);
     myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2016"]);
     myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2016"]);
@@ -2198,7 +2198,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2017"]);
     myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2017"]);
 
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2017"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2017"]); // down variations
     myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2017"]);
     myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2017"]);
     myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2017"]);
@@ -2212,7 +2212,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2018"]);
     myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2018"]);
 
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2018"]); // up variations
+    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2018"]); // down variations
     myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2018"]);
     myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2018"]);
     myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2018"]);
