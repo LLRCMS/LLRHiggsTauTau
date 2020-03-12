@@ -755,7 +755,7 @@ else:
 
         process.METSequence += process.fullPatMetSequence
         PFMetName = "slimmedMETs"
-        PFMetTag = cms.InputTag(PFMetName, "", "TEST")
+        uncorrPFMetTag = cms.InputTag(PFMetName, "", "TEST")
 
     if YEAR == 2017:
         from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
@@ -771,36 +771,45 @@ else:
         # if running in schedule mode add this to your path
         process.METSequence += process.fullPatMetSequenceModifiedMET
         PFMetName = "slimmedMETsModifiedMET"
-        PFMetTag = cms.InputTag(PFMetName, "", "TEST")
+        uncorrPFMetTag = cms.InputTag(PFMetName, "", "TEST")
 
     if YEAR == 2018:
         PFMetName = "slimmedMETs"
-        PFMetTag = cms.InputTag(PFMetName)
+        uncorrPFMetTag = cms.InputTag(PFMetName)
 
 
     # patch to get a standalone MET significance collection
     process.METSignificance = cms.EDProducer ("ExtractMETSignificance",
                                                   #srcMET=cms.InputTag(PFMetName,"","TEST")
-                                                  srcMET=PFMetTag
+                                                  srcMET=uncorrPFMetTag
                                                   )
 
     # add variables with MET shifted for TES corrections
     process.ShiftMETforTES = cms.EDProducer ("ShiftMETforTES",
                                              #srcMET  = cms.InputTag(PFMetName,"","TEST"),
-                                             srcMET  = PFMetTag,
+                                             srcMET  = uncorrPFMetTag,
                                              tauCollection = cms.InputTag("softTaus")
                                              )
 
     # add variables with MET shifted for EES corrections (E->tau ES)
     process.ShiftMETforEES = cms.EDProducer ("ShiftMETforEES",
                                              #srcMET  = cms.InputTag(PFMetName,"","TEST"),
-                                             srcMET  = PFMetTag,
+                                             srcMET  = uncorrPFMetTag,
                                              tauCollection = cms.InputTag("softTaus")
                                              )
+
+    # Shift met due to central corrections of TES and EES
+    process.ShiftMETcentral = cms.EDProducer ("ShiftMETcentral",
+                                              srcMET = uncorrPFMetTag,
+                                              tauUncorrected = cms.InputTag("bareTaus"),
+                                              tauCorrected = cms.InputTag("softTaus")
+                                              )
+
 
     process.METSequence += process.METSignificance
     process.METSequence += process.ShiftMETforTES
     process.METSequence += process.ShiftMETforEES
+    process.METSequence += process.ShiftMETcentral
 
 
     # 2017 and 2018 ECAL bad calibration filter to be rerun, fix from:
@@ -864,8 +873,8 @@ srcMETTag = None
 if USEPAIRMET:
   srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
 else:
-  #srcMETTag = cms.InputTag(PFMetName, "", "TEST")
-  srcMETTag = PFMetTag
+  # MET corrected for central TES and EES shifts of the taus
+  srcMETTag = cms.InputTag("ShiftMETcentral")
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -963,7 +972,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),
-                      metERCollection = PFMetTag,
+                      metERCollection = uncorrPFMetTag, # save the uncorrected MET (for TES and EES central shifts) just for reference
                       ecalBadCalibReducedMINIAODFilter = cms.InputTag("ecalBadCalibReducedMINIAODFilter"),
                       L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
                       L1prefireProbUp   = cms.InputTag("prefiringweight:nonPrefiringProbUp"),
@@ -972,8 +981,8 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
 if USE_NOHFMET:
     process.HTauTauTree.metCollection = cms.InputTag("slimmedMETsNoHF")
 else:
-    #process.HTauTauTree.metCollection = cms.InputTag(PFMetName, "", "TEST") # use TEST so that I get the corrected one
-    process.HTauTauTree.metCollection = PFMetTag
+    # MET corrected for central TES and EES shifts of the taus
+    process.HTauTauTree.metCollection = srcMETTag
 
 if YEAR == 2016 or YEAR == 2017:
     process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedUpdatedJEC")
