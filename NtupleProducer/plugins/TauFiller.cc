@@ -313,8 +313,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool isTauMatched = false;
     bool isEESShifted = false;
 
-    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr) // 2016 data
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15. && ApplyTESCentralCorr)   // 2017 data
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15. && ((std::abs(l.genJet()->pt()-l.pt())/l.genJet()->pt()) < 1.0) && ApplyTESCentralCorr)
     {
       isTauMatched = true;
       isTESShifted = true;
@@ -373,15 +372,20 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         for (unsigned int iGen = 0; iGen < genHandle->size(); iGen++)
         {
           const GenParticle& genP = (*genHandle)[iGen];
-          double tmpDR = deltaR(l.p4(), genP.p4());
-          if (tmpDR < closestDR)
+          int genP_pdgId = std::abs(genP.pdgId());
+          double deltaPTpT = std::abs( genP.pt() - l.pt() ) / genP.pt() ;
+          if (genP.pt() > 8. && (genP_pdgId == 11 || genP_pdgId == 13) && (genP.statusFlags().isPrompt() || genP.statusFlags().isDirectPromptTauDecayProduct()) && deltaPTpT < 0.5)
           {
-            closest = genP;
-            closestDR = tmpDR;
+            double tmpDR = deltaR(l.p4(), genP.p4());
+            if (tmpDR < closestDR)
+            {
+              closest = genP;
+              closestDR = tmpDR;
+            }
           }
         }
 
-        if (closestDR < 0.2)
+        if (closestDR < 0.3)
         {
           int pdgId = std::abs(closest.pdgId());
           if      (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 1;
