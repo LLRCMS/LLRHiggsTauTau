@@ -398,7 +398,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ((genmatch == 1 || genmatch == 3) && l.decayMode()==0)
       {
         shiftP = EFakeShift1PrB; // 1prong
-        if (fabs(l.eta())> 1.558)
+        if (fabs(l.eta())> 1.5)
           shiftP = EFakeShift1PrE;
         shiftMass = 1.;
         isEESShifted = true;
@@ -407,7 +407,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
         shiftP    = EFakeShift1PrPi0B; // 1prong+pi0
 	      shiftMass = EFakeShift1PrPi0B;
-	      if (fabs(l.eta())> 1.558)
+	      if (fabs(l.eta())> 1.5)
         {
 	        shiftP    = EFakeShift1PrPi0E;
 	        shiftMass = EFakeShift1PrPi0E;
