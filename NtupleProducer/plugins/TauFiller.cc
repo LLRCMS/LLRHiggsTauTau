@@ -351,7 +351,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       isTauPrompt = returned.statusFlags().isPrompt();
     }
 
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15. && ((std::abs(l.genJet()->pt()-l.pt())/l.genJet()->pt()) < 1.0) && isTauPrompt && ApplyTESCentralCorr)
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.3 && l.genJet()->pt() > 15. && ((std::abs(l.genJet()->pt()-l.pt())/l.genJet()->pt()) < 1.0) && isTauPrompt && ApplyTESCentralCorr)
     {
       isTauMatched = true;
       isTESShifted = true;
