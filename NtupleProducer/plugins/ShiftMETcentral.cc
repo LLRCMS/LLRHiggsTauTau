@@ -96,8 +96,10 @@ void ShiftMETcentral::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // cast to reco::Candidate*
       const reco::Candidate* l_Uncorrected = (const reco::Candidate*)&tauUncorrected;
       const reco::Candidate* l_Corrected   = (const reco::Candidate*)&tauCorrected;
-      //cout << "---> reco cand Uncorrected: " << LorentzVectorE(l_Uncorrected->p4()) << endl;
-      //cout << "---> reco cand Corrected  : " << LorentzVectorE(l_Corrected->p4()) << endl;
+      //cout << "   --> reco cand Uncorrected: " << LorentzVectorE(l_Uncorrected->p4()) << endl;
+      //cout << "   --> reco cand Uncorrected: " << l_Uncorrected->px() << " " << l_Uncorrected->py() << " " << l_Uncorrected->pz() << endl;
+      //cout << "   --> reco cand Corrected  : " << LorentzVectorE(l_Corrected->p4()) << endl;
+      //cout << "   --> reco cand Corrected  : " << l_Corrected->px() << " " << l_Corrected->py() << " " << l_Corrected->pz() << endl;
         
       // Unshifted tau
       TLorentzVector pfour;

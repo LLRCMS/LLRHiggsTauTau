@@ -256,6 +256,26 @@ TauFiller::~TauFiller()
 
 using LorentzVectorE = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double>>;
 
+// Return original Tau Mother genParticle:
+// given a genParticle, go back in the chain of the gen particles until
+// you find the last tau (i.e. the tau that has as mother not a tau)
+const reco::GenParticle getMother (const reco::GenParticle genP)
+{
+  //std::cout << "  * first genPart - pdg: " << genP.pdgId() << " - isPrompt: " << genP.statusFlags().isPrompt() << " - momentum: " << genP.momentum() << endl;
+  reco::GenParticleRef genM = genP.motherRef(0);
+  assert(genM.isNonnull() && genM.isAvailable());  // sanity
+  if (std::abs(genP.pdgId())==15 && std::abs(genM->pdgId())!=15)
+  {
+    //std::cout << "    returning daughter  - pdg: " << genP.pdgId() << " - isPrompt: " << genP.statusFlags().isPrompt() << " - momentum: " << genP.momentum() << endl;
+    return genP;
+  }
+  else
+  {
+    //std::cout << "    retrying with mother  - pdg: " << genM->pdgId() << " - isPrompt: " << genM->statusFlags().isPrompt() << " - momentum: " << genM->momentum() << endl;
+    return getMother(*genM);
+  }
+}
+
 void
 TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {  
@@ -294,6 +314,8 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::unique_ptr<pat::TauCollection> result( new pat::TauCollection() );
 
   for (unsigned int itau = 0; itau < tauHandle->size(); ++itau){
+    //cout << "- TauFiller itau: " << itau << endl;
+
     //---Clone the pat::Tau
     pat::Tau l(*((*tauHandle)[itau].get()));
     
@@ -313,8 +335,23 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool isTauMatched = false;
     bool isEESShifted = false;
 
-    //if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.5 && l.genJet()->pt() > 8. && ApplyTESCentralCorr) // 2016 data
-    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.2 && l.genJet()->pt() > 15. && ApplyTESCentralCorr)   // 2017 data
+    // Check if the original Tau Mother genParticle isPrompt
+    bool isTauPrompt = false;
+    if ( l.genJet())
+    {
+      // Get the constituents of the genJet
+      std::vector<const reco::GenParticle*> genParts = l.genJet()->getGenConstituents();
+
+      // Get the original tau mother starting from one of the constituents of the genJet,
+      // it does not matther which one, so we use element '0' --> genParts[0]
+      const reco::GenParticle returned = getMother(*(genParts[0]));
+      //std::cout << "  Returned - pdg: " << returned.pdgId() << " - isPrompt: " << returned.statusFlags().isPrompt() << " - momentum: " << returned.momentum() << endl;
+
+      // Check if the original tau mother isPrompt or not
+      isTauPrompt = returned.statusFlags().isPrompt();
+    }
+
+    if ( l.genJet() && deltaR(l.p4(), l.genJet()->p4()) < 0.3 && l.genJet()->pt() > 15. && ((std::abs(l.genJet()->pt()-l.pt())/l.genJet()->pt()) < 1.0) && isTauPrompt && ApplyTESCentralCorr)
     {
       isTauMatched = true;
       isTESShifted = true;
@@ -373,15 +410,20 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         for (unsigned int iGen = 0; iGen < genHandle->size(); iGen++)
         {
           const GenParticle& genP = (*genHandle)[iGen];
-          double tmpDR = deltaR(l.p4(), genP.p4());
-          if (tmpDR < closestDR)
+          int genP_pdgId = std::abs(genP.pdgId());
+          double deltaPTpT = std::abs( genP.pt() - l.pt() ) / genP.pt() ;
+          if (genP.pt() > 8. && (genP_pdgId == 11 || genP_pdgId == 13) && (genP.statusFlags().isPrompt() || genP.statusFlags().isDirectPromptTauDecayProduct()) && deltaPTpT < 0.5)
           {
-            closest = genP;
-            closestDR = tmpDR;
+            double tmpDR = deltaR(l.p4(), genP.p4());
+            if (tmpDR < closestDR)
+            {
+              closest = genP;
+              closestDR = tmpDR;
+            }
           }
         }
 
-        if (closestDR < 0.2)
+        if (closestDR < 0.3)
         {
           int pdgId = std::abs(closest.pdgId());
           if      (pdgId == 11 && closest.pt() > 8. && closest.statusFlags().isPrompt()) genmatch = 1;
@@ -398,7 +440,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ((genmatch == 1 || genmatch == 3) && l.decayMode()==0)
       {
         shiftP = EFakeShift1PrB; // 1prong
-        if (fabs(l.eta())> 1.558)
+        if (fabs(l.eta())> 1.5)
           shiftP = EFakeShift1PrE;
         shiftMass = 1.;
         isEESShifted = true;
@@ -407,7 +449,7 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
         shiftP    = EFakeShift1PrPi0B; // 1prong+pi0
 	      shiftMass = EFakeShift1PrPi0B;
-	      if (fabs(l.eta())> 1.558)
+	      if (fabs(l.eta())> 1.5)
         {
 	        shiftP    = EFakeShift1PrPi0E;
 	        shiftMass = EFakeShift1PrPi0E;
@@ -824,8 +866,16 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //       l.addUserFloat("MCParentCode",MCParentCode);
     //     }
     
+    //cout<<"  unshifted (px,py,pz)  : " << l.px() << "," << l.py() << "," << l.pz() << endl;
+    //cout<<"  unshifted (pt,eta,phi): " << l.pt() << "," << l.eta() << "," << l.phi() << endl;
+    //cout<<"  genmatch: " << genmatch << endl;
+    //cout<<"  DM      : " << l.decayMode() << endl;
+
     // apply the actual shift of the central value here
     l.setP4( p4S_Nominal );
+
+    //cout<<"  shifted (px,py,pz)  : " << l.px() << "," << l.py() << "," << l.pz() << endl;
+    //cout<<"  shifted (pt,eta,phi): " << l.pt() << "," << l.eta() << "," << l.phi() << endl;
 
     //--- Check selection cut. Being done here, flags are not available; but this way we 
     //    avoid wasting time on rejected leptons.
