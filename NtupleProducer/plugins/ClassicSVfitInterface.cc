@@ -687,13 +687,13 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         SVphiUnc               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
         
         /*cout << "--- SVFit Output Debug ---" << endl;
-	cout << "SVfitMass           = " << SVfitMass << endl;
-        cout << "SVfitTransverseMass = " << SVfitTransverseMass << endl; 
-	cout << "SVpt 	             = " << SVpt << endl;
-	cout << "SVeta	             = " << SVeta << endl;
-	cout << "SVphi	             = " << SVphi << endl;*/
+        cout << "SVfitMass           = " << SVfitMass << endl;
+        cout << "SVfitTransverseMass = " << SVfitTransverseMass << endl;
+        cout << "SVpt 	             = " << SVpt << endl;
+        cout << "SVeta	             = " << SVeta << endl;
+        cout << "SVphi	             = " << SVphi << endl;*/
         
-	ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1(l1->pt(), l1->eta(), l1->phi(), mass1);
+        ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1(l1->pt(), l1->eta(), l1->phi(), mass1);
         ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2(l2->pt(), l2->eta(), l2->phi(), mass2);
         ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredDiTauSystem = measuredTau1 + measuredTau2;
         ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> fittedDiTauSystem(SVpt, SVeta, SVphi, SVfitMass);
@@ -1180,7 +1180,7 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
   {
     dau1 = (apdg1 == 11 ? l1 : l2);
     dau2 = (apdg1 == 11 ? l2 : l1);
-    
+
     //if (dau1->pt() < 19.)
     if (dau1->pt() < 20.)
       return false;
