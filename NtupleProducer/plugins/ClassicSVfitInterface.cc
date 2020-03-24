@@ -649,6 +649,28 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
       algo.addLogM_dynamic(false);
       //algo.setLikelihoodFileName("testClassicSVfit.root"); //ROOT file to store histograms of di-tau pT, eta, phi, mass and transverse mass, comment if you don't want it
       //algo.shiftVisPt(true, inputFile_visPtResolution_); //not in Classic_svFit
+      
+      /*cout << "--- SVFit Input Debug ---" << endl;
+      cout << "pType     = " << pType << endl;
+      cout << "lep1 pt   = " << measuredTauLeptons.at(0).pt() << endl;
+      cout << "lep1 eta  = " << measuredTauLeptons.at(0).eta() << endl;
+      cout << "lep1 phi  = " << measuredTauLeptons.at(0).phi() << endl;
+      cout << "lep1 mass = " << measuredTauLeptons.at(0).mass() << endl;
+      cout << "lep1 dm   = " << measuredTauLeptons.at(0).decayMode() << endl;
+      cout << "lep1 type = " << measuredTauLeptons.at(0).type() << endl;
+      cout << "lep2 pt   = " << measuredTauLeptons.at(1).pt() << endl;
+      cout << "lep2 eta  = " << measuredTauLeptons.at(1).eta() << endl;
+      cout << "lep2 phi  = " << measuredTauLeptons.at(1).phi() << endl;
+      cout << "lep2 mass = " << measuredTauLeptons.at(1).mass() << endl;
+      cout << "lep2 dm   = " << measuredTauLeptons.at(1).decayMode() << endl;
+      cout << "lep2 type = " << measuredTauLeptons.at(1).type() << endl;
+      cout << "METx      = " << METx << endl;
+      cout << "METy      = " << METy << endl;
+      cout << "covMET00  = " << covMET[0][0]<<endl;
+      cout << "covMET01  = " << covMET[0][1]<<endl;
+      cout << "covMET10  = " << covMET[1][0]<<endl;
+      cout << "covMET11  = " << covMET[1][1]<<endl;*/
+
       algo.integrate(measuredTauLeptons, METx, METy, covMET);
       
       if ( algo.isValidSolution() )
@@ -663,6 +685,13 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
         SVptUnc                = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPtErr();
         SVetaUnc               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getEtaErr();
         SVphiUnc               = static_cast<classic_svFit::DiTauSystemHistogramAdapter*>(algo.getHistogramAdapter())->getPhiErr();
+        
+        /*cout << "--- SVFit Output Debug ---" << endl;
+        cout << "SVfitMass           = " << SVfitMass << endl;
+        cout << "SVfitTransverseMass = " << SVfitTransverseMass << endl;
+        cout << "SVpt 	             = " << SVpt << endl;
+        cout << "SVeta	             = " << SVeta << endl;
+        cout << "SVphi	             = " << SVphi << endl;*/
         
         ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau1(l1->pt(), l1->eta(), l1->phi(), mass1);
         ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> measuredTau2(l2->pt(), l2->eta(), l2->phi(), mass2);
@@ -1134,13 +1163,14 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
       return false;
 
     //bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
-    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.2);
+    //bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.2); //Commented during March 2020 sync: inconsistency with KLUB
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1);
     bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1);
 
-    if (!iso1 || !iso2)
+    //if (!iso1 || !iso2)
+    if (!iso2)
       return false;
 
     return true; // passed all requirements
@@ -1162,13 +1192,14 @@ bool ClassicSVfitInterface::IsInteresting (const reco::Candidate *l1, const reco
       return false;
 
     //bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.3);
-    bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.2);
+    //bool iso1 = (userdatahelpers::getUserFloat(l1,"combRelIsoPF") < 0.2); //Commented during March 2020 sync: inconsistency with KLUB
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVLooseIsolationMVArun2v1DBoldDMwLT") == 1);
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVLooseIsolationMVArun2017v2DBoldDMwLT2017") == 1); //FRA 2017
     //bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1);
     bool iso2 = (userdatahelpers::getUserInt(l2,"byVVVLooseDeepTau2017v2p1VSjet") == 1);
 
-    if (!iso1 || !iso2)
+    //if (!iso1 || !iso2)
+    if (!iso2)
       return false;
 
     return true; // passed all requirements
