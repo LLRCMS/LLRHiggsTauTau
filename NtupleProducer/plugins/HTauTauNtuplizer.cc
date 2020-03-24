@@ -2660,11 +2660,16 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     edm::Handle<GenEventInfoProduct> genEvt;
     event.getByToken(theGenTag,genEvt);
     _aMCatNLOweight=genEvt->weight(); // same as weights()[0]
-    _MC_weight           = genEvt->weights()[1];
-    _MC_weight_PSWeight0 = genEvt->weights()[6];
-    _MC_weight_PSWeight1 = genEvt->weights()[7];
-    _MC_weight_PSWeight2 = genEvt->weights()[8];
-    _MC_weight_PSWeight3 = genEvt->weights()[9];
+    // Store PSweights only if the sample contains the PSweights
+    // based on https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/plugins/GenWeightsTableProducer.cc#L489-L514
+    if (genEvt->weights().size()==14 || genEvt->weights().size()==46)
+    {
+      _MC_weight           = genEvt->weights()[1];
+      _MC_weight_PSWeight0 = genEvt->weights()[6];
+      _MC_weight_PSWeight1 = genEvt->weights()[7];
+      _MC_weight_PSWeight2 = genEvt->weights()[8];
+      _MC_weight_PSWeight3 = genEvt->weights()[9];
+    }
 
     if (lheeventinfo.isValid()) {
       _nup=lheeventinfo->hepeup().NUP;
