@@ -303,6 +303,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _MC_weight_scale_muF2;
   Float_t _MC_weight_scale_muR0p5;
   Float_t _MC_weight_scale_muR2;
+  Float_t _MC_weight_PSWeight0;
+  Float_t _MC_weight_PSWeight1;
+  Float_t _MC_weight_PSWeight2;
+  Float_t _MC_weight_PSWeight3;
   Float_t _pv_x=0, _pv_y=0, _pv_z=0;
   Float_t _pvGen_x=0, _pvGen_y=0, _pvGen_z=0;
   Float_t _pvRefit_x=0, _pvRefit_y=0, _pvRefit_z=0;
@@ -1544,6 +1548,10 @@ void HTauTauNtuplizer::Initialize(){
   _MC_weight_scale_muF2=0.;
   _MC_weight_scale_muR0p5=0.;
   _MC_weight_scale_muR2=0.;
+  _MC_weight_PSWeight0=0.;
+  _MC_weight_PSWeight1=0.;
+  _MC_weight_PSWeight2=0.;
+  _MC_weight_PSWeight3=0.;
 
   //_jets.clear();
   _jets_VBFleadFilterMatch.clear();    //FRA
@@ -1884,6 +1892,10 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("MC_weight_scale_muF2",&_MC_weight_scale_muF2,"MC_weight_scale_muF2/F");
     myTree->Branch("MC_weight_scale_muR0p5",&_MC_weight_scale_muR0p5,"MC_weight_scale_muR0p5/F");
     myTree->Branch("MC_weight_scale_muR2",&_MC_weight_scale_muR2,"MC_weight_scale_muR2/F");
+    myTree->Branch("MC_weight_PSWeight0",&_MC_weight_PSWeight0,"MC_weight_PSWeight0/F");
+    myTree->Branch("MC_weight_PSWeight1",&_MC_weight_PSWeight1,"MC_weight_PSWeight1/F");
+    myTree->Branch("MC_weight_PSWeight2",&_MC_weight_PSWeight2,"MC_weight_PSWeight2/F");
+    myTree->Branch("MC_weight_PSWeight3",&_MC_weight_PSWeight3,"MC_weight_PSWeight3/F");
     myTree->Branch("lheHt",&_lheHt,"lheHt/F");  
     myTree->Branch("lheNOutPartons", &_lheNOutPartons, "lheNOutPartons/I");
     myTree->Branch("lheNOutB", &_lheNOutB, "lheNOutB/I");
@@ -2647,8 +2659,17 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     edm::Handle<GenEventInfoProduct> genEvt;
     event.getByToken(theGenTag,genEvt);
-    _aMCatNLOweight=genEvt->weight();
-    _MC_weight = _aMCatNLOweight; // duplicated
+    _aMCatNLOweight=genEvt->weight(); // same as weights()[0]
+    // Store PSweights only if the sample contains the PSweights
+    // based on https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/NanoAOD/plugins/GenWeightsTableProducer.cc#L489-L514
+    if (genEvt->weights().size()==14 || genEvt->weights().size()==46)
+    {
+      _MC_weight           = genEvt->weights()[1];
+      _MC_weight_PSWeight0 = genEvt->weights()[6];
+      _MC_weight_PSWeight1 = genEvt->weights()[7];
+      _MC_weight_PSWeight2 = genEvt->weights()[8];
+      _MC_weight_PSWeight3 = genEvt->weights()[9];
+    }
 
     if (lheeventinfo.isValid()) {
       _nup=lheeventinfo->hepeup().NUP;
