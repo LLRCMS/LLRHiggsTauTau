@@ -70,7 +70,7 @@ class ClassicSVfitInterface : public edm::EDProducer {
   virtual void endJob(){};
 
   classic_svFit::MeasuredTauLepton::kDecayType GetDecayTypeFlag (int pdgId);
-  bool Switch (classic_svFit::MeasuredTauLepton::kDecayType type1, double pt1, classic_svFit::MeasuredTauLepton::kDecayType type2, double pt2);
+  bool Switch (classic_svFit::MeasuredTauLepton::kDecayType type1, double pt1, float l1_iso, classic_svFit::MeasuredTauLepton::kDecayType type2, double pt2, float l2_iso);
   double GetMass (classic_svFit::MeasuredTauLepton::kDecayType type, double candMass);
   bool IsInteresting (const reco::Candidate *l1, const reco::Candidate *l2); // if true, compute SVFit
 
@@ -295,7 +295,12 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
     if (l1Type == classic_svFit::MeasuredTauLepton::kTauToHadDecay) decay1 = (int)(userdatahelpers::getUserFloat(l1,"decayMode"));
     if (l2Type == classic_svFit::MeasuredTauLepton::kTauToHadDecay) decay2 = (int)(userdatahelpers::getUserFloat(l2,"decayMode"));
     
-    bool swi = Switch (l1Type, l1->pt(), l2Type, l2->pt());
+    float l1_iso = -1.;
+    float l2_iso = -1.;
+    if (l1Type == classic_svFit::MeasuredTauLepton::kTauToHadDecay) l1_iso = userdatahelpers::getUserFloat(l1,"byDeepTau2017v2p1VSjetraw");
+    if (l2Type == classic_svFit::MeasuredTauLepton::kTauToHadDecay) l2_iso = userdatahelpers::getUserFloat(l2,"byDeepTau2017v2p1VSjetraw");
+
+    bool swi = Switch (l1Type, l1->pt(), l1_iso, l2Type, l2->pt(), l2_iso);
   
     if (_usePairMET)
     {
@@ -669,7 +674,20 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
       cout << "covMET00  = " << covMET[0][0]<<endl;
       cout << "covMET01  = " << covMET[0][1]<<endl;
       cout << "covMET10  = " << covMET[1][0]<<endl;
-      cout << "covMET11  = " << covMET[1][1]<<endl;*/
+      cout << "covMET11  = " << covMET[1][1]<<endl;
+      if (measuredTauLeptons.at(0).type() == classic_svFit::MeasuredTauLepton::kTauToHadDecay && measuredTauLeptons.at(1).type() == classic_svFit::MeasuredTauLepton::kTauToHadDecay)
+      {
+        if (swi)
+        {
+          cout << "iso1 = " << l2_iso<< endl;
+          cout << "iso2 = " << l1_iso << endl;
+        }
+        else
+        {
+          cout << "iso1 = " << l1_iso<< endl;
+          cout << "iso2 = " << l2_iso << endl;
+        }
+      }*/
 
       algo.integrate(measuredTauLeptons, METx, METy, covMET);
       
@@ -1081,10 +1099,16 @@ classic_svFit::MeasuredTauLepton::kDecayType ClassicSVfitInterface::GetDecayType
 }
 
 // decide if leptons 1 and 2 must be switched to respect SVfit conventions
-bool ClassicSVfitInterface::Switch (classic_svFit::MeasuredTauLepton::kDecayType type1, double pt1, classic_svFit::MeasuredTauLepton::kDecayType type2, double pt2)
+bool ClassicSVfitInterface::Switch (classic_svFit::MeasuredTauLepton::kDecayType type1, double pt1, float l1_iso, classic_svFit::MeasuredTauLepton::kDecayType type2, double pt2, float l2_iso)
 {
     // e e, mu mu, tau tau
-    if (type1 == type2) {return (pt1 < pt2);}
+    if (type1 == type2)
+    {
+      if (type1 == classic_svFit::MeasuredTauLepton::kTauToHadDecay && type2 == classic_svFit::MeasuredTauLepton::kTauToHadDecay)
+        return (l1_iso < l2_iso);
+      else
+        return (pt1 < pt2);
+    }
     
     // e tau, mu tau
     if ( (type1 == classic_svFit::MeasuredTauLepton::kTauToElecDecay || type1 == classic_svFit::MeasuredTauLepton::kTauToMuDecay) &&
