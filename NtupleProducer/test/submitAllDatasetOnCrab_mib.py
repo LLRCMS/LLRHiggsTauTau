@@ -8,8 +8,6 @@ import re
 ###################################################################
 #### Parameters to be changed for each production
 
-
-
 # PROCESS = ["DATA80XRERECOSETLUCARESUB"]
 # tag = "Data_23SepReReco_8Feb2017_res2"
 # datasetsFile = "datasets.txt"
@@ -58,9 +56,9 @@ import re
 #tag = "Sig_30July2019"
 #datasetsFile = "datasetsAutumn18_June2019.txt"
 
-PROCESS = ["DATA2018"]
-tag = "Data_29Aug2019"
-datasetsFile = "datasetsAutumn18_June2019.txt"
+PROCESS = ["DATA_2017_Tau"]
+tag = "Data_Legacy2017_24apr20_Tau"
+datasetsFile = "datasets_Legacy2017.txt"
 
 isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
@@ -99,7 +97,12 @@ isMC = False
 # https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
-lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
+
+# Legacy
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
+lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
 
 FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
