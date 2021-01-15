@@ -379,12 +379,12 @@ scram b -j 8
 
 ```
 ## IMPORTANT ##
-# Make sure your are on SLC6 (ssh lxplus6.cern.ch)
-# and the architecture is slc6_amd64_gcc700
-# (you can set the architecture with: export SCRAM_ARCH=slc6_amd64_gcc700 )
+# SLC6 is not supported anymore on lxplus machines, SLC7 must be used
+# Make sure your architecture is slc7_amd64_gcc700
+# (you can set the architecture with: export SCRAM_ARCH=slc7_amd64_gcc700 )
 
-cmsrel CMSSW_10_2_20
-cd CMSSW_10_2_20/src
+cmsrel CMSSW_10_2_23
+cd CMSSW_10_2_23/src
 cmsenv
 
 git cms-init
