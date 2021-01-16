@@ -229,13 +229,16 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
 from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+EgammaPostRecoSeq_RUNECORR = False
 EgammaPostRecoSeq_ERA = '2016-Legacy'        # 2016 data
 if YEAR==2017:
   EgammaPostRecoSeq_ERA = '2017-Nov17ReReco' # 2017 data
 if YEAR == 2018:
   EgammaPostRecoSeq_ERA = '2018-Prompt'      # 2018 data
+  EgammaPostRecoSeq_RUNECORR = True
+
 setupEgammaPostRecoSeq(process,
-                       runEnergyCorrections=False,
+                       runEnergyCorrections=EgammaPostRecoSeq_RUNECORR,
                        era=EgammaPostRecoSeq_ERA)
 		       
 process.softElectrons = cms.EDProducer("EleFiller",
@@ -772,7 +775,7 @@ else:
         process.METSequence += process.fullPatMetSequenceModifiedMET
         PFMetName = "slimmedMETsModifiedMET"
         uncorrPFMetTag = cms.InputTag(PFMetName, "", "TEST")
-
+	
     if YEAR == 2018:
         PFMetName = "slimmedMETs"
         uncorrPFMetTag = cms.InputTag(PFMetName)
