@@ -588,9 +588,17 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<int>  _daughters_eleMissingLostHits; //FRA January2019
   std::vector<bool>  _daughters_iseleChargeConsistent;
   //std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight) //FRA January2019
+  //--- Electrons scale and smearing corrections and uncertainties - https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#Energy_Scale_and_Smearing
+  std::vector<Float_t> _daughters_ecalTrkEnergyPostCorr;
+  std::vector<Float_t> _daughters_ecalTrkEnergyErrPostCorr;
+  std::vector<Float_t> _daughters_energyScaleUp;
+  std::vector<Float_t> _daughters_energyScaleDown;
+  std::vector<Float_t> _daughters_energySigmaUp;
+  std::vector<Float_t> _daughters_energySigmaDown;
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Int_t> _genmatch;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
+  
   static const int ntauIds = 37;
   TString tauIDStrings[ntauIds] = {
    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
@@ -1303,6 +1311,12 @@ void HTauTauNtuplizer::Initialize(){
   //_daughters_eleMissingLostHits.clear(); //FRA January2019
   _daughters_iseleChargeConsistent.clear();
   //_daughters_iseleCUT.clear(); //FRA January2019
+  _daughters_ecalTrkEnergyPostCorr.clear();
+  _daughters_ecalTrkEnergyErrPostCorr.clear();
+  _daughters_energyScaleUp.clear();
+  _daughters_energyScaleDown.clear();
+  _daughters_energySigmaUp.clear();
+  _daughters_energySigmaDown.clear();
   //_daughter2.clear();
   _softLeptons.clear();
   //_genDaughters.clear();
@@ -2076,6 +2090,12 @@ void HTauTauNtuplizer::beginJob(){
   //myTree->Branch("daughters_eleMissingLostHits",&_daughters_eleMissingLostHits); //FRA January2019
   myTree->Branch("daughters_iseleChargeConsistent",&_daughters_iseleChargeConsistent);
   //myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT); //FRA January2019
+  myTree->Branch("daughters_ecalTrkEnergyPostCorr",&_daughters_ecalTrkEnergyPostCorr);
+  myTree->Branch("daughters_ecalTrkEnergyErrPostCorr",&_daughters_ecalTrkEnergyErrPostCorr);
+  myTree->Branch("daughters_energyScaleUp",&_daughters_energyScaleUp);
+  myTree->Branch("daughters_energyScaleDown",&_daughters_energyScaleDown);
+  myTree->Branch("daughters_energySigmaUp",&_daughters_energySigmaUp);
+  myTree->Branch("daughters_energySigmaDown",&_daughters_energySigmaDown); 
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("genmatch",&_genmatch);
   myTree->Branch("tauID",&_daughters_tauID);
@@ -3908,6 +3928,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     //int elemissinghits = 999; //FRA January2019
     //int elemissinglosthits = 999; //FRA January2019
     bool iselechargeconsistent=false;
+    float ecalTrkEnergyPostCorr    = -999.; 
+    float ecalTrkEnergyErrPostCorr = -999.; 
+    float energyScaleUp            = -999.; 
+    float energyScaleDown          = -999.; 
+    float energySigmaUp            = -999.; 
+    float energySigmaDown          = -999.;
 
     int decay=-1;
     int genmatch = -1;
@@ -3994,6 +4020,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       if((userdatahelpers::getUserInt(cand,"isGsfCtfScPixChargeConsistent") + userdatahelpers::getUserInt(cand,"isGsfScPixChargeConsistent"))>1)iselechargeconsistent=true;
 
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
+      ecalTrkEnergyPostCorr    = userdatahelpers::getUserFloat(cand,"ecalTrkEnergyPostCorr");
+      ecalTrkEnergyErrPostCorr = userdatahelpers::getUserFloat(cand,"ecalTrkEnergyErrPostCorr");
+      energyScaleUp            = userdatahelpers::getUserFloat(cand,"energyScaleUp");
+      energyScaleDown          = userdatahelpers::getUserFloat(cand,"energyScaleDown");
+      energySigmaUp            = userdatahelpers::getUserFloat(cand,"energySigmaUp");
+      energySigmaDown          = userdatahelpers::getUserFloat(cand,"energySigmaDown"); 
 
       sip = userdatahelpers::getUserFloat(cand,"SIP");
       jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
@@ -4085,6 +4117,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     //_daughters_eleMissingHits.push_back(elemissinghits); //FRA January2019
     //_daughters_eleMissingLostHits.push_back(elemissinglosthits); //FRA January2019
     _daughters_iseleChargeConsistent.push_back(iselechargeconsistent);
+    _daughters_ecalTrkEnergyPostCorr.push_back(ecalTrkEnergyPostCorr);
+    _daughters_ecalTrkEnergyErrPostCorr.push_back(ecalTrkEnergyErrPostCorr);
+    _daughters_energyScaleUp.push_back(energyScaleUp);
+    _daughters_energyScaleDown.push_back(energyScaleDown);
+    _daughters_energySigmaUp.push_back(energySigmaUp);
+    _daughters_energySigmaDown.push_back(energySigmaDown); 
 
     //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT")); //FRA January2019
     _decayType.push_back(decay);
