@@ -389,8 +389,8 @@ cmsenv
 
 git cms-init
 
-# MVA EleID Fall 2018
-git cms-merge-topic cms-egamma:EgammaPostRecoTools  #if you want the V2 IDs, otherwise skip
+# MVA EleID Fall 2018 - if you want the V2 IDs, otherwise skip
+git cms-merge-topic cms-egamma:EgammaPostRecoTools
 
 # PU jet ID
 git cms-addpkg RecoJets/JetProducers
@@ -405,7 +405,7 @@ git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/Recoil
 # LLRHiggsTauTau framework
 git clone git@github.com:LLRCMS/LLRHiggsTauTau.git
 cd LLRHiggsTauTau
-git checkout 102X_HH
+git checkout 102X_HH_systematics
 cd -
 
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools

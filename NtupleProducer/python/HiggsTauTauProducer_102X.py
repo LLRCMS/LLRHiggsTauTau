@@ -759,6 +759,8 @@ else:
         process.METSequence += process.fullPatMetSequence
         PFMetName = "slimmedMETs"
         uncorrPFMetTag = cms.InputTag(PFMetName, "", "TEST")
+        unclusterPFMetEnUpTag   = cms.InputTag("patPFMetT1UnclusteredEnUp","","TEST")
+        unclusterPFMetEnDownTag = cms.InputTag("patPFMetT1UnclusteredEnDown","","TEST")
 
     if YEAR == 2017:
         from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
@@ -775,10 +777,22 @@ else:
         process.METSequence += process.fullPatMetSequenceModifiedMET
         PFMetName = "slimmedMETsModifiedMET"
         uncorrPFMetTag = cms.InputTag(PFMetName, "", "TEST")
-	
+        unclusterPFMetEnUpTag   = cms.InputTag("patPFMetT1UnclusteredEnUpModifiedMET","","TEST")
+        unclusterPFMetEnDownTag = cms.InputTag("patPFMetT1UnclusteredEnDownModifiedMET","","TEST")
+
     if YEAR == 2018:
+        from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+        runMetCorAndUncFromMiniAOD(
+                process,
+                isData = (not IsMC)
+        )
+
+        process.METSequence += process.fullPatMetSequence
+
         PFMetName = "slimmedMETs"
         uncorrPFMetTag = cms.InputTag(PFMetName)
+        unclusterPFMetEnUpTag   = cms.InputTag("patPFMetT1UnclusteredEnUp","","TEST")
+        unclusterPFMetEnDownTag = cms.InputTag("patPFMetT1UnclusteredEnDown","","TEST")
 
 
     # patch to get a standalone MET significance collection
@@ -986,6 +1000,8 @@ if USE_NOHFMET:
 else:
     # MET corrected for central TES and EES shifts of the taus
     process.HTauTauTree.metCollection = srcMETTag
+    process.HTauTauTree.metUnclEnUp   = unclusterPFMetEnUpTag
+    process.HTauTauTree.metUnclEnDown = unclusterPFMetEnDownTag
 
 if YEAR == 2016 or YEAR == 2017:
     process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedUpdatedJEC")
