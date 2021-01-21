@@ -822,11 +822,26 @@ else:
                                               tauCorrected = cms.InputTag("softTaus")
                                               )
 
+    # Shift UnclusteredEnUpmeMET due to central corrections of TES and EES
+    process.ShiftedUnclEnUpdMETcentral = cms.EDProducer ("ShiftMETcentral",
+                                              srcMET = unclusterPFMetEnUpTag,
+                                              tauUncorrected = cms.InputTag("bareTaus"),
+                                              tauCorrected = cms.InputTag("softTaus")
+                                              )
+
+    # Shift UnclusteredEnUpmeMET due to central corrections of TES and EES
+    process.ShiftedUnclEnDownMETcentral = cms.EDProducer ("ShiftMETcentral",
+                                              srcMET = unclusterPFMetEnDownTag,
+                                              tauUncorrected = cms.InputTag("bareTaus"),
+                                              tauCorrected = cms.InputTag("softTaus")
+                                              )
 
     process.METSequence += process.METSignificance
     process.METSequence += process.ShiftMETforTES
     process.METSequence += process.ShiftMETforEES
     process.METSequence += process.ShiftMETcentral
+    process.METSequence += process.ShiftedUnclEnUpdMETcentral
+    process.METSequence += process.ShiftedUnclEnDownMETcentral
 
 
     # 2017 and 2018 ECAL bad calibration filter to be rerun, fix from:
@@ -887,11 +902,17 @@ if IsMC and APPLYMETCORR:
 
 
 srcMETTag = None
+srcUnclusterPFMetEnUpTag = None
+srcUnclusterPFMetEnDownTag = None
 if USEPAIRMET:
   srcMETTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET")
+  srcUnclusterPFMetEnUpTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET") # FIXME: just a place holder, never used so far
+  srcUnclusterPFMetEnDownTag = cms.InputTag("corrMVAMET") if (IsMC and APPLYMETCORR) else cms.InputTag("MVAMET", "MVAMET") # FIXME: just a place holder, never used so far
 else:
   # MET corrected for central TES and EES shifts of the taus
   srcMETTag = cms.InputTag("ShiftMETcentral")
+  srcUnclusterPFMetEnUpTag   = cms.InputTag("ShiftedUnclEnUpdMETcentral")
+  srcUnclusterPFMetEnDownTag = cms.InputTag("ShiftedUnclEnDownMETcentral")
 
 ## ----------------------------------------------------------------------
 ## SV fit
@@ -904,8 +925,8 @@ process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
                                   srcCov     = cms.InputTag("METSignificance", "METCovariance"),
                                   usePairMET = cms.bool(USEPAIRMET),
                                   srcMET     = srcMETTag,
-                                  metUnclEnUp   = unclusterPFMetEnUpTag,
-                                  metUnclEnDown = unclusterPFMetEnDownTag,
+                                  metUnclEnUp   = srcUnclusterPFMetEnUpTag,
+                                  metUnclEnDown = srcUnclusterPFMetEnDownTag,
                                   computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False),
                                   computeForUpDownMET = cms.bool(COMPUTEMETUPDOWNSVFIT if IsMC else False),
                                   METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
@@ -935,8 +956,8 @@ process.SVbypass = cms.EDProducer ("SVfitBypass",
                                     srcPairs   = cms.InputTag("barellCand"),
                                     usePairMET = cms.bool(USEPAIRMET),
                                     srcMET     = srcMETTag,
-                                    metUnclEnUp   = unclusterPFMetEnUpTag,
-                                    metUnclEnDown = unclusterPFMetEnDownTag,
+                                    metUnclEnUp   = srcUnclusterPFMetEnUpTag,
+                                    metUnclEnDown = srcUnclusterPFMetEnDownTag,
                                     srcSig     = cms.InputTag("METSignificance", "METSignificance"),
                                     srcCov     = cms.InputTag("METSignificance", "METCovariance"),
                                     METdxUP    = cms.InputTag("ShiftMETforTES", "METdxUP"),
@@ -1004,8 +1025,8 @@ if USE_NOHFMET:
 else:
     # MET corrected for central TES and EES shifts of the taus
     process.HTauTauTree.metCollection = srcMETTag
-    process.HTauTauTree.metUnclEnUp   = unclusterPFMetEnUpTag
-    process.HTauTauTree.metUnclEnDown = unclusterPFMetEnDownTag
+    process.HTauTauTree.metUnclEnUp   = srcUnclusterPFMetEnUpTag
+    process.HTauTauTree.metUnclEnDown = srcUnclusterPFMetEnDownTag
 
 if YEAR == 2016 or YEAR == 2017:
     process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedUpdatedJEC")
