@@ -77,6 +77,8 @@ class ClassicSVfitInterface : public edm::EDProducer {
   edm::EDGetTokenT<View<reco::CompositeCandidate> > theCandidateTag;
   // std::vector <edm::EDGetTokenT<View<pat::MET> > > vtheMETTag; // polymorphism of view --> good for reco::PFMET and pat::MET! 
   edm::EDGetTokenT<View<pat::MET> > theMETTag;
+  edm::EDGetTokenT<View<pat::MET> > theMetUnclEnUpTag;
+  edm::EDGetTokenT<View<pat::MET> > theMetUnclEnDownTag;
   edm::EDGetTokenT<double> theSigTag;
   edm::EDGetTokenT<math::Error<2>::type> theCovTag;
   bool _usePairMET;
@@ -113,6 +115,8 @@ class ClassicSVfitInterface : public edm::EDProducer {
 ClassicSVfitInterface::ClassicSVfitInterface(const edm::ParameterSet& iConfig):
 theCandidateTag(consumes<View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>("srcPairs"))),
 theMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
+theMetUnclEnUpTag (consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("metUnclEnUp"))),
+theMetUnclEnDownTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("metUnclEnDown"))),
 theSigTag(consumes<double>(iConfig.getParameter<edm::InputTag>("srcSig"))),
 theCovTag(consumes<math::Error<2>::type>(iConfig.getParameter<edm::InputTag>("srcCov"))),
 theMETdxUPTag(consumes<double>(iConfig.getParameter<edm::InputTag>("METdxUP"))),
@@ -164,6 +168,8 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
   // create handle -- view makes possible to use base class type reco::MET
   // but now everything is produced as pat::MET
   Handle<View<pat::MET> > METHandle;
+  Handle<View<pat::MET> > metUnclEnUpHandle;
+  Handle<View<pat::MET> > metUnclEnDownHandle;
 
   // Handle<View<reco::PFMET> > METHandle_PfMET;
   // Handle<View<pat::MET> >    METHandle_PatMET;
@@ -171,6 +177,10 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
   // intialize MET
   double METx = 0.;
   double METy = 0.; 
+  double METx_unclEnUp = 0.;
+  double METy_unclEnUp = 0.;
+  double METx_unclEnDown = 0.;
+  double METy_unclEnDown = 0.;
   double uncorrMETx = -999.;
   double uncorrMETy = -999.; 
   TMatrixD covMET(2, 2);
@@ -192,6 +202,8 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
   double METy_DOWN_EES = 0.;
 
   iEvent.getByToken(theMETTag, METHandle);
+  iEvent.getByToken(theMetUnclEnUpTag,metUnclEnUpHandle);
+  iEvent.getByToken(theMetUnclEnDownTag,metUnclEnDownHandle);
   // initialize MET once if not using PairMET
   if (!_usePairMET)
   {   
@@ -202,6 +214,12 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
      const pat::MET& patMET = (*METHandle)[0];
      METx = patMET.px();
      METy = patMET.py();
+     const pat::MET& patMETUnclEnUp   = (*metUnclEnUpHandle)[0];
+     METx_unclEnUp = patMETUnclEnUp.px();
+     METy_unclEnUp = patMETUnclEnUp.py();
+     const pat::MET& patMETUnclEnDown = (*metUnclEnDownHandle)[0];
+     METx_unclEnDown = patMETUnclEnDown.px();
+     METy_unclEnDown = patMETUnclEnDown.py();
 
      Handle<double> significanceHandle;
      Handle<math::Error<2>::type> covHandle;
@@ -309,11 +327,17 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
       // const PFMET* pfMET = (PFMET*) &((*METHandle)[0]) ; // all this to transform the type of the pointer!
       const pat::MET* patMET = &((*METHandle)[i]);
+      const pat::MET* patMETUnclEnUp   = &((*metUnclEnUpHandle)[i]);
+      const pat::MET* patMETUnclEnDown = &((*metUnclEnDownHandle)[i]);
       const reco::METCovMatrix& covMETbuf = patMET->getSignificanceMatrix();
       significance = (float) patMET->significance();
 
       METx = patMET->px();
       METy = patMET->py();
+      METx_unclEnUp = patMETUnclEnUp->px();
+      METy_unclEnUp = patMETUnclEnUp->py();
+      METx_unclEnDown = patMETUnclEnDown->px();
+      METy_unclEnDown = patMETUnclEnDown->py();
 
       uncorrMETx = ( patMET->hasUserFloat("uncorrPx") ) ? patMET->userFloat("uncorrPx") : -999;
       uncorrMETy = ( patMET->hasUserFloat("uncorrPy") ) ? patMET->userFloat("uncorrPy") : -999;
@@ -1059,6 +1083,10 @@ void ClassicSVfitInterface::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     pair.addUserFloat("MEt_px", (float) METx);
     pair.addUserFloat("MEt_py", (float) METy);
+    pair.addUserFloat("MEt_px_unclEnUp", (float) METx_unclEnUp);
+    pair.addUserFloat("MEt_py_unclEnUp", (float) METy_unclEnUp);
+    pair.addUserFloat("MEt_px_unclEnDown", (float) METx_unclEnDown);
+    pair.addUserFloat("MEt_py_unclEnDown", (float) METy_unclEnDown);
     pair.addUserFloat("uncorrMEt_px", (float) uncorrMETx);
     pair.addUserFloat("uncorrMEt_py", (float) uncorrMETy);
     pair.addUserFloat("MEt_cov00", (float) covMET[0][0]);

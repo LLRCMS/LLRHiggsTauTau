@@ -543,6 +543,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
 
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
+  std::vector<Float_t> _metx_unclEnUp;
+  std::vector<Float_t> _mety_unclEnUp;
+  std::vector<Float_t> _metx_unclEnDown;
+  std::vector<Float_t> _mety_unclEnDown;
   std::vector<Float_t> _metx_up_jes;
   std::vector<Float_t> _mety_up_jes;
   std::vector<Float_t> _metx_down_jes;
@@ -1497,6 +1501,10 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_highestEt_L1IsoTauMatched.clear();
   _metx.clear();
   _mety.clear();
+  _metx_unclEnUp.clear();
+  _mety_unclEnUp.clear();
+  _metx_unclEnDown.clear();
+  _mety_unclEnDown.clear();
   _metx_up_jes.clear();
   _mety_up_jes.clear();
   _metx_down_jes.clear();
@@ -2058,6 +2066,10 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("isOSCand",&_isOSCand);
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
+  myTree->Branch("METx_unclEnUp",&_metx_unclEnUp);
+  myTree->Branch("METy_unclEnUp",&_mety_unclEnUp);
+  myTree->Branch("METx_unclEnDown",&_metx_unclEnDown);
+  myTree->Branch("METy_unclEnDown",&_mety_unclEnDown);
   myTree->Branch("METx_UP_JES",&_metx_up_jes);
   myTree->Branch("METy_UP_JES",&_mety_up_jes);
   myTree->Branch("METx_DOWN_JES",&_metx_down_jes);
@@ -2986,6 +2998,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     float thisMETpx = cand.userFloat("MEt_px");
     float thisMETpy = cand.userFloat("MEt_py");
+    float thisMETpx_unclEnUp = cand.userFloat("MEt_px_unclEnUp");
+    float thisMETpy_unclEnUp = cand.userFloat("MEt_py_unclEnUp");
+    float thisMETpx_unclEnDown = cand.userFloat("MEt_px_unclEnDown");
+    float thisMETpy_unclEnDown = cand.userFloat("MEt_py_unclEnDown");
     float thisMETpx_up_jes = cand.userFloat("MEt_px_UP_JES");
     float thisMETpy_up_jes = cand.userFloat("MEt_py_UP_JES");
     float thisMETpx_down_jes = cand.userFloat("MEt_px_DOWN_JES");
@@ -3106,6 +3122,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);
+    _metx_unclEnUp.push_back(thisMETpx_unclEnUp);
+    _mety_unclEnUp.push_back(thisMETpy_unclEnUp);
+    _metx_unclEnDown.push_back(thisMETpx_unclEnDown);
+    _mety_unclEnDown.push_back(thisMETpy_unclEnDown);
     _metx_up_jes.push_back(thisMETpx_up_jes);
     _mety_up_jes.push_back(thisMETpy_up_jes);
     _metx_down_jes.push_back(thisMETpx_down_jes);
