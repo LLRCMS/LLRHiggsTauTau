@@ -19,7 +19,7 @@ except:
 print 'Year+Period:', str(YEAR)+PERIOD
 try: doCPVariables
 except NameError:
-    doCPVariables=True       
+    doCPVariables=True
 try: LEPTON_SETUP
 except NameError:
     LEPTON_SETUP=2012
@@ -67,7 +67,7 @@ if YEAR == 2018:
 ### Set the GT
 ### ----------------------------------------------------------------------
 from Configuration.AlCa.autoCond import autoCond
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 if IsMC:
@@ -115,13 +115,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 ### ----------------------------------------------------------------------
-### Counters 
+### Counters
 ### ----------------------------------------------------------------------
 process.nEventsTotal = cms.EDProducer("EventCountProducer")       # don't change producer name
 process.nEventsPassTrigger = cms.EDProducer("EventCountProducer") # these names are then "hard-coded" inside the ntuplizer plugin
 
 ### ----------------------------------------------------------------------
-### Trigger bit Requests - filter 
+### Trigger bit Requests - filter
 ### ----------------------------------------------------------------------
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 
@@ -198,7 +198,7 @@ process.softMuons = cms.EDProducer("MuFiller",
     genCollection = cms.InputTag("prunedGenParticles"),
     rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
     vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    sampleType = cms.int32(LEPTON_SETUP),                     
+    sampleType = cms.int32(LEPTON_SETUP),
     setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
     cut = cms.string(""),
     flags = cms.PSet(
@@ -237,13 +237,13 @@ if YEAR == 2018:
 setupEgammaPostRecoSeq(process,
                        runEnergyCorrections=False,
                        era=EgammaPostRecoSeq_ERA)
-		       
+
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
    rhoCollection = cms.InputTag("fixedGridRhoFastjetAll",""),
    vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
    genCollection = cms.InputTag("prunedGenParticles"),
-   sampleType = cms.int32(LEPTON_SETUP),          
+   sampleType = cms.int32(LEPTON_SETUP),
    setup = cms.int32(LEPTON_SETUP), # define the set of effective areas, rho corrections, etc.
    cut = cms.string(ELECUT)
    )
@@ -266,7 +266,7 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
            src       = cms.InputTag("softMuons"), # Start from loose lepton def
            algorithm = cms.string("byDeltaR"),
            preselection        = cms.string("(isGlobalMuon || userFloat('isPFMuon'))"), #
-           deltaR              = cms.double(0.05),  
+           deltaR              = cms.double(0.05),
            checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref
            pairCut             = cms.string(""),
            requireNoOverlaps   = cms.bool(True), # overlaps don't cause the electron to be discared
@@ -297,7 +297,7 @@ tauIdEmbedder.runTauID()
 
 # old sequence starts here
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
-   src = cms.InputTag("slimmedTausNewID"), 
+   src = cms.InputTag("slimmedTausNewID"),
    cut = cms.string(TAUCUT),
    )
 
@@ -311,7 +311,7 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
             ' tauID("againstMuonTight") > 0.5 &'
             ' tauID("againstElectronMedium") > 0.5'
         ),
-    
+
    # overlap checking configurables
    checkOverlaps = cms.PSet(
       muons = cms.PSet(
@@ -336,6 +336,52 @@ process.cleanTaus = cms.EDProducer("PATTauCleaner",
         # finalCut (any string-based cut on pat::Tau)
         finalCut = cms.string(' '),
 )
+
+
+################################
+## Boosted Tau Reco & ID bug-fix for Legacy samples
+# see: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePFTauID#Running_of_the_bug_fix_version_o
+################################
+from RecoTauTag.Configuration.boostedHPSPFTaus_cff import ca8PFJetsCHSprunedForBoostedTaus
+process.ca8PFJetsCHSprunedForBoostedTausPAT = ca8PFJetsCHSprunedForBoostedTaus.clone(
+    src=cms.InputTag("packedPFCandidates"),
+    jetCollInstanceName = cms.string('subJetsForSeedingBoostedTausPAT')
+)
+cleanedBoostedTau = cms.EDProducer("PATBoostedTauCleaner",
+                                   src = cms.InputTag('slimmedTausBoosted'),
+                                   pfcands = cms.InputTag('packedPFCandidates'),
+                                   vtxLabel= cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                   ca8JetSrc = cms.InputTag('ca8PFJetsCHSprunedForBoostedTausPAT','subJetsForSeedingBoostedTausPAT'),
+                                   removeOverLap = cms.bool(True),
+                               )
+setattr(process, "cleanedSlimmedTausBoosted", cleanedBoostedTau)
+
+updatedBoostedTauName = "slimmedBoostedTausNewID" #name of pat::Tau collection with new tau-Ids
+
+import RecoTauTag.RecoTau.tools.runBoostedTauIdMVA as boostedTauIdConfig
+boostedTauIdEmbedder = boostedTauIdConfig.BoostedTauIDEmbedder(process, cms, debug = False,
+                                                        updatedTauName = updatedBoostedTauName,
+                                                        PATTauProducer = cms.InputTag('cleanedSlimmedTausBoosted'),
+                                                        srcChargedIsoPtSum = cms.string('chargedIsoPtSumNoOverLap'),
+                                                        srcNeutralIsoPtSum = cms.string('neutralIsoPtSumNoOverLap'),
+                                                        toKeep = [ #choose tauIDs to be rerun
+                                                            #"2017v2", "dR0p32017v2", "newDM2017v2", #classic MVAIso tau-Ids
+                                                            #"deepTau2017v1", #deepTau Tau-Ids
+                                                            #"DPFTau_2016_v0", #D[eep]PF[low] Tau-Id
+                                                            "2017v2","deepTau2017v1","againstEle2018" # default in twiki
+                                                            #"deepTau2017v2p1", "2017v2"
+                                                        ])
+boostedTauIdEmbedder.runTauID()
+
+# Path and EndPath definitions
+process.pTauboosted = cms.Path(
+    process.ca8PFJetsCHSprunedForBoostedTausPAT*
+    getattr(process, "cleanedSlimmedTausBoosted")*
+    process.rerunMvaIsolationBoostSequence*
+    getattr(process,updatedBoostedTauName)
+)
+
+
 
 # TES corrections: https://indico.cern.ch/event/887196/contributions/3743090/attachments/1984772/3306737/TauPOG_TES_20200210.pdf
 
@@ -476,17 +522,17 @@ process.softTaus = cms.EDProducer("TauFiller",
    NominalTESCorrectionDM11         = NomTESCorDM11,
 
    NominalEFakeESCorrectionDM0B      = NomEFakeESCorDM0B,
-   NominalEFakeESUncertaintyDM0BUp   = NomEFakeESUncDM0BUp, 
-   NominalEFakeESUncertaintyDM0BDown = NomEFakeESUncDM0BDown, 
+   NominalEFakeESUncertaintyDM0BUp   = NomEFakeESUncDM0BUp,
+   NominalEFakeESUncertaintyDM0BDown = NomEFakeESUncDM0BDown,
    NominalEFakeESCorrectionDM1B      = NomEFakeESCorDM1B,
-   NominalEFakeESUncertaintyDM1BUp   = NomEFakeESUncDM1BUp, 
-   NominalEFakeESUncertaintyDM1BDown = NomEFakeESUncDM1BDown, 
+   NominalEFakeESUncertaintyDM1BUp   = NomEFakeESUncDM1BUp,
+   NominalEFakeESUncertaintyDM1BDown = NomEFakeESUncDM1BDown,
    NominalEFakeESCorrectionDM0E      = NomEFakeESCorDM0E,
-   NominalEFakeESUncertaintyDM0EUp   = NomEFakeESUncDM0EUp, 
-   NominalEFakeESUncertaintyDM0EDown = NomEFakeESUncDM0EDown, 
+   NominalEFakeESUncertaintyDM0EUp   = NomEFakeESUncDM0EUp,
+   NominalEFakeESUncertaintyDM0EDown = NomEFakeESUncDM0EDown,
    NominalEFakeESCorrectionDM1E      = NomEFakeESCorDM1E,
-   NominalEFakeESUncertaintyDM1EUp   = NomEFakeESUncDM1EUp, 
-   NominalEFakeESUncertaintyDM1EDown = NomEFakeESUncDM1EDown, 
+   NominalEFakeESUncertaintyDM1EUp   = NomEFakeESUncDM1EUp,
+   NominalEFakeESUncertaintyDM1EDown = NomEFakeESUncDM1EDown,
 
    ApplyTESCentralCorr = cms.bool(APPLYTESCORRECTION),
    # ApplyTESUpDown = cms.bool(True if IsMC else False), # no shift computation when data
@@ -505,7 +551,7 @@ process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTau
 process.genInfo = cms.EDProducer("GenFiller",
          src = cms.InputTag("prunedGenParticles"),
          storeLightFlavAndGlu = cms.bool(True) # if True, store also udcs and gluons (first copy)
- )                
+ )
 if IsMC : process.geninfo = cms.Sequence(process.genInfo)
 else : process.geninfo = cms.Sequence()
 
@@ -524,7 +570,7 @@ process.appendPhotons = cms.EDProducer("LeptonPhotonMatcher",
 process.fsrSequence = cms.Sequence(process.fsrPhotonSequence + process.appendPhotons)
 muString = "appendPhotons:muons"
 eleString = "appendPhotons:electrons"
-if not APPLYFSR : 
+if not APPLYFSR :
     process.fsrSequence = cms.Sequence()
     muString = "softMuons"
     eleString = "softElectrons"
@@ -640,7 +686,7 @@ if COMPUTEQGVAR:
       QGlikelihood_tag = 'QGLikelihoodObject_v1_AK4PFchs_2017'
 
     from CondCore.CondDB.CondDB_cfi import CondDB
-     
+
     process.QGPoolDBESSource = cms.ESSource("PoolDBESSource",
       CondDB.clone(
         connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
@@ -738,7 +784,7 @@ if USEPAIRMET:
         process.MVAMETInputs += getattr(process, "corr"+met)
         process.MVAMETInputs += getattr(process, met+"T1")
         process.MVAMETInputs += getattr(process, "pat"+met)
-        process.MVAMETInputs += getattr(process, "pat"+met+"T1")        
+        process.MVAMETInputs += getattr(process, "pat"+met+"T1")
 
     process.METSequence += cms.Sequence(process.MVAMETInputs + process.MVAMET)
 
@@ -851,18 +897,18 @@ else:
 if IsMC and APPLYMETCORR:
     if USEPAIRMET:
         process.selJetsForZrecoilCorrection = cms.EDFilter("PATJetSelector",
-            src = cms.InputTag("jets"),                                      
-            cut = cms.string("pt > 30. & abs(eta) < 4.7"), 
+            src = cms.InputTag("jets"),
+            cut = cms.string("pt > 30. & abs(eta) < 4.7"),
             filter = cms.bool(False)
         )
-        process.corrMVAMET = cms.EDProducer("ZrecoilCorrectionProducer",                                                   
+        process.corrMVAMET = cms.EDProducer("ZrecoilCorrectionProducer",
             srcPairs = cms.InputTag("barellCand"),
             srcMEt = cms.InputTag("MVAMET", "MVAMET"),
             srcGenParticles = cms.InputTag("prunedGenParticles"),
             srcJets = cms.InputTag("selJetsForZrecoilCorrection"),
             correction = cms.string("HTT-utilities/RecoilCorrections/data/MvaMET_MG_2016BCD.root")
         )
-        process.METSequence += process.selJetsForZrecoilCorrection        
+        process.METSequence += process.selJetsForZrecoilCorrection
         process.METSequence += process.corrMVAMET
 
     else:
@@ -937,7 +983,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
                       year = cms.int32(YEAR),
-                      doCPVariables = cms.bool(doCPVariables),               
+                      doCPVariables = cms.bool(doCPVariables),
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
                       secVtxCollection = cms.InputTag("slimmedSecondaryVertices"), # FRA
                       puCollection = cms.InputTag("slimmedAddPileupInfo"),
@@ -955,6 +1001,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       stage2JetCollection = cms.InputTag("caloStage2Digis","Jet"),
                       ak8jetCollection = cms.InputTag("slimmedJetsAK8"),
                       lepCollection = cms.InputTag("softLeptons"),
+                      boostedTauCollection = cms.InputTag("cleanedSlimmedTausBoosted"),
                       lheCollection = cms.InputTag("LHEEventProduct"),
                       genCollection = cms.InputTag("generator"),
                       genericCollection = cms.InputTag("genInfo"),
@@ -1017,7 +1064,7 @@ process.l1ECALPref = cms.Path(process.prefiringweight)
 process.Candidates = cms.Sequence(
     # process.printTree         + # just for debug, print MC particles
     process.nEventsTotal       +
-    #process.hltFilter         + 
+    #process.hltFilter         +
     process.nEventsPassTrigger +
     process.egammaPostRecoSeq  +
     process.muons              +
@@ -1032,4 +1079,3 @@ process.Candidates = cms.Sequence(
     )
 # always run ntuplizer
 process.trees = cms.EndPath(process.HTauTauTree)
-
