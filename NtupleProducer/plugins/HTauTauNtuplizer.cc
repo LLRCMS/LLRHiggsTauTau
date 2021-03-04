@@ -169,7 +169,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, edm::EventSetup const&, JetCorrectionUncertainty*, myJECMap*, myJECMap*);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets, const BXVector<l1t::Tau>* l1taus);
-  void FillBoostedTaus(const edm::View<pat::Tau>* boostedTaus, const edm::Event&);
+  void FillBoostedTaus(const edm::View<pat::Tau>* boostedTaus, const edm::Event& event);
   //void FillbQuarks(const edm::Event&);
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
@@ -731,6 +731,64 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _boostedTaus_py;
   std::vector<Float_t> _boostedTaus_pz;
   std::vector<Float_t> _boostedTaus_e;
+  std::vector<Float_t> _boostedTaus_Eta;
+  std::vector<Float_t> _boostedTaus_Phi;
+  std::vector<Float_t> _boostedTaus_Pt;
+  std::vector<Float_t> _boostedTaus_Et;
+  std::vector<Float_t> _boostedTaus_Charge;
+  std::vector<Float_t> _boostedTaus_Mass;
+  std::vector<Float_t> _boostedTaus_decayModeFindingNewDMs;
+  std::vector<Float_t> _boostedTaus_againstElectronVLooseMVA6;
+  std::vector<Float_t> _boostedTaus_againstElectronLooseMVA6;
+  std::vector<Float_t> _boostedTaus_againstElectronMediumMVA6;
+  std::vector<Float_t> _boostedTaus_againstElectronTightMVA6;
+  std::vector<Float_t> _boostedTaus_againstElectronVTightMVA6;
+  std::vector<Float_t> _boostedTaus_againstMuonLoose3;
+  std::vector<Float_t> _boostedTaus_againstMuonTight3;
+  std::vector<Float_t> _boostedTaus_byLooseCombinedIsolationDeltaBetaCorr3Hits;
+  std::vector<Float_t> _boostedTaus_byMediumCombinedIsolationDeltaBetaCorr3Hits;
+  std::vector<Float_t> _boostedTaus_byTightCombinedIsolationDeltaBetaCorr3Hits;
+  std::vector<Float_t> _boostedTaus_byCombinedIsolationDeltaBetaCorrRaw3Hits;
+  std::vector<Float_t> _boostedTaus_byIsolationMVArun2017v2DBoldDMwLTraw2017;
+  std::vector<Float_t> _boostedTaus_byVLooseIsolationMVArun2017v2DBoldDMwLT2017;
+  std::vector<Float_t> _boostedTaus_byLooseIsolationMVArun2017v2DBoldDMwLT2017;
+  std::vector<Float_t> _boostedTaus_byMediumIsolationMVArun2017v2DBoldDMwLT2017;
+  std::vector<Float_t> _boostedTaus_byTightIsolationMVArun2017v2DBoldDMwLT2017;
+  std::vector<Float_t> _boostedTaus_byVTightIsolationMVArun2017v2DBoldDMwLT2017;
+  std::vector<Float_t> _boostedTaus_byDeepTau2017v2p1VSjetraw;
+  std::vector<Float_t> _boostedTaus_byDeepTau2017v2p1VSeraw;
+  std::vector<Float_t> _boostedTaus_byDeepTau2017v2p1VSmuraw;
+  std::vector<Float_t> _boostedTaus_byVVVLooseDeepTau2017v2p1VSjet;
+  std::vector<Float_t> _boostedTaus_byVVLooseDeepTau2017v2p1VSjet;
+  std::vector<Float_t> _boostedTaus_byVLooseDeepTau2017v2p1VSjet;
+  std::vector<Float_t> _boostedTaus_byLooseDeepTau2017v2p1VSjet;
+  std::vector<Float_t> _boostedTaus_byMediumDeepTau2017v2p1VSjet;
+  std::vector<Float_t> _boostedTaus_byTightDeepTau2017v2p1VSjet;
+  std::vector<Float_t> _boostedTaus_byVTightDeepTau2017v2p1VSjet;
+  std::vector<Float_t> _boostedTaus_byVVTightDeepTau2017v2p1VSjet;
+  std::vector<Float_t> _boostedTaus_byVVVLooseDeepTau2017v2p1VSe;
+  std::vector<Float_t> _boostedTaus_byVVLooseDeepTau2017v2p1VSe;
+  std::vector<Float_t> _boostedTaus_byVLooseDeepTau2017v2p1VSe;
+  std::vector<Float_t> _boostedTaus_byLooseDeepTau2017v2p1VSe;
+  std::vector<Float_t> _boostedTaus_byMediumDeepTau2017v2p1VSe;
+  std::vector<Float_t> _boostedTaus_byTightDeepTau2017v2p1VSe;
+  std::vector<Float_t> _boostedTaus_byVTightDeepTau2017v2p1VSe;
+  std::vector<Float_t> _boostedTaus_byVVTightDeepTau2017v2p1VSe;
+  std::vector<Float_t> _boostedTaus_byVVVLooseDeepTau2017v2p1VSmu;
+  std::vector<Float_t> _boostedTaus_byVVLooseDeepTau2017v2p1VSmu;
+  std::vector<Float_t> _boostedTaus_byVLooseDeepTau2017v2p1VSmu;
+  std::vector<Float_t> _boostedTaus_byLooseDeepTau2017v2p1VSmu;
+  std::vector<Float_t> _boostedTaus_byMediumDeepTau2017v2p1VSmu;
+  std::vector<Float_t> _boostedTaus_byTightDeepTau2017v2p1VSmu;
+  std::vector<Float_t> _boostedTaus_byVTightDeepTau2017v2p1VSmu;
+  std::vector<Float_t> _boostedTaus_byVVTightDeepTau2017v2p1VSmu;
+  std::vector<Float_t> _boostedTaus_decayMode;
+  std::vector<Float_t> _boostedTaus_ChargedIsoPtSum;
+  std::vector<Float_t> _boostedTaus_NeutralIsoPtSum;
+  std::vector<Float_t> _boostedTaus_PuCorrPtSum;
+  std::vector<Float_t> _boostedTaus_neutralIsoPtSumWeight;
+  std::vector<Float_t> _boostedTaus_footprintCorrection;
+  std::vector<Float_t> _boostedTaus_photonPtSumOutsideSignalCone;
 
   //Jets variables
   Int_t _numberOfJets;
@@ -1752,6 +1810,68 @@ void HTauTauNtuplizer::Initialize(){
   _subjets_ak8MotherIdx.clear();
 
 
+  _boostedTaus_px .clear();
+  _boostedTaus_py .clear();
+  _boostedTaus_pz .clear();
+  _boostedTaus_e .clear();
+  _boostedTaus_Eta .clear();
+  _boostedTaus_Phi .clear();
+  _boostedTaus_Pt .clear();
+  _boostedTaus_Et .clear();
+  _boostedTaus_Charge .clear();
+  _boostedTaus_Mass .clear();
+  _boostedTaus_decayModeFindingNewDMs .clear();
+  _boostedTaus_againstElectronVLooseMVA6 .clear();
+  _boostedTaus_againstElectronLooseMVA6 .clear();
+  _boostedTaus_againstElectronMediumMVA6 .clear();
+  _boostedTaus_againstElectronTightMVA6 .clear();
+  _boostedTaus_againstElectronVTightMVA6 .clear();
+  _boostedTaus_againstMuonLoose3 .clear();
+  _boostedTaus_againstMuonTight3 .clear();
+  _boostedTaus_byLooseCombinedIsolationDeltaBetaCorr3Hits .clear();
+  _boostedTaus_byMediumCombinedIsolationDeltaBetaCorr3Hits .clear();
+  _boostedTaus_byTightCombinedIsolationDeltaBetaCorr3Hits .clear();
+  _boostedTaus_byCombinedIsolationDeltaBetaCorrRaw3Hits .clear();
+  _boostedTaus_byIsolationMVArun2017v2DBoldDMwLTraw2017 .clear();
+  _boostedTaus_byVLooseIsolationMVArun2017v2DBoldDMwLT2017 .clear();
+  _boostedTaus_byLooseIsolationMVArun2017v2DBoldDMwLT2017 .clear();
+  _boostedTaus_byMediumIsolationMVArun2017v2DBoldDMwLT2017 .clear();
+  _boostedTaus_byTightIsolationMVArun2017v2DBoldDMwLT2017 .clear();
+  _boostedTaus_byVTightIsolationMVArun2017v2DBoldDMwLT2017 .clear();
+  _boostedTaus_byDeepTau2017v2p1VSjetraw .clear();
+  _boostedTaus_byDeepTau2017v2p1VSeraw .clear();
+  _boostedTaus_byDeepTau2017v2p1VSmuraw .clear();
+  _boostedTaus_byVVVLooseDeepTau2017v2p1VSjet .clear();
+  _boostedTaus_byVVLooseDeepTau2017v2p1VSjet .clear();
+  _boostedTaus_byVLooseDeepTau2017v2p1VSjet .clear();
+  _boostedTaus_byLooseDeepTau2017v2p1VSjet .clear();
+  _boostedTaus_byMediumDeepTau2017v2p1VSjet .clear();
+  _boostedTaus_byTightDeepTau2017v2p1VSjet .clear();
+  _boostedTaus_byVTightDeepTau2017v2p1VSjet .clear();
+  _boostedTaus_byVVTightDeepTau2017v2p1VSjet .clear();
+  _boostedTaus_byVVVLooseDeepTau2017v2p1VSe .clear();
+  _boostedTaus_byVVLooseDeepTau2017v2p1VSe .clear();
+  _boostedTaus_byVLooseDeepTau2017v2p1VSe .clear();
+  _boostedTaus_byLooseDeepTau2017v2p1VSe .clear();
+  _boostedTaus_byMediumDeepTau2017v2p1VSe .clear();
+  _boostedTaus_byTightDeepTau2017v2p1VSe .clear();
+  _boostedTaus_byVTightDeepTau2017v2p1VSe .clear();
+  _boostedTaus_byVVTightDeepTau2017v2p1VSe .clear();
+  _boostedTaus_byVVVLooseDeepTau2017v2p1VSmu .clear();
+  _boostedTaus_byVVLooseDeepTau2017v2p1VSmu .clear();
+  _boostedTaus_byVLooseDeepTau2017v2p1VSmu .clear();
+  _boostedTaus_byLooseDeepTau2017v2p1VSmu .clear();
+  _boostedTaus_byMediumDeepTau2017v2p1VSmu .clear();
+  _boostedTaus_byTightDeepTau2017v2p1VSmu .clear();
+  _boostedTaus_byVTightDeepTau2017v2p1VSmu .clear();
+  _boostedTaus_byVVTightDeepTau2017v2p1VSmu .clear();
+  _boostedTaus_decayMode .clear();
+  _boostedTaus_ChargedIsoPtSum .clear();
+  _boostedTaus_NeutralIsoPtSum .clear();
+  _boostedTaus_PuCorrPtSum .clear();
+  _boostedTaus_neutralIsoPtSumWeight .clear();
+  _boostedTaus_footprintCorrection .clear();
+  _boostedTaus_photonPtSumOutsideSignalCone .clear();
 
   //_genH_px.clear();
   //_genH_py.clear();
@@ -1850,10 +1970,70 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("L1_jetPhi",&_L1_jetPhi);
 
   if(writeBoostedTaus){
-    myTree->Branch( "boostedTaus_px", &_boostedTaus_px);
-    myTree->Branch( "boostedTaus_py", &_boostedTaus_py);
-    myTree->Branch( "boostedTaus_pz", &_boostedTaus_pz);
-    myTree->Branch( "boostedTaus_e",  &_boostedTaus_e);
+    myTree->Branch( "boostedTaus_px",                                           &_boostedTaus_px                                          );
+    myTree->Branch( "boostedTaus_py",                                           &_boostedTaus_py                                          );
+    myTree->Branch( "boostedTaus_pz",                                           &_boostedTaus_pz                                          );
+    myTree->Branch( "boostedTaus_e",                                            &_boostedTaus_e                                           );
+    myTree->Branch( "boostedTaus_Eta",				                &_boostedTaus_Eta					  );
+    myTree->Branch( "boostedTaus_Phi",				                &_boostedTaus_Phi					  );
+    myTree->Branch( "boostedTaus_Pt",					        &_boostedTaus_Pt					  );
+    myTree->Branch( "boostedTaus_Et",					        &_boostedTaus_Et					  );
+    myTree->Branch( "boostedTaus_Charge",				        &_boostedTaus_Charge					  );
+    myTree->Branch( "boostedTaus_Mass",				                &_boostedTaus_Mass					  );
+    myTree->Branch( "boostedTaus_decayModeFindingNewDMs",		        &_boostedTaus_decayModeFindingNewDMs			  );
+    myTree->Branch( "boostedTaus_againstElectronVLooseMVA6",		        &_boostedTaus_againstElectronVLooseMVA6			  );
+    myTree->Branch( "boostedTaus_againstElectronLooseMVA6",		        &_boostedTaus_againstElectronLooseMVA6			  );
+    myTree->Branch( "boostedTaus_againstElectronMediumMVA6",		        &_boostedTaus_againstElectronMediumMVA6			  );
+    myTree->Branch( "boostedTaus_againstElectronTightMVA6",		        &_boostedTaus_againstElectronTightMVA6			  );
+    myTree->Branch( "boostedTaus_againstElectronVTightMVA6",		        &_boostedTaus_againstElectronVTightMVA6			  );
+    myTree->Branch( "boostedTaus_againstMuonLoose3",			        &_boostedTaus_againstMuonLoose3				  );
+    myTree->Branch( "boostedTaus_againstMuonTight3",				&_boostedTaus_againstMuonTight3				  );
+    myTree->Branch( "boostedTaus_byLooseCombinedIsolationDeltaBetaCorr3Hits",	&_boostedTaus_byLooseCombinedIsolationDeltaBetaCorr3Hits  );
+    myTree->Branch( "boostedTaus_byMediumCombinedIsolationDeltaBetaCorr3Hits",	&_boostedTaus_byMediumCombinedIsolationDeltaBetaCorr3Hits );
+    myTree->Branch( "boostedTaus_byTightCombinedIsolationDeltaBetaCorr3Hits",	&_boostedTaus_byTightCombinedIsolationDeltaBetaCorr3Hits  );
+    myTree->Branch( "boostedTaus_byCombinedIsolationDeltaBetaCorrRaw3Hits",	&_boostedTaus_byCombinedIsolationDeltaBetaCorrRaw3Hits	  );
+    myTree->Branch( "boostedTaus_byIsolationMVArun2017v2DBoldDMwLTraw2017",	&_boostedTaus_byIsolationMVArun2017v2DBoldDMwLTraw2017	  );
+    myTree->Branch( "boostedTaus_byVLooseIsolationMVArun2017v2DBoldDMwLT2017",	&_boostedTaus_byVLooseIsolationMVArun2017v2DBoldDMwLT2017 );
+    myTree->Branch( "boostedTaus_byLooseIsolationMVArun2017v2DBoldDMwLT2017",	&_boostedTaus_byLooseIsolationMVArun2017v2DBoldDMwLT2017  );
+    myTree->Branch( "boostedTaus_byMediumIsolationMVArun2017v2DBoldDMwLT2017",	&_boostedTaus_byMediumIsolationMVArun2017v2DBoldDMwLT2017 );
+    myTree->Branch( "boostedTaus_byTightIsolationMVArun2017v2DBoldDMwLT2017",	&_boostedTaus_byTightIsolationMVArun2017v2DBoldDMwLT2017  );
+    myTree->Branch( "boostedTaus_byVTightIsolationMVArun2017v2DBoldDMwLT2017",	&_boostedTaus_byVTightIsolationMVArun2017v2DBoldDMwLT2017 );
+    myTree->Branch( "boostedTaus_byDeepTau2017v2p1VSjetraw",			&_boostedTaus_byDeepTau2017v2p1VSjetraw			  );
+    myTree->Branch( "boostedTaus_byDeepTau2017v2p1VSeraw",			&_boostedTaus_byDeepTau2017v2p1VSeraw			  );
+    myTree->Branch( "boostedTaus_byDeepTau2017v2p1VSmuraw",			&_boostedTaus_byDeepTau2017v2p1VSmuraw			  );
+    myTree->Branch( "boostedTaus_byVVVLooseDeepTau2017v2p1VSjet",		&_boostedTaus_byVVVLooseDeepTau2017v2p1VSjet		  );
+    myTree->Branch( "boostedTaus_byVVLooseDeepTau2017v2p1VSjet",		&_boostedTaus_byVVLooseDeepTau2017v2p1VSjet		  );
+    myTree->Branch( "boostedTaus_byVLooseDeepTau2017v2p1VSjet",		        &_boostedTaus_byVLooseDeepTau2017v2p1VSjet		  );
+    myTree->Branch( "boostedTaus_byLooseDeepTau2017v2p1VSjet",		        &_boostedTaus_byLooseDeepTau2017v2p1VSjet		  );
+    myTree->Branch( "boostedTaus_byMediumDeepTau2017v2p1VSjet",		        &_boostedTaus_byMediumDeepTau2017v2p1VSjet		  );
+    myTree->Branch( "boostedTaus_byTightDeepTau2017v2p1VSjet",		        &_boostedTaus_byTightDeepTau2017v2p1VSjet		  );
+    myTree->Branch( "boostedTaus_byVTightDeepTau2017v2p1VSjet",		        &_boostedTaus_byVTightDeepTau2017v2p1VSjet		  );
+    myTree->Branch( "boostedTaus_byVVTightDeepTau2017v2p1VSjet",	        &_boostedTaus_byVVTightDeepTau2017v2p1VSjet		  );
+    myTree->Branch( "boostedTaus_byVVVLooseDeepTau2017v2p1VSe",		        &_boostedTaus_byVVVLooseDeepTau2017v2p1VSe		  );
+    myTree->Branch( "boostedTaus_byVVLooseDeepTau2017v2p1VSe",		        &_boostedTaus_byVVLooseDeepTau2017v2p1VSe		  );
+    myTree->Branch( "boostedTaus_byVLooseDeepTau2017v2p1VSe",		        &_boostedTaus_byVLooseDeepTau2017v2p1VSe		  );
+    myTree->Branch( "boostedTaus_byLooseDeepTau2017v2p1VSe",		        &_boostedTaus_byLooseDeepTau2017v2p1VSe			  );
+    myTree->Branch( "boostedTaus_byMediumDeepTau2017v2p1VSe",		        &_boostedTaus_byMediumDeepTau2017v2p1VSe		  );
+    myTree->Branch( "boostedTaus_byTightDeepTau2017v2p1VSe",		        &_boostedTaus_byTightDeepTau2017v2p1VSe			  );
+    myTree->Branch( "boostedTaus_byVTightDeepTau2017v2p1VSe",		        &_boostedTaus_byVTightDeepTau2017v2p1VSe		  );
+    myTree->Branch( "boostedTaus_byVVTightDeepTau2017v2p1VSe",		        &_boostedTaus_byVVTightDeepTau2017v2p1VSe		  );
+    myTree->Branch( "boostedTaus_byVVVLooseDeepTau2017v2p1VSmu",	        &_boostedTaus_byVVVLooseDeepTau2017v2p1VSmu		  );
+    myTree->Branch( "boostedTaus_byVVLooseDeepTau2017v2p1VSmu",		        &_boostedTaus_byVVLooseDeepTau2017v2p1VSmu		  );
+    myTree->Branch( "boostedTaus_byVLooseDeepTau2017v2p1VSmu",		        &_boostedTaus_byVLooseDeepTau2017v2p1VSmu		  );
+    myTree->Branch( "boostedTaus_byLooseDeepTau2017v2p1VSmu",		        &_boostedTaus_byLooseDeepTau2017v2p1VSmu		  );
+    myTree->Branch( "boostedTaus_byMediumDeepTau2017v2p1VSmu",		        &_boostedTaus_byMediumDeepTau2017v2p1VSmu		  );
+    myTree->Branch( "boostedTaus_byTightDeepTau2017v2p1VSmu",		        &_boostedTaus_byTightDeepTau2017v2p1VSmu		  );
+    myTree->Branch( "boostedTaus_byVTightDeepTau2017v2p1VSmu",		        &_boostedTaus_byVTightDeepTau2017v2p1VSmu		  );
+    myTree->Branch( "boostedTaus_byVVTightDeepTau2017v2p1VSmu",		        &_boostedTaus_byVVTightDeepTau2017v2p1VSmu		  );
+    myTree->Branch( "boostedTaus_decayMode",				        &_boostedTaus_decayMode					  );
+    myTree->Branch( "boostedTaus_ChargedIsoPtSum",			        &_boostedTaus_ChargedIsoPtSum				  );
+    myTree->Branch( "boostedTaus_NeutralIsoPtSum",			        &_boostedTaus_NeutralIsoPtSum				  );
+    myTree->Branch( "boostedTaus_PuCorrPtSum",				        &_boostedTaus_PuCorrPtSum				  );
+    myTree->Branch( "boostedTaus_neutralIsoPtSumWeight",		        &_boostedTaus_neutralIsoPtSumWeight			  );
+    myTree->Branch( "boostedTaus_footprintCorrection",			        &_boostedTaus_footprintCorrection			  );
+    myTree->Branch( "boostedTaus_photonPtSumOutsideSignalCone",                 &_boostedTaus_photonPtSumOutsideSignalCone                );
+
+
   }
 
   myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
@@ -3671,15 +3851,97 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
   return nJets;
 }
-void HTauTauNtuplizer::FillBoostedTaus(const edm::View<pat::Tau>* boostedTaus, const edm::Event&)
+void HTauTauNtuplizer::FillBoostedTaus(const edm::View<pat::Tau>* boostedTaus, const edm::Event& event)
 {
   //TODO
+  // possible Energy Scale shifts
+  // gen matching (real tau or e/mu faking tau)
+
+  // TRIGGER
+
+
+  // PFcandidates (to check)
+
     for(edm::View<pat::Tau>::const_iterator itau = boostedTaus->begin(); itau!=boostedTaus->end();++itau)
     {
-      _boostedTaus_px.push_back( (float) itau->px()     );
-      _boostedTaus_py.push_back( (float) itau->py()     );
-      _boostedTaus_pz.push_back( (float) itau->pz()     );
-      _boostedTaus_e.push_back(  (float) itau->energy() );
+      // Basic kinematics
+      _boostedTaus_px     .push_back( (float) itau->px()     );
+      _boostedTaus_py     .push_back( (float) itau->py()     );
+      _boostedTaus_pz     .push_back( (float) itau->pz()     );
+      _boostedTaus_e      .push_back( (float) itau->energy() );
+      _boostedTaus_Eta    .push_back( (float) itau->eta()    );
+      _boostedTaus_Phi    .push_back( (float) itau->phi()    );
+      _boostedTaus_Pt     .push_back( (float) itau->pt()     );
+      _boostedTaus_Et     .push_back( (float) itau->et()     );
+      _boostedTaus_Charge .push_back( (float) itau->charge() );
+      _boostedTaus_Mass   .push_back( (float) itau->mass()   );
+
+      //ID & Isolation
+      _boostedTaus_decayModeFindingNewDMs    .push_back( itau->tauID("decayModeFindingNewDMs")    );
+
+      _boostedTaus_againstElectronVLooseMVA6 .push_back( itau->tauID("againstElectronVLooseMVA6") );
+      _boostedTaus_againstElectronLooseMVA6  .push_back( itau->tauID("againstElectronLooseMVA6")  );
+      _boostedTaus_againstElectronMediumMVA6 .push_back( itau->tauID("againstElectronMediumMVA6") );
+      _boostedTaus_againstElectronTightMVA6  .push_back( itau->tauID("againstElectronTightMVA6")  );
+      _boostedTaus_againstElectronVTightMVA6 .push_back( itau->tauID("againstElectronVTightMVA6") );
+
+      _boostedTaus_againstMuonLoose3         .push_back( itau->tauID("againstMuonLoose3")         );
+      _boostedTaus_againstMuonTight3         .push_back( itau->tauID("againstMuonTight3")         );
+
+      _boostedTaus_byLooseCombinedIsolationDeltaBetaCorr3Hits  .push_back( itau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits")  );
+      _boostedTaus_byMediumCombinedIsolationDeltaBetaCorr3Hits .push_back( itau->tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits") );
+      _boostedTaus_byTightCombinedIsolationDeltaBetaCorr3Hits  .push_back( itau->tauID("byTightCombinedIsolationDeltaBetaCorr3Hits")  );
+      _boostedTaus_byCombinedIsolationDeltaBetaCorrRaw3Hits    .push_back( itau->tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits")    );
+
+      _boostedTaus_byIsolationMVArun2017v2DBoldDMwLTraw2017    .push_back( itau->tauID("byIsolationMVArun2017v2DBoldDMwLTraw2017")    );
+      _boostedTaus_byVLooseIsolationMVArun2017v2DBoldDMwLT2017 .push_back( itau->tauID("byVLooseIsolationMVArun2017v2DBoldDMwLT2017") );
+      _boostedTaus_byLooseIsolationMVArun2017v2DBoldDMwLT2017  .push_back( itau->tauID("byLooseIsolationMVArun2017v2DBoldDMwLT2017")  );
+      _boostedTaus_byMediumIsolationMVArun2017v2DBoldDMwLT2017 .push_back( itau->tauID("byMediumIsolationMVArun2017v2DBoldDMwLT2017") );
+      _boostedTaus_byTightIsolationMVArun2017v2DBoldDMwLT2017  .push_back( itau->tauID("byTightIsolationMVArun2017v2DBoldDMwLT2017")  );
+      _boostedTaus_byVTightIsolationMVArun2017v2DBoldDMwLT2017 .push_back( itau->tauID("byVTightIsolationMVArun2017v2DBoldDMwLT2017") );
+
+      _boostedTaus_byDeepTau2017v2p1VSjetraw .push_back( itau->tauID("byDeepTau2017v2p1VSjetraw") );
+      _boostedTaus_byDeepTau2017v2p1VSeraw   .push_back( itau->tauID("byDeepTau2017v2p1VSeraw")   );
+      _boostedTaus_byDeepTau2017v2p1VSmuraw  .push_back( itau->tauID("byDeepTau2017v2p1VSmuraw")  );
+
+      //Do we need all of these?
+      _boostedTaus_byVVVLooseDeepTau2017v2p1VSjet .push_back( itau->tauID("byVVVLooseDeepTau2017v2p1VSjet") );
+      _boostedTaus_byVVLooseDeepTau2017v2p1VSjet  .push_back( itau->tauID("byVVLooseDeepTau2017v2p1VSjet")  );
+      _boostedTaus_byVLooseDeepTau2017v2p1VSjet   .push_back( itau->tauID("byVLooseDeepTau2017v2p1VSjet")   );
+      _boostedTaus_byLooseDeepTau2017v2p1VSjet    .push_back( itau->tauID("byLooseDeepTau2017v2p1VSjet")    );
+      _boostedTaus_byMediumDeepTau2017v2p1VSjet   .push_back( itau->tauID("byMediumDeepTau2017v2p1VSjet")   );
+      _boostedTaus_byTightDeepTau2017v2p1VSjet    .push_back( itau->tauID("byTightDeepTau2017v2p1VSjet")    );
+      _boostedTaus_byVTightDeepTau2017v2p1VSjet   .push_back( itau->tauID("byVTightDeepTau2017v2p1VSjet")   );
+      _boostedTaus_byVVTightDeepTau2017v2p1VSjet  .push_back( itau->tauID("byVVTightDeepTau2017v2p1VSjet")  );
+
+      _boostedTaus_byVVVLooseDeepTau2017v2p1VSe .push_back( itau->tauID("byVVVLooseDeepTau2017v2p1VSe")     );
+      _boostedTaus_byVVLooseDeepTau2017v2p1VSe  .push_back( itau->tauID("byVVLooseDeepTau2017v2p1VSe")      );
+      _boostedTaus_byVLooseDeepTau2017v2p1VSe   .push_back( itau->tauID("byVLooseDeepTau2017v2p1VSe")       );
+      _boostedTaus_byLooseDeepTau2017v2p1VSe    .push_back( itau->tauID("byLooseDeepTau2017v2p1VSe")        );
+      _boostedTaus_byMediumDeepTau2017v2p1VSe   .push_back( itau->tauID("byMediumDeepTau2017v2p1VSe")       );
+      _boostedTaus_byTightDeepTau2017v2p1VSe    .push_back( itau->tauID("byTightDeepTau2017v2p1VSe")        );
+      _boostedTaus_byVTightDeepTau2017v2p1VSe   .push_back( itau->tauID("byVTightDeepTau2017v2p1VSe")       );
+      _boostedTaus_byVVTightDeepTau2017v2p1VSe  .push_back( itau->tauID("byVVTightDeepTau2017v2p1VSe")      );
+
+      _boostedTaus_byVVVLooseDeepTau2017v2p1VSmu .push_back( itau->tauID("byVVVLooseDeepTau2017v2p1VSmu")   );
+      _boostedTaus_byVVLooseDeepTau2017v2p1VSmu  .push_back( itau->tauID("byVVLooseDeepTau2017v2p1VSmu")    );
+      _boostedTaus_byVLooseDeepTau2017v2p1VSmu   .push_back( itau->tauID("byVLooseDeepTau2017v2p1VSmu")     );
+      _boostedTaus_byLooseDeepTau2017v2p1VSmu    .push_back( itau->tauID("byLooseDeepTau2017v2p1VSmu")      );
+      _boostedTaus_byMediumDeepTau2017v2p1VSmu   .push_back( itau->tauID("byMediumDeepTau2017v2p1VSmu")     );
+      _boostedTaus_byTightDeepTau2017v2p1VSmu    .push_back( itau->tauID("byTightDeepTau2017v2p1VSmu")      );
+      _boostedTaus_byVTightDeepTau2017v2p1VSmu   .push_back( itau->tauID("byVTightDeepTau2017v2p1VSmu")     );
+      _boostedTaus_byVVTightDeepTau2017v2p1VSmu  .push_back( itau->tauID("byVVTightDeepTau2017v2p1VSmu")    );
+
+
+      //Other:
+      _boostedTaus_decayMode                    .push_back( itau->decayMode() );
+      _boostedTaus_ChargedIsoPtSum              .push_back( itau->tauID("chargedIsoPtSum")              );
+      _boostedTaus_NeutralIsoPtSum              .push_back( itau->tauID("neutralIsoPtSum")              );
+      _boostedTaus_PuCorrPtSum                  .push_back( itau->tauID("puCorrPtSum")                  );
+      _boostedTaus_neutralIsoPtSumWeight        .push_back( itau->tauID("neutralIsoPtSumWeight")        );
+      _boostedTaus_footprintCorrection          .push_back( itau->tauID("footprintCorrection")          );
+      _boostedTaus_photonPtSumOutsideSignalCone .push_back( itau->tauID("photonPtSumOutsideSignalCone") );
+
     }
 }
 

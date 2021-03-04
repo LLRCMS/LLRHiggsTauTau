@@ -368,8 +368,8 @@ boostedTauIdEmbedder = boostedTauIdConfig.BoostedTauIDEmbedder(process, cms, deb
                                                             #"2017v2", "dR0p32017v2", "newDM2017v2", #classic MVAIso tau-Ids
                                                             #"deepTau2017v1", #deepTau Tau-Ids
                                                             #"DPFTau_2016_v0", #D[eep]PF[low] Tau-Id
-                                                            "2017v2","deepTau2017v1","againstEle2018" # default in twiki
-                                                            #"deepTau2017v2p1", "2017v2"
+                                                            #"2017v2","deepTau2017v1","againstEle2018" # default in twiki
+                                                            "deepTau2017v2p1", "2017v2"
                                                         ])
 boostedTauIdEmbedder.runTauID()
 
