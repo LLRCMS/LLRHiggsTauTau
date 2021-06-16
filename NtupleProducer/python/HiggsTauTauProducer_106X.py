@@ -280,7 +280,6 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ## Taus
 ##
 
-# old sequence starts here
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
    src = cms.InputTag("slimmedTaus"), 
    cut = cms.string(TAUCUT),
@@ -524,7 +523,7 @@ process.softLeptons = cms.EDProducer("CandViewMerger",
 #Jets
 #
 
-# apply new jet energy corrections and recompute btaggers
+# apply new jet energy corrections 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
 # JEC corrections
@@ -534,37 +533,6 @@ if IsMC:
 else:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 
-# bTaggers
-btagVector = []
-
-if YEAR == 2018:
-    btagVector.append('None')
-
-if YEAR == 2017:
-    btagVector2017 = [
-        'pfDeepFlavourJetTags:probb',
-        'pfDeepFlavourJetTags:probbb',
-        'pfDeepFlavourJetTags:problepb',
-        'pfDeepFlavourJetTags:probc',
-        'pfDeepFlavourJetTags:probuds',
-        'pfDeepFlavourJetTags:probg'
-    ]
-    btagVector.extend(btagVector2017)
-
-if YEAR == 2016:
-    btagVector2016 = [
-        'pfDeepFlavourJetTags:probb',
-        'pfDeepFlavourJetTags:probbb',
-        'pfDeepFlavourJetTags:problepb',
-        'pfDeepFlavourJetTags:probc',
-        'pfDeepFlavourJetTags:probuds',
-        'pfDeepFlavourJetTags:probg',
-        'pfDeepCSVJetTags:probudsg',
-        'pfDeepCSVJetTags:probb',
-        'pfDeepCSVJetTags:probc',
-        'pfDeepCSVJetTags:probbb'
-    ]
-    btagVector.extend(btagVector2016)
 
 # Update jet collection
 updateJetCollection(
@@ -573,46 +541,18 @@ updateJetCollection(
    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
-   btagDiscriminators = btagVector,
    labelName = 'UpdatedJEC'
 )
 
 # Update the jet sequences
-if YEAR == 2016:
-    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
-                                       process.updatedPatJetsUpdatedJEC *
-                                       process.patJetCorrFactorsTransientCorrectedUpdatedJEC *
-                                       process.pfImpactParameterTagInfosUpdatedJEC *
-                                       process.pfInclusiveSecondaryVertexFinderTagInfosUpdatedJEC *
-                                       process.pfDeepCSVTagInfosUpdatedJEC *
-                                       process.pfDeepCSVJetTagsUpdatedJEC *
-                                       process.pfDeepFlavourTagInfosUpdatedJEC *
-                                       process.pfDeepFlavourJetTagsUpdatedJEC *
-                                       process.updatedPatJetsTransientCorrectedUpdatedJEC *
-                                       process.selectedUpdatedPatJetsUpdatedJEC)
-
-if YEAR == 2017:
-    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
-                                       process.updatedPatJetsUpdatedJEC *
-                                       process.patJetCorrFactorsTransientCorrectedUpdatedJEC *
-                                       process.pfImpactParameterTagInfosUpdatedJEC *
-                                       process.pfInclusiveSecondaryVertexFinderTagInfosUpdatedJEC *
-                                       process.pfDeepCSVTagInfosUpdatedJEC *
-                                       process.pfDeepFlavourTagInfosUpdatedJEC *
-                                       process.pfDeepFlavourJetTagsUpdatedJEC *
-                                       process.updatedPatJetsTransientCorrectedUpdatedJEC *
-                                       process.selectedUpdatedPatJetsUpdatedJEC)
-
-if YEAR == 2018:
-    process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
+process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
                                        process.updatedPatJetsUpdatedJEC *
                                        process.selectedUpdatedPatJetsUpdatedJEC)
 
 # Jet Selector after JEC and bTagging
 process.jets = cms.EDFilter("PATJetRefSelector",
                             src = cms.InputTag("selectedUpdatedPatJetsUpdatedJEC"),
-                            cut = cms.string(JETCUT),
-)
+                            cut = cms.string(JETCUT))
 
 ##
 ## QG tagging for jets
