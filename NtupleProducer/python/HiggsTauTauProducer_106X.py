@@ -225,7 +225,7 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
 EgammaPostRecoSeq_ERA = '2016postVFP-UL'  # 2016 data postVFP
-if PERIOD=='postVFB':
+if PERIOD=='postVFP':
   EgammaPostRecoSeq_ERA = '2016preVFP-UL' # 2016 data preVFP
 if YEAR==2017:
   EgammaPostRecoSeq_ERA = '2017-UL'       # 2017 data
