@@ -247,7 +247,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<BXVector<l1t::Jet> > theL1JetTag;
   //edm::EDGetTokenT<int> theNBadMuTag; //FRA January2019
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
-  edm::EDGetTokenT< bool >ecalBadCalibFilterUpdate_token ;
   edm::EDGetTokenT< double > prefweight_token;
   edm::EDGetTokenT< double > prefweightup_token;
   edm::EDGetTokenT< double > prefweightdown_token;
@@ -270,7 +269,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Long64_t _triggerbit;
   Int_t _metfilterbit;
   //Int_t _NBadMu;  //FRA January2019
-  Bool_t _passecalBadCalibFilterUpdate;
   Float_t _prefiringweight;
   Float_t _prefiringweightup;
   Float_t _prefiringweightdown;
@@ -1509,7 +1507,6 @@ void HTauTauNtuplizer::Initialize(){
   _lumi=0;
   _year=0;
   //_NBadMu=0;  //FRA January2019
-  _passecalBadCalibFilterUpdate=false;
   _prefiringweight = 1.;
   _prefiringweightup = 1.;
   _prefiringweightdown = 1.;
@@ -1758,7 +1755,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("lumi",&_lumi,"lumi/I");
   myTree->Branch("year",&_year,"year/I");
   //myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");  //FRA January2019
-  myTree->Branch("passecalBadCalibFilterUpdate",&_passecalBadCalibFilterUpdate,"passecalBadCalibFilterUpdate/O");
   myTree->Branch("prefiringweight",&_prefiringweight,"prefiringweight/F");
   myTree->Branch("prefiringweightup",&_prefiringweightup,"prefiringweightup/F");
   myTree->Branch("prefiringweightdown",&_prefiringweightdown,"prefiringweightdown/F");
@@ -2609,7 +2605,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
-  edm::Handle< bool > passecalBadCalibFilterUpdate ;
   edm::Handle< double > theprefweight;
   edm::Handle< double > theprefweightup;
   edm::Handle< double > theprefweightdown;
@@ -2632,7 +2627,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePFMETCovTag,covHandle);
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
-  event.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
   event.getByToken(prefweight_token, theprefweight);
   event.getByToken(prefweightup_token, theprefweightup);
   event.getByToken(prefweightdown_token, theprefweightdown);
@@ -2712,7 +2706,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PFMETCov11 = (*covHandle)(1,1);
   _PFMETsignif = (*METsignficanceHandle);
   //_NBadMu = (*NBadMuHandle); //FRA January2019
-  _passecalBadCalibFilterUpdate =  (*passecalBadCalibFilterUpdate );
   if (theisMC && (theYear==2016 || theYear==2017))
   {
     _prefiringweight = (*theprefweight);
