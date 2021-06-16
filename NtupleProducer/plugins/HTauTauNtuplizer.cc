@@ -3322,16 +3322,16 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _bdiscr14.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probg"));
 
     //PF jet ID
-    float NHF = ijet->neutralHadronEnergyFraction();
-    float NEMF = ijet->neutralEmEnergyFraction();
-    float CHF = ijet->chargedHadronEnergyFraction();
-    float MUF = ijet->muonEnergyFraction();
-    float CEMF = ijet->chargedEmEnergyFraction();
-    int NumNeutralParticles =ijet->neutralMultiplicity();
-    int chargedMult = ijet->chargedMultiplicity();
-    int NumConst = ijet->chargedMultiplicity()+NumNeutralParticles;
-    float CHM = ijet->chargedMultiplicity();
-    float absjeta = fabs(ijet->eta());
+    float NHF                 = ijet->neutralHadronEnergyFraction();
+    float NEMF                = ijet->neutralEmEnergyFraction();
+    float CHF                 = ijet->chargedHadronEnergyFraction();
+    float MUF                 = ijet->muonEnergyFraction();
+    float CEMF                = ijet->chargedEmEnergyFraction();
+    int   NumNeutralParticles = ijet->neutralMultiplicity();
+    int   chargedMult         = ijet->chargedMultiplicity();
+    int   NumConst            = ijet->chargedMultiplicity()+NumNeutralParticles;
+    float CHM                 = ijet->chargedMultiplicity();
+    float absjeta             = fabs(ijet->eta());
 
     _jets_chEmEF .push_back(CEMF);  
     _jets_chHEF  .push_back(CHF); 
@@ -3343,71 +3343,61 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
 
     // JetID
-    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
-    // 2016 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
-    // 2017 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
-    // 2018 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2018
+    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVUL
+    // Same recommendations for 2016 pre- and post- VFP
     int jetid=0;
     bool tightJetID = false;
     bool tightLepVetoJetID = false;
     //2016 data
     if (theYear == 2016)
     {
-      if (absjeta <= 2.7)
+      if (absjeta <= 2.4)
       {
-        tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
-        tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
-      }
-      else if (absjeta <= 3.0)
-      {
-        tightJetID = (NEMF>0.01 && NHF<0.98 && NumNeutralParticles>2 );
-      }
-      else
-      {
-        tightJetID = (NEMF<0.90 && NumNeutralParticles>10 );
-      }
-      if (tightJetID) ++jetid;
-      if (tightLepVetoJetID) ++jetid;
-    }
-    // 2017 data
-    else if (theYear == 2017)
-    {
-      if (absjeta <= 2.7)
-      {
-        tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0) || absjeta>2.4) );
-        tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.80) || absjeta>2.4) );
-      }
-      else if (absjeta <= 3.0)
-      {
-        tightJetID = (NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
-      }
-      else
-      {
-        tightJetID = (NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 );
-      }
-      if (tightJetID) ++jetid;
-      if (tightLepVetoJetID) ++jetid;
-    }
-    // 2018 data
-    else if (theYear == 2018)
-    {
-      if (absjeta <= 2.6)
-      {
-        tightJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0 && CHM>0 );
+        tightJetID        = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0   && CHM>0 );
         tightLepVetoJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8 && CHF>0 && CHM>0 && CEMF<0.80 );
       }
-      else if (absjeta>2.6 && absjeta <= 2.7)
+
+      else if (absjeta > 2.4 && absjeta <= 2.7)
       {
-        tightJetID = ( NHF<0.90 && NEMF<0.99 && CHM>0 );
-        tightLepVetoJetID = ( NHF<0.90 && NEMF<0.99 && MUF<0.8 && CHM>0 && CEMF<0.80 );
+        tightJetID        = ( NHF<0.90 && NEMF<0.99 );
       }
-      else if (absjeta>2.7 && absjeta <= 3.0)
+
+      else if (absjeta > 2.7 && absjeta <= 3.0)
       {
-        tightJetID = ( NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
+        tightJetID        = ( NHF<0.90 && NEMF>0 && NEMF<0.99 && NumNeutralParticles>1 );
       }
+
       else
       {
-        tightJetID = (NEMF<0.90 && NHF>0.2 && NumNeutralParticles>10 );
+        tightJetID        = ( NHF>0.2 && NEMF<0.9 && NumNeutralParticles>10 );
+      }
+
+      if (tightJetID) ++jetid;
+      if (tightLepVetoJetID) ++jetid;
+    }
+    // 2017 and 2018 data
+    else if (theYear == 2017 || theYear == 2018)
+    {
+      if (absjeta <= 2.4)
+      {
+        tightJetID        = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0   && CHM>0 );
+        tightLepVetoJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8 && CHF>0 && CHM>0 && CEMF<0.80 );
+      }
+
+      else if (absjeta > 2.4 && absjeta <= 2.7)
+      {
+        tightJetID        = ( NHF<0.90 && NEMF<0.99 && CHM>0 );
+        tightLepVetoJetID = ( NHF<0.90 && NEMF<0.99 && CHM>0 && MUF<0.8 && CEMF<0.80 );
+      }
+
+      else if (absjeta > 2.7 && absjeta <= 3.0)
+      {
+        tightJetID        = ( NEMF>0.01 && NEMF<0.99 && NumNeutralParticles>1 );
+      }
+
+      else
+      {
+        tightJetID        = ( NHF>0.2 && NEMF<0.9 && NumNeutralParticles>10 );
       }
       if (tightJetID) ++jetid;
       if (tightLepVetoJetID) ++jetid;
