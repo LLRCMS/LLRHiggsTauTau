@@ -546,8 +546,8 @@ updateJetCollection(
 
 # Update the jet sequences
 process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
-                                       process.updatedPatJetsUpdatedJEC *
-                                       process.selectedUpdatedPatJetsUpdatedJEC)
+                                   process.updatedPatJetsUpdatedJEC *
+                                   process.selectedUpdatedPatJetsUpdatedJEC)
 
 # Jet Selector after JEC and bTagging
 process.jets = cms.EDFilter("PATJetRefSelector",
@@ -587,32 +587,6 @@ if COMPUTEQGVAR:
 
 else:
     process.jetSequence = cms.Sequence(process.jets)
-
-# Add latest pileup jet ID
-process.load("RecoJets.JetProducers.PileupJetID_cfi")
-from RecoJets.JetProducers.PileupJetID_cfi import _chsalgos_81x, _chsalgos_94x, _chsalgos_102x
-
-if YEAR == 2016:
-    PUalgo = _chsalgos_81x
-if YEAR == 2017:
-    PUalgo = _chsalgos_94x
-if YEAR == 2018:
-    PUalgo = _chsalgos_102x
-
-process.pileupJetIdUpdated = process.pileupJetId.clone(
-   jets = cms.InputTag("jets"),
-   inputIsCorrected = True,
-   applyJec = False,
-   vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
-   algos = PUalgo
-)
-process.jetSequence += cms.Sequence(process.pileupJetIdUpdated)
-
-
-# il primo legge la collezione dei leptoni e stampa quali sono
-#process.beforeLLcombiner = cms.EDFilter("beforeCombiner",
-#    src = cms.InputTag("softLeptons")
-#)
 
 ##
 ## Build ll candidates (here OS)
