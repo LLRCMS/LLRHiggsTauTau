@@ -280,22 +280,9 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ## Taus
 ##
 
-# Davide first update for 2018 May 2019
-import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
-
-updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Ids
-
-
-tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = True,
-                    updatedTauName = updatedTauName,
-                    toKeep = ["deepTau2017v2p1", "2017v2"]  #["2017v1", "dR0p32017v2"]
-)
-
-tauIdEmbedder.runTauID()
-
 # old sequence starts here
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
-   src = cms.InputTag("slimmedTausNewID"), 
+   src = cms.InputTag("slimmedTaus"), 
    cut = cms.string(TAUCUT),
    )
 
@@ -495,7 +482,7 @@ process.softTaus = cms.EDProducer("TauFiller",
    year = cms.string(TESyear)
    )
 
-process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTausNewID + process.bareTaus + process.softTaus)
+process.taus=cms.Sequence(process.bareTaus + process.softTaus)
 
 ### ----------------------------------------------------------------------
 ### gen info, only from MC
