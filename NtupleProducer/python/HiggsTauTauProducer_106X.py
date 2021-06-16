@@ -15,7 +15,7 @@ except NameError:
     YEAR = 2018
 try: PERIOD
 except:
-    PERIOD ="A"
+    PERIOD =""
 print 'Year+Period:', str(YEAR)+PERIOD
 try: doCPVariables
 except NameError:
@@ -66,13 +66,14 @@ if YEAR == 2018:
 ### ----------------------------------------------------------------------
 ### Set the GT
 ### ----------------------------------------------------------------------
+# From PPD table https://twiki.cern.ch/twiki/bin/view/CMS/PdmVRun2LegacyAnalysis updated 12-05-2021
 from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 
 if IsMC:
   if YEAR == 2016:
-    if PERIOD=="D":
+    if PERIOD=="preVFP":
         process.GlobalTag.globaltag = '106X_mcRun2_asymptotic_preVFP_v9' # 2016 preVFP
     else:
         process.GlobalTag.globaltag = '106X_mcRun2_asymptotic_v15'       # 2016 postVFP
@@ -223,15 +224,17 @@ dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
-from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-EgammaPostRecoSeq_ERA = '2016-Legacy'        # 2016 data
+EgammaPostRecoSeq_ERA = '2016postVFP-UL'  # 2016 data postVFP
+if PERIOD=='postVFB':
+  EgammaPostRecoSeq_ERA = '2016preVFP-UL' # 2016 data preVFP
 if YEAR==2017:
-  EgammaPostRecoSeq_ERA = '2017-Nov17ReReco' # 2017 data
+  EgammaPostRecoSeq_ERA = '2017-UL'       # 2017 data
 if YEAR == 2018:
-  EgammaPostRecoSeq_ERA = '2018-Prompt'      # 2018 data
+  EgammaPostRecoSeq_ERA = '2018-UL'       # 2018 data
+
+from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
 setupEgammaPostRecoSeq(process,
-                       runEnergyCorrections=False,
-                       era=EgammaPostRecoSeq_ERA)
+                       era=EgammaPostRecoSeq_ERA)    
 		       
 process.softElectrons = cms.EDProducer("EleFiller",
    src    = cms.InputTag("slimmedElectrons"),
