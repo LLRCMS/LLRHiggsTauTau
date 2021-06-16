@@ -8,7 +8,7 @@ PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
 # Year/Period
 YEAR   = 2018
-PERIOD = 'A' # use 'D' for 2018D (prompt GT instead of ReReco GT), can be left empty if running on 2018ABC
+PERIOD = '' # use 'preVFP' or 'postVFP' for 2016, can be left empty if running on 2017 and 2018
 
 #samples list (it could be moved to a cfg file for better reading
 #samples = [
@@ -59,7 +59,9 @@ DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are sa
 STORE_ENRICHEMENT_ONLY=True # When True and DO_ENRICHED=True only collection additional to MiniAOD standard are stored. They can be used to reproduce ntuples when used together with oryginal MiniAOD with two-file-solution
 # ------------------------
 
-is102X = True if 'CMSSW_10' in os.environ['CMSSW_VERSION'] else False
+is106X = True if 'CMSSW_10_6' in os.environ['CMSSW_VERSION'] else False
+print "is106X:" , is106X
+is102X = True if 'CMSSW_10_2' in os.environ['CMSSW_VERSION'] else False
 print "is102X:" , is102X
 is94X = True if 'CMSSW_9' in os.environ['CMSSW_VERSION'] else False# True to run in 92X (2017), False to run in 80X (2016) or 76X (2015)
 print "is94X: " , is94X
@@ -70,6 +72,8 @@ print "is80X: " , is80X
 ## Standard sequence
 ##
 
+if is106X:
+    execfile(PyFilePath+"python/HiggsTauTauProducer_106X.py")
 if is102X:
     execfile(PyFilePath+"python/HiggsTauTauProducer_102X.py")
 elif is94X:
