@@ -438,10 +438,6 @@ cd $CMSSW_BASE/src
 scram b -j 8
 ```
 
-### Quick usage:
-Define the files you want to run in analyzer.py and run cmsRun analyzer.py
-
-
 </details>
 
 
