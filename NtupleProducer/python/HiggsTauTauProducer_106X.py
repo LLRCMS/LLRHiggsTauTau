@@ -602,11 +602,6 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
                                     checkCharge = cms.bool(checkcharge)
 )
 
-#il seconod legge le pairs e stampa quali sono e da chi sono composti
-#process.afterLLcombiner = cms.EDFilter("afterCombiner",
-#    srcPairs = cms.InputTag("barellCand")
-#)
-
 ## ----------------------------------------------------------------------
 ## MVA MET
 ## ----------------------------------------------------------------------
@@ -645,36 +640,8 @@ if USEPAIRMET:
 else:
     print "Using event pfMET (same MET for all pairs)"
 
-    if YEAR == 2016:
-        from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-        runMetCorAndUncFromMiniAOD(
-                process,
-                isData = (not IsMC)
-        )
-
-        process.METSequence += process.fullPatMetSequence
-        PFMetName = "slimmedMETs"
-        uncorrPFMetTag = cms.InputTag(PFMetName, "", "TEST")
-
-    if YEAR == 2017:
-        from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-
-        runMetCorAndUncFromMiniAOD(
-                process,
-                isData = (not IsMC),
-                fixEE2017 = True,
-                fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139} ,
-                postfix = "ModifiedMET"
-        )
-
-        # if running in schedule mode add this to your path
-        process.METSequence += process.fullPatMetSequenceModifiedMET
-        PFMetName = "slimmedMETsModifiedMET"
-        uncorrPFMetTag = cms.InputTag(PFMetName, "", "TEST")
-
-    if YEAR == 2018:
-        PFMetName = "slimmedMETs"
-        uncorrPFMetTag = cms.InputTag(PFMetName)
+    PFMetName = "slimmedMETs"
+    uncorrPFMetTag = cms.InputTag(PFMetName)
 
 
     # patch to get a standalone MET significance collection
