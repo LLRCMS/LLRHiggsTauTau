@@ -815,10 +815,7 @@ else:
     # MET corrected for central TES and EES shifts of the taus
     process.HTauTauTree.metCollection = srcMETTag
 
-if YEAR == 2016 or YEAR == 2017:
-    process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsTransientCorrectedUpdatedJEC")
-if YEAR == 2018:
-    process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC")
+process.HTauTauTree.JECset = cms.untracked.string("patJetCorrFactorsUpdatedJEC")
 
 if SVFITBYPASS:
     process.HTauTauTree.candCollection = cms.InputTag("SVbypass")
