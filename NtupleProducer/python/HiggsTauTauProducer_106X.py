@@ -838,7 +838,6 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ## Paths
 ##
 process.PVfilter = cms.Path(process.goodPrimaryVertices)
-process.ecalBadCalib = cms.Path(process.ecalBadCalibReducedMINIAODFilter)
 process.l1ECALPref = cms.Path(process.prefiringweight)
 
 # Prepare lepton collections
