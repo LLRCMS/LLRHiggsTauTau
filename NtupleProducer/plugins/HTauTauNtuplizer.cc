@@ -234,9 +234,12 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
   edm::EDGetTokenT<pat::METCollection> theMetTag;
   edm::EDGetTokenT<pat::METCollection> theMetERTag;
-  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
   edm::EDGetTokenT<math::Error<2>::type> thePFMETCovTag;
   edm::EDGetTokenT<double> thePFMETSignifTag;
+  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
+  edm::EDGetTokenT<pat::METCollection> theShiftedPuppiMetTag;
+  edm::EDGetTokenT<math::Error<2>::type> thePuppiMETCovTag;
+  edm::EDGetTokenT<double> thePuppiMETSignifTag;
   edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
   edm::EDGetTokenT<edm::View<reco::GenJet>> theGenJetTag;
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
@@ -276,13 +279,20 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _metphi;
   Float_t _met_er;
   Float_t _met_er_phi;
-  Float_t _PUPPImet;
-  Float_t _PUPPImetphi;
   Float_t _PFMETCov00;
   Float_t _PFMETCov01;
   Float_t _PFMETCov10;
   Float_t _PFMETCov11;
   Float_t _PFMETsignif;
+  Float_t _PUPPImet;
+  Float_t _PUPPImetphi;
+  Float_t _PUPPImetShifted;
+  Float_t _PUPPImetShiftedphi;
+  Float_t _PuppiMETCov00;
+  Float_t _PuppiMETCov01;
+  Float_t _PuppiMETCov10;
+  Float_t _PuppiMETCov11;
+  Float_t _PuppiMETsignif;
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
@@ -531,6 +541,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<Float_t> _SVMetPhiEleUp;
   //std::vector<Float_t> _SVMetPhiEleDown;
 
+  Float_t _PUPPImetShiftedX;
+  Float_t _PUPPImetShiftedY;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
   std::vector<Float_t> _metx_up_jes;
@@ -1072,10 +1084,13 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theLHETag            (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lheCollection"))),
   theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
   theMetTag            (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metCollection"))),
-  theMetERTag            (consumes<pat::METCollection>                   (pset.getParameter<edm::InputTag>("metERCollection"))),
-  thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))),
+  theMetERTag          (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metERCollection"))),
   thePFMETCovTag       (consumes<math::Error<2>::type>                   (pset.getParameter<edm::InputTag>("srcPFMETCov"))),
   thePFMETSignifTag    (consumes<double>                                 (pset.getParameter<edm::InputTag>("srcPFMETSignificance"))),
+  thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))),
+  theShiftedPuppiMetTag(consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metPuppiShiftedCollection"))),
+  thePuppiMETCovTag    (consumes<math::Error<2>::type>                   (pset.getParameter<edm::InputTag>("srcPuppiMETCov"))),
+  thePuppiMETSignifTag (consumes<double>                                 (pset.getParameter<edm::InputTag>("srcPuppiMETSignificance"))),
   theGenericTag        (consumes<edm::View<pat::GenericParticle>>        (pset.getParameter<edm::InputTag>("genericCollection"))),
   theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
   theTotTag            (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("totCollection"))),
@@ -1464,6 +1479,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_HLTpt.clear();
   //_daughters_isL1IsoTau28Matched.clear(); //FRA January2019
   _daughters_highestEt_L1IsoTauMatched.clear();
+  _PUPPImetShiftedX=0;
+  _PUPPImetShiftedY=0;
   _metx.clear();
   _mety.clear();
   _metx_up_jes.clear();
@@ -1516,13 +1533,20 @@ void HTauTauNtuplizer::Initialize(){
   _met_er=0;
   _met_er_phi=0;
   _metphi=0.;
-  _PUPPImet=0;
-  _PUPPImetphi=0.;
   _PFMETCov00=0.;
   _PFMETCov01=0.;
   _PFMETCov10=0.;
   _PFMETCov11=0.;
   _PFMETsignif=0.;
+  _PUPPImet=0;
+  _PUPPImetphi=0.;
+  _PUPPImetShifted=0;
+  _PUPPImetShiftedphi=0.;
+  _PuppiMETCov00=0.;
+  _PuppiMETCov01=0.;
+  _PuppiMETCov10=0.;
+  _PuppiMETCov11=0.;
+  _PuppiMETsignif=0.;
   _MC_weight=0.;
   _npv=0;
   _lheHt=0;
@@ -1764,8 +1788,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("met_er",&_met_er,"met_er/F");
   myTree->Branch("met_er_phi",&_met_er_phi,"met_er_phi/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");
-  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
-  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
   if(DETAIL>=1){  
     myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
     myTree->Branch("daughters_full5x5_IetaIeta",&_daughters_full5x5_IetaIeta);
@@ -1780,6 +1802,15 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("PFMETCov10",&_PFMETCov10,"PFMETCov10/F");
   myTree->Branch("PFMETCov11",&_PFMETCov11,"PFMETCov11/F");
   myTree->Branch("PFMETsignif", &_PFMETsignif, "PFMETsignif/F");
+  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
+  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
+  myTree->Branch("PUPPImetShifted",&_PUPPImetShifted,"PUPPImetShifted/F");
+  myTree->Branch("PUPPImetShiftedphi",&_PUPPImetShiftedphi,"PUPPImetShiftedphi/F");
+  myTree->Branch("PuppiMETCov00",&_PuppiMETCov00,"PuppiMETCov00/F");
+  myTree->Branch("PuppiMETCov01",&_PuppiMETCov01,"PuppiMETCov01/F");
+  myTree->Branch("PuppiMETCov10",&_PuppiMETCov10,"PuppiMETCov10/F");
+  myTree->Branch("PuppiMETCov11",&_PuppiMETCov11,"PuppiMETCov11/F");
+  myTree->Branch("PuppiMETsignif", &_PuppiMETsignif, "PuppiMETsignif/F");
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/F"); 
   //myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); //FRA January2019
@@ -2013,6 +2044,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("SVfit_fitMETRho", &_SVMetRho);
   myTree->Branch("SVfit_fitMETPhi", &_SVMetPhi);
   myTree->Branch("isOSCand",&_isOSCand);
+  myTree->Branch("PUPPImetShiftedX",&_PUPPImetShiftedX,"PUPPImetShiftedX/F");
+  myTree->Branch("PUPPImetShiftedY",&_PUPPImetShiftedY,"PUPPImetShiftedY/F");
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
   myTree->Branch("METx_UP_JES",&_metx_up_jes);
@@ -2599,9 +2632,12 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<BXVector<l1t::Jet>>L1JetHandle;
   edm::Handle<pat::METCollection> metHandle;
   edm::Handle<pat::METCollection> metERHandle;
-  edm::Handle<pat::METCollection> PUPPImetHandle;
   edm::Handle<math::Error<2>::type> covHandle;
   edm::Handle<double> METsignficanceHandle;
+  edm::Handle<pat::METCollection> PUPPImetHandle;
+  edm::Handle<pat::METCollection> metPuppiShiftedHandle;
+  edm::Handle<math::Error<2>::type> PuppicovHandle;
+  edm::Handle<double> PuppiMETsignficanceHandle;
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
@@ -2623,9 +2659,12 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(theLepTag,dauHandle);
   event.getByToken(theMetTag,metHandle);
   event.getByToken(theMetERTag,metERHandle);
-  event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   event.getByToken(thePFMETCovTag,covHandle);
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
+  event.getByToken(thePUPPIMetTag,PUPPImetHandle);
+  event.getByToken(theShiftedPuppiMetTag,metPuppiShiftedHandle);
+  event.getByToken(thePuppiMETCovTag,PuppicovHandle);
+  event.getByToken(thePuppiMETSignifTag,PuppiMETsignficanceHandle);  
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
   event.getByToken(prefweight_token, theprefweight);
   event.getByToken(prefweightup_token, theprefweightup);
@@ -2685,6 +2724,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const pat::MET &met = metHandle->front();
   const pat::MET &met_er = metERHandle->front();
   const pat::MET &PUPPImet = PUPPImetHandle->front();
+  const pat::MET &metPuppiShifted = metPuppiShiftedHandle->front();
   const BXVector<l1t::Tau>* L1Tau = L1TauHandle.product();
   const BXVector<l1t::Jet>* L1Jet = L1JetHandle.product();
   //myNtuple->InitializeVariables();
@@ -2698,13 +2738,22 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _met_er = met_er.pt();
   _met_er_phi = met_er.phi();
   _metphi = met.phi();
-  _PUPPImet = PUPPImet.pt();
-  _PUPPImetphi = PUPPImet.phi();
   _PFMETCov00 = (*covHandle)(0,0);
   _PFMETCov10 = (*covHandle)(1,0);
   _PFMETCov01 = _PFMETCov10; // (1,0) is the only one saved
   _PFMETCov11 = (*covHandle)(1,1);
   _PFMETsignif = (*METsignficanceHandle);
+  _PUPPImet = PUPPImet.pt();
+  _PUPPImetphi = PUPPImet.phi();
+  _PUPPImetShifted = metPuppiShifted.pt();
+  _PUPPImetShiftedphi = metPuppiShifted.phi();
+  _PuppiMETCov00 = (*PuppicovHandle)(0,0);
+  _PuppiMETCov10 = (*PuppicovHandle)(1,0);
+  _PuppiMETCov01 = _PuppiMETCov10; // (1,0) is the only one saved
+  _PuppiMETCov11 = (*PuppicovHandle)(1,1);
+  _PuppiMETsignif = (*PuppiMETsignficanceHandle);  
+  _PUPPImetShiftedX = metPuppiShifted.px();
+  _PUPPImetShiftedY = metPuppiShifted.py();  
   //_NBadMu = (*NBadMuHandle); //FRA January2019
   if (theisMC && (theYear==2016 || theYear==2017))
   {

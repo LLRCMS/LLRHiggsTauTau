@@ -672,10 +672,24 @@ else:
                                               )
 
 
+    # Get a standalone Puppi MET significance collection
+    process.PuppiMETSignificance = cms.EDProducer ("ExtractMETSignificance",
+                                                   srcMET=cms.InputTag("slimmedMETsPuppi")
+                                                  )
+
+    # Shift PUPPI met due to central corrections of TES and EES
+    process.ShiftPuppiMETcentral = cms.EDProducer ("ShiftMETcentral",
+                                                   srcMET = cms.InputTag("slimmedMETsPuppi"),
+                                                   tauUncorrected = cms.InputTag("bareTaus"),
+                                                   tauCorrected = cms.InputTag("softTaus")
+                                                  )
+
     process.METSequence += process.METSignificance
     process.METSequence += process.ShiftMETforTES
     process.METSequence += process.ShiftMETforEES
     process.METSequence += process.ShiftMETcentral
+    process.METSequence += process.PuppiMETSignificance
+    process.METSequence += process.ShiftPuppiMETcentral
 
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
@@ -799,12 +813,15 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       triggerList = HLTLIST,
                       metFilters = cms.InputTag ("TriggerResults","",METfiltersProcess),
                       PUPPImetCollection = cms.InputTag("slimmedMETsPuppi"),
+                      metPuppiShiftedCollection = cms.InputTag("ShiftPuppiMETcentral"),
+                      srcPuppiMETCov = cms.InputTag("PuppiMETSignificance", "METCovariance"),
+                      srcPuppiMETSignificance = cms.InputTag("PuppiMETSignificance", "METSignificance"),                      
                       srcPFMETCov = cms.InputTag("METSignificance", "METCovariance"),
                       srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
+                      metERCollection = uncorrPFMetTag, # save the uncorrected MET (for TES and EES central shifts) just for reference
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),
-                      metERCollection = uncorrPFMetTag, # save the uncorrected MET (for TES and EES central shifts) just for reference
                       L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
                       L1prefireProbUp   = cms.InputTag("prefiringweight:nonPrefiringProbUp"),
                       L1prefireProbDown = cms.InputTag("prefiringweight:nonPrefiringProbDown")
