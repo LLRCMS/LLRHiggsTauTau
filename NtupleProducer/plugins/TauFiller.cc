@@ -55,36 +55,10 @@ class TauFiller : public edm::EDProducer {
   const StringCutObjectSelector<pat::Tau, true> cut;
   const CutSet<pat::Tau> flags;
   const bool ApplyTESCentralCorr; // shift the central TES value
-  //const double NominalTESCorrection;     // value of correction of centrale TES value used in HIG-17-002, same for all DMs
-  const double NominalTESCorrectionDM0;    // DM==0  - correction of central TES
-  const double NominalTESCorrectionDM1; // DM==1  - correction of central TES
-  const double NominalTESCorrectionDM10;    // DM==10 - correction of central TES
-  const double NominalTESCorrectionDM11;    // DM==11 - correction of central TES
-  const double NominalTESUncertaintyDM0;      // Up/Down uncertainty for TES 
-  const double NominalTESUncertaintyDM1;      // Up/Down uncertainty for TES 
-  const double NominalTESUncertaintyDM10;      // Up/Down uncertainty for TES 
-  const double NominalTESUncertaintyDM11;      // Up/Down uncertainty for TES 
-
-  const double NominalEFakeESCorrectionDM0B;       // DM==0 - barrel - correction of central e->tauh ES
-  const double NominalEFakeESUncertaintyDM0BUp;    // DM==0 - barrel - up uncertainty e->tauh ES
-  const double NominalEFakeESUncertaintyDM0BDown;  // DM==0 - barrel - down uncertainty e->tauh ES
-  const double NominalEFakeESCorrectionDM1B;       // DM==1 - barrel - correction of central e->tauh ES
-  const double NominalEFakeESUncertaintyDM1BUp;    // DM==1 - barrel - up uncertainty e->tauh ES
-  const double NominalEFakeESUncertaintyDM1BDown;  // DM==1 - barrel - down uncertainty e->tauh ES
-
-  const double NominalEFakeESCorrectionDM0E;       // DM==0 - endcaps - correction of central e->tauh ES
-  const double NominalEFakeESUncertaintyDM0EUp;    // DM==0 - endcaps - up uncertainty e->tauh ES
-  const double NominalEFakeESUncertaintyDM0EDown;  // DM==0 - endcaps - down uncertainty e->tauh ES
-  const double NominalEFakeESCorrectionDM1E;       // DM==1 - endcaps - correction of central e->tauh ES
-  const double NominalEFakeESUncertaintyDM1EUp;    // DM==1 - endcaps - up uncertainty e->tauh ES
-  const double NominalEFakeESUncertaintyDM1EDown;  // DM==1 - endcaps - down uncertainty e->tauh ES
-
   const std::string theTESYear;
-  TFile* TESFile_low;
-  TFile* TESFile_high;
+  TFile* TESFile;
   TFile* EESFile;
-  TH1* TESh1_low;
-  TH1* TESh1_high;
+  TH1* TESh1;
   TGraphAsymmErrors* EESgr;
 
   vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
@@ -100,27 +74,6 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   cut(iConfig.getParameter<std::string>("cut")),
   flags(iConfig.getParameter<ParameterSet>("flags")), 
   ApplyTESCentralCorr(iConfig.getParameter<bool>("ApplyTESCentralCorr")),
-  //NominalTESCorrection(iConfig.getParameter<double>("NominalTESCorrection")), // used for HIG-17-002, same for all values
-  NominalTESCorrectionDM0(iConfig.getParameter<double>("NominalTESCorrectionDM0")),
-  NominalTESCorrectionDM1(iConfig.getParameter<double>("NominalTESCorrectionDM1")),
-  NominalTESCorrectionDM10(iConfig.getParameter<double>("NominalTESCorrectionDM10")),
-  NominalTESCorrectionDM11(iConfig.getParameter<double>("NominalTESCorrectionDM11")),
-  NominalTESUncertaintyDM0(iConfig.getParameter<double>("NominalTESUncertaintyDM0")),
-  NominalTESUncertaintyDM1(iConfig.getParameter<double>("NominalTESUncertaintyDM1")),
-  NominalTESUncertaintyDM10(iConfig.getParameter<double>("NominalTESUncertaintyDM10")),
-  NominalTESUncertaintyDM11(iConfig.getParameter<double>("NominalTESUncertaintyDM11")),
-  NominalEFakeESCorrectionDM0B(iConfig.getParameter<double>("NominalEFakeESCorrectionDM0B")),
-  NominalEFakeESUncertaintyDM0BUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0BUp")),
-  NominalEFakeESUncertaintyDM0BDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0BDown")),
-  NominalEFakeESCorrectionDM1B(iConfig.getParameter<double>("NominalEFakeESCorrectionDM1B")),
-  NominalEFakeESUncertaintyDM1BUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1BUp")),
-  NominalEFakeESUncertaintyDM1BDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1BDown")),
-  NominalEFakeESCorrectionDM0E(iConfig.getParameter<double>("NominalEFakeESCorrectionDM0E")),
-  NominalEFakeESUncertaintyDM0EUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0EUp")),
-  NominalEFakeESUncertaintyDM0EDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM0EDown")),
-  NominalEFakeESCorrectionDM1E(iConfig.getParameter<double>("NominalEFakeESCorrectionDM1E")),
-  NominalEFakeESUncertaintyDM1EUp(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1EUp")),
-  NominalEFakeESUncertaintyDM1EDown(iConfig.getParameter<double>("NominalEFakeESUncertaintyDM1EDown")),
   theTESYear(iConfig.getParameter<std::string>("year"))
 
 {
@@ -226,18 +179,16 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
    };
 
   // TES input files
-  edm::FileInPath TESFileName_low ("TauPOG/TauIDSFs/data/TauES_dm_DeepTau2017v2p1VSjet_"+theTESYear+".root");
-  edm::FileInPath TESFileName_high("TauPOG/TauIDSFs/data/TauES_dm_DeepTau2017v2p1VSjet_"+theTESYear+"_ptgt100.root");
-  TESFile_low  = new TFile(TESFileName_low .fullPath().data());
-  TESFile_high = new TFile(TESFileName_high.fullPath().data());
+  edm::FileInPath TESFileName ("TauPOG/TauIDSFs/data/TauES_dm_DeepTau2017v2p1VSjet_"+theTESYear+".root");
+  TESFile  = new TFile(TESFileName.fullPath().data());
 
   // TES input histos
   TH1::AddDirectory(false);
-  TESh1_low  = dynamic_cast<TH1*>((const_cast<TFile*>(TESFile_low))->Get("tes"));
-  TESh1_high = dynamic_cast<TH1*>((const_cast<TFile*>(TESFile_high))->Get("tes"));
+  TESh1 = dynamic_cast<TH1*>((const_cast<TFile*>(TESFile))->Get("tes"));
 
   // EES input file
-  edm::FileInPath EESFileName("TauPOG/TauIDSFs/data/TauFES_eta-dm_DeepTau2017v2p1VSe_"+theTESYear+".root");
+  // Davide: Placeholder waiting for new files
+  edm::FileInPath EESFileName("TauPOG/TauIDSFs/data/TauFES_eta-dm_DeepTau2017v2p1VSe_2016Legacy.root");
   EESFile = new TFile(EESFileName.fullPath().data());
 
   // EES input histos
@@ -246,10 +197,8 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
 
 TauFiller::~TauFiller()
 {
-  delete TESFile_low;
-  delete TESFile_high;
-  delete TESh1_low;
-  delete TESh1_high;
+  delete TESFile;
+  delete TESh1;
   delete EESFile;
   delete EESgr;
 }
@@ -293,15 +242,15 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(theGenTag, genHandle);
 
   // TES corrections
-  Int_t binDM0  = TESh1_low->GetXaxis()->FindBin((int)0);
-  Int_t binDM1  = TESh1_low->GetXaxis()->FindBin(1);
-  Int_t binDM10 = TESh1_low->GetXaxis()->FindBin(10);
-  Int_t binDM11 = TESh1_low->GetXaxis()->FindBin(11);
+  Int_t binDM0  = TESh1->GetXaxis()->FindBin((int)0);
+  Int_t binDM1  = TESh1->GetXaxis()->FindBin(1);
+  Int_t binDM10 = TESh1->GetXaxis()->FindBin(10);
+  Int_t binDM11 = TESh1->GetXaxis()->FindBin(11);
 
-  double Shift1Pr    = TESh1_low->GetBinContent(binDM0);
-  double Shift1PrPi0 = TESh1_low->GetBinContent(binDM1);
-  double Shift3Pr    = TESh1_low->GetBinContent(binDM10);
-  double Shift3PrPi0 = TESh1_low->GetBinContent(binDM11);
+  double Shift1Pr    = TESh1->GetBinContent(binDM0);
+  double Shift1PrPi0 = TESh1->GetBinContent(binDM1);
+  double Shift3Pr    = TESh1->GetBinContent(binDM10);
+  double Shift3PrPi0 = TESh1->GetBinContent(binDM11);
 
   // EES corrections
   double EFakeShift1PrB    = EESgr->GetY()[0]; // barrel DM 0
@@ -319,16 +268,6 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //---Clone the pat::Tau
     pat::Tau l(*((*tauHandle)[itau].get()));
     
-    // Nominal TES Correction
-    //double Shift1Pr    = 1. + NominalTESCorrectionDM0/100.;
-    //double Shift1PrPi0 = 1. + NominalTESCorrectionDM1/100.;
-    //double Shift3Pr    = 1. + NominalTESCorrectionDM10/100.;
-    //double Shift3PrPi0  = 1. + NominalTESCorrectionDM11/100.;
-    //double EFakeShift1PrB    = 1. + NominalEFakeESCorrectionDM0B/100.;
-    //double EFakeShift1PrE    = 1. + NominalEFakeESCorrectionDM0E/100.;
-    //double EFakeShift1PrPi0B = 1. + NominalEFakeESCorrectionDM1B/100.;
-    //double EFakeShift1PrPi0E = 1. + NominalEFakeESCorrectionDM1E/100.;
-
     double shiftP = 1.;
     double shiftMass = 1.;
     bool isTESShifted = false;
@@ -475,42 +414,15 @@ TauFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float TESshiftDM10 = 1;
     float TESshiftDM11 = 1;
 
-    double errDM0_low = TESh1_low->GetBinError(binDM0);
-    double errDM1_low = TESh1_low->GetBinError(binDM1);
-    double errDM10_low = TESh1_low->GetBinError(binDM10);
-    double errDM11_low = TESh1_low->GetBinError(binDM11);
+    double errDM0  = TESh1->GetBinError(binDM0);
+    double errDM1  = TESh1->GetBinError(binDM1);
+    double errDM10 = TESh1->GetBinError(binDM10);
+    double errDM11 = TESh1->GetBinError(binDM11);
 
-    Int_t binDM0_high  = TESh1_high->GetXaxis()->FindBin((int)0);
-    Int_t binDM1_high  = TESh1_high->GetXaxis()->FindBin(1);
-    Int_t binDM10_high = TESh1_high->GetXaxis()->FindBin(10);
-    Int_t binDM11_high = TESh1_high->GetXaxis()->FindBin(11);
-
-    double errDM0_high = TESh1_high->GetBinError(binDM0_high);
-    double errDM1_high = TESh1_high->GetBinError(binDM1_high);
-    double errDM10_high = TESh1_high->GetBinError(binDM10_high);
-    double errDM11_high = TESh1_high->GetBinError(binDM11_high);
-
-    if      (l.pt() >= 170.) /* High pt taus */
-    {
-      TESshiftDM0  = errDM0_high;
-      TESshiftDM1  = errDM1_high;
-      TESshiftDM10 = errDM10_high;
-      TESshiftDM11 = errDM11_high;
-    }
-    else if (l.pt() > 34.)   /* Medium pt taus */
-    {
-      TESshiftDM0  = errDM0_low + (errDM0_high-errDM0_low)/(170.-34.)*(p4S_Nominal.pt()-34.);
-      TESshiftDM1  = errDM1_low + (errDM1_high-errDM1_low)/(170.-34.)*(p4S_Nominal.pt()-34.);
-      TESshiftDM10 = errDM10_low + (errDM10_high-errDM10_low)/(170.-34.)*(p4S_Nominal.pt()-34.);
-      TESshiftDM11 = errDM11_low + (errDM11_high-errDM11_low)/(170.-34.)*(p4S_Nominal.pt()-34.);
-    }
-    else                     /* Low pt taus */
-    {
-      TESshiftDM0  = errDM0_low;
-      TESshiftDM1  = errDM1_low;
-      TESshiftDM10 = errDM10_low;
-      TESshiftDM11 = errDM11_low;
-    }
+    TESshiftDM0  = errDM0 ;
+    TESshiftDM1  = errDM1 ;
+    TESshiftDM10 = errDM10;
+    TESshiftDM11 = errDM11;
 
     float udshiftP[2] = {1., 1.};
     float udshiftMass[2] = {1., 1.};
