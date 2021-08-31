@@ -2813,7 +2813,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   else if (theYear == 2017)
   {
     for (const auto& source: m_jec_sources_regrouped_2017) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
       jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
     }
@@ -2821,7 +2821,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   else if (theYear == 2018)
   {
     for (const auto& source: m_jec_sources_regrouped_2018) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Autumn18_V19_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
       jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
     }
@@ -2841,7 +2841,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     else if (theYear == 2017)
     {
       for (const auto& source: m_jec_sources_2017) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt", source);
         std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
         jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2849,7 +2849,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     else if (theYear == 2018)
     {
       for (const auto& source: m_jec_sources_2018) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_V19_MC_UncertaintySources_AK4PFchs.txt", source);
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt", source);
         std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
         jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2877,49 +2877,55 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       }
     }else if(Run2017B){
       for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunB_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2017C){
       for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017C_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunC_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if(Run2017D || Run2017E){
+    }else if(Run2017D){
       for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017DE_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunD_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(Run2017E){
+      for (const auto& source: m_jec_sources_2017) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunE_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2017F){
       for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017F_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunF_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018A){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunA_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunA_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018B){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunB_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunB_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018C){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunC_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunC_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018D){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunD_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunD_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
