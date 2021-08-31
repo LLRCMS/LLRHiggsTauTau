@@ -224,9 +224,9 @@ dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 #**********************
 
-EgammaPostRecoSeq_ERA = '2016postVFP-UL'  # 2016 data postVFP
+EgammaPostRecoSeq_ERA = '2016preVFP-UL'  # 2016 data postVFP
 if PERIOD=='postVFP':
-  EgammaPostRecoSeq_ERA = '2016preVFP-UL' # 2016 data preVFP
+  EgammaPostRecoSeq_ERA = '2016postVFP-UL' # 2016 data preVFP
 if YEAR==2017:
   EgammaPostRecoSeq_ERA = '2017-UL'       # 2017 data
 if YEAR == 2018:
