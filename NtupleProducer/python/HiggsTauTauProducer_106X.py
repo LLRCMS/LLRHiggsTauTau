@@ -73,10 +73,10 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 if IsMC:
   if YEAR == 2016:
-    if PERIOD=="preVFP":
-        process.GlobalTag.globaltag = '106X_mcRun2_asymptotic_preVFP_v9' # 2016 preVFP
-    else:
+    if PERIOD=="postVFP":
         process.GlobalTag.globaltag = '106X_mcRun2_asymptotic_v15'       # 2016 postVFP
+    else:
+        process.GlobalTag.globaltag = '106X_mcRun2_asymptotic_preVFP_v9' # 2016 preVFP
   if YEAR == 2017:
     process.GlobalTag.globaltag = '106X_mc2017_realistic_v8'             # 2017 MC
   if YEAR == 2018:
