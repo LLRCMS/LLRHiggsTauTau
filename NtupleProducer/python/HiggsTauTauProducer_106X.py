@@ -655,6 +655,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       applyFSR = cms.bool(APPLYFSR),
                       IsMC = cms.bool(IsMC),
                       year = cms.int32(YEAR),
+                      period = cms.string(PERIOD),
                       doCPVariables = cms.bool(doCPVariables),               
                       vtxCollection = cms.InputTag("offlineSlimmedPrimaryVertices"),
                       secVtxCollection = cms.InputTag("slimmedSecondaryVertices"), # FRA

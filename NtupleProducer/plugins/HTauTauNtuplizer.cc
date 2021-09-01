@@ -195,7 +195,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Bool_t doCPVariables;
   Bool_t computeQGVar;
   string theJECName;
-  Int_t theYear;
+  Int_t  theYear;
+  string thePeriod;
   // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
@@ -1114,6 +1115,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theJECName = pset.getUntrackedParameter<string>("JECset");
   theYear = pset.getParameter<int>("year");
   // theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
+  thePeriod = pset.getParameter<string>("period");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
@@ -2784,28 +2786,37 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
-  bool Run2016B = (_runNumber >= 272007 && _runNumber <= 275376);
-  bool Run2016C = (_runNumber >= 275657 && _runNumber <= 276283);
-  bool Run2016D = (_runNumber >= 276315 && _runNumber <= 276811);
-  bool Run2016E = (_runNumber >= 276831 && _runNumber <= 277420);
-  bool Run2016F = (_runNumber >= 277772 && _runNumber <= 278808);
-  bool Run2016G = (_runNumber >= 278820 && _runNumber <= 280385);
-  bool Run2016H = (_runNumber >= 280919 && _runNumber <= 284044);
-  bool Run2017B = (_runNumber >= 297046 && _runNumber <= 299329);
-  bool Run2017C = (_runNumber >= 299368 && _runNumber <= 302029);
-  bool Run2017D = (_runNumber >= 302030 && _runNumber <= 303434);
-  bool Run2017E = (_runNumber >= 303824 && _runNumber <= 304797);
-  bool Run2017F = (_runNumber >= 305040 && _runNumber <= 306462);
-  bool Run2018A = (_runNumber >= 315252 && _runNumber <= 316995);
-  bool Run2018B = (_runNumber >= 316998 && _runNumber <= 319312);
-  bool Run2018C = (_runNumber >= 319313 && _runNumber <= 320393);
-  bool Run2018D = (_runNumber >= 320394 && _runNumber <= 325273);
+  bool Run2016B  = (_runNumber >= 272007 && _runNumber <= 275376);
+  bool Run2016C  = (_runNumber >= 275657 && _runNumber <= 276283);
+  bool Run2016D  = (_runNumber >= 276315 && _runNumber <= 276811);
+  bool Run2016E  = (_runNumber >= 276831 && _runNumber <= 277420);
+  bool Run2016F1 = (_runNumber >= 277772 && _runNumber <= 278808);
+  bool Run2016F2 = (_runNumber >= 277772 && _runNumber <= 278808);
+  bool Run2016G  = (_runNumber >= 278820 && _runNumber <= 280385);
+  bool Run2016H  = (_runNumber >= 280919 && _runNumber <= 284044);
+  bool Run2017B  = (_runNumber >= 297046 && _runNumber <= 299329);
+  bool Run2017C  = (_runNumber >= 299368 && _runNumber <= 302029);
+  bool Run2017D  = (_runNumber >= 302030 && _runNumber <= 303434);
+  bool Run2017E  = (_runNumber >= 303824 && _runNumber <= 304797);
+  bool Run2017F  = (_runNumber >= 305040 && _runNumber <= 306462);
+  bool Run2018A  = (_runNumber >= 315252 && _runNumber <= 316995);
+  bool Run2018B  = (_runNumber >= 316998 && _runNumber <= 319312);
+  bool Run2018C  = (_runNumber >= 319313 && _runNumber <= 320393);
+  bool Run2018D  = (_runNumber >= 320394 && _runNumber <= 325273);
 
   // JEC Regrouped uncertainty sources
-  if (theYear == 2016)
+  if (theYear == 2016 && thePeriod == "")
   {
     for (const auto& source: m_jec_sources_regrouped_2016) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Summer16_07Aug2017_V11_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt", source);
+      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
+      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
+    }
+  }
+  else if (theYear == 2016 && thePeriod == "postVFP")
+  {
+    for (const auto& source: m_jec_sources_regrouped_2016) {
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
       jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
     }
@@ -2830,10 +2841,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // Full JEC uncertainty sources
   if(theisMC)
   {
-    if (theYear == 2016)
+    if (theYear == 2016 && thePeriod == "")
     {
       for (const auto& source: m_jec_sources_2016) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017_V11_MC_UncertaintySources_AK4PFchs.txt", source);
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt", source);
+        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }
+    else if (theYear == 2016 && thePeriod == "postVFP")
+    {
+      for (const auto& source: m_jec_sources_2016) {
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt", source);
         std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
         jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2859,19 +2878,19 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   {
     if(Run2016B || Run2016C || Run2016D){
       for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017BCD_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_RunBCD_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if (Run2016E || Run2016F){
+    }else if (Run2016E || Run2016F1){
       for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017EF_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_RunEF_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if (Run2016G || Run2016H){
+    }else if (Run2016F2 || Run2016G || Run2016H){
       for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017GH_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16_RunFGH_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
