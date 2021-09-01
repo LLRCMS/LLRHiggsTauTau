@@ -185,10 +185,18 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
   // TES input histos
   TH1::AddDirectory(false);
   TESh1 = dynamic_cast<TH1*>((const_cast<TFile*>(TESFile))->Get("tes"));
+  
+  // Davide: Use Legacy EES for the time being as sugested by tau POG
 
+  std::string theEESYear = "";
+  
+  if      (theTESYear == "UL2016_preVFP" || theTESYear == "UL2016_postVFP") theEESYear = "2016Legacy";
+  else if (theTESYear == "UL2017")                                          theEESYear = "2017ReReco";
+  else if (theTESYear == "UL2018")                                          theEESYear = "2018ReReco";
+  else                                                                      theEESYear = "2016Legacy";
+  
   // EES input file
-  // Davide: Placeholder waiting for new files
-  edm::FileInPath EESFileName("TauPOG/TauIDSFs/data/TauFES_eta-dm_DeepTau2017v2p1VSe_2016Legacy.root");
+  edm::FileInPath EESFileName("TauPOG/TauIDSFs/data/TauFES_eta-dm_DeepTau2017v2p1VSe_"+theEESYear+".root");
   EESFile = new TFile(EESFileName.fullPath().data());
 
   // EES input histos
