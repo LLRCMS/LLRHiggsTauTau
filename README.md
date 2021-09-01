@@ -10,7 +10,9 @@ Modules and plugins are called by python/HiggsTauTauProducer.py
 The stored variables are set in plugins/HTauTauNtupleMaker.cc
 
 ### Instructions for older releases:
+
 <details>
+
 ### Instructions for 7_2_X
 
 ```
