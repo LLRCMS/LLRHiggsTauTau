@@ -132,16 +132,18 @@ process.hltFilter = hlt.hltHighLevel.clone(
 ### L1ECALPrefiringWeightRecipe (for 2016 and 2017 MC only)
 ### https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
 ### ----------------------------------------------------------------------
-prefireEra = "2016BtoH"
-if YEAR==2017: prefireEra = "2017BtoF"
-
-from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
-process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
-  DataEra = cms.string(prefireEra),
-  UseJetEMPt = cms.bool(False),
-  PrefiringRateSystematicUncty = cms.double(0.2),
-  SkipWarnings = False
-)
+#prefireEra = "UL2016preVFP"
+#if PERIOD=="postVFP" : prefireEra = "UL2016postVFP"
+#if YEAR==2017: prefireEra = "UL2017BtoF"
+#
+#from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+#process.prefiringweight= l1ECALPrefiringWeightProducer.clone(
+#    L1Maps = cms.string("L1PrefiringMaps.root"),
+#    DataEra = cms.string(prefireEra),
+#    UseJetEMPt = cms.bool(False),
+#    PrefiringRateSystematicUncty = cms.double(0.2),
+#    SkipWarnings = False
+#    )
 
 # Trigger Unpacker Module
 #process.patTriggerUnpacker = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
