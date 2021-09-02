@@ -561,6 +561,16 @@ else:
     process.METSequence += process.PuppiMETSignificance
     process.METSequence += process.ShiftPuppiMETcentral
 
+    # Re-run BadPFMuonDzFilter on miniAODv1 as in https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Recipe_for_BadPFMuonDz_filter_in
+    from RecoMET.METFilters.BadPFMuonDzFilter_cfi import BadPFMuonDzFilter
+    process.BadPFMuonFilterUpdateDz=BadPFMuonDzFilter.clone(
+    muons = cms.InputTag("slimmedMuons"),
+    vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    PFCandidates = cms.InputTag("packedPFCandidates"),
+    minDzBestTrack = cms.double(0.5),
+    taggingMode    = cms.bool(True)
+    )
+
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
 ## ----------------------------------------------------------------------
@@ -725,8 +735,9 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ##
 ## Paths
 ##
-process.PVfilter = cms.Path(process.goodPrimaryVertices)
-process.l1ECALPref = cms.Path(process.prefiringweight)
+process.PVfilter    = cms.Path(process.goodPrimaryVertices)
+process.l1ECALPref  = cms.Path(process.prefiringweight)
+process.badPFMuonDz = cms.Path(process.BadPFMuonFilterUpdateDz)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
