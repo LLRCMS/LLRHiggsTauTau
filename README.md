@@ -504,6 +504,12 @@ git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 #Add TauPOG corrections (TES and EES)
 git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
 
+#Add L1 prefering maps (when using CMSSW < 10_6_26)
+git-cms-addpkg PhysicsTools/PatUtils 
+cd PhysicsTools/PatUtils/data/
+wget --no-check-certificate https://github.com/cms-data/PhysicsTools-PatUtils/raw/master/L1PrefiringMaps.root 
+cd ../../../
+
 cd $CMSSW_BASE/src
 scram b -j 8
 ```
