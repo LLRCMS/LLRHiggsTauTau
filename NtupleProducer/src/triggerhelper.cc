@@ -33,7 +33,6 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
-    "Flag_BadPFMuonDzFilter",
     "Flag_eeBadScFilter",
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
@@ -55,7 +54,6 @@ triggerhelper::triggerhelper(TH1F* hCounter){
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
-    "Flag_BadPFMuonDzFilter",
     "Flag_eeBadScFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
@@ -72,7 +70,6 @@ triggerhelper::triggerhelper()//:nTriggers(0)
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
-    "Flag_BadPFMuonDzFilter",
     "Flag_eeBadScFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
