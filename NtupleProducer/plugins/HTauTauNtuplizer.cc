@@ -2790,8 +2790,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   bool Run2016C  = (_runNumber >= 275657 && _runNumber <= 276283);
   bool Run2016D  = (_runNumber >= 276315 && _runNumber <= 276811);
   bool Run2016E  = (_runNumber >= 276831 && _runNumber <= 277420);
-  bool Run2016F1 = (_runNumber >= 277772 && _runNumber <= 278800);
-  bool Run2016F2 = (_runNumber >= 278801 && _runNumber <= 278808);
+  bool Run2016F1 = ((_runNumber >= 277772 && _runNumber <= 278768) || (_runNumber >= 278770 && _runNumber <= 278800));
+  bool Run2016F2 = ((_runNumber >= 278801 && _runNumber <= 278808) || (_runNumber == 278769));
   bool Run2016G  = (_runNumber >= 278820 && _runNumber <= 280385);
   bool Run2016H  = (_runNumber >= 280919 && _runNumber <= 284044);
   bool Run2017B  = (_runNumber >= 297046 && _runNumber <= 299329);
