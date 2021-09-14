@@ -705,6 +705,7 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),
+                      BadPFMuonFilterUpdateDz = cms.InputTag("BadPFMuonFilterUpdateDz"),
                       L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
                       L1prefireProbUp   = cms.InputTag("prefiringweight:nonPrefiringProbUp"),
                       L1prefireProbDown = cms.InputTag("prefiringweight:nonPrefiringProbDown")

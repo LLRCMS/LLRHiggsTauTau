@@ -180,6 +180,15 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     if(l.ecalEnergy()>0)
       IoEmIoP_ttH = (1.0/l.ecalEnergy() - l.eSuperClusterOverP()/l.ecalEnergy());
       
+    //--- Scale and smearing corrections and uncertainties - https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#Energy_Scale_and_Smearing
+
+    float ecalTrkEnergyPostCorr    = l.userFloat("ecalTrkEnergyPostCorr");
+    float ecalTrkEnergyErrPostCorr = l.userFloat("ecalTrkEnergyErrPostCorr");
+    float energyScaleUp            = l.userFloat("energyScaleUp");
+    float energyScaleDown          = l.userFloat("energyScaleDown");
+    float energySigmaUp            = l.userFloat("energySigmaUp");
+    float energySigmaDown          = l.userFloat("energySigmaDown"); 
+
     //--- Embed user variables
     l.addUserFloat("PFChargedHadIso",PFChargedHadIso);
     l.addUserFloat("PFNeutralHadIso",PFNeutralHadIso);
@@ -213,6 +222,12 @@ EleFiller::EleFiller(const edm::ParameterSet& iConfig) :
     l.addUserFloat("IoEmIoP_ttH",IoEmIoP_ttH);
     //l.addUserFloat("SCeta", fSCeta);
     l.addUserInt("isEB", int(l.isEB()));
+    l.addUserFloat("ecalTrkEnergyPostCorr",ecalTrkEnergyPostCorr);
+    l.addUserFloat("ecalTrkEnergyErrPostCorr",ecalTrkEnergyErrPostCorr);
+    l.addUserFloat("energyScaleUp",energyScaleUp);
+    l.addUserFloat("energyScaleDown",energyScaleDown);
+    l.addUserFloat("energySigmaUp",energySigmaUp);
+    l.addUserFloat("energySigmaDown",energySigmaDown); 
    
     //--- MC info
     const reco::GenParticle* genL= l.genParticleRef().get();
