@@ -3,9 +3,10 @@
 
 #used by crab
 #JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
-JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt"
+#JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt"
 #JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt"
 #JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt"
+JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt"
 
 #used in local productions
 LUMIMASK = cms.untracked.VLuminosityBlockRange( *(
@@ -43,6 +44,8 @@ LUMIMASK = cms.untracked.VLuminosityBlockRange( *(
     '297178:1043-297178:1264',
     '297178:1272-297178:1282',
     '297178:1290-297178:1385',
+    '297179:1-297179:6',
+    '297179:12-297179:97',
     '297215:1-297215:47',
     '297218:1-297218:27',
     '297219:1-297219:80',
@@ -295,16 +298,7 @@ LUMIMASK = cms.untracked.VLuminosityBlockRange( *(
     '300284:590-300284:680',
     '300284:691-300284:751',
     '300364:27-300364:46',
-    '300365:1-300365:20',
-    '300366:1-300366:21',
-    '300367:1-300367:20',
-    '300368:1-300368:20',
-    '300369:1-300369:20',
-    '300370:1-300370:20',
-    '300371:1-300371:20',
     '300372:1-300372:8',
-    '300373:1-300373:21',
-    '300374:1-300374:21',
     '300375:1-300375:93',
     '300389:1-300389:1',
     '300389:4-300389:5',
@@ -312,15 +306,6 @@ LUMIMASK = cms.untracked.VLuminosityBlockRange( *(
     '300389:11-300389:20',
     '300389:23-300389:39',
     '300389:60-300389:149',
-    '300390:2-300390:21',
-    '300391:1-300391:21',
-    '300392:1-300392:21',
-    '300393:1-300393:20',
-    '300394:1-300394:21',
-    '300395:1-300395:20',
-    '300396:1-300396:20',
-    '300397:1-300397:20',
-    '300398:1-300398:20',
     '300399:1-300399:20',
     '300400:1-300400:677',
     '300401:19-300401:673',
@@ -717,7 +702,8 @@ LUMIMASK = cms.untracked.VLuminosityBlockRange( *(
     '305365:676-305365:832',
     '305366:1-305366:721',
     '305366:724-305366:756',
-    '305366:769-305366:1254',
+    '305366:769-305366:934',
+    '305366:936-305366:1254',
     '305376:71-305376:168',
     '305377:9-305377:1292',
     '305377:1294-305377:1383',

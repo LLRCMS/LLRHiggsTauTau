@@ -195,7 +195,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Bool_t doCPVariables;
   Bool_t computeQGVar;
   string theJECName;
-  Int_t theYear;
+  Int_t  theYear;
+  string thePeriod;
   // Bool_t theUseNoHFPFMet; // false: PFmet ; true: NoHFPFMet
   //Trigger
   vector<int> indexOfPath;
@@ -229,16 +230,17 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::View<pat::Jet>> theJetTag;
   edm::EDGetTokenT<edm::View<pat::Jet>> theFatJetTag;
   edm::EDGetTokenT<edm::ValueMap<float>> theQGTaggerTag;
-  edm::EDGetTokenT<edm::ValueMap<float>> theupdatedPileupJetIdDiscrTag;
-  edm::EDGetTokenT<edm::ValueMap<int>> theupdatedPileupJetIdWPTag;
   edm::EDGetTokenT<edm::View<reco::Candidate>> theLepTag;
   edm::EDGetTokenT<LHEEventProduct> theLHETag;
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
   edm::EDGetTokenT<pat::METCollection> theMetTag;
   edm::EDGetTokenT<pat::METCollection> theMetERTag;
-  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
   edm::EDGetTokenT<math::Error<2>::type> thePFMETCovTag;
   edm::EDGetTokenT<double> thePFMETSignifTag;
+  edm::EDGetTokenT<pat::METCollection> thePUPPIMetTag;
+  edm::EDGetTokenT<pat::METCollection> theShiftedPuppiMetTag;
+  edm::EDGetTokenT<math::Error<2>::type> thePuppiMETCovTag;
+  edm::EDGetTokenT<double> thePuppiMETSignifTag;
   edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
   edm::EDGetTokenT<edm::View<reco::GenJet>> theGenJetTag;
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
@@ -249,7 +251,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<BXVector<l1t::Jet> > theL1JetTag;
   //edm::EDGetTokenT<int> theNBadMuTag; //FRA January2019
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
-  edm::EDGetTokenT< bool >ecalBadCalibFilterUpdate_token ;
+  edm::EDGetTokenT< bool > badPFMuonDz_token;
   edm::EDGetTokenT< double > prefweight_token;
   edm::EDGetTokenT< double > prefweightup_token;
   edm::EDGetTokenT< double > prefweightdown_token;
@@ -272,7 +274,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Long64_t _triggerbit;
   Int_t _metfilterbit;
   //Int_t _NBadMu;  //FRA January2019
-  Bool_t _passecalBadCalibFilterUpdate;
+  Bool_t  _passbadMuonPFDz;
   Float_t _prefiringweight;
   Float_t _prefiringweightup;
   Float_t _prefiringweightdown;
@@ -280,13 +282,20 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _metphi;
   Float_t _met_er;
   Float_t _met_er_phi;
-  Float_t _PUPPImet;
-  Float_t _PUPPImetphi;
   Float_t _PFMETCov00;
   Float_t _PFMETCov01;
   Float_t _PFMETCov10;
   Float_t _PFMETCov11;
   Float_t _PFMETsignif;
+  Float_t _PUPPImet;
+  Float_t _PUPPImetphi;
+  Float_t _PUPPImetShifted;
+  Float_t _PUPPImetShiftedphi;
+  Float_t _PuppiMETCov00;
+  Float_t _PuppiMETCov01;
+  Float_t _PuppiMETCov10;
+  Float_t _PuppiMETCov11;
+  Float_t _PuppiMETsignif;
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
@@ -535,6 +544,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<Float_t> _SVMetPhiEleUp;
   //std::vector<Float_t> _SVMetPhiEleDown;
 
+  Float_t _PUPPImetShiftedX;
+  Float_t _PUPPImetShiftedY;
   std::vector<Float_t> _metx;
   std::vector<Float_t> _mety;
   std::vector<Float_t> _metx_up_jes;
@@ -588,6 +599,13 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //std::vector<int>  _daughters_eleMissingLostHits; //FRA January2019
   std::vector<bool>  _daughters_iseleChargeConsistent;
   //std::vector<int> _daughters_iseleCUT; //CUT ID for ele (0=veto,1=loose,2=medium,3=tight) //FRA January2019
+  //--- Electrons scale and smearing corrections and uncertainties - https://twiki.cern.ch/twiki/bin/view/CMS/EgammaMiniAODV2#Energy_Scale_and_Smearing
+  std::vector<Float_t> _daughters_ecalTrkEnergyPostCorr;
+  std::vector<Float_t> _daughters_ecalTrkEnergyErrPostCorr;
+  std::vector<Float_t> _daughters_energyScaleUp;
+  std::vector<Float_t> _daughters_energyScaleDown;
+  std::vector<Float_t> _daughters_energySigmaUp;
+  std::vector<Float_t> _daughters_energySigmaDown;
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Int_t> _genmatch;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
@@ -738,8 +756,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
   std::vector<Int_t>   _jets_PUJetID_WP;
-  std::vector<Float_t> _jets_PUJetIDupdated;
-  std::vector<Int_t>   _jets_PUJetIDupdated_WP;
   std::vector<Float_t> _jets_vtxPt;
   std::vector<Float_t> _jets_vtxMass;
   std::vector<Float_t> _jets_vtx3dL;
@@ -1074,16 +1090,17 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theJetTag            (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("jetCollection"))),
   theFatJetTag         (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("ak8jetCollection"))),
   theQGTaggerTag       (consumes<edm::ValueMap<float>>                   (pset.getParameter<edm::InputTag>("QGTagger"))),
-  theupdatedPileupJetIdDiscrTag (consumes<edm::ValueMap<float>>          (pset.getParameter<edm::InputTag>("pileupJetIdUpdatedDiscr"))),
-  theupdatedPileupJetIdWPTag    (consumes<edm::ValueMap<int>>            (pset.getParameter<edm::InputTag>("pileupJetIdUpdatedWP"))),
   theLepTag            (consumes<edm::View<reco::Candidate>>             (pset.getParameter<edm::InputTag>("lepCollection"))),
   theLHETag            (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lheCollection"))),
   theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
   theMetTag            (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metCollection"))),
-  theMetERTag            (consumes<pat::METCollection>                   (pset.getParameter<edm::InputTag>("metERCollection"))),
-  thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))),
+  theMetERTag          (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metERCollection"))),
   thePFMETCovTag       (consumes<math::Error<2>::type>                   (pset.getParameter<edm::InputTag>("srcPFMETCov"))),
   thePFMETSignifTag    (consumes<double>                                 (pset.getParameter<edm::InputTag>("srcPFMETSignificance"))),
+  thePUPPIMetTag       (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("PUPPImetCollection"))),
+  theShiftedPuppiMetTag(consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metPuppiShiftedCollection"))),
+  thePuppiMETCovTag    (consumes<math::Error<2>::type>                   (pset.getParameter<edm::InputTag>("srcPuppiMETCov"))),
+  thePuppiMETSignifTag (consumes<double>                                 (pset.getParameter<edm::InputTag>("srcPuppiMETSignificance"))),
   theGenericTag        (consumes<edm::View<pat::GenericParticle>>        (pset.getParameter<edm::InputTag>("genericCollection"))),
   theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
   theTotTag            (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("totCollection"))),
@@ -1094,7 +1111,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theL1JetTag          (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
   //theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))), //FRA January2019
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
-  ecalBadCalibFilterUpdate_token  (consumes< bool >                      (pset.getParameter<edm::InputTag>("ecalBadCalibReducedMINIAODFilter"))),
+  badPFMuonDz_token    (consumes< bool >                                 (pset.getParameter<edm::InputTag>("BadPFMuonFilterUpdateDz"))),
   prefweight_token     (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProb"))),
   prefweightup_token   (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbUp"))),
   prefweightdown_token (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbDown")))
@@ -1108,6 +1125,7 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theJECName = pset.getUntrackedParameter<string>("JECset");
   theYear = pset.getParameter<int>("year");
   // theUseNoHFPFMet = pset.getParameter<bool>("useNOHFMet");
+  thePeriod = pset.getParameter<string>("period");
   //writeBestCandOnly = pset.getParameter<bool>("onlyBestCandidate");
   //sampleName = pset.getParameter<string>("sampleName");
   Nevt_Gen=0;
@@ -1303,6 +1321,12 @@ void HTauTauNtuplizer::Initialize(){
   //_daughters_eleMissingLostHits.clear(); //FRA January2019
   _daughters_iseleChargeConsistent.clear();
   //_daughters_iseleCUT.clear(); //FRA January2019
+  _daughters_ecalTrkEnergyPostCorr.clear();
+  _daughters_ecalTrkEnergyErrPostCorr.clear();
+  _daughters_energyScaleUp.clear();
+  _daughters_energyScaleDown.clear();
+  _daughters_energySigmaUp.clear();
+  _daughters_energySigmaDown.clear();
   //_daughter2.clear();
   _softLeptons.clear();
   //_genDaughters.clear();
@@ -1473,6 +1497,8 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_HLTpt.clear();
   //_daughters_isL1IsoTau28Matched.clear(); //FRA January2019
   _daughters_highestEt_L1IsoTauMatched.clear();
+  _PUPPImetShiftedX=0;
+  _PUPPImetShiftedY=0;
   _metx.clear();
   _mety.clear();
   _metx_up_jes.clear();
@@ -1516,7 +1542,7 @@ void HTauTauNtuplizer::Initialize(){
   _lumi=0;
   _year=0;
   //_NBadMu=0;  //FRA January2019
-  _passecalBadCalibFilterUpdate=false;
+  _passbadMuonPFDz=false;
   _prefiringweight = 1.;
   _prefiringweightup = 1.;
   _prefiringweightdown = 1.;
@@ -1526,13 +1552,20 @@ void HTauTauNtuplizer::Initialize(){
   _met_er=0;
   _met_er_phi=0;
   _metphi=0.;
-  _PUPPImet=0;
-  _PUPPImetphi=0.;
   _PFMETCov00=0.;
   _PFMETCov01=0.;
   _PFMETCov10=0.;
   _PFMETCov11=0.;
   _PFMETsignif=0.;
+  _PUPPImet=0;
+  _PUPPImetphi=0.;
+  _PUPPImetShifted=0;
+  _PUPPImetShiftedphi=0.;
+  _PuppiMETCov00=0.;
+  _PuppiMETCov01=0.;
+  _PuppiMETCov10=0.;
+  _PuppiMETCov11=0.;
+  _PuppiMETsignif=0.;
   _MC_weight=0.;
   _npv=0;
   _lheHt=0;
@@ -1565,8 +1598,6 @@ void HTauTauNtuplizer::Initialize(){
   _jets_mT.clear();
   _jets_PUJetID.clear();
   _jets_PUJetID_WP.clear();
-  _jets_PUJetIDupdated.clear();
-  _jets_PUJetIDupdated_WP.clear();
   _jets_vtxPt.clear();
   _jets_vtxMass.clear();
   _jets_vtx3dL.clear();
@@ -1767,7 +1798,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("lumi",&_lumi,"lumi/I");
   myTree->Branch("year",&_year,"year/I");
   //myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");  //FRA January2019
-  myTree->Branch("passecalBadCalibFilterUpdate",&_passecalBadCalibFilterUpdate,"passecalBadCalibFilterUpdate/O");
+  myTree->Branch("passbadMuonPFDz",&_passbadMuonPFDz,"passbadMuonPFDz/O");
   myTree->Branch("prefiringweight",&_prefiringweight,"prefiringweight/F");
   myTree->Branch("prefiringweightup",&_prefiringweightup,"prefiringweightup/F");
   myTree->Branch("prefiringweightdown",&_prefiringweightdown,"prefiringweightdown/F");
@@ -1777,8 +1808,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("met_er",&_met_er,"met_er/F");
   myTree->Branch("met_er_phi",&_met_er_phi,"met_er_phi/F");
   myTree->Branch("metphi",&_metphi,"metphi/F");
-  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
-  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
   if(DETAIL>=1){  
     myTree->Branch("daughters_IetaIeta",&_daughters_IetaIeta);
     myTree->Branch("daughters_full5x5_IetaIeta",&_daughters_full5x5_IetaIeta);
@@ -1793,6 +1822,15 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("PFMETCov10",&_PFMETCov10,"PFMETCov10/F");
   myTree->Branch("PFMETCov11",&_PFMETCov11,"PFMETCov11/F");
   myTree->Branch("PFMETsignif", &_PFMETsignif, "PFMETsignif/F");
+  myTree->Branch("PUPPImet",&_PUPPImet,"PUPPImet/F");
+  myTree->Branch("PUPPImetphi",&_PUPPImetphi,"PUPPImetphi/F");
+  myTree->Branch("PUPPImetShifted",&_PUPPImetShifted,"PUPPImetShifted/F");
+  myTree->Branch("PUPPImetShiftedphi",&_PUPPImetShiftedphi,"PUPPImetShiftedphi/F");
+  myTree->Branch("PuppiMETCov00",&_PuppiMETCov00,"PuppiMETCov00/F");
+  myTree->Branch("PuppiMETCov01",&_PuppiMETCov01,"PuppiMETCov01/F");
+  myTree->Branch("PuppiMETCov10",&_PuppiMETCov10,"PuppiMETCov10/F");
+  myTree->Branch("PuppiMETCov11",&_PuppiMETCov11,"PuppiMETCov11/F");
+  myTree->Branch("PuppiMETsignif", &_PuppiMETsignif, "PuppiMETsignif/F");
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/F"); 
   //myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); //FRA January2019
@@ -2026,6 +2064,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("SVfit_fitMETRho", &_SVMetRho);
   myTree->Branch("SVfit_fitMETPhi", &_SVMetPhi);
   myTree->Branch("isOSCand",&_isOSCand);
+  myTree->Branch("PUPPImetShiftedX",&_PUPPImetShiftedX,"PUPPImetShiftedX/F");
+  myTree->Branch("PUPPImetShiftedY",&_PUPPImetShiftedY,"PUPPImetShiftedY/F");
   myTree->Branch("METx",&_metx);
   myTree->Branch("METy",&_mety);
   myTree->Branch("METx_UP_JES",&_metx_up_jes);
@@ -2076,6 +2116,12 @@ void HTauTauNtuplizer::beginJob(){
   //myTree->Branch("daughters_eleMissingLostHits",&_daughters_eleMissingLostHits); //FRA January2019
   myTree->Branch("daughters_iseleChargeConsistent",&_daughters_iseleChargeConsistent);
   //myTree->Branch("daughters_eleCUTID",&_daughters_iseleCUT); //FRA January2019
+  myTree->Branch("daughters_ecalTrkEnergyPostCorr",&_daughters_ecalTrkEnergyPostCorr);
+  myTree->Branch("daughters_ecalTrkEnergyErrPostCorr",&_daughters_ecalTrkEnergyErrPostCorr);
+  myTree->Branch("daughters_energyScaleUp",&_daughters_energyScaleUp);
+  myTree->Branch("daughters_energyScaleDown",&_daughters_energyScaleDown);
+  myTree->Branch("daughters_energySigmaUp",&_daughters_energySigmaUp);
+  myTree->Branch("daughters_energySigmaDown",&_daughters_energySigmaDown); 
   myTree->Branch("decayMode",&_decayType);
   myTree->Branch("genmatch",&_genmatch);
   myTree->Branch("tauID",&_daughters_tauID);
@@ -2160,8 +2206,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
   myTree->Branch("jets_PUJetID_WP",&_jets_PUJetID_WP);
-  myTree->Branch("jets_PUJetIDupdated",&_jets_PUJetIDupdated);
-  myTree->Branch("jets_PUJetIDupdated_WP",&_jets_PUJetIDupdated_WP);
   myTree->Branch("jets_vtxPt", &_jets_vtxPt);
   myTree->Branch("jets_vtxMass", &_jets_vtxMass);
   myTree->Branch("jets_vtx3dL", &_jets_vtx3dL);
@@ -2610,19 +2654,20 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<pat::Jet>>jetHandle;
   edm::Handle<edm::View<pat::Jet>>fatjetHandle;
   edm::Handle<edm::ValueMap<float>>qgTaggerHandle;
-  edm::Handle<edm::ValueMap<float>>updatedPileupJetIdDiscrHandle;
-  edm::Handle<edm::ValueMap<int>>updatedPileupJetIdWPHandle;
   edm::Handle<BXVector<l1t::Tau>>L1TauHandle;
   edm::Handle<BXVector<l1t::Jet>>L1JetHandle;
   edm::Handle<pat::METCollection> metHandle;
   edm::Handle<pat::METCollection> metERHandle;
-  edm::Handle<pat::METCollection> PUPPImetHandle;
   edm::Handle<math::Error<2>::type> covHandle;
   edm::Handle<double> METsignficanceHandle;
+  edm::Handle<pat::METCollection> PUPPImetHandle;
+  edm::Handle<pat::METCollection> metPuppiShiftedHandle;
+  edm::Handle<math::Error<2>::type> PuppicovHandle;
+  edm::Handle<double> PuppiMETsignficanceHandle;
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
-  edm::Handle< bool > passecalBadCalibFilterUpdate ;
+  edm::Handle< bool > passbadMuonPFDz;
   edm::Handle< double > theprefweight;
   edm::Handle< double > theprefweightup;
   edm::Handle< double > theprefweightdown;
@@ -2635,19 +2680,20 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(theJetTag,jetHandle);
   if(computeQGVar)
     event.getByToken(theQGTaggerTag,qgTaggerHandle);
-  event.getByToken(theupdatedPileupJetIdDiscrTag,updatedPileupJetIdDiscrHandle);
-  event.getByToken(theupdatedPileupJetIdWPTag,updatedPileupJetIdWPHandle);
   event.getByToken(theL1TauTag,L1TauHandle);
   event.getByToken(theL1JetTag,L1JetHandle);
   event.getByToken(theFatJetTag,fatjetHandle);
   event.getByToken(theLepTag,dauHandle);
   event.getByToken(theMetTag,metHandle);
   event.getByToken(theMetERTag,metERHandle);
-  event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   event.getByToken(thePFMETCovTag,covHandle);
   event.getByToken(thePFMETSignifTag,METsignficanceHandle);
+  event.getByToken(thePUPPIMetTag,PUPPImetHandle);
+  event.getByToken(theShiftedPuppiMetTag,metPuppiShiftedHandle);
+  event.getByToken(thePuppiMETCovTag,PuppicovHandle);
+  event.getByToken(thePuppiMETSignifTag,PuppiMETsignficanceHandle);  
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
-  event.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
+  event.getByToken(badPFMuonDz_token,passbadMuonPFDz);
   event.getByToken(prefweight_token, theprefweight);
   event.getByToken(prefweightup_token, theprefweightup);
   event.getByToken(prefweightdown_token, theprefweightdown);
@@ -2706,6 +2752,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const pat::MET &met = metHandle->front();
   const pat::MET &met_er = metERHandle->front();
   const pat::MET &PUPPImet = PUPPImetHandle->front();
+  const pat::MET &metPuppiShifted = metPuppiShiftedHandle->front();
   const BXVector<l1t::Tau>* L1Tau = L1TauHandle.product();
   const BXVector<l1t::Jet>* L1Jet = L1JetHandle.product();
   //myNtuple->InitializeVariables();
@@ -2719,15 +2766,24 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _met_er = met_er.pt();
   _met_er_phi = met_er.phi();
   _metphi = met.phi();
-  _PUPPImet = PUPPImet.pt();
-  _PUPPImetphi = PUPPImet.phi();
   _PFMETCov00 = (*covHandle)(0,0);
   _PFMETCov10 = (*covHandle)(1,0);
   _PFMETCov01 = _PFMETCov10; // (1,0) is the only one saved
   _PFMETCov11 = (*covHandle)(1,1);
   _PFMETsignif = (*METsignficanceHandle);
+  _PUPPImet = PUPPImet.pt();
+  _PUPPImetphi = PUPPImet.phi();
+  _PUPPImetShifted = metPuppiShifted.pt();
+  _PUPPImetShiftedphi = metPuppiShifted.phi();
+  _PuppiMETCov00 = (*PuppicovHandle)(0,0);
+  _PuppiMETCov10 = (*PuppicovHandle)(1,0);
+  _PuppiMETCov01 = _PuppiMETCov10; // (1,0) is the only one saved
+  _PuppiMETCov11 = (*PuppicovHandle)(1,1);
+  _PuppiMETsignif = (*PuppiMETsignficanceHandle);  
+  _PUPPImetShiftedX = metPuppiShifted.px();
+  _PUPPImetShiftedY = metPuppiShifted.py();  
   //_NBadMu = (*NBadMuHandle); //FRA January2019
-  _passecalBadCalibFilterUpdate =  (*passecalBadCalibFilterUpdate );
+  _passbadMuonPFDz =  (*passbadMuonPFDz);
   if (theisMC && (theYear==2016 || theYear==2017))
   {
     _prefiringweight = (*theprefweight);
@@ -2757,28 +2813,37 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
   JetCorrectionUncertainty jecUnc (JetCorPar);
-  bool Run2016B = (_runNumber >= 272007 && _runNumber <= 275376);
-  bool Run2016C = (_runNumber >= 275657 && _runNumber <= 276283);
-  bool Run2016D = (_runNumber >= 276315 && _runNumber <= 276811);
-  bool Run2016E = (_runNumber >= 276831 && _runNumber <= 277420);
-  bool Run2016F = (_runNumber >= 277772 && _runNumber <= 278808);
-  bool Run2016G = (_runNumber >= 278820 && _runNumber <= 280385);
-  bool Run2016H = (_runNumber >= 280919 && _runNumber <= 284044);
-  bool Run2017B = (_runNumber >= 297046 && _runNumber <= 299329);
-  bool Run2017C = (_runNumber >= 299368 && _runNumber <= 302029);
-  bool Run2017D = (_runNumber >= 302030 && _runNumber <= 303434);
-  bool Run2017E = (_runNumber >= 303824 && _runNumber <= 304797);
-  bool Run2017F = (_runNumber >= 305040 && _runNumber <= 306462);
-  bool Run2018A = (_runNumber >= 315252 && _runNumber <= 316995);
-  bool Run2018B = (_runNumber >= 316998 && _runNumber <= 319312);
-  bool Run2018C = (_runNumber >= 319313 && _runNumber <= 320393);
-  bool Run2018D = (_runNumber >= 320394 && _runNumber <= 325273);
+  bool Run2016B  = (_runNumber >= 272007 && _runNumber <= 275376);
+  bool Run2016C  = (_runNumber >= 275657 && _runNumber <= 276283);
+  bool Run2016D  = (_runNumber >= 276315 && _runNumber <= 276811);
+  bool Run2016E  = (_runNumber >= 276831 && _runNumber <= 277420);
+  bool Run2016F1 = ((_runNumber >= 277772 && _runNumber <= 278768) || (_runNumber >= 278770 && _runNumber <= 278800));
+  bool Run2016F2 = ((_runNumber >= 278801 && _runNumber <= 278808) || (_runNumber == 278769));
+  bool Run2016G  = (_runNumber >= 278820 && _runNumber <= 280385);
+  bool Run2016H  = (_runNumber >= 280919 && _runNumber <= 284044);
+  bool Run2017B  = (_runNumber >= 297046 && _runNumber <= 299329);
+  bool Run2017C  = (_runNumber >= 299368 && _runNumber <= 302029);
+  bool Run2017D  = (_runNumber >= 302030 && _runNumber <= 303434);
+  bool Run2017E  = (_runNumber >= 303824 && _runNumber <= 304797);
+  bool Run2017F  = (_runNumber >= 305040 && _runNumber <= 306462);
+  bool Run2018A  = (_runNumber >= 315252 && _runNumber <= 316995);
+  bool Run2018B  = (_runNumber >= 316998 && _runNumber <= 319312);
+  bool Run2018C  = (_runNumber >= 319313 && _runNumber <= 320393);
+  bool Run2018D  = (_runNumber >= 320394 && _runNumber <= 325273);
 
   // JEC Regrouped uncertainty sources
-  if (theYear == 2016)
+  if (theYear == 2016 && thePeriod == "")
   {
     for (const auto& source: m_jec_sources_regrouped_2016) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Summer16_07Aug2017_V11_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt", source);
+      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
+      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
+    }
+  }
+  else if (theYear == 2016 && thePeriod == "postVFP")
+  {
+    for (const auto& source: m_jec_sources_regrouped_2016) {
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
       jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
     }
@@ -2786,7 +2851,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   else if (theYear == 2017)
   {
     for (const auto& source: m_jec_sources_regrouped_2017) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
       jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
     }
@@ -2794,7 +2859,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   else if (theYear == 2018)
   {
     for (const auto& source: m_jec_sources_regrouped_2018) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/Regrouped_Autumn18_V19_MC_UncertaintySources_AK4PFchs.txt", source);
+      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt", source);
       std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
       jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
     }
@@ -2803,10 +2868,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   // Full JEC uncertainty sources
   if(theisMC)
   {
-    if (theYear == 2016)
+    if (theYear == 2016 && thePeriod == "")
     {
       for (const auto& source: m_jec_sources_2016) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017_V11_MC_UncertaintySources_AK4PFchs.txt", source);
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt", source);
+        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }
+    else if (theYear == 2016 && thePeriod == "postVFP")
+    {
+      for (const auto& source: m_jec_sources_2016) {
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt", source);
         std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
         jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2814,7 +2887,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     else if (theYear == 2017)
     {
       for (const auto& source: m_jec_sources_2017) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017_V32_MC_UncertaintySources_AK4PFchs.txt", source);
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt", source);
         std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
         jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2822,7 +2895,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     else if (theYear == 2018)
     {
       for (const auto& source: m_jec_sources_2018) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_V19_MC_UncertaintySources_AK4PFchs.txt", source);
+        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt", source);
         std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
         jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2832,67 +2905,73 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   {
     if(Run2016B || Run2016C || Run2016D){
       for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017BCD_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_RunBCD_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if (Run2016E || Run2016F){
+    }else if (Run2016E || Run2016F1){
       for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017EF_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_RunEF_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if (Run2016G || Run2016H){
+    }else if (Run2016F2 || Run2016G || Run2016H){
       for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer16_07Aug2017GH_V11_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16_RunFGH_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2017B){
       for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017B_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunB_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2017C){
       for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017C_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunC_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
-    }else if(Run2017D || Run2017E){
+    }else if(Run2017D){
       for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017DE_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunD_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
+	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
+	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
+      }
+    }else if(Run2017E){
+      for (const auto& source: m_jec_sources_2017) {
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunE_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2017F){
       for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Fall17_17Nov2017F_V32_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunF_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018A){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunA_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunA_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018B){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunB_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunB_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018C){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunC_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunC_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
     }else if(Run2018D){
       for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Autumn18_RunD_V19_DATA_UncertaintySources_AK4PFchs.txt", source);
+	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunD_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
 	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
 	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
       }
@@ -2910,16 +2989,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
         float qgLikelihood = (*qgTaggerHandle)[jetRef];
         _jets_QGdiscr.push_back(qgLikelihood);
       }
-    }
-
-    // Add updated PUjetID
-    for(auto jet = jetHandle->begin(); jet != jetHandle->end(); ++jet)
-    {
-      edm::RefToBase<pat::Jet> jetRef(edm::Ref<edm::View<pat::Jet> >(jetHandle, jet - jetHandle->begin()));
-      float updatedPUdiscriminator = (*updatedPileupJetIdDiscrHandle)[jetRef];
-      int updatedPUwps = (*updatedPileupJetIdWPHandle)[jetRef];
-      _jets_PUJetIDupdated.push_back(updatedPUdiscriminator);
-      _jets_PUJetIDupdated_WP .push_back(updatedPUwps);
     }
   }
   if(writeFatJets) FillFatJet(fatjets, event);
@@ -3282,8 +3351,6 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _jets_PUJetID_WP.push_back(ijet->userInt("pileupJetId:fullId"));
-    //_jets_PUJetIDupdated.push_back(ijet->hasUserFloat("pileupJetIdUpdated:fullDiscriminant") ? ijet->userFloat("pileupJetIdUpdated:fullDiscriminant") : -999);
-    //_jets_PUJetIDupdated_WP.push_back(ijet->hasUserInt("pileupJetIdUpdated:fullId") ? ijet->userInt("pileupJetIdUpdated:fullId") : -999);
 
     
     //float vtxPx = ijet->userFloat ("vtxPx");                      //FRA: not anymore available in 2017
@@ -3348,16 +3415,16 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _bdiscr14.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probg"));
 
     //PF jet ID
-    float NHF = ijet->neutralHadronEnergyFraction();
-    float NEMF = ijet->neutralEmEnergyFraction();
-    float CHF = ijet->chargedHadronEnergyFraction();
-    float MUF = ijet->muonEnergyFraction();
-    float CEMF = ijet->chargedEmEnergyFraction();
-    int NumNeutralParticles =ijet->neutralMultiplicity();
-    int chargedMult = ijet->chargedMultiplicity();
-    int NumConst = ijet->chargedMultiplicity()+NumNeutralParticles;
-    float CHM = ijet->chargedMultiplicity();
-    float absjeta = fabs(ijet->eta());
+    float NHF                 = ijet->neutralHadronEnergyFraction();
+    float NEMF                = ijet->neutralEmEnergyFraction();
+    float CHF                 = ijet->chargedHadronEnergyFraction();
+    float MUF                 = ijet->muonEnergyFraction();
+    float CEMF                = ijet->chargedEmEnergyFraction();
+    int   NumNeutralParticles = ijet->neutralMultiplicity();
+    int   chargedMult         = ijet->chargedMultiplicity();
+    int   NumConst            = ijet->chargedMultiplicity()+NumNeutralParticles;
+    float CHM                 = ijet->chargedMultiplicity();
+    float absjeta             = fabs(ijet->eta());
 
     _jets_chEmEF .push_back(CEMF);  
     _jets_chHEF  .push_back(CHF); 
@@ -3369,71 +3436,61 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
 
     // JetID
-    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
-    // 2016 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
-    // 2017 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
-    // 2018 Data: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2018
+    // https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVUL
+    // Same recommendations for 2016 pre- and post- VFP
     int jetid=0;
     bool tightJetID = false;
     bool tightLepVetoJetID = false;
     //2016 data
     if (theYear == 2016)
     {
-      if (absjeta <= 2.7)
+      if (absjeta <= 2.4)
       {
-        tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.99) || absjeta>2.4) );
-        tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.90) || absjeta>2.4) );
-      }
-      else if (absjeta <= 3.0)
-      {
-        tightJetID = (NEMF>0.01 && NHF<0.98 && NumNeutralParticles>2 );
-      }
-      else
-      {
-        tightJetID = (NEMF<0.90 && NumNeutralParticles>10 );
-      }
-      if (tightJetID) ++jetid;
-      if (tightLepVetoJetID) ++jetid;
-    }
-    // 2017 data
-    else if (theYear == 2017)
-    {
-      if (absjeta <= 2.7)
-      {
-        tightJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1) && ((absjeta<=2.4 && CHF>0 && CHM>0) || absjeta>2.4) );
-        tightLepVetoJetID = ( (NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8) && ((absjeta<=2.4 && CHF>0 && CHM>0 && CEMF<0.80) || absjeta>2.4) );
-      }
-      else if (absjeta <= 3.0)
-      {
-        tightJetID = (NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
-      }
-      else
-      {
-        tightJetID = (NEMF<0.90 && NHF>0.02 && NumNeutralParticles>10 );
-      }
-      if (tightJetID) ++jetid;
-      if (tightLepVetoJetID) ++jetid;
-    }
-    // 2018 data
-    else if (theYear == 2018)
-    {
-      if (absjeta <= 2.6)
-      {
-        tightJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0 && CHM>0 );
+        tightJetID        = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0   && CHM>0 );
         tightLepVetoJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8 && CHF>0 && CHM>0 && CEMF<0.80 );
       }
-      else if (absjeta>2.6 && absjeta <= 2.7)
+
+      else if (absjeta > 2.4 && absjeta <= 2.7)
       {
-        tightJetID = ( NHF<0.90 && NEMF<0.99 && CHM>0 );
-        tightLepVetoJetID = ( NHF<0.90 && NEMF<0.99 && MUF<0.8 && CHM>0 && CEMF<0.80 );
+        tightJetID        = ( NHF<0.90 && NEMF<0.99 );
       }
-      else if (absjeta>2.7 && absjeta <= 3.0)
+
+      else if (absjeta > 2.7 && absjeta <= 3.0)
       {
-        tightJetID = ( NEMF>0.02 && NEMF<0.99 && NumNeutralParticles>2 );
+        tightJetID        = ( NHF<0.90 && NEMF>0 && NEMF<0.99 && NumNeutralParticles>1 );
       }
+
       else
       {
-        tightJetID = (NEMF<0.90 && NHF>0.2 && NumNeutralParticles>10 );
+        tightJetID        = ( NHF>0.2 && NEMF<0.9 && NumNeutralParticles>10 );
+      }
+
+      if (tightJetID) ++jetid;
+      if (tightLepVetoJetID) ++jetid;
+    }
+    // 2017 and 2018 data
+    else if (theYear == 2017 || theYear == 2018)
+    {
+      if (absjeta <= 2.4)
+      {
+        tightJetID        = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && CHF>0   && CHM>0 );
+        tightLepVetoJetID = ( NHF<0.90 && NEMF<0.90 && NumConst>1 && MUF<0.8 && CHF>0 && CHM>0 && CEMF<0.80 );
+      }
+
+      else if (absjeta > 2.4 && absjeta <= 2.7)
+      {
+        tightJetID        = ( NHF<0.90 && NEMF<0.99 && CHM>0 );
+        tightLepVetoJetID = ( NHF<0.90 && NEMF<0.99 && CHM>0 && MUF<0.8 && CEMF<0.80 );
+      }
+
+      else if (absjeta > 2.7 && absjeta <= 3.0)
+      {
+        tightJetID        = ( NEMF>0.01 && NEMF<0.99 && NumNeutralParticles>1 );
+      }
+
+      else
+      {
+        tightJetID        = ( NHF>0.2 && NEMF<0.9 && NumNeutralParticles>10 );
       }
       if (tightJetID) ++jetid;
       if (tightLepVetoJetID) ++jetid;
@@ -3908,6 +3965,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     //int elemissinghits = 999; //FRA January2019
     //int elemissinglosthits = 999; //FRA January2019
     bool iselechargeconsistent=false;
+    float ecalTrkEnergyPostCorr    = -999.; 
+    float ecalTrkEnergyErrPostCorr = -999.; 
+    float energyScaleUp            = -999.; 
+    float energyScaleDown          = -999.; 
+    float energySigmaUp            = -999.; 
+    float energySigmaDown          = -999.;
 
     int decay=-1;
     int genmatch = -1;
@@ -3992,8 +4055,13 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       //elemissinghits = userdatahelpers::getUserInt(cand,"missingHit"); //FRA January2019
       //elemissinglosthits = userdatahelpers::getUserInt(cand,"missingLostHit"); //FRA January2019
       if((userdatahelpers::getUserInt(cand,"isGsfCtfScPixChargeConsistent") + userdatahelpers::getUserInt(cand,"isGsfScPixChargeConsistent"))>1)iselechargeconsistent=true;
-
       //if(userdatahelpers::getUserInt(cand,"isCUT"))isgoodcut=true;
+      ecalTrkEnergyPostCorr    = userdatahelpers::getUserFloat(cand,"ecalTrkEnergyPostCorr");
+      ecalTrkEnergyErrPostCorr = userdatahelpers::getUserFloat(cand,"ecalTrkEnergyErrPostCorr");
+      energyScaleUp            = userdatahelpers::getUserFloat(cand,"energyScaleUp");
+      energyScaleDown          = userdatahelpers::getUserFloat(cand,"energyScaleDown");
+      energySigmaUp            = userdatahelpers::getUserFloat(cand,"energySigmaUp");
+      energySigmaDown          = userdatahelpers::getUserFloat(cand,"energySigmaDown"); 
 
       sip = userdatahelpers::getUserFloat(cand,"SIP");
       jetNDauChargedMVASel= LeptonIsoHelper::jetNDauChargedMVASel(cand, closest_jet);
@@ -4085,6 +4153,12 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     //_daughters_eleMissingHits.push_back(elemissinghits); //FRA January2019
     //_daughters_eleMissingLostHits.push_back(elemissinglosthits); //FRA January2019
     _daughters_iseleChargeConsistent.push_back(iselechargeconsistent);
+    _daughters_ecalTrkEnergyPostCorr.push_back(ecalTrkEnergyPostCorr);
+    _daughters_ecalTrkEnergyErrPostCorr.push_back(ecalTrkEnergyErrPostCorr);
+    _daughters_energyScaleUp.push_back(energyScaleUp);
+    _daughters_energyScaleDown.push_back(energyScaleDown);
+    _daughters_energySigmaUp.push_back(energySigmaUp);
+    _daughters_energySigmaDown.push_back(energySigmaDown); 
 
     //_daughters_iseleCUT.push_back(userdatahelpers::getUserInt(cand,"isCUT")); //FRA January2019
     _decayType.push_back(decay);

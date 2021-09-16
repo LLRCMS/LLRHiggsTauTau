@@ -5,7 +5,8 @@
 #JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt"
 #JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt"
 #JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt"
-JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt"
+#JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt"
+JSONFILE = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt"
 
 #used in local productions
 LUMIMASK = cms.untracked.VLuminosityBlockRange( *(
@@ -380,10 +381,11 @@ LUMIMASK = cms.untracked.VLuminosityBlockRange( *(
     '321134:33-321134:70',
     '321138:1-321138:741',
     '321140:1-321140:798',
-    '321149:35-321149:1424',
-    '321149:1426-321149:1476',
+    '321149:35-321149:86',
+    '321149:88-321149:1424',
+    '321149:1426-321149:1475',
     '321149:1478-321149:1553',
-    '321149:1558-321149:1576',
+    '321149:1558-321149:1575',
     '321149:1578-321149:1588',
     '321149:1591-321149:1743',
     '321165:1-321165:8',
@@ -630,7 +632,8 @@ LUMIMASK = cms.untracked.VLuminosityBlockRange( *(
     '322356:1-322356:779',
     '322381:45-322381:577',
     '322407:46-322407:582',
-    '322430:46-322430:501',
+    '322430:46-322430:794',
+    '322431:1-322431:53',
     '322431:59-322431:1166',
     '322480:60-322480:408',
     '322492:1-322492:1386',
