@@ -8,176 +8,29 @@ import re
 ###################################################################
 #### Parameters to be changed for each production
 
-
-#PROCESS = ["HHBACKGROUNDS"]
-#tag = "llrNt_NoSVFit_bkg_27Ago2015"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015RUNBDATA", "2015RUNCDATA"] # 50 ns
-#tag = "Data50ns_SVFit_6Ott2015"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015RUNCDATA", "2015RUNDDATA"] # 25 ns
-#tag = "Data25ns_SVFit_6Ott2015"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015DATA25NSRESUBMISSION"]
-#tag = "Data25ns_SVFit_6Ott2015_resub"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015DATARUND27OTT"]
-#tag = "Data25ns_noSVFit_npvFix_30Ott2015_newJson_trigFix2"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["2015DATAPROMPTRECOONLY"]
-#tag = "Data25ns_noSVFit_lumiDiff13Nov2015"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["MINIAODV2"]
-#tag = "MC_NoSVFit_MiniAODV2_13Nov2015"
-#datasetsFile = "datasets.txt"
-
-# PROCESS = ["RESUBMINIAODV2"]
-# tag = "MC_NoSVFit_MiniAODV2_13Nov2015_DYresub"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MINIV2SVFIT"]
-# tag = "MC_SVFit_MiniAODV2_22Nov2015"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["2015DATARUND27OTT"]
-# tag = "Data_SVFit_MiniAODV2_22Nov2015_SVFix"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MINIV2SVFITDY"]
-# tag = "MC_SVFit_MiniAODV2_22Nov2015_DYResub"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MINIV2SVFITPLUS"]
-# tag = "MC_SVFit_MiniAODV2_22Nov2015_MoreSamples_SVFix"
-# datasetsFile = "datasets.txt"
-
-#PROCESS = ["MINIV2SVFITESSENTIAL"]
-#tag = "MC_SVFit_MiniAODV2_22Nov2015_EssentialSamples_SVFix"
-#datasetsFile = "datasets.txt"
-
-# PROCESS = ["SILVERJSONMC"]
-# tag = "MC_SilverJson_SVfit"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["SILVERJSONDATA"]
-# tag = "Data_SilverJson_SVfit"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DYNLO"]
-# tag = "DY_NLO_noSVfit"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MC76X"]
-# tag = "MC_76X_15Feb2016"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA76XZZ"]
-# tag = "Data_76X_ZZTolljj_29Mar2016"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MC76XZZLUCA"]
-# tag = "MC_76X_ZZTolljj_29Mar2016"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016"]
-# tag = "data_2016_21Giu"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016RESUB"]
-# tag = "data_2016_21Giu_resubSingleEle"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MCDY80XRESUB"]
-# tag = "MC_2016_24Giu_resubDY_VeryLong"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MC80XMOREV2"]
-# tag = "MC_2016_27Giu_WAndRadionSub2"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016"]
-# tag = "data_2016_22giuJSON_diff_16giuJSON"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016RESUB"]
-# tag = "data_2016_22giuJSON_diff_16giuJSON_Tauresub"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016"]
-# tag = "data_2016_15lug_NoL1TJSON_diff_8lugJSON_runBrunCrunD"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016"]
-# tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA2016RESUB"]
-# tag = "data_2016_20lug_NoL1TJSON_diff_15lug_NoL1TJSON_runBrunCrunD_resSEle"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["MC80XSUMMER16LUCA"]
-# tag = "MC_Summer16"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA80XRERECOSETLUCARESUB"]
-# tag = "Data_23SepReReco_8Feb2017_res2"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA80XRERECOSETLUCARESUBMORE"]
-# tag = "Data_23SepReReco_8Feb2017_res4"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA7FEBH"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runH"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA7FEBBG"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runBG"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA7FEBBGRESUB"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runBG_res"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["DATA7FEBHRESUB"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runH_res"
-# datasetsFile = "datasets.txt"
-
-# PROCESS = ["SUSYSAMPLE"]
-# tag = "MCSUSY_2Apr2017"
-# datasetsFile = "datasets.txt"
-
-#PROCESS = ["MC80XGRAVITON"]
-#tag = "MC_gravitons_24Apr2017"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["MC80XRSGRAVITON"]
-#tag = "MC_gravitonsRS_29Apr2017"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["MC_PU12Apr"]
-#tag = "MC_PU12Apr"
-#datasetsFile = "datasets_Fall17_15May2018.txt"
-
-#PROCESS = ["DATA2017"]
-#tag = "SingleMuon2017E_26Jun2018"
-#datasetsFile = "datasetsFall17.txt"
-
-#PROCESS = ["SIG_Fall17"]
-#tag = "VBFRadion400_29Jun2018"
-#datasetsFile = "datasetsFall17.txt"
-
-PROCESS = ["DY_Fall2017"]
-tag = "MC_16Oct2018"
-datasetsFile = "datasetsFall17.txt"
-
+datasetsFile = "datasets_UL18.txt"
+tag = "MC_20Sep2021"
 isMC = True
+#tag = "DATA_20Sep2021"
+#isMC = False
+
+#PROCESS = ["BACKGROUNDS_TT_2018"]
+#PROCESS = ["BACKGROUNDS_WJETS_2018"]
+#PROCESS = ["BACKGROUNDS_DY_2018"]
+#PROCESS = ["BACKGROUNDS_VV_2018"]
+#PROCESS = ["BACKGROUNDS_ST_2018"]
+#PROCESS = ["BACKGROUNDS_EWK_2018"]
+PROCESS = ["BACKGROUNDS_H_2018"]
+#PROCESS = ["BACKGROUNDS_TTX_2018"]
+
+#PROCESS = ["SIGNALS_GF_NONRES_2018"]
+#PROCESS = ["SIGNALS_VBF_NONRES_2018"]
+#PROCESS = ["SIGNALS_GF_NLO_NONRES_2018"]
+
+#PROCESS = ["DATA_TAU_2018"]
+#PROCESS = ["DATA_ELE_2018"]
+#PROCESS = ["DATA_MU_2018"]
+
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -211,7 +64,12 @@ isMC = True
 ## 15 May 2018 Golden JSON 2017
 # https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
-lumiMaskFileName = '/home/llr/cms/amendola/HH2017/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/test/crab3_SingleMuon2017_26Jun2018/crab_SingleMuon_4/results/notFinishedLumis.json'
+#lumiMaskFileName = '/home/llr/cms/amendola/HH2017/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/test/crab3_SingleMuon2017_26Jun2018/crab_SingleMuon_4/results/notFinishedLumis.json'
+
+# Ultra-Legacy
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
+#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt'
+lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
 
 FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
@@ -314,7 +172,9 @@ for dtset in dtsetToLaunch:
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
     #command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
-    command += " Data.outLFNDirBase=/store/user/camendol/HHNtuples2017/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
+    #command += " Data.outLFNDirBase=/store/user/camendol/HHNtuples2017/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
+    command += " Data.outLFNDirBase=/store/user/lportale/HHNtuples_res/UL18/%s/%s" % (tag, str(counter)+"_"+dtsetNames)
+
     #command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
     #command += " Data.splitting='Automatic'"
