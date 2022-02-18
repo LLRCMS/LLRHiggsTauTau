@@ -448,6 +448,13 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(15),
         leg2 = cms.int32(999)
         ),
+    cms.PSet ( # match flag?
+        HLT = cms.string("HLT_VLooseIsoPFTau120_Trk50_eta2p1_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(999)
+    ),
 
 ### === MET triggers
     cms.PSet (
@@ -511,21 +518,6 @@ HLTLIST = cms.VPSet(
     ),
     cms.PSet (
         HLT = cms.string("HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v"),
-        path1 = cms.vstring (""),
-        path2 = cms.vstring (""),
-        leg1 = cms.int32(15),
-        leg2 = cms.int32(999)
-    ),
-# === single Tau (matching flags?)
-    cms.PSet (
-        HLT = cms.string("HLT_VLooseIsoPFTau120_Trk50_eta2p1_v"),
-        path1 = cms.vstring (""),
-        path2 = cms.vstring (""),
-        leg1 = cms.int32(15),
-        leg2 = cms.int32(999)
-    ),
-    cms.PSet (
-        HLT = cms.string("HLT_VLooseIsoPFTau140_Trk50_eta2p1_v"),
         path1 = cms.vstring (""),
         path2 = cms.vstring (""),
         leg1 = cms.int32(15),
