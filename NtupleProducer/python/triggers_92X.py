@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-## TRIGGER VERSIONING: insert paths without the explicit version number, e.g. HLT_anything_v 
+## TRIGGER VERSIONING: insert paths without the explicit version number, e.g. HLT_anything_v
 ## do not remove any other part of path name or the check will give meaningless results!
 
 ## leg numbering: write the object type the two legs refer to
@@ -450,7 +450,7 @@ HLTLIST = cms.VPSet(
 #        leg1 = cms.int32(13),
 #        leg2 = cms.int32(13)
 #        ),
-        
+
 ### === 3 lepton triggers  -- TO BE DONE
 #    cms.PSet (
 #        HLT = cms.string("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v"),
@@ -468,7 +468,7 @@ HLTLIST = cms.VPSet(
 #        ),
 ### === single tau triggers - OK
     cms.PSet (
-        HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v"),     # Do we need this?? probably not...
+        HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v"),
         path1 = cms.vstring ("hltSelectedPFTau180MediumChargedIsolationL1HLTMatched","hltPFTau180TrackPt50LooseAbsOrRelMediumHighPtRelaxedIsoIso"),
         path2 = cms.vstring (""),
         path3 = cms.vstring (""),
@@ -479,7 +479,7 @@ HLTLIST = cms.VPSet(
         pt2 = cms.double(-999)
         ),
     cms.PSet (
-        HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v"), # Do we need this?? probably not...
+        HLT = cms.string("HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v"),
         path1 = cms.vstring ("hltSelectedPFTau180MediumChargedIsolationL1HLTMatched1Prong","hltPFTau180TrackPt50LooseAbsOrRelMediumHighPtRelaxedIso1Prong"),
         path2 = cms.vstring (""),
         path3 = cms.vstring (""),
@@ -568,6 +568,25 @@ HLTLIST = cms.VPSet(
         pt1 = cms.double(55),
         pt2 = cms.double(-999)
         ),
+
+# === MET triggers
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999),
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999),
+        ),
+
+
+
 ## === 4 jets (for VBF) # FILTERS TO BE FIXED
     #cms.PSet (
     #    HLT = cms.string("HLT_QuadPFJet103_88_75_15_BTagCSV_p013_VBF2_v7"), #FIXME

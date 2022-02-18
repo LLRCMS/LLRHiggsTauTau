@@ -223,6 +223,170 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(15)
         ),
 	
+## === Additional triggers - Valeria study 04/02/2022 (https://indico.cern.ch/event/1124716/contributions/4721294/attachments/2384605/4075311/HH_bbTauTau_DAmante_04Feb.pdf)
+
+    cms.PSet (
+        HLT = cms.string("HLT_Ele28_eta2p1_WPTight_Gsf_HT150_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+
+    cms.PSet (
+        HLT = cms.string("HLT_Mu50_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_TkMu100_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_OldMu100_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_Photon30_IsoCaloId_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_DoubleMu4_Mass3p8_DZ_PFHT350_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_DoubleMu3_DCA_PFMET50_PFMHT60_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+
+    cms.PSet (
+        HLT = cms.string("HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+    cms.PSet (
+        HLT = cms.string("HLT_Photon35_TwoProngs35_v"),
+        path1 = cms.vstring ("",""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
 ## Monitoring triggers for 2018 data taking -- Filters should be checked
 #    cms.PSet (
 #        HLT = cms.string("HLT_IsoMu24_eta2p1_MediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_CrossL1_v"),
@@ -401,16 +565,6 @@ HLTLIST = cms.VPSet(
         ),
      )
 
-## === To study -- paths from valeria's studies
-
-#HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4
-#HLT_PFMET120_PFMHT120_IDTight
-#HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5
-#HLT_RsqMR300_Rsq0p09_MR200
-#HLT_Mu50
-#HLT_PFHT450_SixPFJet36_PFBTagDeepCSV_1p59
-#HLT_Photon35_TwoProngs35
-#HLT_QuadPFJet103_88_75_15_DoublePFBTagDeepCSV_1p3_7p7_VBF1
 
 #now I create the trigger list for HLTconfig
 for i in range(len(HLTLIST)):
