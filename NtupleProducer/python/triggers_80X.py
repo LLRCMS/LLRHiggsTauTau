@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-## TRIGGER VERSIONING: insert paths without the explicit version number, e.g. HLT_anything_v 
+## TRIGGER VERSIONING: insert paths without the explicit version number, e.g. HLT_anything_v
 ## do not remove any other part of path name or the check will give meaningless results!
 
 ## leg numbering: write the object type the two legs refer to
@@ -361,7 +361,7 @@ HLTLIST = cms.VPSet(
          leg1 = cms.int32(13),
          leg2 = cms.int32(11)
          ),
-### === mu mu triggers 
+### === mu mu triggers
 ### FIXME!! MuMu and EleEle paths have not been checked in 80X and filter names are dummy
     cms.PSet (
         HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"),
@@ -390,7 +390,7 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(13),
         leg2 = cms.int32(13)
         ),
-### === ele ele triggers 
+### === ele ele triggers
     cms.PSet (
         HLT = cms.string("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"),
         path1 = cms.vstring (""),
@@ -408,7 +408,7 @@ HLTLIST = cms.VPSet(
         path4 = cms.vstring (""),
         leg1 = cms.int32(11),
         leg2 = cms.int32(11)
-        ),    
+        ),
     cms.PSet (
         HLT = cms.string("HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v"),
         path1 = cms.vstring (""),
@@ -418,7 +418,7 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(13),
         leg2 = cms.int32(13)
         ),
-### === 3 lepton triggers 
+### === 3 lepton triggers
     cms.PSet (
         HLT = cms.string("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v"),
         path1 = cms.vstring (""),
@@ -437,6 +437,7 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(11),
         leg2 = cms.int32(11)
         ),
+
 ### === single tau triggers
     cms.PSet (
         HLT = cms.string("HLT_VLooseIsoPFTau140_Trk50_eta2p1_v"),
@@ -447,7 +448,85 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(15),
         leg2 = cms.int32(999)
         ),
-    )
+    cms.PSet (
+        HLT = cms.string("HLT_VLooseIsoPFTau120_Trk50_eta2p1_v"),
+        path1 = cms.vstring ("hltPFTau120TrackPt50LooseAbsOrRelVLooseIso"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(999)
+    ),
+
+### === MET triggers
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
+# === tau+MET
+    cms.PSet (
+        HLT = cms.string("HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v"),
+        path1 = cms.vstring ("hltPFTau50TrackPt30LooseAbsOrRelIso"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(999)
+    ),
+    cms.PSet (
+        HLT = cms.string("HLT_LooseIsoPFTau50_Trk30_eta2p1_MET90_v"),
+        path1 = cms.vstring ("hltPFTau50TrackPt30LooseAbsOrRelIso"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(999)
+    ),
+    cms.PSet (
+        HLT = cms.string("HLT_LooseIsoPFTau50_Trk30_eta2p1_MET110_v"),
+        path1 = cms.vstring ("hltPFTau50TrackPt30LooseAbsOrRelIso"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(999)
+    ),
+    cms.PSet (
+        HLT = cms.string("HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v"),
+        path1 = cms.vstring ("hltPFTau50TrackPt30LooseAbsOrRelIso"),
+        path2 = cms.vstring (""),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(999)
+    ),
+)
+
+
+
 
 #now I create the trigger list for HLTconfig
 for i in range(len(HLTLIST)):
