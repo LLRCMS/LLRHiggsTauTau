@@ -198,7 +198,7 @@ int triggerhelper::FindMETBit(const edm::Event& event, edm::EDGetTokenT<edm::Tri
       }
     }
     if ( !foundFilter ) {
-      if(metlist[im] != "Flag_ecalBadCalibFilter") cout << "** triggerHelper :: Failed to find MET filter " << metlist[im] << endl;
+      cout << "** triggerHelper :: Failed to find MET filter " << metlist[im] << endl;
     }
   }
   return bit;
