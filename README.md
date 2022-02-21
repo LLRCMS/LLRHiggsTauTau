@@ -451,8 +451,8 @@ scram b -j 8
 # Make sure your architecture is slc7_amd64_gcc700
 # (you can set the architecture with: export SCRAM_ARCH=slc7_amd64_gcc700 )
 
-cmsrel CMSSW_10_6_20
-cd CMSSW_10_6_20/src
+cmsrel CMSSW_10_6_27
+cd CMSSW_10_6_27/src
 cmsenv
 
 git cms-init
@@ -503,12 +503,6 @@ git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 
 #Add TauPOG corrections (TES and EES)
 git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
-
-#Add L1 prefering maps (when using CMSSW < 10_6_26)
-git-cms-addpkg PhysicsTools/PatUtils 
-cd PhysicsTools/PatUtils/data/
-wget --no-check-certificate https://github.com/cms-data/PhysicsTools-PatUtils/raw/master/L1PrefiringMaps.root 
-cd ../../../
 
 cd $CMSSW_BASE/src
 scram b -j 8

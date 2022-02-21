@@ -1112,9 +1112,9 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   //theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))), //FRA January2019
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
   badPFMuonDz_token    (consumes< bool >                                 (pset.getParameter<edm::InputTag>("BadPFMuonFilterUpdateDz"))),
-  prefweight_token     (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProb"))),
-  prefweightup_token   (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbUp"))),
-  prefweightdown_token (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbDown")))
+  prefweight_token     (consumes< double >                               (pset.getParameter<edm::InputTag>("prefiringweight:nonPrefiringProb"))),
+  prefweightup_token   (consumes< double >                               (pset.getParameter<edm::InputTag>("prefiringweight:nonPrefiringProbUp"))),
+  prefweightdown_token (consumes< double >                               (pset.getParameter<edm::InputTag>("prefiringweight:nonPrefiringProbDown")))
 
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
@@ -2784,7 +2784,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PUPPImetShiftedY = metPuppiShifted.py();  
   //_NBadMu = (*NBadMuHandle); //FRA January2019
   _passbadMuonPFDz =  (*passbadMuonPFDz);
-  if (theisMC && (theYear==2016 || theYear==2017))
+  if (theisMC)
   {
     _prefiringweight = (*theprefweight);
     _prefiringweightup =(*theprefweightup);
