@@ -26,7 +26,7 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
   //cout << "nTriggers: " << nTriggers << endl;
   triggerlist=HLTPaths;
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2016, 2017 and 2018 data
+    //Davide: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
@@ -34,6 +34,7 @@ triggerhelper::triggerhelper(vector<string> HLTPaths) //: nTriggers(HLTPaths.siz
     "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
     "Flag_eeBadScFilter",
+    "Flag_ecalBadCalibFilter"  
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
   
@@ -47,14 +48,15 @@ triggerhelper::triggerhelper(TH1F* hCounter){
   }
 
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2016, 2017 and 2018 data
+    //Davide: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
-    "Flag_eeBadScFilter"
+    "Flag_eeBadScFilter",
+    "Flag_ecalBadCalibFilter",
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -63,14 +65,15 @@ triggerhelper::triggerhelper(TH1F* hCounter){
 triggerhelper::triggerhelper()//:nTriggers(0)
 {
   string tmpMETfilters[nMETs]={
-    //FRA: ok for 2016, 2017 and 2018 data
+    //Davide: ok for 2016, 2017 and 2018 data
     "Flag_goodVertices",
     "Flag_HBHENoiseFilter",
     "Flag_HBHENoiseIsoFilter",
     "Flag_EcalDeadCellTriggerPrimitiveFilter",
     "Flag_globalSuperTightHalo2016Filter",
     "Flag_BadPFMuonFilter",
-    "Flag_eeBadScFilter"
+    "Flag_eeBadScFilter",
+    "Flag_ecalBadCalibFilter"
   };
   for(int i=0;i<nMETs;i++)metlist[i]=tmpMETfilters[i];
 
@@ -195,7 +198,7 @@ int triggerhelper::FindMETBit(const edm::Event& event, edm::EDGetTokenT<edm::Tri
       }
     }
     if ( !foundFilter ) {
-      cout << "** triggerHelper :: Failed to find MET filter " << metlist[im] << endl;
+      if(metlist[im] != "Flag_ecalBadCalibFilter") cout << "** triggerHelper :: Failed to find MET filter " << metlist[im] << endl;
     }
   }
   return bit;
