@@ -132,18 +132,25 @@ process.hltFilter = hlt.hltHighLevel.clone(
 ### L1ECALPrefiringWeightRecipe (for 2016 and 2017 MC only)
 ### https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
 ### ----------------------------------------------------------------------
-prefireEra = "UL2016preVFP"
-if PERIOD=="postVFP" : prefireEra = "UL2016postVFP"
-if YEAR==2017: prefireEra = "UL2017BtoF"
+prefireEraECAL = "UL2016preVFP"
+if PERIOD=="postVFP" : prefireEraECAL = "UL2016postVFP"
+if YEAR==2017: prefireEraECAL = "UL2017BtoF"
+if YEAR==2018: prefireEraECAL = "None"
 
-from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
-process.prefiringweight= l1ECALPrefiringWeightProducer.clone(
-    L1Maps = cms.string("L1PrefiringMaps.root"),
-    DataEra = cms.string(prefireEra),
-    UseJetEMPt = cms.bool(False),
-    PrefiringRateSystematicUncty = cms.double(0.2),
-    SkipWarnings = False
-    )
+prefireEraMuon = "2016preVFP"
+if PERIOD=="postVFP" : prefireEraMuon = "2016postVFP"
+if YEAR==2017: prefireEraMuon = "20172018"
+if YEAR==2018: prefireEraMuon = "20172018"
+
+from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
+process.prefiringweight = l1PrefiringWeightProducer.clone(
+TheJets = cms.InputTag("updatedPatJetsUpdatedJEC"), 
+DataEraECAL = cms.string(prefireEraECAL), 
+DataEraMuon = cms.string(prefireEraMuon), 
+UseJetEMPt = cms.bool(False),
+PrefiringRateSystematicUnctyECAL = cms.double(0.2),
+PrefiringRateSystematicUnctyMuon = cms.double(0.2)
+)
 
 # Trigger Unpacker Module
 #process.patTriggerUnpacker = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",

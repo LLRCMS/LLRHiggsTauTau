@@ -2784,7 +2784,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PUPPImetShiftedY = metPuppiShifted.py();  
   //_NBadMu = (*NBadMuHandle); //FRA January2019
   _passbadMuonPFDz =  (*passbadMuonPFDz);
-  if (theisMC && (theYear==2016 || theYear==2017))
+  if (theisMC)
   {
     _prefiringweight = (*theprefweight);
     _prefiringweightup =(*theprefweightup);
