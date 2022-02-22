@@ -78,7 +78,7 @@ if IsMC:
     else:
         process.GlobalTag.globaltag = '106X_mcRun2_asymptotic_preVFP_v11' # 2016 preVFP
   if YEAR == 2017:
-    process.GlobalTag.globaltag = '106X_mc2017_realistic_v8'             # 2017 MC
+    process.GlobalTag.globaltag = '106X_mc2017_realistic_v9'             # 2017 MC
   if YEAR == 2018:
     process.GlobalTag.globaltag = '106X_upgrade2018_realistic_v15_L1v1'  # 2018 MC
 else :
