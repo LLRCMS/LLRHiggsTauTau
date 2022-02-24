@@ -248,7 +248,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<BXVector<l1t::Jet> > theL1JetTag;
   //edm::EDGetTokenT<int> theNBadMuTag; //FRA January2019
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
-  edm::EDGetTokenT< bool > badPFMuonDz_token;
   edm::EDGetTokenT< double > prefweight_token;
   edm::EDGetTokenT< double > prefweightup_token;
   edm::EDGetTokenT< double > prefweightdown_token;
@@ -271,7 +270,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Long64_t _triggerbit;
   Int_t _metfilterbit;
   //Int_t _NBadMu;  //FRA January2019
-  Bool_t  _passbadMuonPFDz;
   Float_t _prefiringweight;
   Float_t _prefiringweightup;
   Float_t _prefiringweightdown;
@@ -884,7 +882,6 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theL1JetTag          (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
   //theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))), //FRA January2019
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
-  badPFMuonDz_token    (consumes< bool >                                 (pset.getParameter<edm::InputTag>("BadPFMuonFilterUpdateDz"))),
   prefweight_token     (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProb"))),
   prefweightup_token   (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbUp"))),
   prefweightdown_token (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbDown")))
@@ -1315,7 +1312,6 @@ void HTauTauNtuplizer::Initialize(){
   _lumi=0;
   _year=0;
   //_NBadMu=0;  //FRA January2019
-  _passbadMuonPFDz=false;
   _prefiringweight = 1.;
   _prefiringweightup = 1.;
   _prefiringweightdown = 1.;
@@ -1468,7 +1464,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("lumi",&_lumi,"lumi/I");
   myTree->Branch("year",&_year,"year/I");
   //myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");  //FRA January2019
-  myTree->Branch("passbadMuonPFDz",&_passbadMuonPFDz,"passbadMuonPFDz/O");
   myTree->Branch("prefiringweight",&_prefiringweight,"prefiringweight/F");
   myTree->Branch("prefiringweightup",&_prefiringweightup,"prefiringweightup/F");
   myTree->Branch("prefiringweightdown",&_prefiringweightdown,"prefiringweightdown/F");
@@ -2097,7 +2092,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
-  edm::Handle< bool > passbadMuonPFDz;
   edm::Handle< double > theprefweight;
   edm::Handle< double > theprefweightup;
   edm::Handle< double > theprefweightdown;
@@ -2123,7 +2117,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePuppiMETCovTag,PuppicovHandle);
   event.getByToken(thePuppiMETSignifTag,PuppiMETsignficanceHandle);  
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
-  event.getByToken(badPFMuonDz_token,passbadMuonPFDz);
   event.getByToken(prefweight_token, theprefweight);
   event.getByToken(prefweightup_token, theprefweightup);
   event.getByToken(prefweightdown_token, theprefweightdown);
@@ -2213,7 +2206,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PUPPImetShiftedX = metPuppiShifted.px();
   _PUPPImetShiftedY = metPuppiShifted.py();  
   //_NBadMu = (*NBadMuHandle); //FRA January2019
-  _passbadMuonPFDz =  (*passbadMuonPFDz);
   if (theisMC)
   {
     _prefiringweight = (*theprefweight);
