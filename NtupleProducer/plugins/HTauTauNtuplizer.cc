@@ -444,100 +444,17 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Bool_t> _isOSCand;
 
   std::vector<Float_t> _SVmass;
-  //std::vector<Float_t> _SVmassTauUp;
-  //std::vector<Float_t> _SVmassTauDown;
-  //std::vector<Float_t> _SVmassMETUp;
-  //std::vector<Float_t> _SVmassMETDown;
-  //std::vector<Float_t> _SVmassEleUp;
-  //std::vector<Float_t> _SVmassEleDown;
-
   std::vector<Float_t> _SVmassUnc;
-  //std::vector<Float_t> _SVmassUncTauUp;
-  //std::vector<Float_t> _SVmassUncTauDown;
-  //std::vector<Float_t> _SVmassUncMETUp;
-  //std::vector<Float_t> _SVmassUncMETDown;
-  //std::vector<Float_t> _SVmassUncEleUp;
-  //std::vector<Float_t> _SVmassUncEleDown;
-
   std::vector<Float_t> _SVmassTransverse;
-  //std::vector<Float_t> _SVmassTransverseTauUp;
-  //std::vector<Float_t> _SVmassTransverseTauDown;
-  //std::vector<Float_t> _SVmassTransverseMETUp;
-  //std::vector<Float_t> _SVmassTransverseMETDown;
-  //std::vector<Float_t> _SVmassTransverseEleUp;
-  //std::vector<Float_t> _SVmassTransverseEleDown;
-
   std::vector<Float_t> _SVmassTransverseUnc;
-  //std::vector<Float_t> _SVmassTransverseUncTauUp;
-  //std::vector<Float_t> _SVmassTransverseUncTauDown;
-  //std::vector<Float_t> _SVmassTransverseUncMETUp;
-  //std::vector<Float_t> _SVmassTransverseUncMETDown;
-  //std::vector<Float_t> _SVmassTransverseUncEleUp;
-  //std::vector<Float_t> _SVmassTransverseUncEleDown;
-
   std::vector<Float_t> _SVpt;
-  //std::vector<Float_t> _SVptTauUp;
-  //std::vector<Float_t> _SVptTauDown;
-  //std::vector<Float_t> _SVptMETUp;
-  //std::vector<Float_t> _SVptMETDown;
-  //std::vector<Float_t> _SVptEleUp;
-  //std::vector<Float_t> _SVptEleDown;
-
   std::vector<Float_t> _SVptUnc;
-  //std::vector<Float_t> _SVptUncTauUp;
-  //std::vector<Float_t> _SVptUncTauDown;
-  //std::vector<Float_t> _SVptUncMETUp;
-  //std::vector<Float_t> _SVptUncMETDown;
-  //std::vector<Float_t> _SVptUncEleUp;
-  //std::vector<Float_t> _SVptUncEleDown;
-
   std::vector<Float_t> _SVeta;
-  //std::vector<Float_t> _SVetaTauUp;
-  //std::vector<Float_t> _SVetaTauDown;
-  //std::vector<Float_t> _SVetaMETUp;
-  //std::vector<Float_t> _SVetaMETDown;
-  //std::vector<Float_t> _SVetaEleUp;
-  //std::vector<Float_t> _SVetaEleDown;
-
   std::vector<Float_t> _SVetaUnc;
-  //std::vector<Float_t> _SVetaUncTauUp;
-  //std::vector<Float_t> _SVetaUncTauDown;
-  //std::vector<Float_t> _SVetaUncMETUp;
-  //std::vector<Float_t> _SVetaUncMETDown;
-  //std::vector<Float_t> _SVetaUncEleUp;
-  //std::vector<Float_t> _SVetaUncEleDown;
-
   std::vector<Float_t> _SVphi;
-  //std::vector<Float_t> _SVphiTauUp;
-  //std::vector<Float_t> _SVphiTauDown;
-  //std::vector<Float_t> _SVphiMETUp;
-  //std::vector<Float_t> _SVphiMETDown;
-  //std::vector<Float_t> _SVphiEleUp;
-  //std::vector<Float_t> _SVphiEleDown;
-
   std::vector<Float_t> _SVphiUnc;
-  //std::vector<Float_t> _SVphiUncTauUp;
-  //std::vector<Float_t> _SVphiUncTauDown;
-  //std::vector<Float_t> _SVphiUncMETUp;
-  //std::vector<Float_t> _SVphiUncMETDown;
-  //std::vector<Float_t> _SVphiUncEleUp;
-  //std::vector<Float_t> _SVphiUncEleDown;
-
   std::vector<Float_t> _SVMetRho;
-  //std::vector<Float_t> _SVMetRhoTauUp;
-  //std::vector<Float_t> _SVMetRhoTauDown;
-  //std::vector<Float_t> _SVMetRhoMETUp;
-  //std::vector<Float_t> _SVMetRhoMETDown;
-  //std::vector<Float_t> _SVMetRhoEleUp;
-  //std::vector<Float_t> _SVMetRhoEleDown;
-
   std::vector<Float_t> _SVMetPhi;
-  //std::vector<Float_t> _SVMetPhiTauUp;
-  //std::vector<Float_t> _SVMetPhiTauDown;
-  //std::vector<Float_t> _SVMetPhiMETUp;
-  //std::vector<Float_t> _SVMetPhiMETDown;
-  //std::vector<Float_t> _SVMetPhiEleUp;
-  //std::vector<Float_t> _SVMetPhiEleDown;
 
   Float_t _PUPPImetShiftedX;
   Float_t _PUPPImetShiftedY;
@@ -1168,100 +1085,17 @@ void HTauTauNtuplizer::Initialize(){
   _pdgdau.clear();
 
   _SVmass.clear();
-  //_SVmassTauUp.clear();
-  //_SVmassTauDown.clear();
-  //_SVmassMETUp.clear();
-  //_SVmassMETDown.clear();
-  //_SVmassEleUp.clear();
-  //_SVmassEleDown.clear();
-
   _SVmassUnc.clear();
-  //_SVmassUncTauUp.clear();
-  //_SVmassUncTauDown.clear();
-  //_SVmassUncMETUp.clear();
-  //_SVmassUncMETDown.clear();
-  //_SVmassUncEleUp.clear();
-  //_SVmassUncEleDown.clear();
-
   _SVmassTransverse.clear();
-  //_SVmassTransverseTauUp.clear();
-  //_SVmassTransverseTauDown.clear();
-  //_SVmassTransverseMETUp.clear();
-  //_SVmassTransverseMETDown.clear();
-  //_SVmassTransverseEleUp.clear();
-  //_SVmassTransverseEleDown.clear();
-
   _SVmassTransverseUnc.clear();
-  //_SVmassTransverseUncTauUp.clear();
-  //_SVmassTransverseUncTauDown.clear();
-  //_SVmassTransverseUncMETUp.clear();
-  //_SVmassTransverseUncMETDown.clear();
-  //_SVmassTransverseUncEleUp.clear();
-  //_SVmassTransverseUncEleDown.clear();
-
   _SVpt.clear();
-  //_SVptTauUp.clear();
-  //_SVptTauDown.clear();
-  //_SVptMETUp.clear();
-  //_SVptMETDown.clear();
-  //_SVptEleUp.clear();
-  //_SVptEleDown.clear();
-
   _SVptUnc.clear();
-  //_SVptUncTauUp.clear();
-  //_SVptUncTauDown.clear();
-  //_SVptUncMETUp.clear();
-  //_SVptUncMETDown.clear();
-  //_SVptUncEleUp.clear();
-  //_SVptUncEleDown.clear();
-
   _SVeta.clear();
-  //_SVetaTauUp.clear();
-  //_SVetaTauDown.clear();
-  //_SVetaMETUp.clear();
-  //_SVetaMETDown.clear();
-  //_SVetaEleUp.clear();
-  //_SVetaEleDown.clear();
-
   _SVetaUnc.clear();
-  //_SVetaUncTauUp.clear();
-  //_SVetaUncTauDown.clear();
-  //_SVetaUncMETUp.clear();
-  //_SVetaUncMETDown.clear();
-  //_SVetaUncEleUp.clear();
-  //_SVetaUncEleDown.clear();
-
   _SVphi.clear();
-  //_SVphiTauUp.clear();
-  //_SVphiTauDown.clear();
-  //_SVphiMETUp.clear();
-  //_SVphiMETDown.clear();
-  //_SVphiEleUp.clear();
-  //_SVphiEleDown.clear();
-
   _SVphiUnc.clear();
-  //_SVphiUncTauUp.clear();
-  //_SVphiUncTauDown.clear();
-  //_SVphiUncMETUp.clear();
-  //_SVphiUncMETDown.clear();
-  //_SVphiUncEleUp.clear();
-  //_SVphiUncEleDown.clear();
-
   _SVMetRho.clear();
-  //_SVMetRhoTauUp.clear();
-  //_SVMetRhoTauDown.clear();
-  //_SVMetRhoMETUp.clear();
-  //_SVMetRhoMETDown.clear();
-  //_SVMetRhoEleUp.clear();
-  //_SVMetRhoEleDown.clear();
-
   _SVMetPhi.clear();
-  //_SVMetPhiTauUp.clear();
-  //_SVMetPhiTauDown.clear();
-  //_SVMetPhiMETUp.clear();
-  //_SVMetPhiMETDown.clear();
-  //_SVMetPhiEleUp.clear();
-  //_SVMetPhiEleDown.clear();
 
   _isOSCand.clear();
   _daughters_HLTpt.clear();
@@ -1636,83 +1470,8 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genjet_e" , &_genjet_e);
     myTree->Branch("genjet_partonFlavour" , &_genjet_partonFlavour);
     myTree->Branch("genjet_hadronFlavour" , &_genjet_hadronFlavour);
-
     
     myTree->Branch("NUP", &_nup,"NUP/I");
-    //myTree->Branch("SVfit_fitMETPhiTauUp", &_SVMetPhiTauUp);
-    //myTree->Branch("SVfit_fitMETPhiTauDown", &_SVMetPhiTauDown);
-    //myTree->Branch("SVfit_fitMETRhoTauUp", &_SVMetRhoTauUp);
-    //myTree->Branch("SVfit_fitMETRhoTauDown", &_SVMetRhoTauDown);
-    //myTree->Branch("SVfit_phiUncTauUp", &_SVphiUncTauUp);
-    //myTree->Branch("SVfit_phiUncTauDown", &_SVphiUncTauDown);
-    //myTree->Branch("SVfit_phiTauUp", &_SVphiTauUp);
-    //myTree->Branch("SVfit_phiTauDown", &_SVphiTauDown);
-    //myTree->Branch("SVfit_etaUncTauUp", &_SVetaUncTauUp);
-    //myTree->Branch("SVfit_etaUncTauDown", &_SVetaUncTauDown);
-    //myTree->Branch("SVfit_etaTauUp", &_SVetaTauUp);
-    //myTree->Branch("SVfit_etaTauDown", &_SVetaTauDown);
-    //myTree->Branch("SVfit_ptUncTauUp", &_SVptUncTauUp);
-    //myTree->Branch("SVfit_ptUncTauDown", &_SVptUncTauDown);
-    //myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
-    //myTree->Branch("SVfit_ptTauDown", &_SVptTauDown);
-    //myTree->Branch("SVfitTransverseMassUncTauUp",&_SVmassTransverseUncTauUp);
-    //myTree->Branch("SVfitTransverseMassUncTauDown",&_SVmassTransverseUncTauDown);
-    //myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
-    //myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
-    //myTree->Branch("SVfitMassUncTauUp",&_SVmassUncTauUp);
-    //myTree->Branch("SVfitMassUncTauDown",&_SVmassUncTauDown);
-    //myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
-    //myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
-
-    //myTree->Branch("SVfit_fitMETPhiMETUp", &_SVMetPhiMETUp);
-    //myTree->Branch("SVfit_fitMETPhiMETDown", &_SVMetPhiMETDown);
-    //myTree->Branch("SVfit_fitMETRhoMETUp", &_SVMetRhoMETUp);
-    //myTree->Branch("SVfit_fitMETRhoMETDown", &_SVMetRhoMETDown);
-    //myTree->Branch("SVfit_phiUncMETUp", &_SVphiUncMETUp);
-    //myTree->Branch("SVfit_phiUncMETDown", &_SVphiUncMETDown);
-    //myTree->Branch("SVfit_phiMETUp", &_SVphiMETUp);
-    //myTree->Branch("SVfit_phiMETDown", &_SVphiMETDown);
-    //myTree->Branch("SVfit_etaUncMETUp", &_SVetaUncMETUp);
-    //myTree->Branch("SVfit_etaUncMETDown", &_SVetaUncMETDown);
-    //myTree->Branch("SVfit_etaMETUp", &_SVetaMETUp);
-    //myTree->Branch("SVfit_etaMETDown", &_SVetaMETDown);
-    //myTree->Branch("SVfit_ptUncMETUp", &_SVptUncMETUp);
-    //myTree->Branch("SVfit_ptUncMETDown", &_SVptUncMETDown);
-    //myTree->Branch("SVfit_ptMETUp", &_SVptMETUp);
-    //myTree->Branch("SVfit_ptMETDown", &_SVptMETDown);
-    //myTree->Branch("SVfitTransverseMassUncMETUp",&_SVmassTransverseUncMETUp);
-    //myTree->Branch("SVfitTransverseMassUncMETDown",&_SVmassTransverseUncMETDown);
-    //myTree->Branch("SVfitTransverseMassMETUp",&_SVmassTransverseMETUp);
-    //myTree->Branch("SVfitTransverseMassMETDown",&_SVmassTransverseMETDown);
-    //myTree->Branch("SVfitMassUncMETUp",&_SVmassUncMETUp);
-    //myTree->Branch("SVfitMassUncMETDown",&_SVmassUncMETDown);
-    //myTree->Branch("SVfitMassMETUp",&_SVmassMETUp);
-    //myTree->Branch("SVfitMassMETDown",&_SVmassMETDown);
-
-    //myTree->Branch("SVfit_fitMETPhiEleUp", &_SVMetPhiEleUp);
-    //myTree->Branch("SVfit_fitMETPhiEleDown", &_SVMetPhiEleDown);
-    //myTree->Branch("SVfit_fitMETRhoEleUp", &_SVMetRhoEleUp);
-    //myTree->Branch("SVfit_fitMETRhoEleDown", &_SVMetRhoEleDown);
-    //myTree->Branch("SVfit_phiUncEleUp", &_SVphiUncEleUp);
-    //myTree->Branch("SVfit_phiUncEleDown", &_SVphiUncEleDown);
-    //myTree->Branch("SVfit_phiEleUp", &_SVphiEleUp);
-    //myTree->Branch("SVfit_phiEleDown", &_SVphiEleDown);
-    //myTree->Branch("SVfit_etaUncEleUp", &_SVetaUncEleUp);
-    //myTree->Branch("SVfit_etaUncEleDown", &_SVetaUncEleDown);
-    //myTree->Branch("SVfit_etaEleUp", &_SVetaEleUp);
-    //myTree->Branch("SVfit_etaEleDown", &_SVetaEleDown);
-    //myTree->Branch("SVfit_ptUncEleUp", &_SVptUncEleUp);
-    //myTree->Branch("SVfit_ptUncEleDown", &_SVptUncEleDown);
-    //myTree->Branch("SVfit_ptEleUp", &_SVptEleUp);
-    //myTree->Branch("SVfit_ptEleDown", &_SVptEleDown);
-    //myTree->Branch("SVfitTransverseMassUncEleUp",&_SVmassTransverseUncEleUp);
-    //myTree->Branch("SVfitTransverseMassUncEleDown",&_SVmassTransverseUncEleDown);
-    //myTree->Branch("SVfitTransverseMassEleUp",&_SVmassTransverseEleUp);
-    //myTree->Branch("SVfitTransverseMassEleDown",&_SVmassTransverseEleDown);
-    //myTree->Branch("SVfitMassUncEleUp",&_SVmassUncEleUp);
-    //myTree->Branch("SVfitMassUncEleDown",&_SVmassUncEleDown);
-    //myTree->Branch("SVfitMassEleUp",&_SVmassEleUp);
-    //myTree->Branch("SVfitMassEleDown",&_SVmassEleDown);
   }// end if isMC
   //myTree->Branch("daughters2",&_daughter2);
 
@@ -2278,108 +2037,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
     float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
-    //bool hasTESUp   = cand.hasUserFloat ("SVfitMassTauUp");
-    //bool hasTESDown = cand.hasUserFloat ("SVfitMassTauDown");
-    //bool hasMETUp   = cand.hasUserFloat ("SVfitMassMETUp");
-    //bool hasMETDown = cand.hasUserFloat ("SVfitMassMETDown");
-    //bool hasEESUp   = cand.hasUserFloat ("SVfitMassEleUp");
-    //bool hasEESDown = cand.hasUserFloat ("SVfitMassEleDown");
-
     _SVmass.push_back(cand.userFloat("SVfitMass"));
-    //_SVmassTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
-    //_SVmassTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitMassTauDown") : -999. ));
-    //_SVmassMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitMassMETUp")   : -999. ));
-    //_SVmassMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitMassMETDown") : -999. ));
-    //_SVmassEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitMassEleUp")   : -999. ));
-    //_SVmassEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitMassEleDown") : -999. ));
-
     _SVmassUnc.push_back(cand.userFloat("SVfitMassUnc"));
-    //_SVmassUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitMassUncTauUp")   : -999. ));
-    //_SVmassUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitMassUncTauDown") : -999. ));
-    //_SVmassUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitMassUncMETUp")   : -999. ));
-    //_SVmassUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitMassUncMETDown") : -999. ));
-    //_SVmassUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitMassUncEleUp")   : -999. ));
-    //_SVmassUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitMassUncEleDown") : -999. ));
-
     _SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
-    //_SVmassTransverseTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitTransverseMassTauUp")  : -999. ));
-    //_SVmassTransverseTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitTransverseMassTauDown"): -999. ));
-    //_SVmassTransverseMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitTransverseMassMETUp")  : -999. ));
-    //_SVmassTransverseMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitTransverseMassMETDown"): -999. ));
-    //_SVmassTransverseEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitTransverseMassEleUp")  : -999. ));
-    //_SVmassTransverseEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitTransverseMassEleDown"): -999. ));
-
     _SVmassTransverseUnc.push_back(cand.userFloat("SVfitTransverseMassUnc"));
-    //_SVmassTransverseUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitTransverseMassUncTauUp")  : -999. ));
-    //_SVmassTransverseUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitTransverseMassUncTauDown"): -999. ));
-    //_SVmassTransverseUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitTransverseMassUncMETUp")  : -999. ));
-    //_SVmassTransverseUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitTransverseMassUncMETDown"): -999. ));
-    //_SVmassTransverseUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitTransverseMassUncEleUp")  : -999. ));
-    //_SVmassTransverseUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitTransverseMassUncEleDown"): -999. ));
-
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
-    //_SVptTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_ptTauUp")  : -999. ));
-    //_SVptTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_ptTauDown"): -999. ));
-    //_SVptMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_ptMETUp")  : -999. ));
-    //_SVptMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_ptMETDown"): -999. ));
-    //_SVptEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_ptEleUp")  : -999. ));
-    //_SVptEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_ptEleDown"): -999. ));
-
     _SVptUnc.push_back(cand.userFloat("SVfit_ptUnc"));
-    //_SVptUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_ptUncTauUp")  : -999. ));
-    //_SVptUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_ptUncTauDown"): -999. ));
-    //_SVptUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_ptUncMETUp")  : -999. ));
-    //_SVptUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_ptUncMETDown"): -999. ));
-    //_SVptUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_ptUncEleUp")  : -999. ));
-    //_SVptUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_ptUncEleDown"): -999. ));
-
     _SVeta.push_back(cand.userFloat("SVfit_eta"));
-    //_SVetaTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_etaTauUp")  : -999. ));
-    //_SVetaTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_etaTauDown"): -999. ));
-    //_SVetaMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_etaMETUp")  : -999. ));
-    //_SVetaMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_etaMETDown"): -999. ));
-    //_SVetaEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_etaEleUp")  : -999. ));
-    //_SVetaEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_etaEleDown"): -999. ));
-
     _SVetaUnc.push_back(cand.userFloat("SVfit_etaUnc"));
-    //_SVetaUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_etaUncTauUp")  : -999. ));
-    //_SVetaUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_etaUncTauDown"): -999. ));
-    //_SVetaUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_etaUncMETUp")  : -999. ));
-    //_SVetaUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_etaUncMETDown"): -999. ));
-    //_SVetaUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_etaUncEleUp")  : -999. ));
-    //_SVetaUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_etaUncEleDown"): -999. ));
-
     _SVphi.push_back(cand.userFloat("SVfit_phi"));
-    //_SVphiTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_phiTauUp")  : -999. ));
-    //_SVphiTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_phiTauDown"): -999. ));
-    //_SVphiMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_phiMETUp")  : -999. ));
-    //_SVphiMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_phiMETDown"): -999. ));
-    //_SVphiEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_phiEleUp")  : -999. ));
-    //_SVphiEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_phiEleDown"): -999. ));
-
     _SVphiUnc.push_back(cand.userFloat("SVfit_phiUnc"));
-    //_SVphiUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_phiUncTauUp")  : -999. ));
-    //_SVphiUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_phiUncTauDown"): -999. ));
-    //_SVphiUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_phiUncMETUp")  : -999. ));
-    //_SVphiUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_phiUncMETDown"): -999. ));
-    //_SVphiUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_phiUncEleUp")  : -999. ));
-    //_SVphiUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_phiUncEleDown"): -999. ));
-
     _SVMetRho.push_back(cand.userFloat("SVfit_METRho"));
-    //_SVMetRhoTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_METRhoTauUp")  : -999. ));
-    //_SVMetRhoTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_METRhoTauDown"): -999. ));
-    //_SVMetRhoMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_METRhoMETUp")  : -999. ));
-    //_SVMetRhoMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_METRhoMETDown"): -999. ));
-    //_SVMetRhoEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_METRhoEleUp")  : -999. ));
-    //_SVMetRhoEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_METRhoEleDown"): -999. ));
-
     _SVMetPhi.push_back(cand.userFloat("SVfit_METPhi"));
-    //_SVMetPhiTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_METPhiTauUp")  : -999. ));
-    //_SVMetPhiTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_METPhiTauDown"): -999. ));
-    //_SVMetPhiMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_METPhiMETUp")  : -999. ));
-    //_SVMetPhiMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_METPhiMETDown"): -999. ));
-    //_SVMetPhiEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_METPhiEleUp")  : -999. ));
-    //_SVMetPhiEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_METPhiEleDown"): -999. ));
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);
