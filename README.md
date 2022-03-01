@@ -451,8 +451,8 @@ scram b -j 8
 # Make sure your architecture is slc7_amd64_gcc700
 # (you can set the architecture with: export SCRAM_ARCH=slc7_amd64_gcc700 )
 
-cmsrel CMSSW_10_6_27
-cd CMSSW_10_6_27/src
+cmsrel CMSSW_10_6_29
+cd CMSSW_10_6_29/src
 cmsenv
 
 git cms-init

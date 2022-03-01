@@ -9,27 +9,36 @@ import re
 #### Parameters to be changed for each production
 
 datasetsFile = "datasets_UL18.txt"
-tag = "MC_20Sep2021"
+tag = "MC_28Feb2022"
 isMC = True
-#tag = "DATA_20Sep2021"
-#isMC = False
 
-#PROCESS = ["BACKGROUNDS_TT_2018"]
-#PROCESS = ["BACKGROUNDS_WJETS_2018"]
-#PROCESS = ["BACKGROUNDS_DY_2018"]
-#PROCESS = ["BACKGROUNDS_VV_2018"]
-#PROCESS = ["BACKGROUNDS_ST_2018"]
-#PROCESS = ["BACKGROUNDS_EWK_2018"]
-PROCESS = ["BACKGROUNDS_H_2018"]
-#PROCESS = ["BACKGROUNDS_TTX_2018"]
+PROCESS = [
+#    "SIGNALS_GF_NONRES_2018",
+#    "SIGNALS_VBF_NONRES_2018",
+#    "SIGNALS_GF_NLO_NONRES_2018",
+    "BACKGROUNDS_TT_2018",
+    "BACKGROUNDS_WJETS_2018",
+    "BACKGROUNDS_DY_2018",
+    "BACKGROUNDS_VV_2018",
+    "BACKGROUNDS_ST_2018",
+    "BACKGROUNDS_EWK_2018",
+    "BACKGROUNDS_H_2018",
+    "BACKGROUNDS_TTX_2018",
+    "SIGNALS_GF_SPIN0_2018",
+    "SIGNALS_GF_SPIN2_2018",
+    "SIGNALS_VBF_SPIN0_2018",
+    "SIGNALS_VBF_SPIN2_2018"
+]
 
-#PROCESS = ["SIGNALS_GF_NONRES_2018"]
-#PROCESS = ["SIGNALS_VBF_NONRES_2018"]
-#PROCESS = ["SIGNALS_GF_NLO_NONRES_2018"]
+if not isMC:
+    tag.replace("MC","Data")
 
-#PROCESS = ["DATA_TAU_2018"]
-#PROCESS = ["DATA_ELE_2018"]
-#PROCESS = ["DATA_MU_2018"]
+    PROCESS = [
+        "DATA_TAU_2018",
+        "DATA_ELE_2018",
+        "DATA_MU_2018",
+        "DATA_MET_2018"
+    ]
 
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
@@ -171,13 +180,9 @@ for dtset in dtsetToLaunch:
     command += " General.requestName=%s" % (shortName + "_" + str(counter))
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
-    #command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
-    #command += " Data.outLFNDirBase=/store/user/camendol/HHNtuples2017/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
-    command += " Data.outLFNDirBase=/store/user/lportale/HHNtuples_res/UL18/%s/%s" % (tag, str(counter)+"_"+dtsetNames)
-
-    #command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
+    command += " Data.outLFNDirBase=/store/user/lportale/HHNtuples_res/UL18/%s/%s" % (tag, str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
-    #command += " Data.splitting='Automatic'"
+    command += " Data.splitting='Automatic'"
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched
     if not PublishDataset : command += " Data.publication=False" # cannot publish flat root ntuples
