@@ -135,9 +135,6 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-// Map for JEC uncertainty sources
-typedef std::map<std::string, std::unique_ptr<JetCorrectionUncertainty>> myJECMap;
-
 // class declaration
 
 class HTauTauNtuplizer : public edm::EDAnalyzer {
@@ -165,7 +162,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   //virtual void FillCandidate(const pat::CompositeCandidate& higgs, bool evtPass, const edm::Event&, const Int_t CRflag);
   //virtual void FillPhoton(const pat::Photon& photon);
   //int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, JetCorrectionUncertainty*);
-  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, edm::EventSetup const&, JetCorrectionUncertainty*, myJECMap*, myJECMap*);
+  int FillJet(const edm::View<pat::Jet>* jet, const edm::Event&, edm::EventSetup const&);
   void FillFatJet(const edm::View<pat::Jet>* fatjets, const edm::Event&);
   void FillSoftLeptons(const edm::View<reco::Candidate> *dauhandler, const edm::Event& event, const edm::EventSetup& setup, bool theFSR, const edm::View<pat::Jet>* jets, const BXVector<l1t::Tau>* l1taus);
   //void FillbQuarks(const edm::Event&);
@@ -251,7 +248,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<BXVector<l1t::Jet> > theL1JetTag;
   //edm::EDGetTokenT<int> theNBadMuTag; //FRA January2019
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
-  edm::EDGetTokenT< bool > badPFMuonDz_token;
   edm::EDGetTokenT< double > prefweight_token;
   edm::EDGetTokenT< double > prefweightup_token;
   edm::EDGetTokenT< double > prefweightdown_token;
@@ -274,7 +270,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Long64_t _triggerbit;
   Int_t _metfilterbit;
   //Int_t _NBadMu;  //FRA January2019
-  Bool_t  _passbadMuonPFDz;
   Float_t _prefiringweight;
   Float_t _prefiringweightup;
   Float_t _prefiringweightdown;
@@ -449,100 +444,17 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Bool_t> _isOSCand;
 
   std::vector<Float_t> _SVmass;
-  //std::vector<Float_t> _SVmassTauUp;
-  //std::vector<Float_t> _SVmassTauDown;
-  //std::vector<Float_t> _SVmassMETUp;
-  //std::vector<Float_t> _SVmassMETDown;
-  //std::vector<Float_t> _SVmassEleUp;
-  //std::vector<Float_t> _SVmassEleDown;
-
   std::vector<Float_t> _SVmassUnc;
-  //std::vector<Float_t> _SVmassUncTauUp;
-  //std::vector<Float_t> _SVmassUncTauDown;
-  //std::vector<Float_t> _SVmassUncMETUp;
-  //std::vector<Float_t> _SVmassUncMETDown;
-  //std::vector<Float_t> _SVmassUncEleUp;
-  //std::vector<Float_t> _SVmassUncEleDown;
-
   std::vector<Float_t> _SVmassTransverse;
-  //std::vector<Float_t> _SVmassTransverseTauUp;
-  //std::vector<Float_t> _SVmassTransverseTauDown;
-  //std::vector<Float_t> _SVmassTransverseMETUp;
-  //std::vector<Float_t> _SVmassTransverseMETDown;
-  //std::vector<Float_t> _SVmassTransverseEleUp;
-  //std::vector<Float_t> _SVmassTransverseEleDown;
-
   std::vector<Float_t> _SVmassTransverseUnc;
-  //std::vector<Float_t> _SVmassTransverseUncTauUp;
-  //std::vector<Float_t> _SVmassTransverseUncTauDown;
-  //std::vector<Float_t> _SVmassTransverseUncMETUp;
-  //std::vector<Float_t> _SVmassTransverseUncMETDown;
-  //std::vector<Float_t> _SVmassTransverseUncEleUp;
-  //std::vector<Float_t> _SVmassTransverseUncEleDown;
-
   std::vector<Float_t> _SVpt;
-  //std::vector<Float_t> _SVptTauUp;
-  //std::vector<Float_t> _SVptTauDown;
-  //std::vector<Float_t> _SVptMETUp;
-  //std::vector<Float_t> _SVptMETDown;
-  //std::vector<Float_t> _SVptEleUp;
-  //std::vector<Float_t> _SVptEleDown;
-
   std::vector<Float_t> _SVptUnc;
-  //std::vector<Float_t> _SVptUncTauUp;
-  //std::vector<Float_t> _SVptUncTauDown;
-  //std::vector<Float_t> _SVptUncMETUp;
-  //std::vector<Float_t> _SVptUncMETDown;
-  //std::vector<Float_t> _SVptUncEleUp;
-  //std::vector<Float_t> _SVptUncEleDown;
-
   std::vector<Float_t> _SVeta;
-  //std::vector<Float_t> _SVetaTauUp;
-  //std::vector<Float_t> _SVetaTauDown;
-  //std::vector<Float_t> _SVetaMETUp;
-  //std::vector<Float_t> _SVetaMETDown;
-  //std::vector<Float_t> _SVetaEleUp;
-  //std::vector<Float_t> _SVetaEleDown;
-
   std::vector<Float_t> _SVetaUnc;
-  //std::vector<Float_t> _SVetaUncTauUp;
-  //std::vector<Float_t> _SVetaUncTauDown;
-  //std::vector<Float_t> _SVetaUncMETUp;
-  //std::vector<Float_t> _SVetaUncMETDown;
-  //std::vector<Float_t> _SVetaUncEleUp;
-  //std::vector<Float_t> _SVetaUncEleDown;
-
   std::vector<Float_t> _SVphi;
-  //std::vector<Float_t> _SVphiTauUp;
-  //std::vector<Float_t> _SVphiTauDown;
-  //std::vector<Float_t> _SVphiMETUp;
-  //std::vector<Float_t> _SVphiMETDown;
-  //std::vector<Float_t> _SVphiEleUp;
-  //std::vector<Float_t> _SVphiEleDown;
-
   std::vector<Float_t> _SVphiUnc;
-  //std::vector<Float_t> _SVphiUncTauUp;
-  //std::vector<Float_t> _SVphiUncTauDown;
-  //std::vector<Float_t> _SVphiUncMETUp;
-  //std::vector<Float_t> _SVphiUncMETDown;
-  //std::vector<Float_t> _SVphiUncEleUp;
-  //std::vector<Float_t> _SVphiUncEleDown;
-
   std::vector<Float_t> _SVMetRho;
-  //std::vector<Float_t> _SVMetRhoTauUp;
-  //std::vector<Float_t> _SVMetRhoTauDown;
-  //std::vector<Float_t> _SVMetRhoMETUp;
-  //std::vector<Float_t> _SVMetRhoMETDown;
-  //std::vector<Float_t> _SVMetRhoEleUp;
-  //std::vector<Float_t> _SVMetRhoEleDown;
-
   std::vector<Float_t> _SVMetPhi;
-  //std::vector<Float_t> _SVMetPhiTauUp;
-  //std::vector<Float_t> _SVMetPhiTauDown;
-  //std::vector<Float_t> _SVMetPhiMETUp;
-  //std::vector<Float_t> _SVMetPhiMETDown;
-  //std::vector<Float_t> _SVMetPhiEleUp;
-  //std::vector<Float_t> _SVMetPhiEleDown;
 
   Float_t _PUPPImetShiftedX;
   Float_t _PUPPImetShiftedY;
@@ -772,230 +684,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_MUF;
   std::vector<Int_t>   _jets_neMult;
   std::vector<Int_t>   _jets_chMult;
-  std::vector<Float_t> _jets_jecUnc;
-
-  // JEC uncertainty sources Regrouped
-  std::vector<Float_t> _jets_jetUncRegrouped_FlavorQCD_up;              // up variations
-  std::vector<Float_t> _jets_jetUncRegrouped_RelativeBal_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_HF_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_BBEC1_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_EC2_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_Absolute_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_BBEC1_YEAR_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_EC2_YEAR_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_Absolute_YEAR_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_HF_YEAR_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_RelativeSample_YEAR_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_Total_up;
-  std::vector<Float_t> _jets_jetUncRegrouped_FlavorQCD_dw;              // down variations
-  std::vector<Float_t> _jets_jetUncRegrouped_RelativeBal_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_HF_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_BBEC1_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_EC2_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_Absolute_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_BBEC1_YEAR_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_EC2_YEAR_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_Absolute_YEAR_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_HF_YEAR_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_RelativeSample_YEAR_dw;
-  std::vector<Float_t> _jets_jetUncRegrouped_Total_dw;
-  myJECMap jecSourceUncRegroupedProviders;
-  std::vector<std::string> m_jec_sources_regrouped_2016 = {
-  "FlavorQCD",
-  "RelativeBal",
-  "HF",
-  "BBEC1",
-  "EC2",
-  "Absolute",
-  "BBEC1_2016",
-  "EC2_2016",
-  "Absolute_2016",
-  "HF_2016",
-  "RelativeSample_2016",
-  "Total"
-  };
-  std::vector<std::string> m_jec_sources_regrouped_2017 = {
-  "FlavorQCD",
-  "RelativeBal",
-  "HF",
-  "BBEC1",
-  "EC2",
-  "Absolute",
-  "BBEC1_2017",
-  "EC2_2017",
-  "Absolute_2017",
-  "HF_2017",
-  "RelativeSample_2017",
-  "Total"
-  };
-  std::vector<std::string> m_jec_sources_regrouped_2018 = {
-  "FlavorQCD",
-  "RelativeBal",
-  "HF",
-  "BBEC1",
-  "EC2",
-  "Absolute",
-  "BBEC1_2018",
-  "EC2_2018",
-  "Absolute_2018",
-  "HF_2018",
-  "RelativeSample_2018",
-  "Total"
-  };
-  std::map<std::string, std::vector<Float_t>> _SourceUncValRegrouped_up;
-  std::map<std::string, std::vector<Float_t>> _SourceUncValRegrouped_dw;
-
-  // JEC uncertainty sources
-  std::vector<Float_t> _jets_jetUnc_AbsoluteFlavMap_up; // up variations
-  std::vector<Float_t> _jets_jetUnc_AbsoluteMPFBias_up;
-  std::vector<Float_t> _jets_jetUnc_AbsoluteSample_up;
-  std::vector<Float_t> _jets_jetUnc_AbsoluteScale_up;
-  std::vector<Float_t> _jets_jetUnc_AbsoluteStat_up;
-  std::vector<Float_t> _jets_jetUnc_FlavorQCD_up;
-  std::vector<Float_t> _jets_jetUnc_Fragmentation_up;
-  std::vector<Float_t> _jets_jetUnc_PileUpDataMC_up;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtBB_up;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtEC1_up;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtEC2_up;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtHF_up;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtRef_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeBal_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeFSR_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeJEREC1_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeJEREC2_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeJERHF_up;
-  std::vector<Float_t> _jets_jetUnc_RelativePtBB_up;
-  std::vector<Float_t> _jets_jetUnc_RelativePtEC1_up;
-  std::vector<Float_t> _jets_jetUnc_RelativePtEC2_up;
-  std::vector<Float_t> _jets_jetUnc_RelativePtHF_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeSample_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeStatEC_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeStatFSR_up;
-  std::vector<Float_t> _jets_jetUnc_RelativeStatHF_up;
-  std::vector<Float_t> _jets_jetUnc_SinglePionECAL_up;
-  std::vector<Float_t> _jets_jetUnc_SinglePionHCAL_up;
-  std::vector<Float_t> _jets_jetUnc_TimePtEta_up;
-  std::vector<Float_t> _jets_jetUnc_AbsoluteFlavMap_dw; // down variations
-  std::vector<Float_t> _jets_jetUnc_AbsoluteMPFBias_dw;
-  std::vector<Float_t> _jets_jetUnc_AbsoluteSample_dw;
-  std::vector<Float_t> _jets_jetUnc_AbsoluteScale_dw;
-  std::vector<Float_t> _jets_jetUnc_AbsoluteStat_dw;
-  std::vector<Float_t> _jets_jetUnc_FlavorQCD_dw;
-  std::vector<Float_t> _jets_jetUnc_Fragmentation_dw;
-  std::vector<Float_t> _jets_jetUnc_PileUpDataMC_dw;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtBB_dw;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtEC1_dw;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtEC2_dw;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtHF_dw;
-  std::vector<Float_t> _jets_jetUnc_PileUpPtRef_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeBal_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeFSR_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeJEREC1_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeJEREC2_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeJERHF_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativePtBB_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativePtEC1_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativePtEC2_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativePtHF_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeSample_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeStatEC_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeStatFSR_dw;
-  std::vector<Float_t> _jets_jetUnc_RelativeStatHF_dw;
-  std::vector<Float_t> _jets_jetUnc_SinglePionECAL_dw;
-  std::vector<Float_t> _jets_jetUnc_SinglePionHCAL_dw;
-  std::vector<Float_t> _jets_jetUnc_TimePtEta_dw;
-  myJECMap jecSourceUncProviders;
-  std::vector<std::string> m_jec_sources_2016 = {
-    "AbsoluteFlavMap",
-    "AbsoluteMPFBias",
-    "AbsoluteScale",
-    "AbsoluteStat",
-    "FlavorQCD",
-    "Fragmentation",
-    "PileUpDataMC",
-    "PileUpPtBB",
-    "PileUpPtEC1",
-    "PileUpPtEC2",
-    "PileUpPtHF",
-    "PileUpPtRef",
-    "RelativeBal",
-    "RelativeFSR",
-    "RelativeJEREC1",
-    "RelativeJEREC2",
-    "RelativeJERHF",
-    "RelativePtBB",
-    "RelativePtEC1",
-    "RelativePtEC2",
-    "RelativePtHF",
-    "RelativeSample",
-    "RelativeStatEC",
-    "RelativeStatFSR",
-    "RelativeStatHF",
-    "SinglePionECAL",
-    "SinglePionHCAL",
-    "TimePtEta" };
-  std::vector<std::string> m_jec_sources_2017 = {
-    "AbsoluteFlavMap",
-    "AbsoluteMPFBias",
-    "AbsoluteScale",
-    "AbsoluteStat",
-    "FlavorQCD",
-    "Fragmentation",
-    "PileUpDataMC",
-    "PileUpPtBB",
-    "PileUpPtEC1",
-    "PileUpPtEC2",
-    "PileUpPtHF",
-    "PileUpPtRef",
-    "RelativeBal",
-    "RelativeFSR",
-    "RelativeJEREC1",
-    "RelativeJEREC2",
-    "RelativeJERHF",
-    "RelativePtBB",
-    "RelativePtEC1",
-    "RelativePtEC2",
-    "RelativePtHF",
-    "RelativeSample",
-    "RelativeStatEC",
-    "RelativeStatFSR",
-    "RelativeStatHF",
-    "SinglePionECAL",
-    "SinglePionHCAL",
-    "TimePtEta" };
-  std::vector<std::string> m_jec_sources_2018 = {
-    "AbsoluteFlavMap",
-    "AbsoluteMPFBias",
-    "AbsoluteSample",  //FRA: new for 2018 data
-    "AbsoluteScale",
-    "AbsoluteStat",
-    "FlavorQCD",
-    "Fragmentation",
-    "PileUpDataMC",
-    "PileUpPtBB",
-    "PileUpPtEC1",
-    "PileUpPtEC2",
-    "PileUpPtHF",
-    "PileUpPtRef",
-    "RelativeBal",
-    "RelativeFSR",
-    "RelativeJEREC1",
-    "RelativeJEREC2",
-    "RelativeJERHF",
-    "RelativePtBB",
-    "RelativePtEC1",
-    "RelativePtEC2",
-    "RelativePtHF",
-    "RelativeSample",
-    "RelativeStatEC",
-    "RelativeStatFSR",
-    "RelativeStatHF",
-    "SinglePionECAL",
-    "SinglePionHCAL",
-    "TimePtEta" };
-  std::map<std::string, std::vector<Float_t>> _SourceUncVal_up;
-  std::map<std::string, std::vector<Float_t>> _SourceUncVal_dw;
-
   std::vector<Float_t> _jets_QGdiscr;
 
   std::vector<Float_t> _ak8jets_px;
@@ -1111,7 +799,6 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theL1JetTag          (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
   //theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))), //FRA January2019
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
-  badPFMuonDz_token    (consumes< bool >                                 (pset.getParameter<edm::InputTag>("BadPFMuonFilterUpdateDz"))),
   prefweight_token     (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProb"))),
   prefweightup_token   (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbUp"))),
   prefweightdown_token (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbDown")))
@@ -1398,100 +1085,17 @@ void HTauTauNtuplizer::Initialize(){
   _pdgdau.clear();
 
   _SVmass.clear();
-  //_SVmassTauUp.clear();
-  //_SVmassTauDown.clear();
-  //_SVmassMETUp.clear();
-  //_SVmassMETDown.clear();
-  //_SVmassEleUp.clear();
-  //_SVmassEleDown.clear();
-
   _SVmassUnc.clear();
-  //_SVmassUncTauUp.clear();
-  //_SVmassUncTauDown.clear();
-  //_SVmassUncMETUp.clear();
-  //_SVmassUncMETDown.clear();
-  //_SVmassUncEleUp.clear();
-  //_SVmassUncEleDown.clear();
-
   _SVmassTransverse.clear();
-  //_SVmassTransverseTauUp.clear();
-  //_SVmassTransverseTauDown.clear();
-  //_SVmassTransverseMETUp.clear();
-  //_SVmassTransverseMETDown.clear();
-  //_SVmassTransverseEleUp.clear();
-  //_SVmassTransverseEleDown.clear();
-
   _SVmassTransverseUnc.clear();
-  //_SVmassTransverseUncTauUp.clear();
-  //_SVmassTransverseUncTauDown.clear();
-  //_SVmassTransverseUncMETUp.clear();
-  //_SVmassTransverseUncMETDown.clear();
-  //_SVmassTransverseUncEleUp.clear();
-  //_SVmassTransverseUncEleDown.clear();
-
   _SVpt.clear();
-  //_SVptTauUp.clear();
-  //_SVptTauDown.clear();
-  //_SVptMETUp.clear();
-  //_SVptMETDown.clear();
-  //_SVptEleUp.clear();
-  //_SVptEleDown.clear();
-
   _SVptUnc.clear();
-  //_SVptUncTauUp.clear();
-  //_SVptUncTauDown.clear();
-  //_SVptUncMETUp.clear();
-  //_SVptUncMETDown.clear();
-  //_SVptUncEleUp.clear();
-  //_SVptUncEleDown.clear();
-
   _SVeta.clear();
-  //_SVetaTauUp.clear();
-  //_SVetaTauDown.clear();
-  //_SVetaMETUp.clear();
-  //_SVetaMETDown.clear();
-  //_SVetaEleUp.clear();
-  //_SVetaEleDown.clear();
-
   _SVetaUnc.clear();
-  //_SVetaUncTauUp.clear();
-  //_SVetaUncTauDown.clear();
-  //_SVetaUncMETUp.clear();
-  //_SVetaUncMETDown.clear();
-  //_SVetaUncEleUp.clear();
-  //_SVetaUncEleDown.clear();
-
   _SVphi.clear();
-  //_SVphiTauUp.clear();
-  //_SVphiTauDown.clear();
-  //_SVphiMETUp.clear();
-  //_SVphiMETDown.clear();
-  //_SVphiEleUp.clear();
-  //_SVphiEleDown.clear();
-
   _SVphiUnc.clear();
-  //_SVphiUncTauUp.clear();
-  //_SVphiUncTauDown.clear();
-  //_SVphiUncMETUp.clear();
-  //_SVphiUncMETDown.clear();
-  //_SVphiUncEleUp.clear();
-  //_SVphiUncEleDown.clear();
-
   _SVMetRho.clear();
-  //_SVMetRhoTauUp.clear();
-  //_SVMetRhoTauDown.clear();
-  //_SVMetRhoMETUp.clear();
-  //_SVMetRhoMETDown.clear();
-  //_SVMetRhoEleUp.clear();
-  //_SVMetRhoEleDown.clear();
-
   _SVMetPhi.clear();
-  //_SVMetPhiTauUp.clear();
-  //_SVMetPhiTauDown.clear();
-  //_SVMetPhiMETUp.clear();
-  //_SVMetPhiMETDown.clear();
-  //_SVMetPhiEleUp.clear();
-  //_SVMetPhiEleDown.clear();
 
   _isOSCand.clear();
   _daughters_HLTpt.clear();
@@ -1542,7 +1146,6 @@ void HTauTauNtuplizer::Initialize(){
   _lumi=0;
   _year=0;
   //_NBadMu=0;  //FRA January2019
-  _passbadMuonPFDz=false;
   _prefiringweight = 1.;
   _prefiringweightup = 1.;
   _prefiringweightdown = 1.;
@@ -1617,109 +1220,6 @@ void HTauTauNtuplizer::Initialize(){
   _jets_Flavour.clear();
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
-  _jets_jecUnc.clear();
-  // JEC uncertainti sources Regrouped
-  _jets_jetUncRegrouped_FlavorQCD_up.clear();  // up variations
-  _jets_jetUncRegrouped_RelativeBal_up.clear();
-  _jets_jetUncRegrouped_HF_up.clear();
-  _jets_jetUncRegrouped_BBEC1_up.clear();
-  _jets_jetUncRegrouped_EC2_up.clear();
-  _jets_jetUncRegrouped_Absolute_up.clear();
-  _jets_jetUncRegrouped_BBEC1_YEAR_up.clear();
-  _jets_jetUncRegrouped_EC2_YEAR_up.clear();
-  _jets_jetUncRegrouped_Absolute_YEAR_up.clear();
-  _jets_jetUncRegrouped_HF_YEAR_up.clear();
-  _jets_jetUncRegrouped_RelativeSample_YEAR_up.clear();
-  _jets_jetUncRegrouped_Total_up.clear();
-  _jets_jetUncRegrouped_FlavorQCD_dw.clear(); // down variations
-  _jets_jetUncRegrouped_RelativeBal_dw.clear();
-  _jets_jetUncRegrouped_HF_dw.clear();
-  _jets_jetUncRegrouped_BBEC1_dw.clear();
-  _jets_jetUncRegrouped_EC2_dw.clear();
-  _jets_jetUncRegrouped_Absolute_dw.clear();
-  _jets_jetUncRegrouped_BBEC1_YEAR_dw.clear();
-  _jets_jetUncRegrouped_EC2_YEAR_dw.clear();
-  _jets_jetUncRegrouped_Absolute_YEAR_dw.clear();
-  _jets_jetUncRegrouped_HF_YEAR_dw.clear();
-  _jets_jetUncRegrouped_RelativeSample_YEAR_dw.clear();
-  _jets_jetUncRegrouped_Total_dw.clear();
-  for (std::map<std::string, std::vector<Float_t> >::iterator it=_SourceUncValRegrouped_up.begin(); it!=_SourceUncValRegrouped_up.end(); ++it)
-  {
-    it->second.clear();
-  }
-  for (std::map<std::string, std::vector<Float_t> >::iterator it=_SourceUncValRegrouped_dw.begin(); it!=_SourceUncValRegrouped_dw.end(); ++it)
-  {
-    it->second.clear();
-  }
-
-  // JEC uncertainty sources
-  _jets_jetUnc_AbsoluteFlavMap_up.clear(); //up variations
-  _jets_jetUnc_AbsoluteMPFBias_up.clear();
-  _jets_jetUnc_AbsoluteSample_up.clear();
-  _jets_jetUnc_AbsoluteScale_up.clear();
-  _jets_jetUnc_AbsoluteStat_up.clear();
-  _jets_jetUnc_FlavorQCD_up.clear();
-  _jets_jetUnc_Fragmentation_up.clear();
-  _jets_jetUnc_PileUpDataMC_up.clear();
-  _jets_jetUnc_PileUpPtBB_up.clear();
-  _jets_jetUnc_PileUpPtEC1_up.clear();
-  _jets_jetUnc_PileUpPtEC2_up.clear();
-  _jets_jetUnc_PileUpPtHF_up.clear();
-  _jets_jetUnc_PileUpPtRef_up.clear();
-  _jets_jetUnc_RelativeBal_up.clear();
-  _jets_jetUnc_RelativeFSR_up.clear();
-  _jets_jetUnc_RelativeJEREC1_up.clear();
-  _jets_jetUnc_RelativeJEREC2_up.clear();
-  _jets_jetUnc_RelativeJERHF_up.clear();
-  _jets_jetUnc_RelativePtBB_up.clear();
-  _jets_jetUnc_RelativePtEC1_up.clear();
-  _jets_jetUnc_RelativePtEC2_up.clear();
-  _jets_jetUnc_RelativePtHF_up.clear();
-  _jets_jetUnc_RelativeSample_up.clear();
-  _jets_jetUnc_RelativeStatEC_up.clear();
-  _jets_jetUnc_RelativeStatFSR_up.clear();
-  _jets_jetUnc_RelativeStatHF_up.clear();
-  _jets_jetUnc_SinglePionECAL_up.clear();
-  _jets_jetUnc_SinglePionHCAL_up.clear();
-  _jets_jetUnc_TimePtEta_up.clear();
-  _jets_jetUnc_AbsoluteFlavMap_dw.clear(); // down variations
-  _jets_jetUnc_AbsoluteMPFBias_dw.clear();
-  _jets_jetUnc_AbsoluteSample_dw.clear();
-  _jets_jetUnc_AbsoluteScale_dw.clear();
-  _jets_jetUnc_AbsoluteStat_dw.clear();
-  _jets_jetUnc_FlavorQCD_dw.clear();
-  _jets_jetUnc_Fragmentation_dw.clear();
-  _jets_jetUnc_PileUpDataMC_dw.clear();
-  _jets_jetUnc_PileUpPtBB_dw.clear();
-  _jets_jetUnc_PileUpPtEC1_dw.clear();
-  _jets_jetUnc_PileUpPtEC2_dw.clear();
-  _jets_jetUnc_PileUpPtHF_dw.clear();
-  _jets_jetUnc_PileUpPtRef_dw.clear();
-  _jets_jetUnc_RelativeBal_dw.clear();
-  _jets_jetUnc_RelativeFSR_dw.clear();
-  _jets_jetUnc_RelativeJEREC1_dw.clear();
-  _jets_jetUnc_RelativeJEREC2_dw.clear();
-  _jets_jetUnc_RelativeJERHF_dw.clear();
-  _jets_jetUnc_RelativePtBB_dw.clear();
-  _jets_jetUnc_RelativePtEC1_dw.clear();
-  _jets_jetUnc_RelativePtEC2_dw.clear();
-  _jets_jetUnc_RelativePtHF_dw.clear();
-  _jets_jetUnc_RelativeSample_dw.clear();
-  _jets_jetUnc_RelativeStatEC_dw.clear();
-  _jets_jetUnc_RelativeStatFSR_dw.clear();
-  _jets_jetUnc_RelativeStatHF_dw.clear();
-  _jets_jetUnc_SinglePionECAL_dw.clear();
-  _jets_jetUnc_SinglePionHCAL_dw.clear();
-  _jets_jetUnc_TimePtEta_dw.clear();
-  for (std::map<std::string, std::vector<Float_t> >::iterator it=_SourceUncVal_up.begin(); it!=_SourceUncVal_up.end(); ++it)
-    {
-      it->second.clear();
-    }
-  for (std::map<std::string, std::vector<Float_t> >::iterator it=_SourceUncVal_dw.begin(); it!=_SourceUncVal_dw.end(); ++it)
-    {
-      it->second.clear();
-    }
-
   _jets_QGdiscr.clear();
   _numberOfJets=0;
   _bdiscr.clear();
@@ -1798,7 +1298,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("lumi",&_lumi,"lumi/I");
   myTree->Branch("year",&_year,"year/I");
   //myTree->Branch("NBadMu",&_NBadMu,"NBadMu/I");  //FRA January2019
-  myTree->Branch("passbadMuonPFDz",&_passbadMuonPFDz,"passbadMuonPFDz/O");
   myTree->Branch("prefiringweight",&_prefiringweight,"prefiringweight/F");
   myTree->Branch("prefiringweightup",&_prefiringweightup,"prefiringweightup/F");
   myTree->Branch("prefiringweightdown",&_prefiringweightdown,"prefiringweightdown/F");
@@ -1971,83 +1470,8 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("genjet_e" , &_genjet_e);
     myTree->Branch("genjet_partonFlavour" , &_genjet_partonFlavour);
     myTree->Branch("genjet_hadronFlavour" , &_genjet_hadronFlavour);
-
     
     myTree->Branch("NUP", &_nup,"NUP/I");
-    //myTree->Branch("SVfit_fitMETPhiTauUp", &_SVMetPhiTauUp);
-    //myTree->Branch("SVfit_fitMETPhiTauDown", &_SVMetPhiTauDown);
-    //myTree->Branch("SVfit_fitMETRhoTauUp", &_SVMetRhoTauUp);
-    //myTree->Branch("SVfit_fitMETRhoTauDown", &_SVMetRhoTauDown);
-    //myTree->Branch("SVfit_phiUncTauUp", &_SVphiUncTauUp);
-    //myTree->Branch("SVfit_phiUncTauDown", &_SVphiUncTauDown);
-    //myTree->Branch("SVfit_phiTauUp", &_SVphiTauUp);
-    //myTree->Branch("SVfit_phiTauDown", &_SVphiTauDown);
-    //myTree->Branch("SVfit_etaUncTauUp", &_SVetaUncTauUp);
-    //myTree->Branch("SVfit_etaUncTauDown", &_SVetaUncTauDown);
-    //myTree->Branch("SVfit_etaTauUp", &_SVetaTauUp);
-    //myTree->Branch("SVfit_etaTauDown", &_SVetaTauDown);
-    //myTree->Branch("SVfit_ptUncTauUp", &_SVptUncTauUp);
-    //myTree->Branch("SVfit_ptUncTauDown", &_SVptUncTauDown);
-    //myTree->Branch("SVfit_ptTauUp", &_SVptTauUp);
-    //myTree->Branch("SVfit_ptTauDown", &_SVptTauDown);
-    //myTree->Branch("SVfitTransverseMassUncTauUp",&_SVmassTransverseUncTauUp);
-    //myTree->Branch("SVfitTransverseMassUncTauDown",&_SVmassTransverseUncTauDown);
-    //myTree->Branch("SVfitTransverseMassTauUp",&_SVmassTransverseTauUp);
-    //myTree->Branch("SVfitTransverseMassTauDown",&_SVmassTransverseTauDown);
-    //myTree->Branch("SVfitMassUncTauUp",&_SVmassUncTauUp);
-    //myTree->Branch("SVfitMassUncTauDown",&_SVmassUncTauDown);
-    //myTree->Branch("SVfitMassTauUp",&_SVmassTauUp);
-    //myTree->Branch("SVfitMassTauDown",&_SVmassTauDown);
-
-    //myTree->Branch("SVfit_fitMETPhiMETUp", &_SVMetPhiMETUp);
-    //myTree->Branch("SVfit_fitMETPhiMETDown", &_SVMetPhiMETDown);
-    //myTree->Branch("SVfit_fitMETRhoMETUp", &_SVMetRhoMETUp);
-    //myTree->Branch("SVfit_fitMETRhoMETDown", &_SVMetRhoMETDown);
-    //myTree->Branch("SVfit_phiUncMETUp", &_SVphiUncMETUp);
-    //myTree->Branch("SVfit_phiUncMETDown", &_SVphiUncMETDown);
-    //myTree->Branch("SVfit_phiMETUp", &_SVphiMETUp);
-    //myTree->Branch("SVfit_phiMETDown", &_SVphiMETDown);
-    //myTree->Branch("SVfit_etaUncMETUp", &_SVetaUncMETUp);
-    //myTree->Branch("SVfit_etaUncMETDown", &_SVetaUncMETDown);
-    //myTree->Branch("SVfit_etaMETUp", &_SVetaMETUp);
-    //myTree->Branch("SVfit_etaMETDown", &_SVetaMETDown);
-    //myTree->Branch("SVfit_ptUncMETUp", &_SVptUncMETUp);
-    //myTree->Branch("SVfit_ptUncMETDown", &_SVptUncMETDown);
-    //myTree->Branch("SVfit_ptMETUp", &_SVptMETUp);
-    //myTree->Branch("SVfit_ptMETDown", &_SVptMETDown);
-    //myTree->Branch("SVfitTransverseMassUncMETUp",&_SVmassTransverseUncMETUp);
-    //myTree->Branch("SVfitTransverseMassUncMETDown",&_SVmassTransverseUncMETDown);
-    //myTree->Branch("SVfitTransverseMassMETUp",&_SVmassTransverseMETUp);
-    //myTree->Branch("SVfitTransverseMassMETDown",&_SVmassTransverseMETDown);
-    //myTree->Branch("SVfitMassUncMETUp",&_SVmassUncMETUp);
-    //myTree->Branch("SVfitMassUncMETDown",&_SVmassUncMETDown);
-    //myTree->Branch("SVfitMassMETUp",&_SVmassMETUp);
-    //myTree->Branch("SVfitMassMETDown",&_SVmassMETDown);
-
-    //myTree->Branch("SVfit_fitMETPhiEleUp", &_SVMetPhiEleUp);
-    //myTree->Branch("SVfit_fitMETPhiEleDown", &_SVMetPhiEleDown);
-    //myTree->Branch("SVfit_fitMETRhoEleUp", &_SVMetRhoEleUp);
-    //myTree->Branch("SVfit_fitMETRhoEleDown", &_SVMetRhoEleDown);
-    //myTree->Branch("SVfit_phiUncEleUp", &_SVphiUncEleUp);
-    //myTree->Branch("SVfit_phiUncEleDown", &_SVphiUncEleDown);
-    //myTree->Branch("SVfit_phiEleUp", &_SVphiEleUp);
-    //myTree->Branch("SVfit_phiEleDown", &_SVphiEleDown);
-    //myTree->Branch("SVfit_etaUncEleUp", &_SVetaUncEleUp);
-    //myTree->Branch("SVfit_etaUncEleDown", &_SVetaUncEleDown);
-    //myTree->Branch("SVfit_etaEleUp", &_SVetaEleUp);
-    //myTree->Branch("SVfit_etaEleDown", &_SVetaEleDown);
-    //myTree->Branch("SVfit_ptUncEleUp", &_SVptUncEleUp);
-    //myTree->Branch("SVfit_ptUncEleDown", &_SVptUncEleDown);
-    //myTree->Branch("SVfit_ptEleUp", &_SVptEleUp);
-    //myTree->Branch("SVfit_ptEleDown", &_SVptEleDown);
-    //myTree->Branch("SVfitTransverseMassUncEleUp",&_SVmassTransverseUncEleUp);
-    //myTree->Branch("SVfitTransverseMassUncEleDown",&_SVmassTransverseUncEleDown);
-    //myTree->Branch("SVfitTransverseMassEleUp",&_SVmassTransverseEleUp);
-    //myTree->Branch("SVfitTransverseMassEleDown",&_SVmassTransverseEleDown);
-    //myTree->Branch("SVfitMassUncEleUp",&_SVmassUncEleUp);
-    //myTree->Branch("SVfitMassUncEleDown",&_SVmassUncEleDown);
-    //myTree->Branch("SVfitMassEleUp",&_SVmassEleUp);
-    //myTree->Branch("SVfitMassEleDown",&_SVmassEleDown);
   }// end if isMC
   //myTree->Branch("daughters2",&_daughter2);
 
@@ -2222,123 +1646,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_MUF"    , &_jets_MUF);
   myTree->Branch("jets_neMult" , &_jets_neMult);
   myTree->Branch("jets_chMult" , &_jets_chMult);
-  myTree->Branch("jets_jecUnc" , &_jets_jecUnc);
-  // JEC Regrouped uncertainty sources
-  myTree->Branch("jets_jetUncRegrouped_FlavorQCD_up"  , &_SourceUncValRegrouped_up["FlavorQCD"]); // up variations
-  myTree->Branch("jets_jetUncRegrouped_RelativeBal_up", &_SourceUncValRegrouped_up["RelativeBal"]);
-  myTree->Branch("jets_jetUncRegrouped_HF_up"         , &_SourceUncValRegrouped_up["HF"]);
-  myTree->Branch("jets_jetUncRegrouped_BBEC1_up"      , &_SourceUncValRegrouped_up["BBEC1"]);
-  myTree->Branch("jets_jetUncRegrouped_EC2_up"        , &_SourceUncValRegrouped_up["EC2"]);
-  myTree->Branch("jets_jetUncRegrouped_Absolute_up"   , &_SourceUncValRegrouped_up["Absolute"]);
-  myTree->Branch("jets_jetUncRegrouped_Total_up"      , &_SourceUncValRegrouped_up["Total"]);
-  myTree->Branch("jets_jetUncRegrouped_FlavorQCD_dw"  , &_SourceUncValRegrouped_dw["FlavorQCD"]); // down variations
-  myTree->Branch("jets_jetUncRegrouped_RelativeBal_dw", &_SourceUncValRegrouped_dw["RelativeBal"]);
-  myTree->Branch("jets_jetUncRegrouped_HF_dw"         , &_SourceUncValRegrouped_dw["HF"]);
-  myTree->Branch("jets_jetUncRegrouped_BBEC1_dw"      , &_SourceUncValRegrouped_dw["BBEC1"]);
-  myTree->Branch("jets_jetUncRegrouped_EC2_dw"        , &_SourceUncValRegrouped_dw["EC2"]);
-  myTree->Branch("jets_jetUncRegrouped_Absolute_dw"   , &_SourceUncValRegrouped_dw["Absolute"]);
-  myTree->Branch("jets_jetUncRegrouped_Total_dw"      , &_SourceUncValRegrouped_dw["Total"]);
-  if (theYear == 2016)
-  {
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_up"         , &_SourceUncValRegrouped_up["BBEC1_2016"]); // up variations
-    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_up"           , &_SourceUncValRegrouped_up["EC2_2016"]);
-    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_up"      , &_SourceUncValRegrouped_up["Absolute_2016"]);
-    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2016"]);
-    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2016"]);
-
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2016"]); // down variations
-    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2016"]);
-    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2016"]);
-    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2016"]);
-    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_dw", &_SourceUncValRegrouped_dw["RelativeSample_2016"]);
-  }
-  if (theYear == 2017)
-  {
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_up"         , &_SourceUncValRegrouped_up["BBEC1_2017"]); // up variations
-    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_up"           , &_SourceUncValRegrouped_up["EC2_2017"]);
-    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_up"      , &_SourceUncValRegrouped_up["Absolute_2017"]);
-    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2017"]);
-    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2017"]);
-
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2017"]); // down variations
-    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2017"]);
-    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2017"]);
-    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2017"]);
-    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_dw", &_SourceUncValRegrouped_dw["RelativeSample_2017"]);
-  }
-  if (theYear == 2018)
-  {
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_up"         , &_SourceUncValRegrouped_up["BBEC1_2018"]); // up variations
-    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_up"           , &_SourceUncValRegrouped_up["EC2_2018"]);
-    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_up"      , &_SourceUncValRegrouped_up["Absolute_2018"]);
-    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_up"            , &_SourceUncValRegrouped_up["HF_2018"]);
-    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_up", &_SourceUncValRegrouped_up["RelativeSample_2018"]);
-
-    myTree->Branch("jets_jetUncRegrouped_BBEC1_YEAR_dw"         , &_SourceUncValRegrouped_dw["BBEC1_2018"]); // down variations
-    myTree->Branch("jets_jetUncRegrouped_EC2_YEAR_dw"           , &_SourceUncValRegrouped_dw["EC2_2018"]);
-    myTree->Branch("jets_jetUncRegrouped_Absolute_YEAR_dw"      , &_SourceUncValRegrouped_dw["Absolute_2018"]);
-    myTree->Branch("jets_jetUncRegrouped_HF_YEAR_dw"            , &_SourceUncValRegrouped_dw["HF_2018"]);
-    myTree->Branch("jets_jetUncRegrouped_RelativeSample_YEAR_dw", &_SourceUncValRegrouped_dw["RelativeSample_2018"]);
-  }
-  // JEC Uncertainty sources
-  myTree->Branch("jets_jetUnc_AbsoluteFlavMap_up"  , &_SourceUncVal_up["AbsoluteFlavMap"]); // up variations
-  myTree->Branch("jets_jetUnc_AbsoluteMPFBias_up"  , &_SourceUncVal_up["AbsoluteMPFBias"]);
-  myTree->Branch("jets_jetUnc_AbsoluteSample_up"   , &_SourceUncVal_up["AbsoluteSample"]);
-  myTree->Branch("jets_jetUnc_AbsoluteScale_up"    , &_SourceUncVal_up["AbsoluteScale"]);
-  myTree->Branch("jets_jetUnc_AbsoluteStat_up"     , &_SourceUncVal_up["AbsoluteStat"]);
-  myTree->Branch("jets_jetUnc_FlavorQCD_up"        , &_SourceUncVal_up["FlavorQCD"]);
-  myTree->Branch("jets_jetUnc_Fragmentation_up"    , &_SourceUncVal_up["Fragmentation"]);
-  myTree->Branch("jets_jetUnc_PileUpDataMC_up"     , &_SourceUncVal_up["PileUpDataMC"]);
-  myTree->Branch("jets_jetUnc_PileUpPtBB_up"       , &_SourceUncVal_up["PileUpPtBB"]);
-  myTree->Branch("jets_jetUnc_PileUpPtEC1_up"      , &_SourceUncVal_up["PileUpPtEC1"]);
-  myTree->Branch("jets_jetUnc_PileUpPtEC2_up"      , &_SourceUncVal_up["PileUpPtEC2"]);
-  myTree->Branch("jets_jetUnc_PileUpPtHF_up"       , &_SourceUncVal_up["PileUpPtHF"]);
-  myTree->Branch("jets_jetUnc_PileUpPtRef_up"      , &_SourceUncVal_up["PileUpPtRef"]);
-  myTree->Branch("jets_jetUnc_RelativeBal_up"      , &_SourceUncVal_up["RelativeBal"]);
-  myTree->Branch("jets_jetUnc_RelativeFSR_up"      , &_SourceUncVal_up["RelativeFSR"]);
-  myTree->Branch("jets_jetUnc_RelativeJEREC1_up"   , &_SourceUncVal_up["RelativeJEREC1"]);
-  myTree->Branch("jets_jetUnc_RelativeJEREC2_up"   , &_SourceUncVal_up["RelativeJEREC2"]);
-  myTree->Branch("jets_jetUnc_RelativeJERHF_up"    , &_SourceUncVal_up["RelativeJERHF"]);
-  myTree->Branch("jets_jetUnc_RelativePtBB_up"     , &_SourceUncVal_up["RelativePtBB"]);
-  myTree->Branch("jets_jetUnc_RelativePtEC1_up"    , &_SourceUncVal_up["RelativePtEC1"]);
-  myTree->Branch("jets_jetUnc_RelativePtEC2_up"    , &_SourceUncVal_up["RelativePtEC2"]);
-  myTree->Branch("jets_jetUnc_RelativePtHF_up"     , &_SourceUncVal_up["RelativePtHF"]);
-  myTree->Branch("jets_jetUnc_RelativeSample_up"   , &_SourceUncVal_up["RelativeSample"]);
-  myTree->Branch("jets_jetUnc_RelativeStatEC_up"   , &_SourceUncVal_up["RelativeStatEC"]);
-  myTree->Branch("jets_jetUnc_RelativeStatFSR_up"  , &_SourceUncVal_up["RelativeStatFSR"]);
-  myTree->Branch("jets_jetUnc_RelativeStatHF_up"   , &_SourceUncVal_up["RelativeStatHF"]);
-  myTree->Branch("jets_jetUnc_SinglePionECAL_up"   , &_SourceUncVal_up["SinglePionECAL"]);
-  myTree->Branch("jets_jetUnc_SinglePionHCAL_up"   , &_SourceUncVal_up["SinglePionHCAL"]);
-  myTree->Branch("jets_jetUnc_TimePtEta_up"        , &_SourceUncVal_up["TimePtEta"]);
-  myTree->Branch("jets_jetUnc_AbsoluteFlavMap_dw"  , &_SourceUncVal_dw["AbsoluteFlavMap"]); // down variations
-  myTree->Branch("jets_jetUnc_AbsoluteMPFBias_dw"  , &_SourceUncVal_dw["AbsoluteMPFBias"]);
-  myTree->Branch("jets_jetUnc_AbsoluteSample_dw"   , &_SourceUncVal_dw["AbsoluteSample"]);
-  myTree->Branch("jets_jetUnc_AbsoluteScale_dw"    , &_SourceUncVal_dw["AbsoluteScale"]);
-  myTree->Branch("jets_jetUnc_AbsoluteStat_dw"     , &_SourceUncVal_dw["AbsoluteStat"]);
-  myTree->Branch("jets_jetUnc_FlavorQCD_dw"        , &_SourceUncVal_dw["FlavorQCD"]);
-  myTree->Branch("jets_jetUnc_Fragmentation_dw"    , &_SourceUncVal_dw["Fragmentation"]);
-  myTree->Branch("jets_jetUnc_PileUpDataMC_dw"     , &_SourceUncVal_dw["PileUpDataMC"]);
-  myTree->Branch("jets_jetUnc_PileUpPtBB_dw"       , &_SourceUncVal_dw["PileUpPtBB"]);
-  myTree->Branch("jets_jetUnc_PileUpPtEC1_dw"      , &_SourceUncVal_dw["PileUpPtEC1"]);
-  myTree->Branch("jets_jetUnc_PileUpPtEC2_dw"      , &_SourceUncVal_dw["PileUpPtEC2"]);
-  myTree->Branch("jets_jetUnc_PileUpPtHF_dw"       , &_SourceUncVal_dw["PileUpPtHF"]);
-  myTree->Branch("jets_jetUnc_PileUpPtRef_dw"      , &_SourceUncVal_dw["PileUpPtRef"]);
-  myTree->Branch("jets_jetUnc_RelativeBal_dw"      , &_SourceUncVal_dw["RelativeBal"]);
-  myTree->Branch("jets_jetUnc_RelativeFSR_dw"      , &_SourceUncVal_dw["RelativeFSR"]);
-  myTree->Branch("jets_jetUnc_RelativeJEREC1_dw"   , &_SourceUncVal_dw["RelativeJEREC1"]);
-  myTree->Branch("jets_jetUnc_RelativeJEREC2_dw"   , &_SourceUncVal_dw["RelativeJEREC2"]);
-  myTree->Branch("jets_jetUnc_RelativeJERHF_dw"    , &_SourceUncVal_dw["RelativeJERHF"]);
-  myTree->Branch("jets_jetUnc_RelativePtBB_dw"     , &_SourceUncVal_dw["RelativePtBB"]);
-  myTree->Branch("jets_jetUnc_RelativePtEC1_dw"    , &_SourceUncVal_dw["RelativePtEC1"]);
-  myTree->Branch("jets_jetUnc_RelativePtEC2_dw"    , &_SourceUncVal_dw["RelativePtEC2"]);
-  myTree->Branch("jets_jetUnc_RelativePtHF_dw"     , &_SourceUncVal_dw["RelativePtHF"]);
-  myTree->Branch("jets_jetUnc_RelativeSample_dw"   , &_SourceUncVal_dw["RelativeSample"]);
-  myTree->Branch("jets_jetUnc_RelativeStatEC_dw"   , &_SourceUncVal_dw["RelativeStatEC"]);
-  myTree->Branch("jets_jetUnc_RelativeStatFSR_dw"  , &_SourceUncVal_dw["RelativeStatFSR"]);
-  myTree->Branch("jets_jetUnc_RelativeStatHF_dw"   , &_SourceUncVal_dw["RelativeStatHF"]);
-  myTree->Branch("jets_jetUnc_SinglePionECAL_dw"   , &_SourceUncVal_dw["SinglePionECAL"]);
-  myTree->Branch("jets_jetUnc_SinglePionHCAL_dw"   , &_SourceUncVal_dw["SinglePionHCAL"]);
-  myTree->Branch("jets_jetUnc_TimePtEta_dw"        , &_SourceUncVal_dw["TimePtEta"]);
 
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -2438,129 +1745,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //event.getByLabel("offlineSlimmedPrimaryVertices",vertex);
   event.getByToken(theVtxTag,vertexs);
   
-  // JEC Reduced fill map with "sourceName, var"
-  // Up variations
-  _SourceUncValRegrouped_up.emplace("FlavorQCD", _jets_jetUncRegrouped_FlavorQCD_up);
-  _SourceUncValRegrouped_up.emplace("RelativeBal", _jets_jetUncRegrouped_RelativeBal_up);
-  _SourceUncValRegrouped_up.emplace("HF", _jets_jetUncRegrouped_HF_up);
-  _SourceUncValRegrouped_up.emplace("BBEC1", _jets_jetUncRegrouped_BBEC1_up);
-  _SourceUncValRegrouped_up.emplace("EC2", _jets_jetUncRegrouped_EC2_up);
-  _SourceUncValRegrouped_up.emplace("Absolute", _jets_jetUncRegrouped_Absolute_up);
-  _SourceUncValRegrouped_up.emplace("Total", _jets_jetUncRegrouped_Total_up);
-  // Down variations
-  _SourceUncValRegrouped_dw.emplace("FlavorQCD", _jets_jetUncRegrouped_FlavorQCD_dw);
-  _SourceUncValRegrouped_dw.emplace("RelativeBal", _jets_jetUncRegrouped_RelativeBal_dw);
-  _SourceUncValRegrouped_dw.emplace("HF", _jets_jetUncRegrouped_HF_dw);
-  _SourceUncValRegrouped_dw.emplace("BBEC1", _jets_jetUncRegrouped_BBEC1_dw);
-  _SourceUncValRegrouped_dw.emplace("EC2", _jets_jetUncRegrouped_EC2_dw);
-  _SourceUncValRegrouped_dw.emplace("Absolute", _jets_jetUncRegrouped_Absolute_dw);
-  _SourceUncValRegrouped_dw.emplace("Total", _jets_jetUncRegrouped_Total_dw);
-
-  if (theYear == 2016)
-  {
-    _SourceUncValRegrouped_up.emplace("BBEC1_2016"         , _jets_jetUncRegrouped_BBEC1_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("EC2_2016"           , _jets_jetUncRegrouped_EC2_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("Absolute_2016"      , _jets_jetUncRegrouped_Absolute_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("HF_2016"            , _jets_jetUncRegrouped_HF_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("RelativeSample_2016", _jets_jetUncRegrouped_RelativeSample_YEAR_up);
-
-    _SourceUncValRegrouped_dw.emplace("BBEC1_2016"         , _jets_jetUncRegrouped_BBEC1_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("EC2_2016"           , _jets_jetUncRegrouped_EC2_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("Absolute_2016"      , _jets_jetUncRegrouped_Absolute_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("HF_2016"            , _jets_jetUncRegrouped_HF_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("RelativeSample_2016", _jets_jetUncRegrouped_RelativeSample_YEAR_dw);
-  }
-  else if (theYear == 2017)
-  {
-    _SourceUncValRegrouped_up.emplace("BBEC1_2017"         , _jets_jetUncRegrouped_BBEC1_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("EC2_2017"           , _jets_jetUncRegrouped_EC2_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("Absolute_2017"      , _jets_jetUncRegrouped_Absolute_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("HF_2017"            , _jets_jetUncRegrouped_HF_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("RelativeSample_2017", _jets_jetUncRegrouped_RelativeSample_YEAR_up);
-
-    _SourceUncValRegrouped_dw.emplace("BBEC1_2017"         , _jets_jetUncRegrouped_BBEC1_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("EC2_2017"           , _jets_jetUncRegrouped_EC2_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("Absolute_2017"      , _jets_jetUncRegrouped_Absolute_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("HF_2017"            , _jets_jetUncRegrouped_HF_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("RelativeSample_2017", _jets_jetUncRegrouped_RelativeSample_YEAR_dw);
-  }
-  else if (theYear == 2018)
-  {
-    _SourceUncValRegrouped_up.emplace("BBEC1_2018"         , _jets_jetUncRegrouped_BBEC1_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("EC2_2018"           , _jets_jetUncRegrouped_EC2_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("Absolute_2018"      , _jets_jetUncRegrouped_Absolute_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("HF_2018"            , _jets_jetUncRegrouped_HF_YEAR_up);
-    _SourceUncValRegrouped_up.emplace("RelativeSample_2018", _jets_jetUncRegrouped_RelativeSample_YEAR_up);
-
-    _SourceUncValRegrouped_dw.emplace("BBEC1_2018"         , _jets_jetUncRegrouped_BBEC1_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("EC2_2018"           , _jets_jetUncRegrouped_EC2_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("Absolute_2018"      , _jets_jetUncRegrouped_Absolute_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("HF_2018"            , _jets_jetUncRegrouped_HF_YEAR_dw);
-    _SourceUncValRegrouped_dw.emplace("RelativeSample_2018", _jets_jetUncRegrouped_RelativeSample_YEAR_dw);
-  }
-
-  // JEC fill map with "sourceName, var"
-  // Up variations
-  _SourceUncVal_up.emplace("AbsoluteFlavMap" ,_jets_jetUnc_AbsoluteFlavMap_up);
-  _SourceUncVal_up.emplace("AbsoluteMPFBias" ,_jets_jetUnc_AbsoluteMPFBias_up);
-  _SourceUncVal_up.emplace("AbsoluteSample"  ,_jets_jetUnc_AbsoluteSample_up);
-  _SourceUncVal_up.emplace("AbsoluteScale"   ,_jets_jetUnc_AbsoluteScale_up);
-  _SourceUncVal_up.emplace("AbsoluteStat"    ,_jets_jetUnc_AbsoluteStat_up);
-  _SourceUncVal_up.emplace("FlavorQCD"       ,_jets_jetUnc_FlavorQCD_up);
-  _SourceUncVal_up.emplace("Fragmentation"   ,_jets_jetUnc_Fragmentation_up);
-  _SourceUncVal_up.emplace("PileUpDataMC"    ,_jets_jetUnc_PileUpDataMC_up);
-  _SourceUncVal_up.emplace("PileUpPtBB"      ,_jets_jetUnc_PileUpPtBB_up);
-  _SourceUncVal_up.emplace("PileUpPtEC1"     ,_jets_jetUnc_PileUpPtEC1_up);
-  _SourceUncVal_up.emplace("PileUpPtEC2"     ,_jets_jetUnc_PileUpPtEC2_up);
-  _SourceUncVal_up.emplace("PileUpPtHF"      ,_jets_jetUnc_PileUpPtHF_up);
-  _SourceUncVal_up.emplace("PileUpPtRef"     ,_jets_jetUnc_PileUpPtRef_up);
-  _SourceUncVal_up.emplace("RelativeBal"     ,_jets_jetUnc_RelativeBal_up);
-  _SourceUncVal_up.emplace("RelativeFSR"     ,_jets_jetUnc_RelativeFSR_up);
-  _SourceUncVal_up.emplace("RelativeJEREC1"  ,_jets_jetUnc_RelativeJEREC1_up);
-  _SourceUncVal_up.emplace("RelativeJEREC2"  ,_jets_jetUnc_RelativeJEREC2_up);
-  _SourceUncVal_up.emplace("RelativeJERHF"   ,_jets_jetUnc_RelativeJERHF_up);
-  _SourceUncVal_up.emplace("RelativePtBB"    ,_jets_jetUnc_RelativePtBB_up);
-  _SourceUncVal_up.emplace("RelativePtEC1"   ,_jets_jetUnc_RelativePtEC1_up);
-  _SourceUncVal_up.emplace("RelativePtEC2"   ,_jets_jetUnc_RelativePtEC2_up);
-  _SourceUncVal_up.emplace("RelativePtHF"    ,_jets_jetUnc_RelativePtHF_up);
-  _SourceUncVal_up.emplace("RelativeSample"  ,_jets_jetUnc_RelativeSample_up);
-  _SourceUncVal_up.emplace("RelativeStatEC"  ,_jets_jetUnc_RelativeStatEC_up);
-  _SourceUncVal_up.emplace("RelativeStatFSR" ,_jets_jetUnc_RelativeStatFSR_up);
-  _SourceUncVal_up.emplace("RelativeStatHF"  ,_jets_jetUnc_RelativeStatHF_up);
-  _SourceUncVal_up.emplace("SinglePionECAL"  ,_jets_jetUnc_SinglePionECAL_up);
-  _SourceUncVal_up.emplace("SinglePionHCAL"  ,_jets_jetUnc_SinglePionHCAL_up);
-  _SourceUncVal_up.emplace("TimePtEta"       ,_jets_jetUnc_TimePtEta_up);
-  // Down variations
-  _SourceUncVal_dw.emplace("AbsoluteFlavMap" ,_jets_jetUnc_AbsoluteFlavMap_dw);
-  _SourceUncVal_dw.emplace("AbsoluteMPFBias" ,_jets_jetUnc_AbsoluteMPFBias_dw);
-  _SourceUncVal_dw.emplace("AbsoluteSample"  ,_jets_jetUnc_AbsoluteSample_dw);
-  _SourceUncVal_dw.emplace("AbsoluteScale"   ,_jets_jetUnc_AbsoluteScale_dw);
-  _SourceUncVal_dw.emplace("AbsoluteStat"    ,_jets_jetUnc_AbsoluteStat_dw);
-  _SourceUncVal_dw.emplace("FlavorQCD"       ,_jets_jetUnc_FlavorQCD_dw);
-  _SourceUncVal_dw.emplace("Fragmentation"   ,_jets_jetUnc_Fragmentation_dw);
-  _SourceUncVal_dw.emplace("PileUpDataMC"    ,_jets_jetUnc_PileUpDataMC_dw);
-  _SourceUncVal_dw.emplace("PileUpPtBB"      ,_jets_jetUnc_PileUpPtBB_dw);
-  _SourceUncVal_dw.emplace("PileUpPtEC1"     ,_jets_jetUnc_PileUpPtEC1_dw);
-  _SourceUncVal_dw.emplace("PileUpPtEC2"     ,_jets_jetUnc_PileUpPtEC2_dw);
-  _SourceUncVal_dw.emplace("PileUpPtHF"      ,_jets_jetUnc_PileUpPtHF_dw);
-  _SourceUncVal_dw.emplace("PileUpPtRef"     ,_jets_jetUnc_PileUpPtRef_dw);
-  _SourceUncVal_dw.emplace("RelativeBal"     ,_jets_jetUnc_RelativeBal_dw);
-  _SourceUncVal_dw.emplace("RelativeFSR"     ,_jets_jetUnc_RelativeFSR_dw);
-  _SourceUncVal_dw.emplace("RelativeJEREC1"  ,_jets_jetUnc_RelativeJEREC1_dw);
-  _SourceUncVal_dw.emplace("RelativeJEREC2"  ,_jets_jetUnc_RelativeJEREC2_dw);
-  _SourceUncVal_dw.emplace("RelativeJERHF"   ,_jets_jetUnc_RelativeJERHF_dw);
-  _SourceUncVal_dw.emplace("RelativePtBB"    ,_jets_jetUnc_RelativePtBB_dw);
-  _SourceUncVal_dw.emplace("RelativePtEC1"   ,_jets_jetUnc_RelativePtEC1_dw);
-  _SourceUncVal_dw.emplace("RelativePtEC2"   ,_jets_jetUnc_RelativePtEC2_dw);
-  _SourceUncVal_dw.emplace("RelativePtHF"    ,_jets_jetUnc_RelativePtHF_dw);
-  _SourceUncVal_dw.emplace("RelativeSample"  ,_jets_jetUnc_RelativeSample_dw);
-  _SourceUncVal_dw.emplace("RelativeStatEC"  ,_jets_jetUnc_RelativeStatEC_dw);
-  _SourceUncVal_dw.emplace("RelativeStatFSR" ,_jets_jetUnc_RelativeStatFSR_dw);
-  _SourceUncVal_dw.emplace("RelativeStatHF"  ,_jets_jetUnc_RelativeStatHF_dw);
-  _SourceUncVal_dw.emplace("SinglePionECAL"  ,_jets_jetUnc_SinglePionECAL_dw);
-  _SourceUncVal_dw.emplace("SinglePionHCAL"  ,_jets_jetUnc_SinglePionHCAL_dw);
-  _SourceUncVal_dw.emplace("TimePtEta"       ,_jets_jetUnc_TimePtEta_dw);
-
   //----------------------------------------------------------------------
   // Analyze MC history. THIS HAS TO BE DONE BEFORE ANY RETURN STATEMENT
   // (eg skim or trigger), in order to update the gen counters correctly!!!
@@ -2667,7 +1851,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
-  edm::Handle< bool > passbadMuonPFDz;
   edm::Handle< double > theprefweight;
   edm::Handle< double > theprefweightup;
   edm::Handle< double > theprefweightdown;
@@ -2693,7 +1876,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePuppiMETCovTag,PuppicovHandle);
   event.getByToken(thePuppiMETSignifTag,PuppiMETsignficanceHandle);  
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
-  event.getByToken(badPFMuonDz_token,passbadMuonPFDz);
   event.getByToken(prefweight_token, theprefweight);
   event.getByToken(prefweightup_token, theprefweightup);
   event.getByToken(prefweightdown_token, theprefweightdown);
@@ -2783,7 +1965,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PUPPImetShiftedX = metPuppiShifted.px();
   _PUPPImetShiftedY = metPuppiShifted.py();  
   //_NBadMu = (*NBadMuHandle); //FRA January2019
-  _passbadMuonPFDz =  (*passbadMuonPFDz);
   if (theisMC)
   {
     _prefiringweight = (*theprefweight);
@@ -2807,181 +1988,13 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   
   //Loop on Jets
 
-  // Accessing the JEC uncertainties 
   //ak4  
   edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
   eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
-  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-  JetCorrectionUncertainty jecUnc (JetCorPar);
-  bool Run2016B  = (_runNumber >= 272007 && _runNumber <= 275376);
-  bool Run2016C  = (_runNumber >= 275657 && _runNumber <= 276283);
-  bool Run2016D  = (_runNumber >= 276315 && _runNumber <= 276811);
-  bool Run2016E  = (_runNumber >= 276831 && _runNumber <= 277420);
-  bool Run2016F1 = ((_runNumber >= 277772 && _runNumber <= 278768) || (_runNumber >= 278770 && _runNumber <= 278800));
-  bool Run2016F2 = ((_runNumber >= 278801 && _runNumber <= 278808) || (_runNumber == 278769));
-  bool Run2016G  = (_runNumber >= 278820 && _runNumber <= 280385);
-  bool Run2016H  = (_runNumber >= 280919 && _runNumber <= 284044);
-  bool Run2017B  = (_runNumber >= 297046 && _runNumber <= 299329);
-  bool Run2017C  = (_runNumber >= 299368 && _runNumber <= 302029);
-  bool Run2017D  = (_runNumber >= 302030 && _runNumber <= 303434);
-  bool Run2017E  = (_runNumber >= 303824 && _runNumber <= 304797);
-  bool Run2017F  = (_runNumber >= 305040 && _runNumber <= 306462);
-  bool Run2018A  = (_runNumber >= 315252 && _runNumber <= 316995);
-  bool Run2018B  = (_runNumber >= 316998 && _runNumber <= 319312);
-  bool Run2018C  = (_runNumber >= 319313 && _runNumber <= 320393);
-  bool Run2018D  = (_runNumber >= 320394 && _runNumber <= 325273);
-
-  // JEC Regrouped uncertainty sources
-  if (theYear == 2016 && thePeriod == "")
-  {
-    for (const auto& source: m_jec_sources_regrouped_2016) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt", source);
-      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
-      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
-    }
-  }
-  else if (theYear == 2016 && thePeriod == "postVFP")
-  {
-    for (const auto& source: m_jec_sources_regrouped_2016) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt", source);
-      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
-      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
-    }
-  }
-  else if (theYear == 2017)
-  {
-    for (const auto& source: m_jec_sources_regrouped_2017) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt", source);
-      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
-      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
-    }
-  }
-  else if (theYear == 2018)
-  {
-    for (const auto& source: m_jec_sources_regrouped_2018) {
-      JetCorrectorParameters source_parameters_reduced("JECUncertaintySources/RegroupedV2_Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt", source);
-      std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
-      jecSourceUncRegroupedProviders.emplace(source, std::move(source_uncertainty_reduced));
-    }
-  }
-
-  // Full JEC uncertainty sources
-  if(theisMC)
-  {
-    if (theYear == 2016 && thePeriod == "")
-    {
-      for (const auto& source: m_jec_sources_2016) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt", source);
-        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }
-    else if (theYear == 2016 && thePeriod == "postVFP")
-    {
-      for (const auto& source: m_jec_sources_2016) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt", source);
-        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }
-    else if (theYear == 2017)
-    {
-      for (const auto& source: m_jec_sources_2017) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt", source);
-        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }
-    else if (theYear == 2018)
-    {
-      for (const auto& source: m_jec_sources_2018) {
-        JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt", source);
-        std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-        jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }
-  }
-  else
-  {
-    if(Run2016B || Run2016C || Run2016D){
-      for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_RunBCD_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if (Run2016E || Run2016F1){
-      for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16APV_RunEF_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if (Run2016F2 || Run2016G || Run2016H){
-      for (const auto& source: m_jec_sources_2016) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL16_RunFGH_V7_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2017B){
-      for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunB_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2017C){
-      for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunC_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2017D){
-      for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunD_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2017E){
-      for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunE_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2017F){
-      for (const auto& source: m_jec_sources_2017) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL17_RunF_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2018A){
-      for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunA_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2018B){
-      for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunB_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2018C){
-      for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunC_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }else if(Run2018D){
-      for (const auto& source: m_jec_sources_2018) {
-	JetCorrectorParameters source_parameters("JECUncertaintySources/Summer19UL18_RunD_V5_DATA_UncertaintySources_AK4PFchs.txt", source);
-	std::unique_ptr<JetCorrectionUncertainty> source_uncertainty(new JetCorrectionUncertainty(source_parameters));
-	jecSourceUncProviders.emplace(source, std::move(source_uncertainty));
-      }
-    }
-  }
-
   _numberOfJets = 0;
   if(writeJets){
     //_numberOfJets = FillJet(jets, event, &jecUnc);
-    _numberOfJets = FillJet(jets, event, eSetup, &jecUnc, &jecSourceUncProviders, &jecSourceUncRegroupedProviders);
+    _numberOfJets = FillJet(jets, event, eSetup);
 
     if(computeQGVar){ //Needs jetHandle + qgTaggerHandle
       for(auto jet = jetHandle->begin(); jet != jetHandle->end(); ++jet){
@@ -3024,108 +2037,18 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     float thisMETpx_uncorr = ( cand.hasUserFloat("uncorrMEt_px") ) ? cand.userFloat("uncorrMEt_px") : -999.;
     float thisMETpy_uncorr = ( cand.hasUserFloat("uncorrMEt_py") ) ? cand.userFloat("uncorrMEt_py") : -999.;
     
-    //bool hasTESUp   = cand.hasUserFloat ("SVfitMassTauUp");
-    //bool hasTESDown = cand.hasUserFloat ("SVfitMassTauDown");
-    //bool hasMETUp   = cand.hasUserFloat ("SVfitMassMETUp");
-    //bool hasMETDown = cand.hasUserFloat ("SVfitMassMETDown");
-    //bool hasEESUp   = cand.hasUserFloat ("SVfitMassEleUp");
-    //bool hasEESDown = cand.hasUserFloat ("SVfitMassEleDown");
-
     _SVmass.push_back(cand.userFloat("SVfitMass"));
-    //_SVmassTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitMassTauUp")   : -999. ));
-    //_SVmassTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitMassTauDown") : -999. ));
-    //_SVmassMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitMassMETUp")   : -999. ));
-    //_SVmassMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitMassMETDown") : -999. ));
-    //_SVmassEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitMassEleUp")   : -999. ));
-    //_SVmassEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitMassEleDown") : -999. ));
-
     _SVmassUnc.push_back(cand.userFloat("SVfitMassUnc"));
-    //_SVmassUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitMassUncTauUp")   : -999. ));
-    //_SVmassUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitMassUncTauDown") : -999. ));
-    //_SVmassUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitMassUncMETUp")   : -999. ));
-    //_SVmassUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitMassUncMETDown") : -999. ));
-    //_SVmassUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitMassUncEleUp")   : -999. ));
-    //_SVmassUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitMassUncEleDown") : -999. ));
-
     _SVmassTransverse.push_back(cand.userFloat("SVfitTransverseMass"));
-    //_SVmassTransverseTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitTransverseMassTauUp")  : -999. ));
-    //_SVmassTransverseTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitTransverseMassTauDown"): -999. ));
-    //_SVmassTransverseMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitTransverseMassMETUp")  : -999. ));
-    //_SVmassTransverseMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitTransverseMassMETDown"): -999. ));
-    //_SVmassTransverseEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitTransverseMassEleUp")  : -999. ));
-    //_SVmassTransverseEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitTransverseMassEleDown"): -999. ));
-
     _SVmassTransverseUnc.push_back(cand.userFloat("SVfitTransverseMassUnc"));
-    //_SVmassTransverseUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfitTransverseMassUncTauUp")  : -999. ));
-    //_SVmassTransverseUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfitTransverseMassUncTauDown"): -999. ));
-    //_SVmassTransverseUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfitTransverseMassUncMETUp")  : -999. ));
-    //_SVmassTransverseUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfitTransverseMassUncMETDown"): -999. ));
-    //_SVmassTransverseUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfitTransverseMassUncEleUp")  : -999. ));
-    //_SVmassTransverseUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfitTransverseMassUncEleDown"): -999. ));
-
     _SVpt.push_back(cand.userFloat("SVfit_pt"));
-    //_SVptTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_ptTauUp")  : -999. ));
-    //_SVptTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_ptTauDown"): -999. ));
-    //_SVptMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_ptMETUp")  : -999. ));
-    //_SVptMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_ptMETDown"): -999. ));
-    //_SVptEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_ptEleUp")  : -999. ));
-    //_SVptEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_ptEleDown"): -999. ));
-
     _SVptUnc.push_back(cand.userFloat("SVfit_ptUnc"));
-    //_SVptUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_ptUncTauUp")  : -999. ));
-    //_SVptUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_ptUncTauDown"): -999. ));
-    //_SVptUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_ptUncMETUp")  : -999. ));
-    //_SVptUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_ptUncMETDown"): -999. ));
-    //_SVptUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_ptUncEleUp")  : -999. ));
-    //_SVptUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_ptUncEleDown"): -999. ));
-
     _SVeta.push_back(cand.userFloat("SVfit_eta"));
-    //_SVetaTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_etaTauUp")  : -999. ));
-    //_SVetaTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_etaTauDown"): -999. ));
-    //_SVetaMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_etaMETUp")  : -999. ));
-    //_SVetaMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_etaMETDown"): -999. ));
-    //_SVetaEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_etaEleUp")  : -999. ));
-    //_SVetaEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_etaEleDown"): -999. ));
-
     _SVetaUnc.push_back(cand.userFloat("SVfit_etaUnc"));
-    //_SVetaUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_etaUncTauUp")  : -999. ));
-    //_SVetaUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_etaUncTauDown"): -999. ));
-    //_SVetaUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_etaUncMETUp")  : -999. ));
-    //_SVetaUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_etaUncMETDown"): -999. ));
-    //_SVetaUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_etaUncEleUp")  : -999. ));
-    //_SVetaUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_etaUncEleDown"): -999. ));
-
     _SVphi.push_back(cand.userFloat("SVfit_phi"));
-    //_SVphiTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_phiTauUp")  : -999. ));
-    //_SVphiTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_phiTauDown"): -999. ));
-    //_SVphiMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_phiMETUp")  : -999. ));
-    //_SVphiMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_phiMETDown"): -999. ));
-    //_SVphiEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_phiEleUp")  : -999. ));
-    //_SVphiEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_phiEleDown"): -999. ));
-
     _SVphiUnc.push_back(cand.userFloat("SVfit_phiUnc"));
-    //_SVphiUncTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_phiUncTauUp")  : -999. ));
-    //_SVphiUncTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_phiUncTauDown"): -999. ));
-    //_SVphiUncMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_phiUncMETUp")  : -999. ));
-    //_SVphiUncMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_phiUncMETDown"): -999. ));
-    //_SVphiUncEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_phiUncEleUp")  : -999. ));
-    //_SVphiUncEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_phiUncEleDown"): -999. ));
-
     _SVMetRho.push_back(cand.userFloat("SVfit_METRho"));
-    //_SVMetRhoTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_METRhoTauUp")  : -999. ));
-    //_SVMetRhoTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_METRhoTauDown"): -999. ));
-    //_SVMetRhoMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_METRhoMETUp")  : -999. ));
-    //_SVMetRhoMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_METRhoMETDown"): -999. ));
-    //_SVMetRhoEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_METRhoEleUp")  : -999. ));
-    //_SVMetRhoEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_METRhoEleDown"): -999. ));
-
     _SVMetPhi.push_back(cand.userFloat("SVfit_METPhi"));
-    //_SVMetPhiTauUp.push_back  ( (hasTESUp   ? cand.userFloat("SVfit_METPhiTauUp")  : -999. ));
-    //_SVMetPhiTauDown.push_back( (hasTESDown ? cand.userFloat("SVfit_METPhiTauDown"): -999. ));
-    //_SVMetPhiMETUp.push_back  ( (hasMETUp   ? cand.userFloat("SVfit_METPhiMETUp")  : -999. ));
-    //_SVMetPhiMETDown.push_back( (hasMETDown ? cand.userFloat("SVfit_METPhiMETDown"): -999. ));
-    //_SVMetPhiEleUp.push_back  ( (hasEESUp   ? cand.userFloat("SVfit_METPhiEleUp")  : -999. ));
-    //_SVMetPhiEleDown.push_back( (hasEESDown ? cand.userFloat("SVfit_METPhiEleDown"): -999. ));
 
     _metx.push_back(thisMETpx);
     _mety.push_back(thisMETpy);
@@ -3295,7 +2218,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
 
 //Fill jets quantities
 //int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, JetCorrectionUncertainty* jecUnc){
-int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, edm::EventSetup const& iSetup, JetCorrectionUncertainty* jecUnc, myJECMap* jecSourceUncProviders, myJECMap* jecSourceUncRegroupedProviders){
+int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event& event, edm::EventSetup const& iSetup)
+{
 
   // TriggerBits and TriggerObjets (for VBF trigger matching)
   edm::Handle<edm::TriggerResults> triggerBits;
@@ -3559,43 +2483,6 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     //cout << "     --> sum pt, eta, phi: " << vSum.Pt() << " " << vSum.Eta() << " " << vSum.Phi() << endl;
     //if (abs(ijet->hadronFlavour()) == 5 ) cout << "     ------------ THIS WAS A B JET ------------" << endl;
     //cout << "RAW pt: " << jetRawPt << " | " << jetRawPt2 << " --> " << vSum.Pt() << endl;
-
-    jecUnc->setJetEta(ijet->eta());
-    jecUnc->setJetPt(ijet->pt()); // here you must use the CORRECTED jet pt
-    _jets_jecUnc.push_back(jecUnc->getUncertainty(true));
-
-    // JEC Regrouped uncertainty sources
-    for (myJECMap::iterator it=jecSourceUncRegroupedProviders->begin(); it!=jecSourceUncRegroupedProviders->end(); ++it)
-    {
-      // up variations
-      it->second->setJetEta(ijet->eta());
-      it->second->setJetPt(ijet->pt());
-      float uncertainty_up = it->second->getUncertainty(true);
-      _SourceUncValRegrouped_up[it->first].push_back(uncertainty_up);
-
-      // down variations
-      it->second->setJetEta(ijet->eta());
-      it->second->setJetPt(ijet->pt());
-      float uncertainty_dw = it->second->getUncertainty(false);
-      _SourceUncValRegrouped_dw[it->first].push_back(uncertainty_dw);
-    }
-
-
-    // JEC uncertainties sources
-    for (myJECMap::iterator it=jecSourceUncProviders->begin(); it!=jecSourceUncProviders->end(); ++it)
-    {
-      // up variations
-      it->second->setJetEta(ijet->eta());
-      it->second->setJetPt(ijet->pt());
-      float uncertainty_up = it->second->getUncertainty(true);
-      _SourceUncVal_up[it->first].push_back(uncertainty_up);
-
-      // down variations
-      it->second->setJetEta(ijet->eta());
-      it->second->setJetPt(ijet->pt());
-      float uncertainty_dw = it->second->getUncertainty(false);
-      _SourceUncVal_dw[it->first].push_back(uncertainty_dw);
-    }
 
     // Jet Energy Resolution
     JME::JetParameters JER_parameters;

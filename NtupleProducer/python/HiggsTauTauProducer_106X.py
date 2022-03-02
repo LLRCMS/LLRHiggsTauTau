@@ -80,7 +80,7 @@ if IsMC:
   if YEAR == 2017:
     process.GlobalTag.globaltag = '106X_mc2017_realistic_v9'             # 2017 MC
   if YEAR == 2018:
-    process.GlobalTag.globaltag = '106X_upgrade2018_realistic_v15_L1v1'  # 2018 MC
+    process.GlobalTag.globaltag = '106X_upgrade2018_realistic_v16_L1v1'  # 2018 MC
 else :
     process.GlobalTag.globaltag = '106X_dataRun2_v35'                    # Data
 
@@ -570,16 +570,6 @@ else:
     process.METSequence += process.PuppiMETSignificance
     process.METSequence += process.ShiftPuppiMETcentral
 
-    # Re-run BadPFMuonDzFilter on miniAODv1 as in https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Recipe_for_BadPFMuonDz_filter_in
-    from RecoMET.METFilters.BadPFMuonDzFilter_cfi import BadPFMuonDzFilter
-    process.BadPFMuonFilterUpdateDz=BadPFMuonDzFilter.clone(
-    muons = cms.InputTag("slimmedMuons"),
-    vtx   = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    PFCandidates = cms.InputTag("packedPFCandidates"),
-    minDzBestTrack = cms.double(0.5),
-    taggingMode    = cms.bool(True)
-    )
-
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
 ## ----------------------------------------------------------------------
@@ -712,7 +702,6 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),
-                      BadPFMuonFilterUpdateDz = cms.InputTag("BadPFMuonFilterUpdateDz"),
                       L1prefireProb     = cms.InputTag("prefiringweight:nonPrefiringProb"),
                       L1prefireProbUp   = cms.InputTag("prefiringweight:nonPrefiringProbUp"),
                       L1prefireProbDown = cms.InputTag("prefiringweight:nonPrefiringProbDown")
@@ -747,7 +736,6 @@ process.printTree = cms.EDAnalyzer("ParticleListDrawer",
 ##
 process.PVfilter    = cms.Path(process.goodPrimaryVertices)
 process.l1ECALPref  = cms.Path(process.prefiringweight)
-process.badPFMuonDz = cms.Path(process.BadPFMuonFilterUpdateDz)
 
 # Prepare lepton collections
 process.Candidates = cms.Sequence(
