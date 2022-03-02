@@ -41,8 +41,6 @@
 
 <use name="rootrflx"/>
 
-<!-- Damn syntax! -->
-<Flags CPPDEFINES="CMSSW_VERSION=$(shell echo ${CMSSW_VERSION}|sed -e s/CMSSW_// -e s/_//g -e s/patch\.//)"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

@@ -1,42 +1,40 @@
-# TEMPLATE used for automatic script submission of multiple datasets
+# coding: utf-8
 
 from WMCore.Configuration import Configuration
+
+
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'DefaultReqName'
-config.General.workArea = 'DefaultCrab3Area'
+config.General.requestName = "OVERWRITTEN"
+config.General.workArea = "OVERWRITTEN"
 
 config.section_("JobType")
-config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = 'analyzer.py' # to produce LLR ntuples or EnrichedMiniAOD according to the RunNtuplizer bool
-config.JobType.sendExternalFolder = True #Needed until the PR including the Spring16 ele MVA ID is integrated in CMSSW/cms-data.
-config.JobType.inputFiles=['JECUncertaintySources'] # FRA: adding to the sandobx the directory with JEC files (https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3FAQ#How_are_the_inputFiles_handled_i)
-config.JobType.allowUndistributedCMSSW = True #Davide June 2019: This line is necessary to run with CMSSW_10_2_14 on slc7_amd64_gcc700
-#config.JobType.maxJobRuntimeMin = 2200 #Davide June 2019: This is necesessary for the analysis of FileBased splitted dataset (2018 DY)
-#config.JobType.maxMemoryMB = 2500 
-#config.JobType.maxMemoryMB = 8000 #Davide June 2019: This is necesessary for the analysis of FileBased splitted dataset (2018 DY)
+config.JobType.pluginName = "Analysis"
+config.JobType.psetName = "analyzer.py"
+config.JobType.pyCfgParams = ["year=2017", "maxEvents=-1"]
+config.JobType.sendExternalFolder = True
+config.JobType.inputFiles = ["JECUncertaintySources"]
+config.JobType.allowUndistributedCMSSW = True
+# config.JobType.maxJobRuntimeMin = 2200 #Davide June 2019: This is necesessary for the analysis of FileBased splitted dataset (2018 DY)
+# config.JobType.maxMemoryMB = 2500
+# config.JobType.maxMemoryMB = 8000 #Davide June 2019: This is necesessary for the analysis of FileBased splitted dataset (2018 DY)
 
 config.section_("Data")
-config.Data.inputDataset = '/my/precious/dataset'
-config.Data.inputDBS = 'global'
-config.Data.splitting = 'FileBased'  # Use this split algorithm for huge datasets
-#config.Data.splitting = 'EventAwareLumiBased'
-# config.Data.splitting = 'Automatic'
-#config.Data.unitsPerJob = 18000 #number of events per jobs when splitting mode is EventAwareLumiBased # Number of files per job when splitting mode is FileBased  # 18K FOR SOME TT BKG, 10k for others
-config.Data.totalUnits = -1 #number of event
-config.Data.outLFNDirBase = '/store/user/mrieger/hbt_resonant_run2/HHNtuples/DefaultOutLFNDirBase'
-config.Data.publication = True
-config.Data.outputDatasetTag = 'DefaultPublishName'
+config.Data.inputDataset = "OVERWRITTEN"
+config.Data.inputDBS = "global"
+config.Data.splitting = "FileBased"
+# config.Data.splitting = "EventAwareLumiBased"
+# config.Data.splitting = "Automatic"
+config.Data.unitsPerJob = 1
+config.Data.totalUnits = 1
+config.Data.outLFNDirBase = "OVERWRITTEN"
+config.Data.publication = False
+config.Data.outputDatasetTag = "DefaultPublishName"
 config.Data.allowNonValidInputDataset = True
 
-# to run on dedicated 2k cores
-#config.section_("Debug")
-#config.Debug.extraJDL = [ '+DESIRED_Sites="T3_IT_Opportunistic_hnsci"','+JOB_CMSSite="T3_IT_Opportunistic_hnsci"','+AccountingGroup="highprio.spiga"' ]
-
-
 config.section_("Site")
-# PARIGI
-#config.Site.storageSite = 'T2_FR_GRIF_LLR'
-# MILANO
-config.Site.storageSite = 'T2_DE_DESY'
+config.Site.storageSite = "T2_DE_DESY"
+
+# config.section_("Debug")
+# config.Debug.extraJDL = [ "+DESIRED_Sites="T3_IT_Opportunistic_hnsci"","+JOB_CMSSite="T3_IT_Opportunistic_hnsci"","+AccountingGroup="highprio.spiga"" ]

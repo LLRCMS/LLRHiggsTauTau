@@ -1,13 +1,41 @@
+# coding: utf-8
+
+import os
+import re
+
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+
+# setup options
+options = VarParsing("python")
+
+# set defaults of common options
+# options.setDefault("inputFiles", "")  # currently, a list is used to toggle the input for testing
+options.setDefault("outputFile", "HTauTauAnalysis.root")
+options.setDefault("maxEvents", -1)
+
+# register new options
+options.register("year", 2018, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+    "year of data-taking or MC campaign")
+options.register("reportEvery", 5000, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+    "number of events after which a report message is written")
+options.register("wantSummary", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+    "print a summary at the end")
+
+# get arguments of sys.argv
+options.parseArguments()
+
+
 #-----------------------------------------
 #
 #Producer controller
 #
 #-----------------------------------------
-import os, re
+
 PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
 # Year/Period
-YEAR   = 2018
+YEAR   = options.year
 PERIOD = '' # use 'postVFP' for 2016 VFP samples, can be left empty if running on 2017 and 2018
 
 #samples list (it could be moved to a cfg file for better reading
@@ -123,7 +151,10 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = -1
+process.maxEvents.input = options.maxEvents
+
+# overwrite some process options
+process.options.wantSummary = cms.untracked.bool(options.wantSummary)
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
@@ -140,6 +171,7 @@ if not IsMC:
 ## Output file
 ##
 process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+# process.TFileService=cms.Service('TFileService', fileName=cms.string(options.__getattr__("outputFile", noTags=True)))
 #process.TFileService=cms.Service('TFileService',fileName=cms.string('refFiles/Mu16_sync.root'))
 
 if DO_ENRICHED:
@@ -176,7 +208,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 5000
+process.MessageLogger.cerr.FwkReport.reportEvery = options.reportEvery
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'
