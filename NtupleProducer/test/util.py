@@ -51,7 +51,6 @@ def get_voms_proxy_user(proxy_file=None):
     return sorted(names, key=len)[0]
 
 
-
 class TeeStream(object):
     """
     Stream class that writes simultaneously into a file and stdout.
