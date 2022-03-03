@@ -97,6 +97,11 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
         command += " Data.outputDatasetTag=%s" % dataset_tag
         command += " Data.publication=%s" % publish_dataset
 
+        # for testing
+        # command += " Data.splitting=Automatic"
+        # command += " Data.unitsPerJob=1"
+        # command += " Data.totalUnits=1"
+
         # if enriched_to_ntuples:
         #     command += " Data.inputDBS=phys03"
         #     command += " JobType.psetName=ntuplizer.py"
