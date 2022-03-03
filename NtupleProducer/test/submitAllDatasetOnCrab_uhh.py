@@ -5,17 +5,25 @@ import sys
 import re
 import getpass
 
-from util import TeeStream, get_voms_proxy_user
+from util import TeeStream, get_wlcg_user
 
 
-###################################################################
-#### Customization
+
+#
+# dataset selection
+#
 
 datasets_file = "datasets_UL17.txt"
 processes = ["BACKGROUNDS_DY_2017"]
 tag = "test_dy"
-lfn_base = "/store/user/{}/hbt_resonant_run2/HHNtuples".format(get_voms_proxy_user())
 
+
+#
+# configuration
+#
+
+# LFN store path
+lfn_base = "/store/user/{}/hbt_resonant_run2/HHNtuples".format(get_wlcg_user())
 # dry run, runs all preparations but skips the submission
 dry_run = False
 # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
@@ -28,8 +36,9 @@ enriched_to_ntuples = False
 publish_dataset = False
 
 
-###################################################################
-#### Automated script starting
+#
+# submission logic
+#
 
 # dataset block definition
 comment = "#"
@@ -41,13 +50,13 @@ if enriched_to_ntuples:
 # check if file with dataset exist
 if not os.path.isfile(datasets_file):
     print("file %s not found" % datasets_file)
-    sys.exit(1)
+    sys.exit(2)
 
 #check if directory exists
 crab_jobs_folder = "crab3_" + tag
 if os.path.isdir(crab_jobs_folder):
     print("folder %s already exists, please change tag name or delete it" % crab_jobs_folder)
-    sys.exit(2)
+    sys.exit(3)
 os.makedirs(crab_jobs_folder)
 
 # read datasets
@@ -98,7 +107,7 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
         command += " Data.publication=%s" % publish_dataset
 
         # for testing
-        # command += " Data.splitting=Automatic"
+        # command += " Data.splitting=FileBased"
         # command += " Data.unitsPerJob=1"
         # command += " Data.totalUnits=1"
 

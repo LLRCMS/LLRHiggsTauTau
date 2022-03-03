@@ -2,53 +2,21 @@
 
 import os
 import sys
-import re
-import subprocess
+
+try:
+    from CRABClient.UserUtilities import getUsername as _crab_get_username
+except ImportError:
+    _crab_get_username = None
 
 
-def get_voms_proxy_file():
-    """
-    Returns the path to the voms proxy file.
-    """
-    default_file = "/tmp/x509up_u{}".format(os.getuid())
-    return os.getenv("X509_USER_PROXY", default_file)
+def get_wlcg_user(*args, **kwargs):
+    if callable(_crab_get_username):
+        return _crab_get_username(*args, **kwargs)
 
+    if "WLCG_USER" in os.environ:
+        return os.environ["WLCG_USER"]
 
-def _voms_proxy_info(args=None, proxy_file=None, silent=False):
-    cmd = ["voms-proxy-info"] + (args or [])
-
-    # when proxy_file is None, get the default, then add it
-    if proxy_file is None:
-        proxy_file = get_voms_proxy_file()
-    if proxy_file:
-        proxy_file = os.path.expandvars(os.path.expanduser(proxy_file))
-        cmd.extend(["--file", proxy_file])
-
-    try:
-        out = subprocess.check_output(" ".join(cmd), shell=True, executable="/bin/bash",
-            stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as err:
-        raise Exception("voms-proxy-info failed: {}".format(err))
-
-    return out
-
-
-def get_voms_proxy_user(proxy_file=None):
-    """
-    Returns the owner of the voms proxy. When *proxy_file* is *None*, it defaults to the result of
-    :py:func:`get_voms_proxy_file`. Otherwise, when it evaluates to *False*, ``voms-proxy-info`` is
-    queried without a custom proxy file.
-    """
-    out = _voms_proxy_info(args=["--identity"], proxy_file=proxy_file).strip()
-    cns = re.findall(r"/CN=[a-z]+", out.replace(" ", ""))
-    if not cns:
-        raise Exception("no valid identity found in voms proxy: {}".format(out))
-
-    # extract actual names
-    names = [cn[4:] for cn in cns]
-
-    # return the shortest name
-    return sorted(names, key=len)[0]
+    raise Exception("cannot determine wlcg user name; either source crab or set WLCG_USER")
 
 
 class TeeStream(object):
