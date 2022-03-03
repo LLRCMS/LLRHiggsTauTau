@@ -447,6 +447,54 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(15),
         leg2 = cms.int32(999)
         ),
+    cms.PSet (
+        HLT = cms.string("HLT_VLooseIsoPFTau120_Trk50_eta2p1_v"),
+        path1 = cms.vstring ("hltPFTau120TrackPt50LooseAbsOrRelVLooseIso"),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(15),
+        leg2 = cms.int32(999)
+        ),
+
+### === MET triggers
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(999),
+        leg2 = cms.int32(999)
+        ),
+
     )
 
 #now I create the trigger list for HLTconfig
