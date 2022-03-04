@@ -3,7 +3,8 @@
 import os
 import sys
 import re
-import getpass
+import subprocess
+from collections import OrderedDict
 
 from util import TeeStream, get_wlcg_user
 
@@ -25,6 +26,12 @@ tag = "uhh_2017_v1"
 lfn_base = "/store/user/{}/hbt_resonant_run2/HHNtuples".format(get_wlcg_user())
 # dry run, runs all preparations but skips the submission
 dry_run = False
+# ignore dataset locality rules between CEs and SEs, and define the required whitelist
+ignore_locality = False
+site_white_list = [
+    "T2_CH_CERN", "T2_DE_DESY", "T2_US_MIT", "T2_US_Caltech", "T2_US_Vanderbilt", "T2_US_Wisconson",
+    "T1_US_FNAL", "T1_DE_KIT",
+]
 # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 fast_jobs = False
 # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
@@ -101,35 +108,45 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
                 tag, dataset, job_dir))
             continue
 
-        # start building the command
-        command = "crab submit -c crab3_template_uhh.py"
+        # create crab arguments
+        crab_args = OrderedDict()
 
-        command += " General.requestName=%s" % request_name
-        command += " General.workArea=%s" % crab_jobs_folder
+        crab_args["General.requestName"] = request_name
+        crab_args["General.workArea"] = crab_jobs_folder
+        crab_args["Data.inputDataset"] = dataset
+        crab_args["Data.outLFNDirBase"] = "{}/{}".format(lfn_base, tag)
+        crab_args["Data.outputDatasetTag"] = dataset_tag
+        crab_args["Data.publication"] = publish_dataset
+        crab_args["Data.ignoreLocality"] = ignore_locality
 
-        command += " Data.inputDataset=%s" % dataset
-        command += " Data.outLFNDirBase=%s/%s" % (lfn_base, tag)
-        command += " Data.outputDatasetTag=%s" % dataset_tag
-        command += " Data.publication=%s" % publish_dataset
+        if ignore_locality:
+            crab_args["Site.whitelist"] = site_white_list
 
         # for testing
-        # command += " Data.splitting=FileBased"
-        # command += " Data.unitsPerJob=1"
-        # command += " Data.totalUnits=1"
+        # crab_args["Data.splitting"] = "FileBased"
+        # crab_args["Data.unitsPerJob"] = 1
+        # crab_args["Data.totalUnits"] = 1
 
         # if enriched_to_ntuples:
-        #     command += " Data.inputDBS=phys03"
-        #     command += " JobType.psetName=ntuplizer.py"
+        #     crab_args["Data.inputDBS"] = "phys03"
+        #     crab_args["JobType.psetName"] = "ntuplizer.py"
         # if fast_jobs:
         #     # circa 50 ev / secondo --> circa 1/2 h ; else leave default of 4000 jobs
-        #     command += " Data.unitsPerJob=100000"
+        #     crab_args["Data.unitsPerJob"] = 100000
         # if very_long:
         #     # 32 hours, default is 22 hours -- can do up to 2800 hrs
-        #     command += " JobType.maxJobRuntimeMin=2500"
+        #     crab_args["JobType.maxJobRuntimeMin"] = 2500
+
+        # build the full command
+        # make_list = lambda v: list(v) if isinstance(v, (list, tuple, set)) else [v]
+        fmt_list = lambda a: "[{}]".format(",".join(map("'{}'".format, a)))
+        cms_run_arg = lambda k, a: "{}=\"{}\"".format(k, fmt_list(a) if isinstance(a, list) else a)
+        command = "crab submit -c crab3_template_uhh.py"
+        command += " " + " ".join(cms_run_arg(*tpl) for tpl in crab_args.items())
 
         log.write("submission command:\n%s" % command)
         if dry_run:
             log.write("dry run, skip command execution")
         else:
-            os.system(command)
+            subprocess.call(command, shell=True, stderr=subprocess.STDOUT, stdout=log)
         log.write("\n")

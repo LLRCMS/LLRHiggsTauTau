@@ -23,6 +23,7 @@ config.JobType.allowUndistributedCMSSW = True
 config.section_("Data")
 config.Data.inputDataset = "OVERWRITTEN"
 config.Data.inputDBS = "global"
+config.Data.ignoreLocality = False
 config.Data.splitting = "FileBased"
 # config.Data.splitting = "EventAwareLumiBased"
 # config.Data.splitting = "Automatic"
@@ -36,5 +37,5 @@ config.Data.allowNonValidInputDataset = True
 config.section_("Site")
 config.Site.storageSite = "T2_DE_DESY"
 
-# config.section_("Debug")
+config.section_("Debug")
 # config.Debug.extraJDL = [ "+DESIRED_Sites="T3_IT_Opportunistic_hnsci"","+JOB_CMSSite="T3_IT_Opportunistic_hnsci"","+AccountingGroup="highprio.spiga"" ]

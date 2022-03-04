@@ -37,6 +37,9 @@ class TeeStream(object):
     def closed(self):
         return self.f is None
 
+    def fileno(self):
+        return self.stdout.fileno()
+
     def __del__(self):
         self.close()
 
