@@ -38,4 +38,5 @@ config.section_("Site")
 config.Site.storageSite = "T2_DE_DESY"
 
 config.section_("Debug")
+config.Debug.extraJDL = ["+CMS_ALLOW_OVERFLOW=False"]
 # config.Debug.extraJDL = [ "+DESIRED_Sites="T3_IT_Opportunistic_hnsci"","+JOB_CMSSite="T3_IT_Opportunistic_hnsci"","+AccountingGroup="highprio.spiga"" ]
