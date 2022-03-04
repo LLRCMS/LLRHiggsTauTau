@@ -47,13 +47,12 @@ def check_dataset(dataset, white_list=None, via_json=False):
 
     # log results
     if unreachable_lfns:
-        print("found {} LFNs that are not reacheable through allowed sites:\n".format(
+        print("found {} LFNs that are not reacheable through allowed sites:".format(
             len(unreachable_lfns)))
         for i, lfn in enumerate(unreachable_lfns):
             print("{}.".format(i + 1))
-            print("  LFN   : {}".format(lfn))
-            print("  Sites : {}".format(", ".join(lfn_sites[lfn])))
-            print("")
+            print("    LFN  : {}".format(lfn))
+            print("    Sites: {}".format(", ".join(lfn_sites[lfn])))
     else:
         print("all LFNs are reachable throug allowed sites")
 
@@ -137,12 +136,13 @@ def main():
     if args.white_list:
         print("custom white list: {}".format(", ".join(args.white_list)))
     print("tape storage is {}allowed".format("" if args.allow_tape else "not "))
-    print("use {} queries".format("json" if args.via_json else "plain"))
+    print("using {} queries".format("json" if args.via_json else "plain"))
 
     # loop through datasets and peform the check
     for dataset in args.dataset:
         print("")
         check_dataset(dataset, white_list=args.white_list, via_json=args.via_json)
+        print(100 * "-")
 
 
 if __name__ == "__main__":
