@@ -29,8 +29,9 @@ dry_run = False
 # ignore dataset locality rules between CEs and SEs, and define the required whitelist
 ignore_locality = False
 site_white_list = [
-    "T2_CH_CERN", "T2_DE_DESY", "T2_US_MIT", "T2_US_Caltech", "T2_US_Vanderbilt", "T2_US_Wisconson",
-    "T1_US_FNAL", "T1_DE_KIT",
+    "T1_DE_KIT", "T2_DE_DESY",
+    "T2_CH_CERN",
+    "T1_US_FNAL", "T2_US_Caltech", "T2_US_Vanderbilt", "T2_US_Wisconsin",
 ]
 # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 fast_jobs = False
@@ -138,7 +139,6 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
         #     crab_args["JobType.maxJobRuntimeMin"] = 2500
 
         # build the full command
-        # make_list = lambda v: list(v) if isinstance(v, (list, tuple, set)) else [v]
         fmt_list = lambda a: "[{}]".format(",".join(map("'{}'".format, a)))
         cms_run_arg = lambda k, a: "{}=\"{}\"".format(k, fmt_list(a) if isinstance(a, list) else a)
         command = "crab submit -c crab3_template_uhh.py"
