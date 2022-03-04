@@ -87,7 +87,7 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
     log.write(" publish  : %s" % publish_dataset)
     log.write("")
 
-    for counter, dataset in enumerate(datasets):
+    for dataset in datasets:
         # build request names and dataset tags to construct the output directory according to
         # <lfn-prefix>/<primary-dataset>/<publication-name>/<time-stamp>/<counter>[/log]/<file-name>
         sample_name, campaign_name = dataset.split("/")[1:3]
@@ -100,8 +100,6 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
             print("job directory for tag '{}', dataset '{}' already existing at {}, skip\n".format(
                 tag, dataset, job_dir))
             continue
-        elif dry_run:
-            os.makedirs(job_dir)
 
         # start building the command
         command = "crab submit -c crab3_template_uhh.py"
