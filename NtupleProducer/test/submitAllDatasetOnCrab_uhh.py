@@ -8,14 +8,13 @@ import getpass
 from util import TeeStream, get_wlcg_user
 
 
-
 #
 # dataset selection
 #
 
 datasets_file = "datasets_UL17.txt"
 processes = ["BACKGROUNDS_DY_2017"]
-tag = "test_dy"
+tag = "uhh_2017_v1"
 
 
 #
@@ -54,10 +53,8 @@ if not os.path.isfile(datasets_file):
 
 # check if directory exists
 crab_jobs_folder = "jobs_crab3_" + tag
-if os.path.isdir(crab_jobs_folder):
-    print("folder %s already exists, please change tag name or delete it" % crab_jobs_folder)
-    sys.exit(3)
-os.makedirs(crab_jobs_folder)
+if not os.path.isdir(crab_jobs_folder):
+    os.makedirs(crab_jobs_folder)
 
 # read datasets
 curr_section = ""
@@ -90,10 +87,21 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
     log.write(" publish  : %s" % publish_dataset)
     log.write("")
 
-    for counter, dataset in enumerate(datasets[:1]):
+    for counter, dataset in enumerate(datasets):
+        # build request names and dataset tags to construct the output directory according to
+        # <lfn-prefix>/<primary-dataset>/<publication-name>/<time-stamp>/<counter>[/log]/<file-name>
         sample_name, campaign_name = dataset.split("/")[1:3]
-        request_name = "{}_{}".format(sample_name[:95], counter)
-        dataset_tag = "{}_{}".format(tag, request_name) if publish_dataset else campaign_name
+        request_name = "{}__{}".format(tag, sample_name)[:100]
+        dataset_tag = "{}__{}".format(tag, sample_name) if publish_dataset else campaign_name
+
+        # complain when the job dir is existing
+        job_dir = os.path.join(crab_jobs_folder, "crab_" + request_name)
+        if os.path.exists(job_dir):
+            print("job directory for tag '{}', dataset '{}' already existing at {}, skip\n".format(
+                tag, dataset, job_dir))
+            continue
+        elif dry_run:
+            os.makedirs(job_dir)
 
         # start building the command
         command = "crab submit -c crab3_template_uhh.py"
