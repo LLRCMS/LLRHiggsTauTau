@@ -52,8 +52,8 @@ if not os.path.isfile(datasets_file):
     print("file %s not found" % datasets_file)
     sys.exit(2)
 
-#check if directory exists
-crab_jobs_folder = "crab3_" + tag
+# check if directory exists
+crab_jobs_folder = "jobs_crab3_" + tag
 if os.path.isdir(crab_jobs_folder):
     print("folder %s already exists, please change tag name or delete it" % crab_jobs_folder)
     sys.exit(3)
