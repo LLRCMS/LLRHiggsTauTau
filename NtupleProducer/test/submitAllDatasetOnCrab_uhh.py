@@ -16,7 +16,8 @@ from util import TeeStream, get_wlcg_user
 datasets_file = "datasets_UL17.txt"
 processes = ["BACKGROUNDS_DY_2017"]
 tag = "uhh_2017_v1"
-
+year = 2017
+mc = True
 
 #
 # configuration
@@ -119,6 +120,7 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
         crab_args["Data.outputDatasetTag"] = dataset_tag
         crab_args["Data.publication"] = publish_dataset
         crab_args["Data.ignoreLocality"] = ignore_locality
+        crab_args["JobType.pyCfgParams"] = ["year={}".format(year), "mc={}".format(mc)]
 
         if ignore_locality:
             crab_args["Site.whitelist"] = site_white_list

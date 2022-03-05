@@ -12,7 +12,7 @@ config.General.workArea = "OVERWRITTEN"
 config.section_("JobType")
 config.JobType.pluginName = "Analysis"
 config.JobType.psetName = "analyzer.py"
-config.JobType.pyCfgParams = ["year=2017", "maxEvents=-1"]
+config.JobType.pyCfgParams = ["year=2017", "mc=True", "maxEvents=-1"]
 config.JobType.sendExternalFolder = True
 config.JobType.inputFiles = ["JECUncertaintySources"]
 config.JobType.allowUndistributedCMSSW = True
