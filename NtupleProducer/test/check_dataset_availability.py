@@ -36,17 +36,20 @@ global_black_list = {
 _live_black_list = None
 
 
-def check_dataset(dataset, white_list=None, live_black_list=False, via_json=False):
+def check_dataset(dataset, white_list=None, live_black_list=False, via_json=False, das_host=None):
     print(f"checking dataset {dataset}")
 
     # get dataset lfns
     print("retrieving LFNs ...")
-    lfns = get_dataset_lfns(dataset, via_json=via_json)
+    lfns = get_dataset_lfns(dataset, via_json=via_json, das_host=das_host)
     print(f"done, found {len(lfns)} LFNs")
 
     # get storage sites
     print("checking sites per LFN ...")
-    lfn_sites = {lfn: get_lfn_sites(lfn, via_json=via_json) for lfn in tqdm.tqdm(lfns)}
+    lfn_sites = {
+        lfn: get_lfn_sites(lfn, via_json=via_json, das_host=das_host)
+        for lfn in tqdm.tqdm(lfns)
+    }
     print("done")
 
     # per lfn, check if there is at least one allowed site
@@ -83,8 +86,8 @@ def site_is_allowed(site, white_list=None, live_black_list=False, allow_tape=Fal
     return site not in black_list
 
 
-def get_dataset_lfns(dataset, via_json=False):
-    data = run_das_query(f"file dataset={dataset}", via_json=via_json)
+def get_dataset_lfns(dataset, via_json=False, das_host=None):
+    data = run_das_query(f"file dataset={dataset}", via_json=via_json, das_host=das_host)
 
     if via_json:
         lfns = [str(entry["file"][0]["name"]) for entry in data]
@@ -94,8 +97,8 @@ def get_dataset_lfns(dataset, via_json=False):
     return lfns
 
 
-def get_lfn_sites(lfn, via_json=False):
-    data = run_das_query(f"site file={lfn}", via_json=via_json)
+def get_lfn_sites(lfn, via_json=False, das_host=None):
+    data = run_das_query(f"site file={lfn}", via_json=via_json, das_host=das_host)
 
     if via_json:
         sites = [str(entry["site"][0]["name"]) for entry in data]
@@ -105,16 +108,19 @@ def get_lfn_sites(lfn, via_json=False):
     return sites
 
 
-def run_das_query(query, via_json=False):
+def run_das_query(query, via_json=False, das_host=None):
     # build and run the command
     cmd = f"dasgoclient -query=\"{query}\""
+    if das_host:
+        cmd += f" -host=\"{das_host}\""
     if via_json:
         cmd += " -json"
 
     p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", stdout=subprocess.PIPE)
 
     try:
-        out, _ = p.communicate()
+        out, _ = p.communicate(timeout=20)
+        out = out.decode("utf-8")
     except KeyboardInterrupt:
         try:
             p.terminate()
@@ -122,10 +128,18 @@ def run_das_query(query, via_json=False):
             pass
         raise
 
+    # expect the return code to be 0
+    if p.returncode != 0:
+        raise Exception(f"command failed: {cmd}")
+
+    # catch certain DAS based errors
+    if out.startswith("jsonparser failure"):
+        raise Exception(f"DAS responded with error: {out}")
+
     if via_json:
         data = json.loads(out)
     else:
-        data = [line.strip().decode("utf-8") for line in out.strip().split() if line.strip()]
+        data = [line.strip() for line in out.strip().split() if line.strip()]
 
     return data
 
@@ -169,6 +183,7 @@ def main():
         "black list from the site status board")
     parser.add_argument("--allow-tape", "-t", action="store_true", help="allow tape storage")
     parser.add_argument("--via-json", "-j", action="store_true", help="run queries via json format")
+    parser.add_argument("--das-host", help="a custom DAS hostname to use, see 'dasgoclient --help'")
     parser.add_argument("--print-live-black-list", action="store_true", help="print the live site "
         "black list and exit")
     args = parser.parse_args()
@@ -190,12 +205,14 @@ def main():
     print(f"use live black list  : {args.live_black_list}")
     print(f"tape storage allowed : {args.allow_tape}")
     print(f"use json queries     : {args.via_json}")
+    if args.das_host:
+        print(f"custom DAS host      : {args.das_host}")
 
     # loop through datasets and peform the check
     for i, dataset in enumerate(args.dataset):
         print("")
         check_dataset(dataset, white_list=args.white_list, live_black_list=args.live_black_list,
-            via_json=args.via_json)
+            via_json=args.via_json, das_host=args.das_host or None)
         if i != len(args.dataset) - 1:
             print(100 * "-")
 
