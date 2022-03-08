@@ -119,7 +119,7 @@ def run_das_query(query, via_json=False, das_host=None):
     p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", stdout=subprocess.PIPE)
 
     try:
-        out, _ = p.communicate(timeout=20)
+        out, _ = p.communicate(timeout=30)
         out = out.decode("utf-8")
     except KeyboardInterrupt:
         try:
