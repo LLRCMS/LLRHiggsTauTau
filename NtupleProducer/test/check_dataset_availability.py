@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 
 """
@@ -6,11 +6,18 @@ Checks if all files of one or multiple datasets are available on non-blacklisted
 """
 
 import re
+import sys
 import json
 import subprocess
+import urllib
+import urllib.request
+import json
 
 import tqdm
 
+
+# dynamic file listing all usable and blacklisted sites
+usable_sites_url = "https://cmssst.web.cern.ch/cmssst/analysis/usableSites.json"
 
 # the global black list, please update if necessary
 global_black_list = {
@@ -25,14 +32,17 @@ global_black_list = {
     "T3_HR_IRB", "T3_KR_UOS", "T2_UA_KIPT", "T3_GR_IASA",
 }
 
+# cache for the live black list
+_live_black_list = None
 
-def check_dataset(dataset, white_list=None, via_json=False):
-    print("checking dataset {}".format(dataset))
+
+def check_dataset(dataset, white_list=None, live_black_list=False, via_json=False):
+    print(f"checking dataset {dataset}")
 
     # get dataset lfns
     print("retrieving LFNs ...")
     lfns = get_dataset_lfns(dataset, via_json=via_json)
-    print("done, found {} LFNs".format(len(lfns)))
+    print(f"done, found {len(lfns)} LFNs")
 
     # get storage sites
     print("checking sites per LFN ...")
@@ -42,22 +52,24 @@ def check_dataset(dataset, white_list=None, via_json=False):
     # per lfn, check if there is at least one allowed site
     unreachable_lfns = [
         lfn for lfn, sites in lfn_sites.items()
-        if not any(site_is_allowed(site, white_list=white_list) for site in sites)
+        if not any(
+            site_is_allowed(site, white_list=white_list, live_black_list=live_black_list)
+            for site in sites
+        )
     ]
 
     # log results
     if unreachable_lfns:
-        print("found {} LFNs that are not reacheable through allowed sites:".format(
-            len(unreachable_lfns)))
+        print(f"found {len(unreachable_lfns)} LFNs that are not reacheable through allowed sites:")
         for i, lfn in enumerate(unreachable_lfns):
-            print("{}.".format(i + 1))
-            print("    LFN  : {}".format(lfn))
-            print("    Sites: {}".format(", ".join(lfn_sites[lfn])))
+            print(f"{i + 1}.")
+            print(f"    LFN  : {lfn}")
+            print(f"    Sites: {str(lfn_sites[lfn])[1:-1]}")
     else:
-        print("all LFNs are reachable throug allowed sites")
+        print("all LFNs are reachable through allowed sites")
 
 
-def site_is_allowed(site, white_list=None, allow_tape=False):
+def site_is_allowed(site, white_list=None, live_black_list=False, allow_tape=False):
     # check white list
     if white_list and site in white_list:
         return True
@@ -67,11 +79,12 @@ def site_is_allowed(site, white_list=None, allow_tape=False):
         return False
 
     # last check through black list
-    return site not in global_black_list
+    black_list = load_site_black_list() if live_black_list else global_black_list
+    return site not in black_list
 
 
 def get_dataset_lfns(dataset, via_json=False):
-    data = run_das_query("file dataset={}".format(dataset), via_json=via_json)
+    data = run_das_query(f"file dataset={dataset}", via_json=via_json)
 
     if via_json:
         lfns = [str(entry["file"][0]["name"]) for entry in data]
@@ -82,7 +95,7 @@ def get_dataset_lfns(dataset, via_json=False):
 
 
 def get_lfn_sites(lfn, via_json=False):
-    data = run_das_query("site file={}".format(lfn), via_json=via_json)
+    data = run_das_query(f"site file={lfn}", via_json=via_json)
 
     if via_json:
         sites = [str(entry["site"][0]["name"]) for entry in data]
@@ -94,7 +107,7 @@ def get_lfn_sites(lfn, via_json=False):
 
 def run_das_query(query, via_json=False):
     # build and run the command
-    cmd = "dasgoclient -query=\"{}\"".format(query)
+    cmd = f"dasgoclient -query=\"{query}\""
     if via_json:
         cmd += " -json"
 
@@ -112,9 +125,34 @@ def run_das_query(query, via_json=False):
     if via_json:
         data = json.loads(out)
     else:
-        data = [line.strip() for line in out.strip().split() if line.strip()]
+        data = [line.strip().decode("utf-8") for line in out.strip().split() if line.strip()]
 
     return data
+
+
+def load_sites():
+    content = urllib.request.urlopen(usable_sites_url).read()
+    sites = json.loads(content)
+
+    # return a list of dicts {"name": str, "url": str, "black_listed": bool}
+    # define sites as black-listed when their "value" is not "usable"
+    return [
+        {
+            "name": str(site["name"]),
+            "url": str(site["url"]),
+            "black_listed": site.get("value", "not_usable") != "usable",
+        }
+        for site in sites
+    ]
+
+
+def load_site_black_list():
+    global _live_black_list
+
+    if _live_black_list is None:
+        _live_black_list = [site["name"] for site in load_sites() if site["black_listed"]]
+
+    return _live_black_list
 
 
 def main():
@@ -124,25 +162,42 @@ def main():
 
     # setup arguments
     parser = argparse.ArgumentParser(description="dataset availability check")
-    parser.add_argument("dataset", nargs="+", metavar="DATASET", help="the dataset(s) to check")
+    parser.add_argument("dataset", nargs="*", metavar="DATASET", help="the dataset(s) to check")
     parser.add_argument("--white-list", "-w", type=csv, metavar="WHITE_LIST", help="an optional "
         "white list that is evaluated on top of the global black list")
+    parser.add_argument("--live-black-list", "-l", action="store_true", help="use the live site "
+        "black list from the site status board")
     parser.add_argument("--allow-tape", "-t", action="store_true", help="allow tape storage")
     parser.add_argument("--via-json", "-j", action="store_true", help="run queries via json format")
+    parser.add_argument("--print-live-black-list", action="store_true", help="print the live site "
+        "black list and exit")
     args = parser.parse_args()
 
+    # maybe just print the live black list
+    if args.print_live_black_list:
+        print("\n".join(load_site_black_list()))
+        sys.exit(0)
+
+    # at least one dataset is required
+    if not args.dataset:
+        print("at least one DATASET is required")
+        sys.exit(1)
+
     # some insightful prints
-    print("start dataset checking")
+    print(f"number of datasets   : {len(args.dataset)}")
     if args.white_list:
-        print("custom white list: {}".format(", ".join(args.white_list)))
-    print("tape storage is {}allowed".format("" if args.allow_tape else "not "))
-    print("using {} queries".format("json" if args.via_json else "plain"))
+        print(f"custom white list    : {str(args.white_list)[1:-1]}")
+    print(f"use live black list  : {args.live_black_list}")
+    print(f"tape storage allowed : {args.allow_tape}")
+    print(f"use json queries     : {args.via_json}")
 
     # loop through datasets and peform the check
-    for dataset in args.dataset:
+    for i, dataset in enumerate(args.dataset):
         print("")
-        check_dataset(dataset, white_list=args.white_list, via_json=args.via_json)
-        print(100 * "-")
+        check_dataset(dataset, white_list=args.white_list, live_black_list=args.live_black_list,
+            via_json=args.via_json)
+        if i != len(args.dataset) - 1:
+            print(100 * "-")
 
 
 if __name__ == "__main__":

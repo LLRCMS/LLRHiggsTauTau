@@ -48,13 +48,6 @@ publish_dataset = False
 # submission logic
 #
 
-# dataset block definition
-comment = "#"
-section_begin_end = "==="
-
-if enriched_to_ntuples:
-    publish_dataset = False
-
 # check if file with dataset exist
 if not os.path.isfile(datasets_file):
     print("file %s not found" % datasets_file)
@@ -65,24 +58,21 @@ crab_jobs_folder = "jobs_crab3_" + tag
 if not os.path.isdir(crab_jobs_folder):
     os.makedirs(crab_jobs_folder)
 
-# read datasets
+# read datasets for selected processes
 curr_section = ""
 datasets = []
 with open(datasets_file) as f:
     for line in f:
         line = line.strip()
-        if not line:
-            continue
-        if comment in line:
+        if not line or line.startswith("#"):
             continue
 
-        words = line.split()
-        if len(words) >= 3:
-            if words[0] == section_begin_end and words[2] == section_begin_end:
-                curr_section = words[1]
-        else:
-            if curr_section in processes:
-                datasets.append(line)
+        # section or dataset line
+        m = re.match(r"^===\s+(.+)\s+===.*$", line)
+        if m:
+            curr_section = m.group(1)
+        elif curr_section and curr_section in processes:
+            datasets.append(line)
 
 # start submitting them and log simultaneously
 with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
