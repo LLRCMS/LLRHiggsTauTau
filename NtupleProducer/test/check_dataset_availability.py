@@ -116,17 +116,7 @@ def run_das_query(query, via_json=False, das_host=None):
     if via_json:
         cmd += " -json"
 
-    p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", stdout=subprocess.PIPE)
-
-    try:
-        out, _ = p.communicate(timeout=30)
-        out = out.decode("utf-8")
-    except KeyboardInterrupt:
-        try:
-            p.terminate()
-        except:
-            pass
-        raise
+    p, out = run_command(cmd, attempts=2)
 
     # expect the return code to be 0
     if p.returncode != 0:
@@ -142,6 +132,28 @@ def run_das_query(query, via_json=False, das_host=None):
         data = [line.strip() for line in out.strip().split() if line.strip()]
 
     return data
+
+
+def run_command(cmd, timeout=30, attempts=1, _attempt=1):
+    p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", stdout=subprocess.PIPE)
+
+    try:
+        out, _ = p.communicate(timeout=timeout)
+        return p, out.decode("utf-8")
+
+    except KeyboardInterrupt:
+        try:
+            p.terminate()
+        except:
+            pass
+        raise
+
+    except Exception:
+        if attempts > _attempt:
+            return run_command(cmd, timeout=timeout, attempts=attempts, _attempt=_attempt + 1)
+
+        print(f"command failed after {attempts} attempt(s):\n{cmd}")
+        raise
 
 
 def load_sites():

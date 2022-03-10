@@ -2,11 +2,25 @@
 
 import os
 import sys
+import hashlib
 
 try:
     from CRABClient.UserUtilities import getUsername as _crab_get_username
 except ImportError:
     _crab_get_username = None
+
+
+def create_hash(inp, l=10, algo="sha256", to_int=False):
+    h = getattr(hashlib, algo)(str(inp)).hexdigest()[:l]
+    return int(h, 16) if to_int else h
+
+
+def hash_truncate(s, max_length, hash_length=8, **kwargs):
+    if hash_length > max_length:
+        raise ValueError("the hash length must not be smaller than the maximum string length")
+    if len(s) > max_length:
+        s = s[:max_length - hash_length] + create_hash(s, l=hash_length, **kwargs)
+    return s
 
 
 def get_wlcg_user(*args, **kwargs):

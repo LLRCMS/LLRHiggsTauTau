@@ -6,7 +6,7 @@ import re
 import subprocess
 from collections import OrderedDict
 
-from util import TeeStream, get_wlcg_user
+from util import TeeStream, hash_truncate, get_wlcg_user
 
 
 #
@@ -30,7 +30,7 @@ dry_run = False
 # ignore dataset locality rules between CEs and SEs, and define the required whitelist
 ignore_locality = False
 site_white_list = [
-    "T1_DE_KIT", "T2_DE_DESY",
+    "T1_DE_KIT", "T2_DE_DESY", "T2_DE_RWTH",
     "T2_CH_CERN",
     "T1_US_FNAL", "T2_US_Caltech", "T2_US_Vanderbilt", "T2_US_Wisconsin",
 ]
@@ -90,8 +90,12 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
         # build request names and dataset tags to construct the output directory according to
         # <lfn-prefix>/<primary-dataset>/<publication-name>/<time-stamp>/<counter>[/log]/<file-name>
         sample_name, campaign_name = dataset.split("/")[1:3]
-        request_name = "{}__{}".format(tag, sample_name)[:100]
-        dataset_tag = "{}__{}".format(tag, sample_name) if publish_dataset else campaign_name
+        # build the request name from tag, sample and campaign name
+        request_name = hash_truncate("{}__{}__{}".format(tag, sample_name, campaign_name), 100)
+        # build the dataset tag that, when defined, takes the role of the publication name
+        dataset_tag = campaign_name
+        if publish_dataset:
+            dataset_tag = "{}__{}__{}".format(tag, sample_name, campaign_name)
 
         # complain when the job dir is existing
         job_dir = os.path.join(crab_jobs_folder, "crab_" + request_name)
