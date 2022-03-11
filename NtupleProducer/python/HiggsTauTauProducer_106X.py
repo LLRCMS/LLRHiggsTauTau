@@ -89,7 +89,8 @@ print "GT: ",process.GlobalTag.globaltag
 nanosec="25"
 if not Is25ns: nanosec="50"
 
-METfiltersProcess = "PAT" if IsMC else "RECO" # NB! this is not guaranteed to be true! the following is valid on 2015 Run C + Run D data. Check:
+METfiltersProcess = "PAT" # LP: both for data and MC with UL
+#METfiltersProcess = "PAT" if IsMC else "RECO" # NB! this is not guaranteed to be true! the following is valid on 2015 Run C + Run D data. Check:
 # NB: for MET filters, use PAT or RECO depending if the miniAOD was generated simultaneously with RECO or in a separated step
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD2016#ETmiss_filters
 
