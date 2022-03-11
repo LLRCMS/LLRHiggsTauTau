@@ -2567,26 +2567,10 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
 
   if ( theisMC )
   {
-    edm::Handle<edm::View<reco::GenJet>> genJetHandle;
-    //event.getByLabel ("slimmedGenJets", genJetHandle);
-    event.getByToken (theGenJetTag, genJetHandle);
-    std::vector <const reco::GenJet*> ptrGenJets;
-    unsigned int genJetSize = genJetHandle->size();
-    for (unsigned int igj = 0; igj < genJetSize; igj++)
-    {
-      ptrGenJets.push_back ( &((*genJetHandle)[igj]) );
-    }
-
-    // now gather associated gen jets and save their address
+    // get the index to the gen jet by using its forward reference
     // relies on the fact that gen jets are filled in the same order as they appear in the collection
-    std::vector <const reco::GenJet*>::iterator it;
-    for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet)
-    {
-      const reco::GenJet * thisGenJet =  ijet->genJet ();
-      int genindex = -1;
-      it = std::find(ptrGenJets.begin(), ptrGenJets.end(), thisGenJet);
-      if (it != ptrGenJets.end())
-          genindex = std::distance (ptrGenJets.begin(), it);
+    for (const auto& jet : *jets) {
+      int genindex = jet.genJet() ? jet.genJetFwdRef().backRef().key() : -1;
       _jets_genjetIndex.push_back(genindex);
     }
   }
