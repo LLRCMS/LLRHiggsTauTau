@@ -180,7 +180,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   bool refitPV(const edm::Event & iEvent, const edm::EventSetup & iSetup);
   bool findPrimaryVertices(const edm::Event & iEvent, const edm::EventSetup & iSetup);
   TVector3 getPCA(const edm::Event & iEvent, const edm::EventSetup & iSetup,
-		  const reco::Track *aTrack, const GlobalPoint & aPoint);
+      const reco::Track *aTrack, const GlobalPoint & aPoint);
 
   // ----------member data ---------------------------
   //std::map <int, int> genFlagPosMap_; // to convert from input to output enum format for H/Z decays
@@ -575,9 +575,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byVVVLooseDeepTau2017v2p1VSe",  
    "byVVLooseDeepTau2017v2p1VSe", 
    "byVLooseDeepTau2017v2p1VSe",   
-   "byLooseDeepTau2017v2p1VSe",	
+   "byLooseDeepTau2017v2p1VSe", 
    "byMediumDeepTau2017v2p1VSe",
-   "byTightDeepTau2017v2p1VSe",	
+   "byTightDeepTau2017v2p1VSe", 
    "byVTightDeepTau2017v2p1VSe",   
    "byVVTightDeepTau2017v2p1VSe",   
    "byVLooseDeepTau2017v2p1VSmu",
@@ -704,6 +704,11 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _ak8jets_deepFlavor_probb; // Flavor score
   std::vector<Float_t> _ak8jets_deepFlavor_probbb; // Flavor score
   std::vector<Float_t> _ak8jets_deepFlavor_problepb; // Flavor score
+  std::vector<Float_t> _ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb;
+  std::vector<Float_t> _ak8jets_deepDoubleBvLJetTags_probHbb;
+  std::vector<Float_t> _ak8jets_deepBoostedJetTags_probHbb;
+  std::vector<Float_t> _ak8jets_particleNetJetTags_probHbb;
+  std::vector<Float_t> _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD;
   std::vector<Int_t>   _ak8jets_nsubjets;
 
   // subjets of ak8 -- store ALL subjets, and link them with an idx to the ak8 jet vectors
@@ -739,6 +744,15 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _bdiscr12; //DeepFlavor_probc
   std::vector<Float_t> _bdiscr13; //DeepFlavor_probuds
   std::vector<Float_t> _bdiscr14; //DeepFlavor_probg
+
+  std::vector<Float_t> _bdiscr15; // ParticleNetAK4JetTags_probbb
+  std::vector<Float_t> _bdiscr16; // ParticleNetAK4JetTags_probpu
+  std::vector<Float_t> _bdiscr17; // ParticleNetAK4JetTags_probcc
+  std::vector<Float_t> _bdiscr18; // ParticleNetAK4JetTags_probundef
+  std::vector<Float_t> _bdiscr19; // ParticleNetAK4JetTags_probc
+  std::vector<Float_t> _bdiscr20; // ParticleNetAK4JetTags_probb
+  std::vector<Float_t> _bdiscr21; // ParticleNetAK4JetTags_probuds
+  std::vector<Float_t> _bdiscr22; // ParticleNetAK4JetTags_probg
   
   std::vector<Int_t> _jetID; //1=loose, 2=tight, 3=tightlepveto
   std::vector<Float_t> _jetrawf;
@@ -1236,6 +1250,14 @@ void HTauTauNtuplizer::Initialize(){
   _bdiscr12.clear();
   _bdiscr13.clear();
   _bdiscr14.clear();
+  _bdiscr15.clear();
+  _bdiscr16.clear();
+  _bdiscr17.clear();
+  _bdiscr18.clear();
+  _bdiscr19.clear();
+  _bdiscr20.clear();
+  _bdiscr21.clear();
+  _bdiscr22.clear();
   
   _jetID.clear();
   _jetrawf.clear();
@@ -1259,6 +1281,11 @@ void HTauTauNtuplizer::Initialize(){
   _ak8jets_deepFlavor_probb.clear();
   _ak8jets_deepFlavor_probbb.clear();
   _ak8jets_deepFlavor_problepb.clear();
+  _ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb.clear();
+  _ak8jets_deepDoubleBvLJetTags_probHbb.clear();
+  _ak8jets_deepBoostedJetTags_probHbb.clear();
+  _ak8jets_particleNetJetTags_probHbb.clear();
+  _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD.clear();
   _ak8jets_nsubjets.clear();
 
   _subjets_px.clear();
@@ -1661,6 +1688,14 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("bDeepFlavor_probc",&_bdiscr12);
   myTree->Branch("bDeepFlavor_probuds",&_bdiscr13);
   myTree->Branch("bDeepFlavor_probg",&_bdiscr14);
+  myTree->Branch("bParticleNetAK4JetTags_probbb", &_bdiscr15);
+  myTree->Branch("bParticleNetAK4JetTags_probpu", &_bdiscr16);
+  myTree->Branch("bParticleNetAK4JetTags_probcc", &_bdiscr17);
+  myTree->Branch("bParticleNetAK4JetTags_probundef", &_bdiscr18);
+  myTree->Branch("bParticleNetAK4JetTags_probc", &_bdiscr19);
+  myTree->Branch("bParticleNetAK4JetTags_probb", &_bdiscr20);
+  myTree->Branch("bParticleNetAK4JetTags_probuds", &_bdiscr21);
+  myTree->Branch("bParticleNetAK4JetTags_probg", &_bdiscr22);
   
   myTree->Branch("PFjetID",&_jetID);
   myTree->Branch("jetRawf",&_jetrawf);
@@ -1686,6 +1721,11 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("ak8jets_deepFlavor_probb", &_ak8jets_deepFlavor_probb);
   myTree->Branch("ak8jets_deepFlavor_probbb", &_ak8jets_deepFlavor_probbb);
   myTree->Branch("ak8jets_deepFlavor_problepb", &_ak8jets_deepFlavor_problepb);
+  myTree->Branch("ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb", &_ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb);
+  myTree->Branch("ak8jets_deepDoubleBvLJetTags_probHbb", &_ak8jets_deepDoubleBvLJetTags_probHbb);
+  myTree->Branch("ak8jets_deepBoostedJetTags_probHbb", &_ak8jets_deepBoostedJetTags_probHbb);
+  myTree->Branch("ak8jets_particleNetJetTags_probHbb", &_ak8jets_particleNetJetTags_probHbb);
+  myTree->Branch("ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD", &_ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD);
   myTree->Branch("ak8jets_nsubjets", &_ak8jets_nsubjets);
 
   myTree->Branch("subjets_px", &_subjets_px);
@@ -2145,7 +2185,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
         }
 
         //if(iCand==0)_indexDau1.push_back(index);
-        //else _indexDau2.push_back(index);	
+        //else _indexDau2.push_back(index); 
     }
     if(CompareLegs(cand.daughter(0),cand.daughter(1))){
       _indexDau1.push_back(index1);
@@ -2154,7 +2194,7 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       _mTDau2.push_back (mT2);
     }else {
       _indexDau1.push_back(index2);
-      _indexDau2.push_back(index1);	    
+      _indexDau2.push_back(index1);     
       _mTDau1.push_back (mT2);
       _mTDau2.push_back (mT1);
     }
@@ -2296,19 +2336,19 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     for(edm::View<reco::VertexCompositePtrCandidate>::const_iterator isv = secVtxs->begin(); isv!=secVtxs->end(); ++isv)
     {
       GlobalVector flightDir(isv->vertex().x() - pv.x(), isv->vertex().y() - pv.y(), isv->vertex().z() - pv.z());
-	  GlobalVector jetDir(ijet->px(),ijet->py(),ijet->pz());
+    GlobalVector jetDir(ijet->px(),ijet->py(),ijet->pz());
       if( deltaR2( flightDir, jetDir ) < 0.09 )
       {
         Measurement1D dl= vdist.distance(pv,VertexState(RecoVertex::convertPos(isv->position()),RecoVertex::convertError(isv->error())));
-		if(dl.significance() > maxFoundSignificance)
+    if(dl.significance() > maxFoundSignificance)
         {
-		  maxFoundSignificance=dl.significance();
-		  vtxPt   = isv->pt();
-		  vtxMass = isv->p4().M();
-		  vtx3dL  = dl.value();
-		  vtx3deL = dl.error();
-		  vtxNtrk = isv->numberOfSourceCandidatePtrs();
-		}
+      maxFoundSignificance=dl.significance();
+      vtxPt   = isv->pt();
+      vtxMass = isv->p4().M();
+      vtx3dL  = dl.value();
+      vtx3deL = dl.error();
+      vtxNtrk = isv->numberOfSourceCandidatePtrs();
+    }
       }
     }
     
@@ -2337,6 +2377,16 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _bdiscr12.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probc"));
     _bdiscr13.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probuds"));
     _bdiscr14.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probg"));
+
+    // ParticleNet
+    _bdiscr15.push_back(ijet->bDiscriminator("pfParticleNetAK4JetTags:probbb"));
+    _bdiscr16.push_back(ijet->bDiscriminator("pfParticleNetAK4JetTags:probpu"));
+    _bdiscr17.push_back(ijet->bDiscriminator("pfParticleNetAK4JetTags:probcc"));
+    _bdiscr18.push_back(ijet->bDiscriminator("pfParticleNetAK4JetTags:probundef"));
+    _bdiscr19.push_back(ijet->bDiscriminator("pfParticleNetAK4JetTags:probc"));
+    _bdiscr20.push_back(ijet->bDiscriminator("pfParticleNetAK4JetTags:probb"));
+    _bdiscr21.push_back(ijet->bDiscriminator("pfParticleNetAK4JetTags:probuds"));
+    _bdiscr22.push_back(ijet->bDiscriminator("pfParticleNetAK4JetTags:probg"));
 
     //PF jet ID
     float NHF                 = ijet->neutralHadronEnergyFraction();
@@ -2594,9 +2644,9 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       //_ak8jets_tau2.push_back         (ijet->hasUserFloat("NjettinessAK8:tau2")       ? ijet->userFloat("NjettinessAK8:tau2")       : -999 );
       //_ak8jets_tau3.push_back         (ijet->hasUserFloat("NjettinessAK8:tau3")       ? ijet->userFloat("NjettinessAK8:tau3")       : -999 );
       _ak8jets_SoftDropMass.push_back (ijet->hasUserFloat("ak8PFJetsPuppiSoftDropMass") ? ijet->userFloat("ak8PFJetsPuppiSoftDropMass") : -999 );
-      _ak8jets_PrunedMass.push_back   (ijet->hasUserFloat("ak8PFJetsPuppiPrunedMass")   ? ijet->userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass")   : -999 );
-      _ak8jets_TrimmedMass.push_back  (ijet->hasUserFloat("ak8PFJetsPuppiTrimmedMass")  ? ijet->userFloat("ak8PFJetsPuppiTrimmedMass")  : -999 );
-      _ak8jets_FilteredMass.push_back (ijet->hasUserFloat("ak8PFJetsPuppiFilteredMass") ? ijet->userFloat("ak8PFJetsPuppiFilteredMass") : -999 );
+      _ak8jets_PrunedMass.push_back   (ijet->hasUserFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass") ? ijet->userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass")   : -999 );
+      _ak8jets_TrimmedMass.push_back  (ijet->hasUserFloat("ak8PFJetsPuppiTrimmedMass")  ? ijet->userFloat("ak8PFJetsPuppiTrimmedMass")  : -999 );  // not existing anymore
+      _ak8jets_FilteredMass.push_back (ijet->hasUserFloat("ak8PFJetsPuppiFilteredMass") ? ijet->userFloat("ak8PFJetsPuppiFilteredMass") : -999 );  // not existing anymore
       _ak8jets_tau1.push_back         (ijet->hasUserFloat("NjettinessAK8Puppi:tau1")    ? ijet->userFloat("NjettinessAK8Puppi:tau1")    : -999 );
       _ak8jets_tau2.push_back         (ijet->hasUserFloat("NjettinessAK8Puppi:tau2")    ? ijet->userFloat("NjettinessAK8Puppi:tau2")    : -999 );
       _ak8jets_tau3.push_back         (ijet->hasUserFloat("NjettinessAK8Puppi:tau3")    ? ijet->userFloat("NjettinessAK8Puppi:tau3")    : -999 );
@@ -2604,9 +2654,14 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_CSV.push_back(ijet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
       _ak8jets_deepCSV_probb.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probb"));
       _ak8jets_deepCSV_probbb.push_back(ijet->bDiscriminator("pfDeepCSVJetTags:probbb"));
-      _ak8jets_deepFlavor_probb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probb"));
-      _ak8jets_deepFlavor_probbb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probbb"));
-      _ak8jets_deepFlavor_problepb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:problepb"));
+      _ak8jets_deepFlavor_probb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probb"));  // not existing anymore
+      _ak8jets_deepFlavor_probbb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:probbb"));  // not existing anymore
+      _ak8jets_deepFlavor_problepb.push_back(ijet->bDiscriminator("pfDeepFlavourJetTags:problepb"));  // not existing anymore
+      _ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb.push_back(ijet->bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb"));
+      _ak8jets_deepDoubleBvLJetTags_probHbb.push_back(ijet->bDiscriminator("pfDeepDoubleBvLJetTags:probHbb"));
+      _ak8jets_deepBoostedJetTags_probHbb.push_back(ijet->bDiscriminator("pfDeepBoostedJetTags:probHbb"));
+      _ak8jets_particleNetJetTags_probHbb.push_back(ijet->bDiscriminator("pfParticleNetJetTags:probHbb"));
+      _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD.push_back(ijet->bDiscriminator("pfParticleNetDiscriminatorsJetTags:HbbvsQCD"));
 
       // store subjets for soft drop
       int nsubj = 0;
@@ -2626,9 +2681,9 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
           _subjets_CSV.push_back((*isubj)->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
           _subjets_deepCSV_probb.push_back((*isubj)->bDiscriminator("pfDeepCSVJetTags:probb"));
           _subjets_deepCSV_probbb.push_back((*isubj)->bDiscriminator("pfDeepCSVJetTags:probbb"));
-          _subjets_deepFlavor_probb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:probb"));
-          _subjets_deepFlavor_probbb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:probbb"));
-          _subjets_deepFlavor_problepb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:problepb"));
+          _subjets_deepFlavor_probb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:probb"));  // not existing anymore
+          _subjets_deepFlavor_probbb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:probbb"));  // not existing anymore
+          _subjets_deepFlavor_problepb.push_back((*isubj)->bDiscriminator("pfDeepFlavourJetTags:problepb"));  // not existing anymore
           _subjets_ak8MotherIdx.push_back(ijet - fatjets->begin()); // idx of fatjet in fatjet vector
           // cout << " * " << (*isubj)->pt() << " " << isubj - subj.begin() << endl;
         }
@@ -2640,8 +2695,8 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
 
 //Fill all leptons (we keep them all for veto purposes
 void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
-				       const edm::Event& event, const edm::EventSetup& setup,
-				       bool theFSR, const edm::View<pat::Jet> *jets,const BXVector<l1t::Tau>* l1taus ){
+               const edm::Event& event, const edm::EventSetup& setup,
+               bool theFSR, const edm::View<pat::Jet> *jets,const BXVector<l1t::Tau>* l1taus ){
   edm::Handle<edm::TriggerResults> triggerBits;
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
 
@@ -2813,8 +2868,8 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
       float dR_cand_jet = deltaR(*cand,*jeti);
       if(dR_cand_jet<dRmin_cand_jet){
-	closest_jet = (*jeti);
-	dRmin_cand_jet = dR_cand_jet;
+  closest_jet = (*jeti);
+  dRmin_cand_jet = dR_cand_jet;
       }
 
     }
@@ -2875,7 +2930,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     TVector3 pcaGenPV;
     if(theisMC) pcaGenPV = getPCA(event, setup, cand->bestTrack(), aPVGenPoint);
 
-    if(type==ParticleType::MUON){	
+    if(type==ParticleType::MUON){ 
       muIDflag=userdatahelpers::getUserInt(cand,"muonID");
       //discr = (float) muIDflag; // not really needed, will use the muonID branch in ntuples...
       if(userdatahelpers::getUserFloat(cand,"isPFMuon"))typeOfMuon |= 1 << 0;
@@ -2990,16 +3045,16 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
       const pat::Tau *taon  = dynamic_cast<const pat::Tau*>(cand);
       if(taon){
-	pcaPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVPoint);
-	pcaRefitPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVRefitPoint);
-	if(theisMC) pcaGenPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVGenPoint);
+  pcaPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVPoint);
+  pcaRefitPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVRefitPoint);
+  if(theisMC) pcaGenPV = getPCA(event, setup, taon->leadChargedHadrCand()->bestTrack(), aPVGenPoint);
 
-	reco::CandidatePtrVector chCands = taon->signalChargedHadrCands();
-	reco::CandidatePtrVector neCands = taon->signalGammaCands();
-	chargedP4 = math::XYZTLorentzVector();
-	neutralP4 = math::XYZTLorentzVector();
-	for(reco::CandidatePtrVector::const_iterator id=chCands.begin();id!=chCands.end(); ++id) chargedP4 += (*id)->p4();
-	for(reco::CandidatePtrVector::const_iterator id=neCands.begin();id!=neCands.end(); ++id) neutralP4 += (*id)->p4();
+  reco::CandidatePtrVector chCands = taon->signalChargedHadrCands();
+  reco::CandidatePtrVector neCands = taon->signalGammaCands();
+  chargedP4 = math::XYZTLorentzVector();
+  neutralP4 = math::XYZTLorentzVector();
+  for(reco::CandidatePtrVector::const_iterator id=chCands.begin();id!=chCands.end(); ++id) chargedP4 += (*id)->p4();
+  for(reco::CandidatePtrVector::const_iterator id=neCands.begin();id!=neCands.end(); ++id) neutralP4 += (*id)->p4();
       }
     }
     //_discriminator.push_back(discr);
@@ -3131,7 +3186,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
 
       if(deltaR2(obj,*cand)<0.25){
       
-	//cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of (pt, eta, phi) = " << cand->pt() << " "<< cand->eta()<< " " <<cand->phi()<<" HLT obj (pt, eta, phi) " << obj.pt() << " "<< obj.eta()<< " "<<obj.phi()<<endl;
+  //cout << "######### NEW OBJECT MATCHED to offline " << cand->pdgId() << " of (pt, eta, phi) = " << cand->pt() << " "<< cand->eta()<< " " <<cand->phi()<<" HLT obj (pt, eta, phi) " << obj.pt() << " "<< obj.eta()<< " "<<obj.phi()<<endl;
 
 
         if (type==ParticleType::TAU && (obj.hasTriggerObjectType(trigger::TriggerTau)|| obj.hasTriggerObjectType(trigger::TriggerL1TauJet)))triggerType=true;
@@ -3210,7 +3265,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
             for(int ifilt=0;ifilt<trgmap.GetNfiltersleg1();ifilt++)
             {
               string label = trgmap.Getfilter(true,ifilt);
-	      //cout << " @@ leg 1 looking for " << label << endl;
+        //cout << " @@ leg 1 looking for " << label << endl;
               if (label.empty()) continue;
               if (find(vLabels.begin(), vLabels.end(), label) == vLabels.end()) istrgMatched=false;
             }
@@ -3243,7 +3298,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
             toStandaloneMatched.at(triggerbit).push_back(idxto);
             //std::cout << "--> AFTER  trgMatched: " << std::bitset<64>(trgMatched) << std::endl; //FRA
           }
-	  //cout << "istrgMatched ? " << istrgMatched << endl;
+    //cout << "istrgMatched ? " << istrgMatched << endl;
 
         } // loop on triggerbit from 0 to GetNTriggers()
 
@@ -3280,7 +3335,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
         const l1extra::L1JetParticle& L1IsoTau = (*L1ExtraIsoTau).at(iL1IsoTau);
         // cout << "IL1TauL: " << iL1IsoTau << " - " << L1IsoTau.pt() << " " << L1IsoTau.eta() << " " << L1IsoTau.phi() << " " << isL1IsoTauMatched << endl;
         // 0.5 cone match + pT requirement as in data taking
-	cout<<"iso tau pt "<<L1IsoTau.pt()<<" eta "<<L1IsoTau.eta()<<" "<<L1IsoTau.phi()<<endl;
+  cout<<"iso tau pt "<<L1IsoTau.pt()<<" eta "<<L1IsoTau.eta()<<" "<<L1IsoTau.phi()<<endl;
         if(L1IsoTau.pt() > 32 && deltaR2(L1IsoTau,*cand)<0.25)
           {
 
@@ -3290,44 +3345,44 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       }
       }*/
 
-	std::vector<Float_t> L1IsoTau_et; 
-	for (int ibx = l1taus->getFirstBX(); ibx <= l1taus->getLastBX(); ++ibx)
-	  {
-	    for (BXVector<l1t::Tau>::const_iterator it=l1taus->begin(ibx); it!=l1taus->end(ibx); it++)
-	      {
-		if (it->et() > 0 && ibx ==0){
-		  if (it->hwIso() > 0.5){
-		    TLorentzVector tlv_L1Tau;
-		    TLorentzVector tlv_Tau;
-		    tlv_L1Tau.SetPtEtaPhiM(it->et(),
-					   it->eta(),
-					   it->phi(),
-					   0.);
-		    
-		    tlv_Tau.SetPtEtaPhiM(cand->pt(),
-					 cand->eta(),
-					 cand->phi(),
-					 0.);
-		    
-		    if ((tlv_L1Tau.DeltaR(tlv_Tau)*tlv_L1Tau.DeltaR(tlv_Tau)) < 0.25) {
-		      isL1IsoTauMatched = true;
-		      L1IsoTau_et.push_back(it->et());
-		    }
-		    
-		  }
-		  
-		}
-	      }
-	    
-	  }
-	
-	if(isL1IsoTauMatched) {
-	  std::sort(L1IsoTau_et.begin(), L1IsoTau_et.end());
-	  Float_t L1IsoTau_etMax = *L1IsoTau_et.rbegin();
-	  _daughters_highestEt_L1IsoTauMatched.push_back(L1IsoTau_etMax) ;
-	}else{
-	  _daughters_highestEt_L1IsoTauMatched.push_back(-1) ;
-	}
+  std::vector<Float_t> L1IsoTau_et; 
+  for (int ibx = l1taus->getFirstBX(); ibx <= l1taus->getLastBX(); ++ibx)
+    {
+      for (BXVector<l1t::Tau>::const_iterator it=l1taus->begin(ibx); it!=l1taus->end(ibx); it++)
+        {
+    if (it->et() > 0 && ibx ==0){
+      if (it->hwIso() > 0.5){
+        TLorentzVector tlv_L1Tau;
+        TLorentzVector tlv_Tau;
+        tlv_L1Tau.SetPtEtaPhiM(it->et(),
+             it->eta(),
+             it->phi(),
+             0.);
+        
+        tlv_Tau.SetPtEtaPhiM(cand->pt(),
+           cand->eta(),
+           cand->phi(),
+           0.);
+        
+        if ((tlv_L1Tau.DeltaR(tlv_Tau)*tlv_L1Tau.DeltaR(tlv_Tau)) < 0.25) {
+          isL1IsoTauMatched = true;
+          L1IsoTau_et.push_back(it->et());
+        }
+        
+      }
+      
+    }
+        }
+      
+    }
+  
+  if(isL1IsoTauMatched) {
+    std::sort(L1IsoTau_et.begin(), L1IsoTau_et.end());
+    Float_t L1IsoTau_etMax = *L1IsoTau_et.rbegin();
+    _daughters_highestEt_L1IsoTauMatched.push_back(L1IsoTau_etMax) ;
+  }else{
+    _daughters_highestEt_L1IsoTauMatched.push_back(-1) ;
+  }
   
   }
 }
@@ -3406,8 +3461,8 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         int TopDecayMode = -1;
         int WDecayMode = -1;
         int TauGenDecayMode = -1;
-	int TauGenDetailedDecayMode = -1;
-	TVector3 pca(99,99,99);
+  int TauGenDetailedDecayMode = -1;
+  TVector3 pca(99,99,99);
         
         if (igen->hasUserInt("HMothIndex"))   HMIndex = igen->userInt("HMothIndex");
         if (igen->hasUserInt("MSSMHMothIndex"))   MSSMHMIndex = igen->userInt("MSSMHMothIndex");
@@ -3420,9 +3475,9 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         if (igen->hasUserInt("TopDecayMode"))   TopDecayMode = igen->userInt("TopDecayMode");
         if (igen->hasUserInt("WDecayMode"))   WDecayMode = igen->userInt("WDecayMode");
         if (igen->hasUserInt("tauGenDecayMode"))   TauGenDecayMode = igen->userInt("tauGenDecayMode");
-	if (igen->hasUserInt("tauGenDetailedDecayMode"))   TauGenDetailedDecayMode = igen->userInt("tauGenDetailedDecayMode");
-	if (igen->hasUserFloat("pca_x")) pca = TVector3(igen->userFloat("pca_x"),igen->userFloat("pca_y"),igen->userFloat("pca_z"));
-	  
+  if (igen->hasUserInt("tauGenDetailedDecayMode"))   TauGenDetailedDecayMode = igen->userInt("tauGenDetailedDecayMode");
+  if (igen->hasUserFloat("pca_x")) pca = TVector3(igen->userFloat("pca_x"),igen->userFloat("pca_y"),igen->userFloat("pca_z"));
+    
         
         _genpart_HMothInd.push_back(HMIndex);
         _genpart_MSSMHMothInd.push_back(MSSMHMIndex);
@@ -3435,21 +3490,21 @@ void HTauTauNtuplizer::FillGenInfo(const edm::Event& event)
         _genpart_TopDecayMode.push_back(TopDecayMode);
         _genpart_WDecayMode.push_back(WDecayMode);
         _genpart_TauGenDecayMode.push_back(TauGenDecayMode);
-	_genpart_TauGenDetailedDecayMode.push_back(TauGenDetailedDecayMode);
-	_genpart_pca_x.push_back(pca.X());
-	_genpart_pca_y.push_back(pca.Y());
-	_genpart_pca_z.push_back(pca.Z());
+  _genpart_TauGenDetailedDecayMode.push_back(TauGenDetailedDecayMode);
+  _genpart_pca_x.push_back(pca.X());
+  _genpart_pca_y.push_back(pca.Y());
+  _genpart_pca_z.push_back(pca.Z());
         
         //const pat::GenericParticle* genClone = &(*igen);
         //int flags = CreateFlagsWord (genClone);
         int flags = igen -> userInt ("generalGenFlags");
         _genpart_flags.push_back(flags);
 
-	if(igen->hasUserInt("HZDecayMode") || igen->hasUserInt("WDecayMode") || igen->hasUserInt("TopDecayMode")){
-	  _pvGen_x = igen->vx();
-	  _pvGen_y = igen->vy();
-	  _pvGen_z = igen->vz();
-	}
+  if(igen->hasUserInt("HZDecayMode") || igen->hasUserInt("WDecayMode") || igen->hasUserInt("TopDecayMode")){
+    _pvGen_x = igen->vx();
+    _pvGen_y = igen->vy();
+    _pvGen_z = igen->vz();
+  }
     }
 }
 
@@ -3461,11 +3516,8 @@ void HTauTauNtuplizer::FillGenJetInfo(const edm::Event& event)
     event.getByToken (theGenJetTag, genJetHandle);
     unsigned int genJetSize = genJetHandle->size();
 
-    // to retrieve gen jet flavour from matched gen jet
-    edm::Handle<edm::View<pat::Jet>> patjetHandle;
-    //event.getByLabel("jets", patjetHandle);
-    event.getByToken(theJetTag, patjetHandle);
-    unsigned int jetSize = patjetHandle->size();
+    // to retrieve gen jet flavour from matched pat jet
+    const edm::View<pat::Jet>& patJets = event.get(theJetTag);
 
     for (unsigned int igj = 0; igj < genJetSize; igj++)
     {
@@ -3475,26 +3527,16 @@ void HTauTauNtuplizer::FillGenJetInfo(const edm::Event& event)
       _genjet_pz.push_back ( genJet.pz() );
       _genjet_e .push_back ( genJet.energy() );
 
-      // jet flavour
+      // get flavour by finding the gen jet's pat jet which already stores that info
       int partFlav = -999;
       int hadrFlav = -999;
-
-      for (unsigned int ijet = 0; ijet < jetSize; ijet++)
-      {
-        const pat::Jet& patjet = (*patjetHandle)[ijet];
-        const reco::GenJet * thismatchedGenJet =  patjet.genJet();
-
-        if (thismatchedGenJet == &genJet)
-        {
-          // no error, checked :-)
-          //if (partFlav != -999 && patjet.partonFlavour() != partFlav) cout << igj << " MISMATCH! Part flav: " << partFlav << " " << patjet.partonFlavour() << endl;
-          //if (hadrFlav != -999 && patjet.hadronFlavour() != hadrFlav) cout << igj << " MISMATCH! Hadr flav: " << hadrFlav << " " << patjet.hadronFlavour() << endl;
-          partFlav = patjet.partonFlavour();
-          hadrFlav = patjet.hadronFlavour();
+      for (const auto& jet : patJets) {
+        if (jet.genJet() && jet.genJetFwdRef().backRef().key() == igj) {
+          partFlav = jet.partonFlavour();
+          hadrFlav = jet.hadronFlavour();
           break;
-        }      
+        }
       }
-
       _genjet_partonFlavour.push_back(partFlav);
       _genjet_hadronFlavour.push_back(hadrFlav);
 
@@ -3559,29 +3601,29 @@ void HTauTauNtuplizer::FillL1Obj(const BXVector<l1t::Tau>* taus, const BXVector<
   for (int ibx = taus->getFirstBX(); ibx <= taus->getLastBX(); ++ibx)
     {
       for (BXVector<l1t::Tau>::const_iterator it=taus->begin(ibx); it!=taus->end(ibx); it++)
-	{
-	  if (it->et() > 0 && ibx ==0){
+  {
+    if (it->et() > 0 && ibx ==0){
 
-	    _L1_tauEt .push_back(it->et());
-	    _L1_tauEta.push_back(it->eta());
-	    _L1_tauPhi.push_back(it->phi());
-	    _L1_tauIso.push_back(it->hwIso());
-	  }
-	}
+      _L1_tauEt .push_back(it->et());
+      _L1_tauEta.push_back(it->eta());
+      _L1_tauPhi.push_back(it->phi());
+      _L1_tauIso.push_back(it->hwIso());
+    }
+  }
     }
 
   for (int ibx = jets->getFirstBX(); ibx <= jets->getLastBX(); ++ibx)
     {
       for (BXVector<l1t::Jet>::const_iterator it=jets->begin(ibx); it!=jets->end(ibx); it++)
-	{
-	  if (it->et() > 0&& ibx ==0){
-	    
-	    _L1_jetEt .push_back(it->et());
-	    _L1_jetEta.push_back(it->eta());
-	    _L1_jetPhi.push_back(it->phi());
-	   
-	  }
-	}
+  {
+    if (it->et() > 0&& ibx ==0){
+      
+      _L1_jetEt .push_back(it->et());
+      _L1_jetEta.push_back(it->eta());
+      _L1_jetPhi.push_back(it->phi());
+     
+    }
+  }
     }
 }
 
@@ -3634,66 +3676,66 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   if (!theisMC && theYear==2018)
     {
       if (iRun.run()<315974)
-	{
-	  // HLT paths with "HPS"
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  
-	  // HLT paths without "HPS"
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v") ){
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
-	    //cout << "======> changed!"<<endl;
-	  }
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	}else{
-	  // HLT paths with "HPS"
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  
-	  // HLT paths without "HPS"
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v") ){
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
-	    //cout << "======> changed back!"<<endl;
-	  }
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
-	  if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
-	    myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+  {
+    // HLT paths with "HPS"
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    
+    // HLT paths without "HPS"
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v") ){
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
+      //cout << "======> changed!"<<endl;
+    }
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoL1sMu18erTau24erIorMu20erTau24erL1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+  }else{
+    // HLT paths with "HPS"
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTauHPS27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltHpsOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    
+    // HLT paths without "HPS"
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v") ){
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoPFTau27L1Seeded"});
+      //cout << "======> changed back!"<<endl;
+    }
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_LooseChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20LooseChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20MediumChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoPFTau27L1Seeded"});
+    if ( myTriggerHelper->HasTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v") )
+      myTriggerHelper->ChangeTriggerMap("HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v",{"hltL3crIsoBigORMu18erTauXXer2p1L1f0L2f10QL3f20QL3trkIsoFiltered0p07","hltOverlapFilterIsoMu20TightChargedIsoTightOOSCPhotonsPFTau27L1Seeded"});
       }
   }
 
@@ -3722,7 +3764,7 @@ void HTauTauNtuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       foundPaths.push_back(pathName);
 
       cout << j << " - TTT: " << pathName << endl;
-	  //	  edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
+    //    edm::LogInfo("AnalyzeRates")<<"Added path "<<pathName<<" to foundPaths";
     } 
   }
   
@@ -3931,7 +3973,7 @@ bool HTauTauNtuplizer::refitPV(const edm::Event & iEvent, const edm::EventSetup 
 
     if(key!=0 ||
        (quality!=pat::PackedCandidate::UsedInFitTight
-	&& quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
+  && quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
 
     pvTracks.push_back(*((*cands)[i].bestTrack()));
   }
@@ -3990,8 +4032,8 @@ bool HTauTauNtuplizer::findPrimaryVertices(const edm::Event & iEvent, const edm:
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 TVector3 HTauTauNtuplizer::getPCA(const edm::Event & iEvent, const edm::EventSetup & iSetup,
-				  const reco::Track *aTrack,	   
-				  const GlobalPoint & aPoint){
+          const reco::Track *aTrack,     
+          const GlobalPoint & aPoint){
   TVector3 aPCA;
   if(!doCPVariables || !aTrack ||  _npv==0 || aTrack->pt()<2) return aPCA;
 
