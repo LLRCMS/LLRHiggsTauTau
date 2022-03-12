@@ -14,10 +14,31 @@ from util import TeeStream, hash_truncate, get_wlcg_user
 #
 
 datasets_file = "datasets_UL17.txt"
-processes = ["BACKGROUNDS_DY_2017"]
-tag = "uhh_2017_v1"
 year = 2017
-mc = True
+tag = "uhh_2017_v2"
+processes = [
+    # "DATA_TAU_2017",
+    # "DATA_ELE_2017",
+    # "DATA_MU_2017",
+    # "DATA_MET_2017",
+    # "BACKGROUNDS_TT_2017",
+    # "BACKGROUNDS_WJETS_2017",
+    # "BACKGROUNDS_DY_2017",
+    # "BACKGROUNDS_VV_2017",
+    # "BACKGROUNDS_VVV_2017",
+    # "BACKGROUNDS_ST_2017",
+    # "BACKGROUNDS_EWK_2017",
+    # "BACKGROUNDS_H_2017",
+    # "BACKGROUNDS_TTX_2017",
+    # "SIGNALS_GF_NONRES_2017",
+    # "SIGNALS_VBF_NONRES_2017",
+    # "SIGNALS_GF_NLO_NONRES_2017",
+    # "SIGNALS_GF_SPIN0_2017",
+    # "SIGNALS_GF_SPIN2_2017",
+    # "SIGNALS_VBF_SPIN0_2017",
+    # "SIGNALS_VBF_SPIN2_2017",
+]
+
 
 #
 # configuration
@@ -72,7 +93,8 @@ with open(datasets_file) as f:
         if m:
             curr_section = m.group(1)
         elif curr_section and curr_section in processes:
-            datasets.append(line)
+            mc = not curr_section.startswith("DATA_")
+            datasets.append((line, mc))
 
 # start submitting them and log simultaneously
 with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
@@ -86,7 +108,7 @@ with TeeStream(os.path.join(crab_jobs_folder, "submissionLog.txt")) as log:
     log.write(" publish  : %s" % publish_dataset)
     log.write("")
 
-    for dataset in datasets:
+    for dataset, mc in datasets:
         # build request names and dataset tags to construct the output directory according to
         # <lfn-prefix>/<primary-dataset>/<publication-name>/<time-stamp>/<counter>[/log]/<file-name>
         sample_name, campaign_name = dataset.split("/")[1:3]
