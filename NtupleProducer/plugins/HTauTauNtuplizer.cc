@@ -597,9 +597,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
   std::vector<Int_t> _daughters_decayModeFindingOldDMs;
-  std::vector<Float_t> _daughters_footprintCorrection;
-  std::vector<Float_t> _daughters_neutralIsoPtSumWeight;
-  std::vector<Float_t> _daughters_photonPtSumOutsideSignalCone;
   std::vector<Int_t> _daughters_decayModeFindingNewDMs;
   std::vector<Float_t> _daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits;
   //std::vector<Float_t> _daughters_byIsolationMVArun2v1DBoldDMwLTraw;
@@ -960,9 +957,6 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_byDeepTau2017v2p1VSeraw.clear();
   _daughters_byDeepTau2017v2p1VSmuraw.clear();
   _daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017.clear(); //FRA
-  _daughters_footprintCorrection.clear();
-  _daughters_neutralIsoPtSumWeight.clear();
-  _daughters_photonPtSumOutsideSignalCone.clear();
   _daughters_chargedIsoPtSum.clear();
   _daughters_neutralIsoPtSum.clear();
   _daughters_puCorrPtSum.clear();
@@ -1556,9 +1550,6 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
   myTree->Branch("daughters_decayModeFindingOldDMs", &_daughters_decayModeFindingOldDMs);
   //myTree->Branch("daughters_SCeta",&_daughters_SCeta); //FRA January2019
-  myTree->Branch("footprintCorrection",&_daughters_footprintCorrection);
-  myTree->Branch("neutralIsoPtSumWeight",&_daughters_neutralIsoPtSumWeight);
-  myTree->Branch("photonPtSumOutsideSignalCone",&_daughters_photonPtSumOutsideSignalCone);
   myTree->Branch("daughters_decayModeFindingNewDMs", &_daughters_decayModeFindingNewDMs);
   myTree->Branch("daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits", &_daughters_byCombinedIsolationDeltaBetaCorrRaw3Hits);
   //myTree->Branch("daughters_byIsolationMVArun2v1DBoldDMwLTraw",&_daughters_byIsolationMVArun2v1DBoldDMwLTraw);
@@ -2873,7 +2864,6 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     float byDeepTau2017v2p1VSjetraw=-1, byDeepTau2017v2p1VSeraw=-1, byDeepTau2017v2p1VSmuraw=-1;
     int  byVVLooseIsolationMVArun2017v2DBoldDMwLT2017=-1; //FRA
     Long64_t tauIDflag = 0;
-    float footprintCorrection, neutralIsoPtSumWeight, photonPtSumOutsideSignalCone;
 
     float dxy_innerTrack = -1., dz_innerTrack = -1., sip = -1., error_trackpt=-1.;
     int jetNDauChargedMVASel = -1;
@@ -2977,9 +2967,6 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
           hTauIDs->Fill(id);
         }
       }
-      footprintCorrection = userdatahelpers::getUserFloat (cand, "footprintCorrection");
-      neutralIsoPtSumWeight = userdatahelpers::getUserFloat (cand, "neutralIsoPtSumWeight");
-      photonPtSumOutsideSignalCone = userdatahelpers::getUserFloat (cand, "photonPtSumOutsideSignalCone");
 
       byCombinedIsolationDeltaBetaCorrRaw3Hits = userdatahelpers::getUserFloat (cand, "byCombinedIsolationDeltaBetaCorrRaw3Hits");
       //byIsolationMVArun2v1DBoldDMwLTraw=userdatahelpers::getUserFloat (cand, "byIsolationMVArun2v1DBoldDMwLTraw");
@@ -3022,9 +3009,6 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_typeOfMuon.push_back(typeOfMuon);
     _daughters_muonID.push_back(muIDflag);
     _daughters_tauID.push_back(tauIDflag);
-    _daughters_footprintCorrection.push_back(footprintCorrection);
-    _daughters_neutralIsoPtSumWeight.push_back(neutralIsoPtSumWeight);
-    _daughters_photonPtSumOutsideSignalCone.push_back(photonPtSumOutsideSignalCone);
 
     _daughters_charge.push_back(cand->charge());
     //_daughters_iseleBDT.push_back(isgood); //FRA January2019
