@@ -147,10 +147,12 @@ example_files = {
     (2018, True): "/store/mc/RunIISummer20UL18MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/120000/001C8DDF-599C-5E45-BF2C-76F887C9ADE9.root",
 }
 
-process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(example_files.get((options.year, options.mc), "")))
+# get an example file when no input file is set
+input_files = options.inputFiles or example_files.get((options.year, options.mc), "")
+process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(input_files))
 
 # process.source.skipEvents = cms.untracked.uint32(968)
-#process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
+# process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
 process.maxEvents.input = options.maxEvents
