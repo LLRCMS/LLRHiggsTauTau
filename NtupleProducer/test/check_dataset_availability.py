@@ -5,8 +5,9 @@
 Checks if all files of one or multiple datasets are available on non-blacklisted sites.
 """
 
-import re
+import os
 import sys
+import re
 import json
 import subprocess
 import urllib
@@ -116,7 +117,7 @@ def run_das_query(query, via_json=False, das_host=None):
     if via_json:
         cmd += " -json"
 
-    p, out = run_command(cmd, attempts=2)
+    p, out = run_command(cmd, attempts=2, timeout=30)
 
     # expect the return code to be 0
     if p.returncode != 0:
@@ -134,16 +135,20 @@ def run_das_query(query, via_json=False, das_host=None):
     return data
 
 
-def run_command(cmd, timeout=30, attempts=1, _attempt=1):
-    p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", stdout=subprocess.PIPE)
+def run_command(cmd, timeout=None, attempts=1, _attempt=1, **kwargs):
+    kwargs["preexec_fn"] = os.setsid
+    p = subprocess.Popen(cmd, shell=True, executable="/bin/bash", stdout=subprocess.PIPE, **kwargs)
 
     try:
         out, _ = p.communicate(timeout=timeout)
         return p, out.decode("utf-8")
 
     except KeyboardInterrupt:
+        p.terminate()
         try:
-            p.terminate()
+            pgid = os.getpgid(p.pid)
+            if p.poll() is None:
+                os.killpg(pgid, signal.SIGTERM)
         except:
             pass
         raise
