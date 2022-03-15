@@ -174,9 +174,8 @@ if not IsMC:
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
-# process.TFileService=cms.Service('TFileService', fileName=cms.string(options.__getattr__("outputFile", noTags=True)))
-#process.TFileService=cms.Service('TFileService',fileName=cms.string('refFiles/Mu16_sync.root'))
+
+process.TFileService=cms.Service('TFileService', fileName=cms.string(options.__getattr__("outputFile", noTags=True)))
 
 if DO_ENRICHED:
     process.out = cms.OutputModule("PoolOutputModule",
