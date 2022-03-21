@@ -8,59 +8,39 @@ import re
 ###################################################################
 #### Parameters to be changed for each production
 
-# PROCESS = ["DATA80XRERECOSETLUCARESUB"]
-# tag = "Data_23SepReReco_8Feb2017_res2"
-# datasetsFile = "datasets.txt"
+datasetsFile = "datasets_UL16APV.txt"
+tag = "MC_2016APV_19Mar2022"
+isMC = True
 
-# PROCESS = ["DATA80XRERECOSETLUCARESUBMORE"]
-# tag = "Data_23SepReReco_8Feb2017_res4"
-# datasetsFile = "datasets.txt"
+PROCESS = [
+#    "SIGNALS_GF_NONRES_2016APV",
+#    "SIGNALS_VBF_NONRES_2016APV",
+#    "SIGNALS_GF_NLO_NONRES_2016APV",
+    "BACKGROUNDS_TT_2016APV",
+    "BACKGROUNDS_WJETS_2016APV",
+    "BACKGROUNDS_DY_2016APV",
+    "BACKGROUNDS_VV_2016APV",
+    "BACKGROUNDS_VVV_2016APV",
+    "BACKGROUNDS_ST_2016APV",
+    "BACKGROUNDS_EWK_2016APV",
+    "BACKGROUNDS_H_2016APV",
+    "BACKGROUNDS_TTX_2016APV",
+#    "SIGNALS_GF_SPIN0_2016APV",
+#    "SIGNALS_GF_SPIN2_2016APV",
+#    "SIGNALS_VBF_SPIN0_2016APV",
+#    "SIGNALS_VBF_SPIN2_2016APV"
+]
 
-# PROCESS = ["DATA7FEBH"]
-# tag = "Data_03FEB2017ReReco_22Feb2017_runH"
-# datasetsFile = "datasets.txt"
+if not isMC:
+    tag.replace("MC","Data")
 
-# PROCESS = ["SUSYSAMPLE"]
-# tag = "MCSUSY_2Apr2017"
-# datasetsFile = "datasets.txt"
+    PROCESS = [
+        "DATA_TAU_2016APV",
+        "DATA_ELE_2016APV",
+        "DATA_MU_2016APV",
+        "DATA_MET_2016APV"
+    ]
 
-#PROCESS = ["MC80XGRAVITON"]
-#tag = "MC_gravitons_24Apr2017"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["MC80XRSGRAVITON"]
-#tag = "MC_gravitonsRS_29Apr2017"
-#datasetsFile = "datasets.txt"
-
-#PROCESS = ["MC_PU12Apr"]
-#tag = "MC_PU12Apr_18May2018"
-#datasetsFile = "datasets_Fall17_15May2018.txt"
-
-#PROCESS = ["DATA2017"]
-#tag = "Data2017BF_31Mar2018ReReco_17May2018"
-#datasetsFile = "datasets_Fall17_15May2018.txt"
-
-#PROCESS = ["MINIAODFALL17v2"]
-#tag = "MC_25June2018"
-#datasetsFile = "datasets_Fall17_15May2018.txt"
-
-#PROCESS = ["BACKGROUNDS_Autumn2018_June2019"]
-#tag = "MC_31July2019"
-#datasetsFile = "datasetsAutumn18_June2019.txt"
-
-#PROCESS = ["BACKGROUNDS_Autumn2018_June2019_FileBased"]
-#tag = "MC_28July2019"
-#datasetsFile = "datasetsAutumn18_June2019.txt"
-
-#PROCESS = ["SIGNALS_Autumn2018_June2019"]
-#tag = "Sig_30July2019"
-#datasetsFile = "datasetsAutumn18_June2019.txt"
-
-PROCESS = ["DATA_2017_Tau"]
-tag = "Data_Legacy2017_24apr20_Tau"
-datasetsFile = "datasets_Legacy2017.txt"
-
-isMC = False
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
 #50ns JSON file to be used on 2015B and 2015C PDs - integrated luminosity: 71.52/pb - 18/09/2015
 #lumiMaskFileName = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-255031_13TeV_PromptReco_Collisions15_50ns_JSON_v2.txt"
@@ -91,22 +71,13 @@ isMC = False
 # lumiMaskFileName = "20lug_NoL1TJSON_diff_15lug_NoL1TJSON.txt"
 #lumiMaskFileName = 'Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/PromptReco/Cert_294927-302663_13TeV_PromptReco_Collisions17_JSON.txt'
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
-
-## 06 June 2019 ReReco Golden JSON 2018
+## 15 May 2018 Golden JSON 2017
 # https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt'
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
-
-# Legacy
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
-
+#lumiMaskFileName = '/home/llr/cms/amendola/HH2017/CMSSW_9_4_6_patch1/src/LLRHiggsTauTau/NtupleProducer/test/crab3_SingleMuon2017_26Jun2018/crab_SingleMuon_4/results/notFinishedLumis.json'
 
 # Ultra-Legacy
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
+lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt'
 #lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
 
@@ -198,22 +169,25 @@ for dtset in dtsetToLaunch:
     dtsetNames = dtsetNames.replace('/', "__")
     dtsetNames = dtsetNames.strip("__") # remove leading and trailing double __ 
     shortName = dtset.split('/')[1]
+    if isMC: shorterName = shortName.split('__')[0]
+    else: shorterName = shortName.split('-')[0]
+    print shorterName
 
-    if (len(shortName) > 95): # requestName not exceed 100 Characters!
-        toRemove = len (shortName) - 95
-        shortName = shortName[toRemove:]
+#    if (len(shortName) > 95): # requestName not exceed 100 Characters!
+#        toRemove = len (shortName) - 95
+#        shortName = shortName[toRemove:]
 
     #dtSetName = dtsetNames[1]
     command = "crab submit -c crab3_template_mib.py"
     #command += " General.requestName=%s" % (dtsetNames + "_" + tag + "_" + str(counter))
-    command += " General.requestName=%s" % (shortName + "_" + str(counter))
+    command += " General.requestName=%s" % (shorterName + "_" + str(counter))
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
     #command += " Data.outLFNDirBase=/store/user/lcadamur/HHNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
     #command += " Data.outLFNDirBase=/store/user/camendol/HHNtuples2017/%s/%s" % (tag , str(counter)+"_"+dtsetNames)
     #command += " Data.outLFNDirBase=/store/user/fbrivio/Hhh_1718/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
-    command += " Data.outLFNDirBase=/store/user/dzuolo/HHbbtautauNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
-    command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
+    command += " Data.outLFNDirBase=/store/user/dzuolo/ResonantHHbbtautauNtuples/%s/%s" % (tag , str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
+    command += " Data.outputDatasetTag=%s" % (shorterName + "_" + tag + "_" + str(counter))
     #command += " Data.splitting='Automatic'"
     if (EnrichedToNtuples): command += " Data.inputDBS=phys03" # if I published the dataset need to switch from global (default)
     if (EnrichedToNtuples): command += " JobType.psetName=ntuplizer.py" # run a different python config for enriched

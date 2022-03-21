@@ -10,9 +10,9 @@ config.General.workArea = 'DefaultCrab3Area'
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'analyzer.py' # to produce LLR ntuples or EnrichedMiniAOD according to the RunNtuplizer bool
-config.JobType.sendExternalFolder = True #Needed until the PR including the Spring16 ele MVA ID is integrated in CMSSW/cms-data.
-config.JobType.inputFiles=['JECUncertaintySources'] # FRA: adding to the sandobx the directory with JEC files (https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3FAQ#How_are_the_inputFiles_handled_i)
-config.JobType.allowUndistributedCMSSW = True #Davide June 2019: This line is necessary to run with CMSSW_10_2_14 on slc7_amd64_gcc700
+#config.JobType.sendExternalFolder = True #Needed until the PR including the Spring16 ele MVA ID is integrated in CMSSW/cms-data.
+#config.JobType.inputFiles=['JECUncertaintySources'] # FRA: adding to the sandobx the directory with JEC files (https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3FAQ#How_are_the_inputFiles_handled_i)
+#config.JobType.allowUndistributedCMSSW = True #Davide June 2019: This line is necessary to run with CMSSW_10_2_14 on slc7_amd64_gcc700
 #config.JobType.maxJobRuntimeMin = 2200 #Davide June 2019: This is necesessary for the analysis of FileBased splitted dataset (2018 DY)
 #config.JobType.maxMemoryMB = 2500 
 #config.JobType.maxMemoryMB = 8000 #Davide June 2019: This is necesessary for the analysis of FileBased splitted dataset (2018 DY)
@@ -28,7 +28,7 @@ config.Data.totalUnits = -1 #number of event
 config.Data.outLFNDirBase = '/store/user/lcadamur/HHNtuples/DefaultOutLFNDirBase'
 config.Data.publication = True
 config.Data.outputDatasetTag = 'DefaultPublishName'
-config.Data.allowNonValidInputDataset = True
+#config.Data.allowNonValidInputDataset = True
 
 # to run on dedicated 2k cores
 #config.section_("Debug")
