@@ -227,6 +227,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::View<pat::Jet>> theJetTag;
   edm::EDGetTokenT<edm::View<pat::Jet>> theFatJetTag;
   edm::EDGetTokenT<edm::ValueMap<float>> theQGTaggerTag;
+  edm::EDGetTokenT<edm::ValueMap<float>> theupdatedPileupJetIdDiscrTag;
+  edm::EDGetTokenT<edm::ValueMap<int>> theupdatedPileupJetIdWPTag;
   edm::EDGetTokenT<edm::View<reco::Candidate>> theLepTag;
   edm::EDGetTokenT<LHEEventProduct> theLHETag;
   edm::EDGetTokenT<GenEventInfoProduct> theGenTag;
@@ -665,6 +667,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _jets_mT;
   std::vector<Float_t> _jets_PUJetID;
   std::vector<Int_t>   _jets_PUJetID_WP;
+  std::vector<Float_t> _jets_PUJetIDupdated;
+  std::vector<Int_t>   _jets_PUJetIDupdated_WP;
   std::vector<Float_t> _jets_vtxPt;
   std::vector<Float_t> _jets_vtxMass;
   std::vector<Float_t> _jets_vtx3dL;
@@ -789,6 +793,8 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theJetTag            (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("jetCollection"))),
   theFatJetTag         (consumes<edm::View<pat::Jet>>                    (pset.getParameter<edm::InputTag>("ak8jetCollection"))),
   theQGTaggerTag       (consumes<edm::ValueMap<float>>                   (pset.getParameter<edm::InputTag>("QGTagger"))),
+  theupdatedPileupJetIdDiscrTag (consumes<edm::ValueMap<float>>          (pset.getParameter<edm::InputTag>("pileupJetIdUpdatedDiscr"))),
+  theupdatedPileupJetIdWPTag    (consumes<edm::ValueMap<int>>            (pset.getParameter<edm::InputTag>("pileupJetIdUpdatedWP"))),
   theLepTag            (consumes<edm::View<reco::Candidate>>             (pset.getParameter<edm::InputTag>("lepCollection"))),
   theLHETag            (consumes<LHEEventProduct>                        (pset.getParameter<edm::InputTag>("lheCollection"))),
   theGenTag            (consumes<GenEventInfoProduct>                    (pset.getParameter<edm::InputTag>("genCollection"))),
@@ -1209,6 +1215,8 @@ void HTauTauNtuplizer::Initialize(){
   _jets_mT.clear();
   _jets_PUJetID.clear();
   _jets_PUJetID_WP.clear();
+  _jets_PUJetIDupdated.clear();
+  _jets_PUJetIDupdated_WP.clear();
   _jets_vtxPt.clear();
   _jets_vtxMass.clear();
   _jets_vtx3dL.clear();
@@ -1648,6 +1656,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_genjetIndex", &_jets_genjetIndex);
   myTree->Branch("jets_PUJetID",&_jets_PUJetID);
   myTree->Branch("jets_PUJetID_WP",&_jets_PUJetID_WP);
+  myTree->Branch("jets_PUJetIDupdated",&_jets_PUJetIDupdated);
+  myTree->Branch("jets_PUJetIDupdated_WP",&_jets_PUJetIDupdated_WP);
   myTree->Branch("jets_vtxPt", &_jets_vtxPt);
   myTree->Branch("jets_vtxMass", &_jets_vtxMass);
   myTree->Branch("jets_vtx3dL", &_jets_vtx3dL);
@@ -1869,6 +1879,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<edm::View<pat::Jet>>jetHandle;
   edm::Handle<edm::View<pat::Jet>>fatjetHandle;
   edm::Handle<edm::ValueMap<float>>qgTaggerHandle;
+  edm::Handle<edm::ValueMap<float>>updatedPileupJetIdDiscrHandle;
+  edm::Handle<edm::ValueMap<int>>updatedPileupJetIdWPHandle;
   edm::Handle<BXVector<l1t::Tau>>L1TauHandle;
   edm::Handle<BXVector<l1t::Jet>>L1JetHandle;
   edm::Handle<pat::METCollection> metHandle;
@@ -1894,6 +1906,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(theJetTag,jetHandle);
   if(computeQGVar)
     event.getByToken(theQGTaggerTag,qgTaggerHandle);
+  event.getByToken(theupdatedPileupJetIdDiscrTag,updatedPileupJetIdDiscrHandle);
+  event.getByToken(theupdatedPileupJetIdWPTag,updatedPileupJetIdWPHandle);
   event.getByToken(theL1TauTag,L1TauHandle);
   event.getByToken(theL1JetTag,L1JetHandle);
   event.getByToken(theFatJetTag,fatjetHandle);
@@ -2033,6 +2047,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
         float qgLikelihood = (*qgTaggerHandle)[jetRef];
         _jets_QGdiscr.push_back(qgLikelihood);
       }
+    }
+    // Add updated PUjetID
+    for(auto jet = jetHandle->begin(); jet != jetHandle->end(); ++jet)
+    {
+      edm::RefToBase<pat::Jet> jetRef(edm::Ref<edm::View<pat::Jet> >(jetHandle, jet - jetHandle->begin()));
+      float updatedPUdiscriminator = (*updatedPileupJetIdDiscrHandle)[jetRef];
+      int updatedPUwps = (*updatedPileupJetIdWPHandle)[jetRef];
+      _jets_PUJetIDupdated.push_back(updatedPUdiscriminator);
+      _jets_PUJetIDupdated_WP .push_back(updatedPUwps);
     }
   }
   if(writeFatJets) FillFatJet(fatjets, event);
