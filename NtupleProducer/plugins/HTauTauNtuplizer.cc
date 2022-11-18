@@ -300,6 +300,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Int_t   _lheNOutPartons;
   Int_t   _lheNOutB;
   Int_t   _lheNOutC;
+  Float_t _lheVPt;
   Float_t _npu;
   Int_t   _PUNumInteractions;
   //Float_t _PUReweight; //FRA January2019
@@ -1189,6 +1190,7 @@ void HTauTauNtuplizer::Initialize(){
   _lheNOutPartons=0;
   _lheNOutB=0;
   _lheNOutC=0;
+  _lheVPt=0.;
   _npu=0.;
   _PUNumInteractions=0;
   //_PUReweight=0.; //FRA January2019
@@ -1466,6 +1468,7 @@ void HTauTauNtuplizer::beginJob(){
     myTree->Branch("lheNOutPartons", &_lheNOutPartons, "lheNOutPartons/I");
     myTree->Branch("lheNOutB", &_lheNOutB, "lheNOutB/I");
     myTree->Branch("lheNOutC", &_lheNOutC, "lheNOutC/I");
+    myTree->Branch("lheVPt", &_lheVPt, "lheVPt/F");
     myTree->Branch("aMCatNLOweight",&_aMCatNLOweight,"aMCatNLOweight/F");    
     myTree->Branch("genpart_px", &_genpart_px);
     myTree->Branch("genpart_py", &_genpart_py);
@@ -1841,6 +1844,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
       int lheNOutPartons = 0;
       int lheNOutB = 0;
       int lheNOutC = 0;
+      double lheVPx = 0.;
+      double lheVPy = 0.;
+      int nOutgoingLep = 0;
       size_t numParticles = lheParticles.size();
       for ( size_t idxParticle = 0; idxParticle < numParticles; ++idxParticle ) {
         int absPdgId = TMath::Abs(lheEvent.IDUP[idxParticle]);
@@ -1851,12 +1857,20 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
             ++lheNOutPartons;
             if (absPdgId == 5) ++lheNOutB ;
             if (absPdgId == 4) ++lheNOutC ;
+        } else if (status == 1 && (absPdgId >= 11 && absPdgId <= 16)) { // outgoing leptons
+            lheVPx += lheParticles[idxParticle][0];
+            lheVPy += lheParticles[idxParticle][1];
+            nOutgoingLep++;
         }
       }
        _lheHt = lheHt;
        _lheNOutPartons = lheNOutPartons;
        _lheNOutB = lheNOutB;
        _lheNOutC = lheNOutC;
+       // store the lhe VPt only when there were two outgoing final leptons
+       if (nOutgoingLep == 2) {
+        _lheVPt = TMath::Sqrt(lheVPx * lheVPx + lheVPy * lheVPy);
+       }
      //cout<<"lheHt = "<<lheHt<<endl;
     }
     //else cout << "LHE product not found" << endl;
