@@ -1,7 +1,7 @@
 /*
 ** class  : DeepMET
-** author : T. Kramer (UHH)
-** date   : 18 November 2020
+** author : T. Kramer (UHH) 
+** date   : 18 November 2022
 ** brief  : takes in input the met, and produces a pat::METCollection with the pt and phi set to the 
 **          DeepMET values
 */
@@ -15,11 +15,6 @@
 #include <FWCore/Utilities/interface/InputTag.h>
 #include <DataFormats/PatCandidates/interface/CompositeCandidate.h>
 #include <DataFormats/PatCandidates/interface/MET.h>
-// #include <DataFormats/METReco/interface/PFMET.h>
-// #include <DataFormats/METReco/interface/PFMETCollection.h>
-// #include <DataFormats/METReco/interface/CommonMETData.h>
-// #include "TLorentzVector.h"
-// #include <LLRHiggsTauTau/NtupleProducer/interface/DaughterDataHelpers.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
 
 #include <vector>
