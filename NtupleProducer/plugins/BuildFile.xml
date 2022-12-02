@@ -17,9 +17,6 @@
 <use name="HTT-utilities/RecoilCorrections" />
 <use name="RecoVertex/AdaptiveVertexFit"/>
 
-<library   file="*.cc" name="LLRHiggsTauTauPlugins">
-  <Flags CPPDEFINES="CMSSW_VERSION=$(shell echo ${CMSSW_VERSION}|sed -e s/CMSSW_// -e s/_//g -e s/patch\.//)"/>
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="LLRHiggsTauTauPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
-
-  

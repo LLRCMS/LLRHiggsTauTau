@@ -1,13 +1,43 @@
+# coding: utf-8
+
+import os
+import re
+
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+
+# setup options
+options = VarParsing("python")
+
+# set defaults of common options
+# options.setDefault("inputFiles", "")  # currently, a list is used to toggle the input for testing
+options.setDefault("outputFile", "HTauTauAnalysis.root")
+options.setDefault("maxEvents", -1)
+
+# register new options
+options.register("year", 2018, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+    "year of data-taking or MC campaign")
+options.register("mc", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+    "whether the input dataset is from MC simulation or not")
+options.register("reportEvery", 5000, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+    "number of events after which a report message is written")
+options.register("wantSummary", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+    "print a summary at the end")
+
+# get arguments of sys.argv
+options.parseArguments()
+
+
 #-----------------------------------------
 #
 #Producer controller
 #
 #-----------------------------------------
-import os, re
+
 PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
 # Year/Period
-YEAR   = 2018
+YEAR   = options.year
 PERIOD = '' # use 'postVFP' for 2016 VFP samples, can be left empty if running on 2017 and 2018
 
 #samples list (it could be moved to a cfg file for better reading
@@ -37,7 +67,7 @@ COMPUTEUPDOWNSVFIT=False # compute SVfit for up/down TES variation
 COMPUTEMETUPDOWNSVFIT=False # compute SVfit for up/down MET JES variation
 doCPVariables=False # compute CP variables and PV refit
 COMPUTEQGVAR = False # compute QG Tagger for jets
-IsMC=True
+IsMC = options.mc
 Is25ns=True
 HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.
 if not IsMC:
@@ -86,44 +116,49 @@ else :
 ### ----------------------------------------------------------------------
 ### Source, better to use sample to run on batch
 ### ----------------------------------------------------------------------
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
 
-    # - Sync files -
-    # Legacy 2016
-    #'/store/data/Run2016H/SingleElectron/MINIAOD/17Jul2018-v1/00000/0026BF69-A58A-E811-BBA8-1866DA87AB31.root'
-    #'/store/data/Run2016F/SingleMuon/MINIAOD/17Jul2018-v1/00000/002F631B-E98D-E811-A8FF-1CB72C1B64E6.root'
-    #'/store/data/Run2016C/Tau/MINIAOD/17Jul2018-v1/40000/FC60B37F-468A-E811-8C7B-0CC47A7C3424.root'
-    #'/store/mc/RunIISummer16MiniAODv3/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3_ext2-v2/270000/EC774BCF-16E9-E811-B699-AC1F6B0DE2F4.root'
-    #'/store/mc/RunIISummer16MiniAODv3/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v2/70000/E8B2E181-FF3E-E911-B72D-0025904C7FC2.root'
+# example files mapped to (year, mc)
+example_files = {
+    # sync files, legacy 2016
+    # (2016, False): "/store/data/Run2016H/SingleElectron/MINIAOD/17Jul2018-v1/00000/0026BF69-A58A-E811-BBA8-1866DA87AB31.root",
+    # (2016, False): "/store/data/Run2016F/SingleMuon/MINIAOD/17Jul2018-v1/00000/002F631B-E98D-E811-A8FF-1CB72C1B64E6.root",
+    # (2016, False): "/store/data/Run2016C/Tau/MINIAOD/17Jul2018-v1/40000/FC60B37F-468A-E811-8C7B-0CC47A7C3424.root",
+    # (2016, True): "/store/mc/RunIISummer16MiniAODv3/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3_ext2-v2/270000/EC774BCF-16E9-E811-B699-AC1F6B0DE2F4.root",
+    # (2016, True): "/store/mc/RunIISummer16MiniAODv3/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3-v2/70000/E8B2E181-FF3E-E911-B72D-0025904C7FC2.root",
 
-    # Legacy 2017
-    #'/store/data/Run2017D/SingleElectron/MINIAOD/31Mar2018-v1/90000/FEFBCFEA-5939-E811-99DA-0025905B85D6.root'
-    #'/store/data/Run2017F/SingleMuon/MINIAOD/31Mar2018-v1/80004/EEC206A7-5737-E811-8E0A-0CC47A2B0388.root'
-    #'/store/data/Run2017C/Tau/MINIAOD/31Mar2018-v1/90000/FE83BD44-CD37-E811-8731-842B2B180922.root'
-    #'/store/mc/RunIIFall17MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14_ext1-v1/20000/0056F0F4-4F44-E811-B415-FA163E5B5253.root'
-    #'/store/mc/RunIIFall17MiniAODv2/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/90000/A6C340CF-9588-E811-9E52-782BCB46E733.root',
-    #'/store/mc/RunIIFall17MiniAODv2/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/90000/941B9AB4-A189-E811-BA1C-0242AC130002.root'
+    # sync files, legacy 2017
+    # (2017, False): "/store/data/Run2017D/SingleElectron/MINIAOD/31Mar2018-v1/90000/FEFBCFEA-5939-E811-99DA-0025905B85D6.root",
+    # (2017, False): "/store/data/Run2017F/SingleMuon/MINIAOD/31Mar2018-v1/80004/EEC206A7-5737-E811-8E0A-0CC47A2B0388.root",
+    # (2017, False): "/store/data/Run2017C/Tau/MINIAOD/31Mar2018-v1/90000/FE83BD44-CD37-E811-8731-842B2B180922.root",
+    # (2017, True): "/store/mc/RunIIFall17MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14_ext1-v1/20000/0056F0F4-4F44-E811-B415-FA163E5B5253.root",
+    # (2017, True): "/store/mc/RunIIFall17MiniAODv2/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/90000/A6C340CF-9588-E811-9E52-782BCB46E733.root",
+    # (2017, True): "/store/mc/RunIIFall17MiniAODv2/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_13TeV-madgraph/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/90000/941B9AB4-A189-E811-BA1C-0242AC130002.root",
 
-    # Legacy 2018
-    #'/store/data/Run2018D/EGamma/MINIAOD/22Jan2019-v2/110000/2FD9167C-A197-E749-908D-3809F7B83A23.root'
-    #'/store/data/Run2018D/SingleMuon/MINIAOD/22Jan2019-v2/110000/0011A0F3-23A3-D444-AD4D-2A2FFAE23796.root'
-    #'/store/data/Run2018D/Tau/MINIAOD/PromptReco-v2/000/320/497/00000/584D46DF-5F95-E811-9646-FA163E293146.root'
-    #'/store/mc/RunIIAutumn18MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/120000/B3F93EA2-04C6-E04E-96AF-CB8FAF67E6BA.root'
-    #'/store/mc/RunIIAutumn18MiniAOD/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/250000/F22484D3-E820-F040-8E63-0864695D025B.root'
+    # sync files, legacy 2018
+    # (2018, False): "/store/data/Run2018D/EGamma/MINIAOD/22Jan2019-v2/110000/2FD9167C-A197-E749-908D-3809F7B83A23.root",
+    # (2018, False): "/store/data/Run2018D/SingleMuon/MINIAOD/22Jan2019-v2/110000/0011A0F3-23A3-D444-AD4D-2A2FFAE23796.root",
+    # (2018, False): "/store/data/Run2018D/Tau/MINIAOD/PromptReco-v2/000/320/497/00000/584D46DF-5F95-E811-9646-FA163E293146.root",
+    # (2018, True): "/store/mc/RunIIAutumn18MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/120000/B3F93EA2-04C6-E04E-96AF-CB8FAF67E6BA.root",
+    # (2018, True): "/store/mc/RunIIAutumn18MiniAOD/VBFHHTo2B2Tau_CV_1_C2V_1_C3_1_TuneCP5_PSWeights_13TeV-madgraph-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/250000/F22484D3-E820-F040-8E63-0864695D025B.root",
 
-    # UL 2018 (MiniAODv1)
-    #'/store/mc/RunIISummer20UL18MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/260000/0071F930-6376-7A48-89F1-74E189BD3BFC.root'
-    # UL 2018 (MiniAODv2)
-    '/store/mc/RunIISummer20UL18MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/120000/001C8DDF-599C-5E45-BF2C-76F887C9ADE9.root'
-    )
-)
+    # ultra-legacy test files
+    (2016, True): "/store/mc/RunIISummer20UL16MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/106X_mcRun2_asymptotic_v17-v1/2540000/127921F5-CAC9-AB4B-8C99-62981DB57E45.root",
+    (2017, True): "/store/mc/RunIISummer20UL17MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/106X_mc2017_realistic_v9-v2/120000/05668F8F-6DE3-3649-B228-9D7620F7C279.root",
+    (2018, True): "/store/mc/RunIISummer20UL18MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/120000/001C8DDF-599C-5E45-BF2C-76F887C9ADE9.root",
+}
+
+# get an example file when no input file is set
+input_files = options.inputFiles or example_files.get((options.year, options.mc), "")
+process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(input_files))
 
 # process.source.skipEvents = cms.untracked.uint32(968)
-#process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
+# process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = -1
+process.maxEvents.input = options.maxEvents
+
+# overwrite some process options
+process.options.wantSummary = cms.untracked.bool(options.wantSummary)
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
@@ -139,8 +174,8 @@ if not IsMC:
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
-#process.TFileService=cms.Service('TFileService',fileName=cms.string('refFiles/Mu16_sync.root'))
+
+process.TFileService=cms.Service('TFileService', fileName=cms.string(options.__getattr__("outputFile", noTags=True)))
 
 if DO_ENRICHED:
     process.out = cms.OutputModule("PoolOutputModule",
@@ -176,7 +211,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 5000
+process.MessageLogger.cerr.FwkReport.reportEvery = options.reportEvery
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'
