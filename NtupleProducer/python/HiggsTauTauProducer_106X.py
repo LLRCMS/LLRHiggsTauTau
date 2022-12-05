@@ -594,7 +594,8 @@ else:
     process.METSequence += process.PuppiMETSignificance
     process.METSequence += process.ShiftPuppiMETcentral
 
-    # Add both DeepMET tunes
+    # Add both DeepMET tunes from the METCorrectionLevels:
+    # https://github.com/cms-sw/cmssw/blob/ef3151a362db68a97ef10c4ff993af637cd163ef/DataFormats/PatCandidates/interface/MET.h#L173-L190
     for tuneName, tuneIdx in zip(["RawDeepResponseTune", "RawDeepResolutionTune"],[13, 14]):
 
         # Add standalone DeepMET collections
