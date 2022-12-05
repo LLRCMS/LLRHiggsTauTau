@@ -594,12 +594,13 @@ else:
     process.METSequence += process.PuppiMETSignificance
     process.METSequence += process.ShiftPuppiMETcentral
 
+    # Add both DeepMET tunes
     for tuneName, tuneIdx in zip(["RawDeepResponseTune", "RawDeepResolutionTune"],[13, 14]):
 
-        # Add DeepMET collection
-        DeepMET = cms.EDProducer ("DeepMET",
+        # Add standalone DeepMET collections
+        DeepMET = cms.EDProducer ("CorrectedMETCollectionProducer",
                                   srcMET = cms.InputTag("slimmedMETs"),
-                                  tune = cms.int32(tuneIdx),
+                                  correctionLevel = cms.int32(tuneIdx),
                                   )
 
         setattr(process, "DeepMET" + tuneName, DeepMET)

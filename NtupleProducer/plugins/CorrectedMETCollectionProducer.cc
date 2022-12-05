@@ -1,11 +1,3 @@
-/*
-** class  : DeepMET
-** author : T. Kramer (UHH) 
-** date   : 18 November 2022
-** brief  : takes in input the met, and produces a pat::METCollection with the pt and phi set to the 
-**          DeepMET values
-*/
-
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -24,12 +16,12 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-class DeepMET : public edm::EDProducer {
+class CorrectedMETCollectionProducer : public edm::EDProducer {
     public: 
         /// Constructor
-        explicit DeepMET(const edm::ParameterSet&);
+        explicit CorrectedMETCollectionProducer(const edm::ParameterSet&);
         /// Destructor
-        ~DeepMET(){};
+        ~CorrectedMETCollectionProducer(){};
 
     private:
         virtual void beginJob(){};  
@@ -37,17 +29,17 @@ class DeepMET : public edm::EDProducer {
         virtual void endJob(){};
 
         edm::EDGetTokenT<View<pat::MET>> theMETTag;
-        int tune;
+        int correctionLevel;
 };
 
-DeepMET::DeepMET(const edm::ParameterSet& iConfig) :
+CorrectedMETCollectionProducer::CorrectedMETCollectionProducer(const edm::ParameterSet& iConfig) :
 theMETTag(consumes<View<pat::MET>>(iConfig.getParameter<edm::InputTag>("srcMET"))),
-tune(iConfig.getParameter<int>("tune"))
+correctionLevel(iConfig.getParameter<int>("correctionLevel"))
 {
     produces<pat::METCollection>();
 }
 
-void DeepMET::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void CorrectedMETCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // Declare ptrs to save MET variations
     std::unique_ptr<pat::METCollection> out_MET_ptr(new pat::METCollection());
@@ -57,18 +49,18 @@ void DeepMET::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(theMETTag, METHandle);
     const pat::MET& patMET = (*METHandle)[0];
 
-    reco::Candidate::PolarLorentzVector deepMETP4(patMET.corPt(pat::MET::METCorrectionLevel(tune)),
+    reco::Candidate::PolarLorentzVector correctedMETP4(patMET.corPt(pat::MET::METCorrectionLevel(correctionLevel)),
                                                   0.,
-                                                  patMET.corPhi(pat::MET::METCorrectionLevel(tune)), 
+                                                  patMET.corPhi(pat::MET::METCorrectionLevel(correctionLevel)), 
                                                   0.);
 
-    pat::MET deepMET(patMET);
-    deepMET.setP4(deepMETP4);
+    pat::MET correctedMET(patMET);
+    correctedMET.setP4(correctedMETP4);
 
-    out_MET_ptr->push_back(deepMET);
+    out_MET_ptr->push_back(correctedMET);
 
     iEvent.put(std::move(out_MET_ptr));
 }
 
 #include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(DeepMET);
+DEFINE_FWK_MODULE(CorrectedMETCollectionProducer);
