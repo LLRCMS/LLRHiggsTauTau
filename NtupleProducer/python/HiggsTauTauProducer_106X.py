@@ -597,6 +597,30 @@ else:
     process.METSequence += process.PuppiMETSignificance
     process.METSequence += process.ShiftPuppiMETcentral
 
+    # Add both DeepMET tunes from the METCorrectionLevels:
+    # https://github.com/cms-sw/cmssw/blob/ef3151a362db68a97ef10c4ff993af637cd163ef/DataFormats/PatCandidates/interface/MET.h#L173-L190
+    for tuneName, tuneIdx in zip(["RawDeepResponseTune", "RawDeepResolutionTune"],[13, 14]):
+
+        # Add standalone DeepMET collections
+        DeepMET = cms.EDProducer ("CorrectedMETCollectionProducer",
+                                  srcMET = cms.InputTag("slimmedMETs"),
+                                  correctionLevel = cms.int32(tuneIdx),
+                                  )
+
+        setattr(process, "DeepMET" + tuneName, DeepMET)
+
+        # Shift DeepMET due to central corrections of TES and EES
+        ShiftDeepMETcentral = cms.EDProducer ("ShiftMETcentral",
+                                              srcMET = cms.InputTag("DeepMET" + tuneName),
+                                              tauUncorrected = cms.InputTag("bareTaus"),
+                                              tauCorrected = cms.InputTag("softTaus"),
+                                              )
+
+        setattr(process, "ShiftDeepMETcentral" + tuneName, ShiftDeepMETcentral)
+
+        process.METSequence += getattr(process, "DeepMET" + tuneName)
+        process.METSequence += getattr(process, "ShiftDeepMETcentral" + tuneName)
+
 ## ----------------------------------------------------------------------
 ## Z-recoil correction
 ## ----------------------------------------------------------------------
@@ -728,6 +752,10 @@ process.HTauTauTree = cms.EDAnalyzer("HTauTauNtuplizer",
                       srcPFMETCov = cms.InputTag("METSignificance", "METCovariance"),
                       srcPFMETSignificance = cms.InputTag("METSignificance", "METSignificance"),
                       metERCollection = uncorrPFMetTag, # save the uncorrected MET (for TES and EES central shifts) just for reference
+                      DeepMETResponseTuneCollection = cms.InputTag("DeepMETRawDeepResponseTune"),
+                      DeepMETResolutionTuneCollection = cms.InputTag("DeepMETRawDeepResolutionTune"),
+                      ShiftedDeepMETResponseTuneCollection = cms.InputTag("ShiftDeepMETcentralRawDeepResponseTune"),
+                      ShiftedDeepMETResolutionTuneCollection = cms.InputTag("ShiftDeepMETcentralRawDeepResolutionTune"),
                       HT = cms.InputTag("externalLHEProducer"),
                       beamSpot = cms.InputTag("offlineBeamSpot"),
                       genLumiHeaderTag = cms.InputTag("generator"),

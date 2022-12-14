@@ -240,6 +240,10 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<pat::METCollection> theShiftedPuppiMetTag;
   edm::EDGetTokenT<math::Error<2>::type> thePuppiMETCovTag;
   edm::EDGetTokenT<double> thePuppiMETSignifTag;
+  edm::EDGetTokenT<pat::METCollection> DeepMETResponseTag;
+  edm::EDGetTokenT<pat::METCollection> DeepMETResolutionTag;
+  edm::EDGetTokenT<pat::METCollection> ShiftedDeepMETResponseTag;
+  edm::EDGetTokenT<pat::METCollection> ShiftedDeepMETResolutionTag;
   edm::EDGetTokenT<edm::View<pat::GenericParticle>> theGenericTag;
   edm::EDGetTokenT<edm::View<reco::GenJet>> theGenJetTag;
   edm::EDGetTokenT<edm::MergeableCounter> theTotTag;
@@ -293,6 +297,14 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   Float_t _PuppiMETCov10;
   Float_t _PuppiMETCov11;
   Float_t _PuppiMETsignif;
+  Float_t _DeepMETresponseTune_pt;
+  Float_t _DeepMETresponseTune_phi;
+  Float_t _DeepMETresolutionTune_pt;
+  Float_t _DeepMETresolutionTune_phi;
+  Float_t _ShiftedDeepMETresponseTune_pt;
+  Float_t _ShiftedDeepMETresponseTune_phi;
+  Float_t _ShiftedDeepMETresolutionTune_pt;
+  Float_t _ShiftedDeepMETresolutionTune_phi;
   Float_t _MC_weight;
   Float_t _aMCatNLOweight;
   Int_t _npv;
@@ -807,6 +819,10 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theShiftedPuppiMetTag(consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("metPuppiShiftedCollection"))),
   thePuppiMETCovTag    (consumes<math::Error<2>::type>                   (pset.getParameter<edm::InputTag>("srcPuppiMETCov"))),
   thePuppiMETSignifTag (consumes<double>                                 (pset.getParameter<edm::InputTag>("srcPuppiMETSignificance"))),
+  DeepMETResponseTag   (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("DeepMETResponseTuneCollection"))),
+  DeepMETResolutionTag (consumes<pat::METCollection>                     (pset.getParameter<edm::InputTag>("DeepMETResolutionTuneCollection"))),
+  ShiftedDeepMETResponseTag   (consumes<pat::METCollection>              (pset.getParameter<edm::InputTag>("ShiftedDeepMETResponseTuneCollection"))),
+  ShiftedDeepMETResolutionTag (consumes<pat::METCollection>              (pset.getParameter<edm::InputTag>("ShiftedDeepMETResolutionTuneCollection"))),
   theGenericTag        (consumes<edm::View<pat::GenericParticle>>        (pset.getParameter<edm::InputTag>("genericCollection"))),
   theGenJetTag         (consumes<edm::View<reco::GenJet>>                (pset.getParameter<edm::InputTag>("genjetCollection"))),
   theTotTag            (consumes<edm::MergeableCounter, edm::InLumi>     (pset.getParameter<edm::InputTag>("totCollection"))),
@@ -1184,6 +1200,14 @@ void HTauTauNtuplizer::Initialize(){
   _PuppiMETCov10=0.;
   _PuppiMETCov11=0.;
   _PuppiMETsignif=0.;
+  _DeepMETresponseTune_pt=0;
+  _DeepMETresponseTune_phi=0;
+  _DeepMETresolutionTune_pt=0;
+  _DeepMETresolutionTune_phi=0;
+  _ShiftedDeepMETresponseTune_pt=0;
+  _ShiftedDeepMETresponseTune_phi=0;
+  _ShiftedDeepMETresolutionTune_pt=0;
+  _ShiftedDeepMETresolutionTune_phi=0;
   _MC_weight=0.;
   _npv=0;
   _lheHt=0;
@@ -1361,6 +1385,14 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("PuppiMETCov10",&_PuppiMETCov10,"PuppiMETCov10/F");
   myTree->Branch("PuppiMETCov11",&_PuppiMETCov11,"PuppiMETCov11/F");
   myTree->Branch("PuppiMETsignif", &_PuppiMETsignif, "PuppiMETsignif/F");
+  myTree->Branch("DeepMETresponseTune_pt",&_DeepMETresponseTune_pt,"DeepMETresponseTune_pt/F");
+  myTree->Branch("DeepMETresponseTune_phi",&_DeepMETresponseTune_phi,"DeepMETresponseTune_phi/F");
+  myTree->Branch("DeepMETresolutionTune_pt",&_DeepMETresolutionTune_pt,"DeepMETresolutionTune_pt/F");
+  myTree->Branch("DeepMETresolutionTune_phi",&_DeepMETresolutionTune_phi,"DeepMETresolutionTune_phi/F");
+  myTree->Branch("ShiftedDeepMETresponseTune_pt",&_ShiftedDeepMETresponseTune_pt,"ShiftedDeepMETresponseTune_pt/F");
+  myTree->Branch("ShiftedDeepMETresponseTune_phi",&_ShiftedDeepMETresponseTune_phi,"ShiftedDeepMETresponseTune_phi/F");
+  myTree->Branch("ShiftedDeepMETresolutionTune_pt",&_ShiftedDeepMETresolutionTune_pt,"ShiftedDeepMETresolutionTune_pt/F");
+  myTree->Branch("ShiftedDeepMETresolutionTune_phi",&_ShiftedDeepMETresolutionTune_phi,"ShiftedDeepMETresolutionTune_phi/F");
   myTree->Branch("npv",&_npv,"npv/I");  
   myTree->Branch("npu",&_npu,"npu/F"); 
   //myTree->Branch("PUReweight",&_PUReweight,"PUReweight/F"); //FRA January2019
@@ -1905,6 +1937,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<pat::METCollection> metPuppiShiftedHandle;
   edm::Handle<math::Error<2>::type> PuppicovHandle;
   edm::Handle<double> PuppiMETsignficanceHandle;
+  edm::Handle<pat::METCollection> DeepMETResponseHandle;
+  edm::Handle<pat::METCollection> DeepMETResolutionHandle;
+  edm::Handle<pat::METCollection> ShiftedDeepMETResponseHandle;
+  edm::Handle<pat::METCollection> ShiftedDeepMETResolutionHandle;
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
@@ -1933,7 +1969,11 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   event.getByToken(thePUPPIMetTag,PUPPImetHandle);
   event.getByToken(theShiftedPuppiMetTag,metPuppiShiftedHandle);
   event.getByToken(thePuppiMETCovTag,PuppicovHandle);
-  event.getByToken(thePuppiMETSignifTag,PuppiMETsignficanceHandle);  
+  event.getByToken(thePuppiMETSignifTag,PuppiMETsignficanceHandle);
+  event.getByToken(DeepMETResponseTag,DeepMETResponseHandle);
+  event.getByToken(DeepMETResolutionTag,DeepMETResolutionHandle);
+  event.getByToken(ShiftedDeepMETResponseTag,ShiftedDeepMETResponseHandle);
+  event.getByToken(ShiftedDeepMETResolutionTag,ShiftedDeepMETResolutionHandle);
   //event.getByToken(theNBadMuTag,NBadMuHandle); //FRA January2019
   event.getByToken(prefweight_token, theprefweight);
   event.getByToken(prefweightup_token, theprefweightup);
@@ -1994,6 +2034,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   const pat::MET &met_er = metERHandle->front();
   const pat::MET &PUPPImet = PUPPImetHandle->front();
   const pat::MET &metPuppiShifted = metPuppiShiftedHandle->front();
+  const pat::MET &DeepMETResponseTune = DeepMETResponseHandle->front();
+  const pat::MET &DeepMETResolutionTune = DeepMETResolutionHandle->front();
+  const pat::MET &ShiftedDeepMETResponseTune = ShiftedDeepMETResponseHandle->front();
+  const pat::MET &ShiftedDeepMETResolutionTune = ShiftedDeepMETResolutionHandle->front();
   const BXVector<l1t::Tau>* L1Tau = L1TauHandle.product();
   const BXVector<l1t::Jet>* L1Jet = L1JetHandle.product();
   //myNtuple->InitializeVariables();
@@ -2022,7 +2066,15 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   _PuppiMETCov11 = (*PuppicovHandle)(1,1);
   _PuppiMETsignif = (*PuppiMETsignficanceHandle);  
   _PUPPImetShiftedX = metPuppiShifted.px();
-  _PUPPImetShiftedY = metPuppiShifted.py();  
+  _PUPPImetShiftedY = metPuppiShifted.py();
+  _DeepMETresponseTune_pt = DeepMETResponseTune.pt();
+  _DeepMETresponseTune_phi = DeepMETResponseTune.phi();
+  _DeepMETresolutionTune_pt = DeepMETResolutionTune.pt();
+  _DeepMETresolutionTune_phi = DeepMETResolutionTune.phi();
+  _ShiftedDeepMETresponseTune_pt = ShiftedDeepMETResponseTune.pt();
+  _ShiftedDeepMETresponseTune_phi = ShiftedDeepMETResponseTune.phi();
+  _ShiftedDeepMETresolutionTune_pt = ShiftedDeepMETResolutionTune.pt();
+  _ShiftedDeepMETresolutionTune_phi = ShiftedDeepMETResolutionTune.phi();
   //_NBadMu = (*NBadMuHandle); //FRA January2019
   if (theisMC)
   {
