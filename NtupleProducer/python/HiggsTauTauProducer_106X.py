@@ -82,7 +82,7 @@ if IsMC:
   if YEAR == 2018:
     process.GlobalTag.globaltag = '106X_upgrade2018_realistic_v16_L1v1'  # 2018 MC
 else :
-    process.GlobalTag.globaltag = '106X_dataRun2_v35'                    # Data
+    process.GlobalTag.globaltag = '106X_dataRun2_v37'                    # Data
 
 print "GT: ",process.GlobalTag.globaltag
 
