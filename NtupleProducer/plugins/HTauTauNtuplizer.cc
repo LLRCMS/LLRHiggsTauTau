@@ -254,9 +254,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<BXVector<l1t::Jet> > theL1JetTag;
   //edm::EDGetTokenT<int> theNBadMuTag; //FRA January2019
   edm::EDGetTokenT<GenLumiInfoHeader> genLumiHeaderTag;
-  edm::EDGetTokenT< double > prefweight_token;
-  edm::EDGetTokenT< double > prefweightup_token;
-  edm::EDGetTokenT< double > prefweightdown_token;
+  edm::EDGetTokenT< float > prefweight_token;
+  edm::EDGetTokenT< float > prefweightup_token;
+  edm::EDGetTokenT< float > prefweightdown_token;
 
   //flags
   //static const int nOutVars =14;
@@ -536,7 +536,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t> _decayType;//for taus only
   std::vector<Int_t> _genmatch;//for taus only
   std::vector<Long64_t> _daughters_tauID; //bitwise. check h_tauID for histogram list 
-  static const int ntauIds = 37;
+  static const int ntauIds = 57;
   TString tauIDStrings[ntauIds] = {
    "byLooseCombinedIsolationDeltaBetaCorr3Hits",
    "byMediumCombinedIsolationDeltaBetaCorr3Hits",
@@ -599,6 +599,26 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
    "byLooseDeepTau2017v2p1VSmu", 
    "byMediumDeepTau2017v2p1VSmu",
    "byTightDeepTau2017v2p1VSmu", 
+   "byVVVLooseDeepTau2018v2p5VSjet",
+   "byVVLooseDeepTau2018v2p5VSjet", 
+   "byVLooseDeepTau2018v2p5VSjet",
+   "byLooseDeepTau2018v2p5VSjet",   
+   "byMediumDeepTau2018v2p5VSjet",  
+   "byTightDeepTau2018v2p5VSjet",   
+   "byVTightDeepTau2018v2p5VSjet",  
+   "byVVTightDeepTau2018v2p5VSjet", 
+   "byVVVLooseDeepTau2018v2p5VSe",  
+   "byVVLooseDeepTau2018v2p5VSe", 
+   "byVLooseDeepTau2018v2p5VSe",   
+   "byLooseDeepTau2018v2p5VSe", 
+   "byMediumDeepTau2018v2p5VSe",
+   "byTightDeepTau2018v2p5VSe", 
+   "byVTightDeepTau2018v2p5VSe",   
+   "byVVTightDeepTau2018v2p5VSe",   
+   "byVLooseDeepTau2018v2p5VSmu",
+   "byLooseDeepTau2018v2p5VSmu", 
+   "byMediumDeepTau2018v2p5VSmu",
+   "byTightDeepTau2018v2p5VSmu", 
  };
   std::vector<Float_t> _daughters_IetaIeta;
   std::vector<Float_t> _daughters_full5x5_IetaIeta;
@@ -621,6 +641,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSjetraw;
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSeraw;
   std::vector<Float_t> _daughters_byDeepTau2017v2p1VSmuraw;
+  std::vector<Float_t> _daughters_byDeepTau2018v2p5VSjetraw;
+  std::vector<Float_t> _daughters_byDeepTau2018v2p5VSeraw;
+  std::vector<Float_t> _daughters_byDeepTau2018v2p5VSmuraw;
   std::vector<Int_t> _daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017; //FRA
   std::vector<Float_t> _daughters_chargedIsoPtSum;
   std::vector<Float_t> _daughters_neutralIsoPtSum;
@@ -699,7 +722,9 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t>   _jets_neMult;
   std::vector<Int_t>   _jets_chMult;
   std::vector<Float_t> _jets_QGdiscr;
-
+  std::vector<Float_t> _jets_bJetRegCorr;
+  std::vector<Float_t> _jets_bJetRegRes;
+  
   std::vector<Float_t> _ak8jets_px;
   std::vector<Float_t> _ak8jets_py;
   std::vector<Float_t> _ak8jets_pz;
@@ -833,9 +858,9 @@ HTauTauNtuplizer::HTauTauNtuplizer(const edm::ParameterSet& pset) : //reweight()
   theL1JetTag          (consumes<BXVector<l1t::Jet>>                     (pset.getParameter<edm::InputTag>("stage2JetCollection"))),
   //theNBadMuTag         (consumes<int>                                    (pset.getParameter<edm::InputTag>("nBadMu"))), //FRA January2019
   genLumiHeaderTag     (consumes<GenLumiInfoHeader, edm::InLumi>         (pset.getParameter<edm::InputTag>("genLumiHeaderTag"))),
-  prefweight_token     (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProb"))),
-  prefweightup_token   (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbUp"))),
-  prefweightdown_token (consumes< double >                               (pset.getParameter<edm::InputTag>("L1prefireProbDown")))
+  prefweight_token     (consumes< float >                               (pset.getParameter<edm::InputTag>("L1prefireProb"))),
+  prefweightup_token   (consumes< float >                               (pset.getParameter<edm::InputTag>("L1prefireProbUp"))),
+  prefweightdown_token (consumes< float >                               (pset.getParameter<edm::InputTag>("L1prefireProbDown")))
 
  {
   theFileName = pset.getUntrackedParameter<string>("fileName");
@@ -993,6 +1018,9 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_byDeepTau2017v2p1VSjetraw.clear();
   _daughters_byDeepTau2017v2p1VSeraw.clear();
   _daughters_byDeepTau2017v2p1VSmuraw.clear();
+  _daughters_byDeepTau2018v2p5VSjetraw.clear();
+  _daughters_byDeepTau2018v2p5VSeraw.clear();
+  _daughters_byDeepTau2018v2p5VSmuraw.clear();
   _daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017.clear(); //FRA
   _daughters_chargedIsoPtSum.clear();
   _daughters_neutralIsoPtSum.clear();
@@ -1263,6 +1291,9 @@ void HTauTauNtuplizer::Initialize(){
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
   _jets_QGdiscr.clear();
+  _jets_bJetRegCorr.clear();
+  _jets_bJetRegRes.clear();
+
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -1629,6 +1660,9 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("daughters_byDeepTau2017v2p1VSjetraw",&_daughters_byDeepTau2017v2p1VSjetraw);
   myTree->Branch("daughters_byDeepTau2017v2p1VSeraw",&_daughters_byDeepTau2017v2p1VSeraw);
   myTree->Branch("daughters_byDeepTau2017v2p1VSmuraw",&_daughters_byDeepTau2017v2p1VSmuraw);
+  myTree->Branch("daughters_byDeepTau2018v2p5VSjetraw",&_daughters_byDeepTau2018v2p5VSjetraw);
+  myTree->Branch("daughters_byDeepTau2018v2p5VSeraw",&_daughters_byDeepTau2018v2p5VSeraw);
+  myTree->Branch("daughters_byDeepTau2018v2p5VSmuraw",&_daughters_byDeepTau2018v2p5VSmuraw);
   myTree->Branch("daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017", &_daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017); //FRA
   myTree->Branch("daughters_chargedIsoPtSum", &_daughters_chargedIsoPtSum);
   myTree->Branch("daughters_neutralIsoPtSum", &_daughters_neutralIsoPtSum);
@@ -1709,6 +1743,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_MUF"    , &_jets_MUF);
   myTree->Branch("jets_neMult" , &_jets_neMult);
   myTree->Branch("jets_chMult" , &_jets_chMult);
+  myTree->Branch("jets_bJetRegCorr", &_jets_bJetRegCorr);
+  myTree->Branch("jets_bJetRegRes", &_jets_bJetRegRes);
 
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -1944,9 +1980,9 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   edm::Handle<GenFilterInfo> embeddingWeightHandle;
   edm::Handle<edm::TriggerResults> triggerResults;
   //edm::Handle<int> NBadMuHandle; //FRA January2019
-  edm::Handle< double > theprefweight;
-  edm::Handle< double > theprefweightup;
-  edm::Handle< double > theprefweightdown;
+  edm::Handle< float > theprefweight;
+  edm::Handle< float > theprefweightup;
+  edm::Handle< float > theprefweightdown;
 
   // protect in case of events where trigger hasn't fired --> no collection created 
   event.getByToken(theCandTag,candHandle);
@@ -2100,8 +2136,8 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
   //Loop on Jets
 
   //ak4  
-  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-  eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
+  //edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  //eSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);
   _numberOfJets = 0;
   if(writeJets){
     //_numberOfJets = FillJet(jets, event, &jecUnc);
@@ -2380,7 +2416,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
   event.getByToken(theRhoForJERTag, rhoJERHandle);
 
   // Initialize Jet Energy Resolution (FRA 2017)
-  JME::JetResolution JERresolution = JME::JetResolution::get(iSetup, "AK4PFchs_pt");
+  //JME::JetResolution JERresolution = JME::JetResolution::get(iSetup, "AK4PFchs_pt");
 
   int nJets=0;
   vector <pair<float, int>> softLeptInJet; // pt, idx
@@ -2395,6 +2431,8 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _jets_PUJetID_WP.push_back(ijet->userInt("pileupJetId:fullId"));
+    _jets_bJetRegCorr.push_back(ijet->userFloat("bRegNNCorr"));
+    _jets_bJetRegRes.push_back(ijet->userFloat("bRegNNResolution"));
 
     
     //float vtxPx = ijet->userFloat ("vtxPx");                      //FRA: not anymore available in 2017
@@ -2619,7 +2657,7 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     JER_parameters.setJetPt(ijet->pt());
     JER_parameters.setJetEta(ijet->eta());
     JER_parameters.setRho(*rhoJERHandle);
-    _jets_JER.push_back( JERresolution.getResolution(JER_parameters) * ijet->energy() ); // JER*energy beacuse cmssw gives the % of JER, while KinFit wants resolution in GeV
+    //_jets_JER.push_back( JERresolution.getResolution(JER_parameters) * ijet->energy() ); // JER*energy beacuse cmssw gives the % of JER, while KinFit wants resolution in GeV
 
 
     // VBF trigger matching
@@ -2990,6 +3028,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     //float byIsolationMVArun2v1DBoldDMwLTraw=-1, byIsolationMVArun2017v2DBoldDMwLTraw2017=-1, byIsolationMVArun2017v1DBoldDMwLTraw2017=-1, byIsolationMVArun2017v2DBoldDMdR0p3wLTraw2017=-1; //FRA
     float byIsolationMVArun2017v2DBoldDMwLTraw2017=-1; //FRA
     float byDeepTau2017v2p1VSjetraw=-1, byDeepTau2017v2p1VSeraw=-1, byDeepTau2017v2p1VSmuraw=-1;
+    float byDeepTau2018v2p5VSjetraw=-1, byDeepTau2018v2p5VSeraw=-1, byDeepTau2018v2p5VSmuraw=-1;
     int  byVVLooseIsolationMVArun2017v2DBoldDMwLT2017=-1; //FRA
     Long64_t tauIDflag = 0;
 
@@ -3104,6 +3143,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       byDeepTau2017v2p1VSjetraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSjetraw");
       byDeepTau2017v2p1VSeraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSeraw");
       byDeepTau2017v2p1VSmuraw=userdatahelpers::getUserFloat(cand,"byDeepTau2017v2p1VSmuraw");
+      byDeepTau2018v2p5VSjetraw=userdatahelpers::getUserFloat(cand,"byDeepTau2018v2p5VSjetraw");
+      byDeepTau2018v2p5VSeraw=userdatahelpers::getUserFloat(cand,"byDeepTau2018v2p5VSeraw");
+      byDeepTau2018v2p5VSmuraw=userdatahelpers::getUserFloat(cand,"byDeepTau2018v2p5VSmuraw");
       byVVLooseIsolationMVArun2017v2DBoldDMwLT2017= userdatahelpers::getUserInt (cand, "byVVLooseIsolationMVArun2017v2DBoldDMwLT2017"); //FRA
       chargedIsoPtSum = userdatahelpers::getUserFloat (cand, "chargedIsoPtSum");
       neutralIsoPtSum = userdatahelpers::getUserFloat (cand, "neutralIsoPtSum");
@@ -3186,6 +3228,9 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_byDeepTau2017v2p1VSjetraw.push_back(byDeepTau2017v2p1VSjetraw);
     _daughters_byDeepTau2017v2p1VSeraw.push_back(byDeepTau2017v2p1VSeraw);
     _daughters_byDeepTau2017v2p1VSmuraw.push_back(byDeepTau2017v2p1VSmuraw);
+    _daughters_byDeepTau2018v2p5VSjetraw.push_back(byDeepTau2018v2p5VSjetraw);
+    _daughters_byDeepTau2018v2p5VSeraw.push_back(byDeepTau2018v2p5VSeraw);
+    _daughters_byDeepTau2018v2p5VSmuraw.push_back(byDeepTau2018v2p5VSmuraw);
     _daughters_byVVLooseIsolationMVArun2017v2DBoldDMwLT2017.push_back(byVVLooseIsolationMVArun2017v2DBoldDMwLT2017); //FRA
     _daughters_numChargedParticlesSignalCone.push_back(numChargedParticlesSignalCone);
     _daughters_numNeutralHadronsSignalCone.push_back(numNeutralHadronsSignalCone);

@@ -16,7 +16,7 @@ except NameError:
 try: PERIOD
 except:
     PERIOD =""
-print 'Year+Period:', str(YEAR)+PERIOD
+print ('Year+Period:', str(YEAR)+PERIOD)
 try: doCPVariables
 except NameError:
     doCPVariables=True       
@@ -53,14 +53,14 @@ except NameError:
 ### Trigger list
 ### ----------------------------------------------------------------------
 if YEAR == 2016:
-  print 'Using HLT trigger 2016'
-  execfile(PyFilePath+"python/triggers_80X.py")  # 2016 triggers and filters
+  print ('Using HLT trigger 2016')
+  exec(open(PyFilePath+"python/triggers_80X.py").read())  # 2016 triggers and filters
 if YEAR == 2017:
-  print 'Using HLT trigger 2017'
-  execfile(PyFilePath+"python/triggers_92X.py")  # 2017 triggers and filters
+  print ('Using HLT trigger 2017')
+  exec(open(PyFilePath+"python/triggers_92X.py").read())  # 2017 triggers and filters
 if YEAR == 2018:
-  print 'Using HLT trigger 2018'
-  execfile(PyFilePath+"python/triggers_102X.py") # 2018 triggers and filters
+  print ('Using HLT trigger 2018')
+  exec(open(PyFilePath+"python/triggers_102X.py").read()) # 2018 triggers and filters
 
 
 ### ----------------------------------------------------------------------
@@ -84,7 +84,7 @@ if IsMC:
 else :
     process.GlobalTag.globaltag = '106X_dataRun2_v37'                    # Data
 
-print "GT: ",process.GlobalTag.globaltag
+print ("GT: ",process.GlobalTag.globaltag)
 
 nanosec="25"
 if not Is25ns: nanosec="50"
@@ -142,6 +142,7 @@ prefireEraMuon = "2016preVFP"
 if PERIOD=="postVFP" : prefireEraMuon = "2016postVFP"
 if YEAR==2017: prefireEraMuon = "20172018"
 if YEAR==2018: prefireEraMuon = "20172018"
+
 
 from PhysicsTools.PatUtils.l1PrefiringWeightProducer_cfi import l1PrefiringWeightProducer
 process.prefiringweight = l1PrefiringWeightProducer.clone(
@@ -290,8 +291,19 @@ process.cleanSoftElectrons = cms.EDProducer("PATElectronCleaner",
 ## Taus
 ##
 
+updatedTauName = "slimmedTausNewID" #name of pat::Tau collection with new tau-Ids
+import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+
+tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, 
+                    updatedTauName = updatedTauName,
+                    toKeep = [
+                            "deepTau2017v2p1", "deepTau2018v2p5",
+                            ])
+
+tauIdEmbedder.runTauID()
+
 process.bareTaus = cms.EDFilter("PATTauRefSelector",
-   src = cms.InputTag("slimmedTaus"), 
+   src = cms.InputTag("slimmedTausNewID"), 
    cut = cms.string(TAUCUT),
    )
 
@@ -361,7 +373,7 @@ process.softTaus = cms.EDProducer("TauFiller",
    year = cms.string(TESyear)
    )
 
-process.taus=cms.Sequence(process.bareTaus + process.softTaus)
+process.taus=cms.Sequence(process.rerunMvaIsolationSequence + process.slimmedTausNewID + process.bareTaus + process.softTaus)
 
 ### ----------------------------------------------------------------------
 ### gen info, only from MC
@@ -413,11 +425,18 @@ if IsMC:
 else:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 
-
+process.bregJets = cms.EDProducer("bRegressionProducer",
+                                              JetTag = cms.InputTag("slimmedJets"),
+                                              rhoFixedGridCollection = cms.InputTag("fixedGridRhoAll"),
+                                              bRegressionWeightfile = cms.FileInPath("LLRHiggsTauTau/NtupleProducer/data/DNNmodels/breg_training_2018_JECv8.pb"),
+                                              pvsrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                              svsrc = cms.InputTag('slimmedSecondaryVertices'),
+                                          )
+					  
 # Update jet collection
 updateJetCollection(
    process,
-   jetSource = cms.InputTag('slimmedJets'),
+   jetSource = cms.InputTag('bregJets'),
    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
@@ -477,7 +496,7 @@ if YEAR == 2016:
     PUalgo = _chsalgos_106X_UL16APV
     
     if PERIOD=='postVFP':
-	PUalgo = _chsalgos_106X_UL16
+        PUalgo = _chsalgos_106X_UL16
 
 if YEAR == 2017:
     PUalgo = _chsalgos_106X_UL17
@@ -514,7 +533,7 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 
 process.METSequence = cms.Sequence()
 if USEPAIRMET:
-    print "Using pair MET (MVA MET)"
+    print ("Using pair MET (MVA MET)")
     from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
     runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
     process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
@@ -544,7 +563,7 @@ if USEPAIRMET:
 
 
 else:
-    print "Using event pfMET (same MET for all pairs)"
+    print ("Using event pfMET (same MET for all pairs)")
 
     PFMetName = "slimmedMETs"
     uncorrPFMetTag = cms.InputTag(PFMetName)
@@ -805,8 +824,8 @@ process.Candidates = cms.Sequence(
     process.electrons          + process.cleanSoftElectrons +
     process.taus               +
     process.fsrSequence        +
-    process.softLeptons        + process.barellCand +
-    process.jecSequence        + process.jetSequence +
+    process.softLeptons        + process.barellCand         +
+    process.bregJets           + process.jecSequence        + process.jetSequence +
     process.METSequence        +
     process.geninfo            +
     process.SVFit

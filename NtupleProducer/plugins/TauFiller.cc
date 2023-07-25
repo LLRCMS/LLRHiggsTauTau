@@ -157,6 +157,29 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byMediumDeepTau2017v2p1VSmu",
     "byTightDeepTau2017v2p1VSmu", 
 
+    "byVVVLooseDeepTau2018v2p5VSjet",
+    "byVVLooseDeepTau2018v2p5VSjet", 
+    "byVLooseDeepTau2018v2p5VSjet",  
+    "byLooseDeepTau2018v2p5VSjet",   
+    "byMediumDeepTau2018v2p5VSjet",  
+    "byTightDeepTau2018v2p5VSjet",   
+    "byVTightDeepTau2018v2p5VSjet",  
+    "byVVTightDeepTau2018v2p5VSjet", 
+    
+    "byVVVLooseDeepTau2018v2p5VSe",  
+    "byVVLooseDeepTau2018v2p5VSe", 
+    "byVLooseDeepTau2018v2p5VSe",   
+    "byLooseDeepTau2018v2p5VSe",   
+    "byMediumDeepTau2018v2p5VSe",   
+    "byTightDeepTau2018v2p5VSe",   
+    "byVTightDeepTau2018v2p5VSe",   
+    "byVVTightDeepTau2018v2p5VSe",   
+    
+    "byVLooseDeepTau2018v2p5VSmu",
+    "byLooseDeepTau2018v2p5VSmu", 
+    "byMediumDeepTau2018v2p5VSmu",
+    "byTightDeepTau2018v2p5VSmu", 
+
   };
 
   tauFloatDiscrims_ =
@@ -176,6 +199,9 @@ TauFiller::TauFiller(const edm::ParameterSet& iConfig) :
     "byDeepTau2017v2p1VSjetraw",  
     "byDeepTau2017v2p1VSeraw",  
     "byDeepTau2017v2p1VSmuraw",
+    "byDeepTau2018v2p5VSjetraw",  
+    "byDeepTau2018v2p5VSeraw",  
+    "byDeepTau2018v2p5VSmuraw",
    };
 
   // TES input files

@@ -11,7 +11,7 @@ YEAR   = 2018
 #YEAR   = 2016
 PERIOD = ''
 #PERIOD = 'postVFP' # use 'postVFP' for 2016 VFP samples, can be left empty if running on 2017 and 2018
-IsMC=False
+IsMC=True
 
 #apply corrections?
 APPLYMUCORR=False
@@ -41,7 +41,7 @@ Is25ns=True
 HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.
 if not IsMC:
     HLTProcessName='HLT' #It always 'HLT' for real data
-print "HLTProcessName: ",HLTProcessName
+print ("HLTProcessName: ",HLTProcessName)
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
@@ -58,29 +58,31 @@ DO_ENRICHED=False # do True by default, both ntuples and enriched outputs are sa
 STORE_ENRICHEMENT_ONLY=True # When True and DO_ENRICHED=True only collection additional to MiniAOD standard are stored. They can be used to reproduce ntuples when used together with oryginal MiniAOD with two-file-solution
 # ------------------------
 
+is124X = True if 'CMSSW_12_4' in os.environ['CMSSW_VERSION'] else False
+print ("is124X:" , is124X)
 is106X = True if 'CMSSW_10_6' in os.environ['CMSSW_VERSION'] else False
-print "is106X:" , is106X
+print ("is106X:" , is106X)
 is102X = True if 'CMSSW_10_2' in os.environ['CMSSW_VERSION'] else False
-print "is102X:" , is102X
+print ("is102X:" , is102X)
 is94X = True if 'CMSSW_9' in os.environ['CMSSW_VERSION'] else False# True to run in 92X (2017), False to run in 80X (2016) or 76X (2015)
-print "is94X: " , is94X
+print ("is94X: " , is94X)
 is80X = True if 'CMSSW_8' in os.environ['CMSSW_VERSION'] else False# True to run in 80X (2016), False to run in 76X (2015)
-print "is80X: " , is80X
+print ("is80X: " , is80X)
 
 ##
 ## Standard sequence
 ##
 
-if is106X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_106X.py")
+if is106X or is124X:
+    exec(open(PyFilePath+"python/HiggsTauTauProducer_106X.py").read())
 elif is102X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_102X.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer_102X.py").read())
 elif is94X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_94X.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer_94X.py").read())
 elif is80X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer_80X.py").read())
 else :
-    execfile(PyFilePath+"python/HiggsTauTauProducer.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer.py").read())
 
 ### ----------------------------------------------------------------------
 ### Source, better to use sample to run on batch
@@ -97,9 +99,9 @@ process.source = cms.Source("PoolSource",
         #MET dataset#
 #        '/store/data/Run2018D/MET/MINIAOD/UL2018_MiniAODv2_GT36-v1/2820000/10089943-A30E-6446-962D-93332C37EE71.root'
         #DY NLO
-        '/store/mc/RunIISummer20UL18MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/230000/0191D778-A59B-5149-9EA2-1FF39D787429.root'
+#        '/store/mc/RunIISummer20UL18MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/230000/0191D778-A59B-5149-9EA2-1FF39D787429.root'
         #Signal (ggf spin 0, mX=850)
-#        '/store/mc/RunIISummer20UL18MiniAODv2/GluGluToRadionToHHTo2B2Tau_M-850_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/30000/5CAFEC30-CAB2-4741-9E25-6931416D3F59.root'
+        '/store/mc/RunIISummer20UL18MiniAODv2/GluGluToRadionToHHTo2B2Tau_M-850_TuneCP5_PSWeights_narrow_13TeV-madgraph-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/30000/5CAFEC30-CAB2-4741-9E25-6931416D3F59.root'
     )
 )
 
@@ -107,23 +109,23 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = -1 #10000
+process.maxEvents.input = 5000 #10000
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
 if not IsMC:
   if YEAR == 2016:
-    execfile(PyFilePath+"python/lumiMask_2016.py")
+    exec(open(PyFilePath+"python/lumiMask_2016.py").read())
   if YEAR == 2017:
-    execfile(PyFilePath+"python/lumiMask_2017.py")
+    exec(open(PyFilePath+"python/lumiMask_2017.py").read())
   if YEAR == 2018:
-    execfile(PyFilePath+"python/lumiMask_2018.py")
+    exec(open(PyFilePath+"python/lumiMask_2018.py").read())
   process.source.lumisToProcess = LUMIMASK
 
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
+process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_bjetreg.root'))
 #process.TFileService=cms.Service('TFileService',fileName=cms.string('refFiles/Mu16_sync.root'))
 
 if DO_ENRICHED:
@@ -160,7 +162,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 5000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'
