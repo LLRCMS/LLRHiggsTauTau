@@ -177,7 +177,6 @@ bRegressionProducer::bRegressionProducer( const ParameterSet &iConfig ) :
 
 void bRegressionProducer::produce( Event &evt, const EventSetup & )
 {
-    InitJet();
     // input jets
     Handle<View<pat::Jet> > jets;
     evt.getByToken( jetToken_, jets );//just to try get the first one
@@ -189,6 +188,7 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
 
     for( unsigned int i = 0 ; i < jets->size() ; i++ ) {
 
+        InitJet();
             
         Ptr<pat::Jet> pjet = jets->ptrAt( i );
         pat::Jet fjet = pat::Jet( *pjet );
