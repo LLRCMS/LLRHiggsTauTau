@@ -414,10 +414,18 @@ else:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 
 
+process.bregJets = cms.EDProducer("bRegressionProducer",
+                                              JetTag = cms.InputTag("slimmedJets"),
+                                              rhoFixedGridCollection = cms.InputTag("fixedGridRhoAll"),
+                                              bRegressionWeightfile = cms.FileInPath("LLRHiggsTauTau/NtupleProducer/data/DNNmodels/breg_training_2018_JECv8.pb"),
+                                              pvsrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                              svsrc = cms.InputTag('slimmedSecondaryVertices'),
+                                          )
+
 # Update jet collection
 updateJetCollection(
    process,
-   jetSource = cms.InputTag('slimmedJets'),
+   jetSource = cms.InputTag('bregJets'),
    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
@@ -432,7 +440,9 @@ process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
 # Jet Selector after JEC and bTagging
 process.jets = cms.EDFilter("PATJetRefSelector",
                             src = cms.InputTag("selectedUpdatedPatJetsUpdatedJEC"),
+                            #src = cms.InputTag("selectedUpdatedPatJetsTransientCorrectedUpdatedJEC"),
                             cut = cms.string(JETCUT))
+
 
 ##
 ## QG tagging for jets
@@ -805,8 +815,8 @@ process.Candidates = cms.Sequence(
     process.electrons          + process.cleanSoftElectrons +
     process.taus               +
     process.fsrSequence        +
-    process.softLeptons        + process.barellCand +
-    process.jecSequence        + process.jetSequence +
+    process.softLeptons        + process.barellCand         +
+    process.bregJets           + process.jecSequence        + process.jetSequence +
     process.METSequence        +
     process.geninfo            +
     process.SVFit
