@@ -54,7 +54,7 @@ else :
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0' # ICHEP
     process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-G
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v16' # Run H  
-print process.GlobalTag.globaltag
+print (process.GlobalTag.globaltag)
 
 nanosec="25"
 if not Is25ns: nanosec="50"
@@ -668,7 +668,7 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 
 process.METSequence = cms.Sequence()
 if USEPAIRMET:
-    print "Using pair MET (MVA MET)"
+    print ("Using pair MET (MVA MET)")
     from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
     runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
     process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
@@ -716,7 +716,7 @@ if USEPAIRMET:
     #     MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
 
 else:
-    print "Using event pfMET (same MET for all pairs)"
+    print ("Using event pfMET (same MET for all pairs)")
 
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
     runMetCorAndUncFromMiniAOD(

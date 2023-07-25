@@ -16,7 +16,7 @@ except NameError:
 try: PERIOD
 except:
     PERIOD ="A"
-print 'Year+Period:', str(YEAR)+PERIOD
+print ('Year+Period:', str(YEAR)+PERIOD)
 try: doCPVariables
 except NameError:
     doCPVariables=True       
@@ -53,13 +53,13 @@ except NameError:
 ### Trigger list
 ### ----------------------------------------------------------------------
 if YEAR == 2016:
-  print 'Using HLT trigger 2016'
+  print ('Using HLT trigger 2016')
   execfile(PyFilePath+"python/triggers_80X.py")  # 2016 triggers and filters
 if YEAR == 2017:
-  print 'Using HLT trigger 2017'
+  print ('Using HLT trigger 2017')
   execfile(PyFilePath+"python/triggers_92X.py")  # 2017 triggers and filters
 if YEAR == 2018:
-  print 'Using HLT trigger 2018'
+  print ('Using HLT trigger 2018')
   execfile(PyFilePath+"python/triggers_102X.py") # 2018 triggers and filters
 
 
@@ -88,7 +88,7 @@ else :
     else:
         process.GlobalTag.globaltag = '102X_dataRun2_v12'           # 2018ABC Data
 
-print "GT: ",process.GlobalTag.globaltag
+print ("GT: ",process.GlobalTag.globaltag)
 
 nanosec="25"
 if not Is25ns: nanosec="50"
@@ -714,7 +714,7 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 
 process.METSequence = cms.Sequence()
 if USEPAIRMET:
-    print "Using pair MET (MVA MET)"
+    print ("Using pair MET (MVA MET)")
     from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
     runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
     process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
@@ -744,7 +744,7 @@ if USEPAIRMET:
 
 
 else:
-    print "Using event pfMET (same MET for all pairs)"
+    print ("Using event pfMET (same MET for all pairs)")
 
     if YEAR == 2016:
         from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
