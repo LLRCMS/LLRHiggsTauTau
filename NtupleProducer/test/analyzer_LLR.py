@@ -109,7 +109,7 @@ process.source = cms.Source("PoolSource",
 #process.source.eventsToProcess = cms.untracked.VEventRange("1:2347130-1:2347130") # run only on event=2347130 (syntax= from run:evt - to run:evt)
 
 #Limited nEv for testing purposes. -1 to run all events
-process.maxEvents.input = 5000 #10000
+process.maxEvents.input = -1 #10000
 
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
@@ -125,7 +125,7 @@ if not IsMC:
 ##
 ## Output file
 ##
-process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis_bjetreg.root'))
+process.TFileService=cms.Service('TFileService',fileName=cms.string('HTauTauAnalysis.root'))
 #process.TFileService=cms.Service('TFileService',fileName=cms.string('refFiles/Mu16_sync.root'))
 
 if DO_ENRICHED:
@@ -162,7 +162,7 @@ process.p = cms.Path(process.Candidates)
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 #process.MessageLogger.categories.append('onlyError')
 #process.MessageLogger.cerr.onlyError=cms.untracked.PSet(threshold  = cms.untracked.string('ERROR'))
 #process.MessageLogger.cerr.threshold='ERROR'
