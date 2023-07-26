@@ -131,49 +131,7 @@ bRegressionProducer::bRegressionProducer( const ParameterSet &iConfig ) :
     session = tensorflow::createSession(graphDef);
 
     //for variables for breg check this PR https://github.com/cms-analysis/flashgg/pull/968
-    Jet_pt = 0.;
-    Jet_eta = 0.;
-    rho = 0.;
-    Jet_mt = 0.;
-    Jet_leadTrackPt = 0.;
-    Jet_leptonPtRel = 0.;
-    Jet_leptonDeltaR = 0.;
-    Jet_neHEF = 0.;
-    Jet_neEmEF = 0.;
-    Jet_vtxPt = 0.;
-    Jet_vtxMass = 0.;
-    Jet_vtx3dL = 0.;
-    Jet_vtxNtrk = 0.;
-    Jet_vtx3deL = 0.;
-    Jet_energyRing_dR0_em_Jet_e = 0.;
-    Jet_energyRing_dR1_em_Jet_e = 0.;
-    Jet_energyRing_dR2_em_Jet_e = 0.;
-    Jet_energyRing_dR3_em_Jet_e = 0.;
-    Jet_energyRing_dR4_em_Jet_e = 0.;
-    Jet_energyRing_dR0_neut_Jet_e = 0.;
-    Jet_energyRing_dR1_neut_Jet_e = 0.;
-    Jet_energyRing_dR2_neut_Jet_e = 0.;
-    Jet_energyRing_dR3_neut_Jet_e = 0.;
-    Jet_energyRing_dR4_neut_Jet_e = 0.;
-    Jet_energyRing_dR0_ch_Jet_e = 0.;
-    Jet_energyRing_dR1_ch_Jet_e = 0.;
-    Jet_energyRing_dR2_ch_Jet_e = 0.;
-    Jet_energyRing_dR3_ch_Jet_e = 0.;
-    Jet_energyRing_dR4_ch_Jet_e = 0.;
-    Jet_energyRing_dR0_mu_Jet_e = 0.;
-    Jet_energyRing_dR1_mu_Jet_e = 0.;
-    Jet_energyRing_dR2_mu_Jet_e = 0.;
-    Jet_energyRing_dR3_mu_Jet_e = 0.;
-    Jet_energyRing_dR4_mu_Jet_e = 0.;
-    Jet_numDaughters_pt03 = 0;
-    Jet_chHEF = 0.;
-    Jet_chEmEF = 0.;
-    Jet_leptonPtRelInv = 0.;
-    isEle = 0.;
-    isMu = 0.;
-    isOther = 0.;
-    Jet_mass = 0.;
-    Jet_withPtd = 0.;
+    InitJet();
 
     produces<vector<pat::Jet> > ();
 }
@@ -200,8 +158,8 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
 
         if (fjet.pt()<15. || fabs(fjet.eta())>2.5) continue;
 
-        float cone_boundaries[] = { 0.05, 0.1, 0.2, 0.3, 0.4 }; // hardcoded boundaries: should be made configurable
-        size_t ncone_boundaries = sizeof(cone_boundaries)/sizeof(float);
+        std::array<float, 5> cone_boundaries{{ 0.05, 0.1, 0.2, 0.3, 0.4 }}; // hardcoded boundaries: should be made configurable
+        size_t ncone_boundaries = cone_boundaries.size();
         std::vector<float> chEnergies(ncone_boundaries+1,0.);
         std::vector<float> emEnergies(ncone_boundaries+1,0.); 
         std::vector<float> neEnergies(ncone_boundaries+1,0.); 
@@ -211,7 +169,7 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
 
         float softLepPtRel = 0.;
         float softLepPtRelInv=0.;
-        float softLepPDGId=0.;
+        int softLepPDGId=0.;
         int numDaug03 = 0;
 
         for ( unsigned k = 0; k < fjet.numberOfSourceCandidatePtrs(); ++k ) {
@@ -227,7 +185,7 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
             if( candPt > 0.3 ) { ++numDaug03; }
             if(lPack->charge() != 0 && candPt > leadTrackPt_) leadTrackPt_ = candPt;
 
-            if(abs(lPack->pdgId()) == 11 || abs(lPack->pdgId()) == 13) {
+            if(PDGID == 11 || PDGID == 13) {
                 if(candPt > softLepPt){
                     
                     softLepPt = candPt;
@@ -542,26 +500,17 @@ void bRegressionProducer::SetNNVectorVar(){
 std::vector<float> bRegressionProducer::EvaluateNN(){
     tensorflow::Tensor input(tensorflow::DT_FLOAT, {1,43});
     for (unsigned int i = 0; i < NNvectorVar_.size(); i++){
-
         input.matrix<float>()(0,i) =  float(NNvectorVar_[i]);
     }
     std::vector<tensorflow::Tensor> outputs;
     tensorflow::run(session, { { "ffwd_inp:0",input } }, { "ffwd_out/BiasAdd:0" }, &outputs);
 
     std::vector<float> correction(3);//3 outputs, first value is mean and then other 2 quantiles
-    correction[0] = outputs[0].matrix<float>()(0, 0);
-    correction[1] = outputs[0].matrix<float>()(0, 1);
-    correction[2] = outputs[0].matrix<float>()(0, 2);
+    for (unsigned int i = 0; i < 3; i++) {
+        correction[i] = outputs[0].matrix<float>()(0, i);
+    }
         
     return correction;
 }//end EvaluateNN
     
 DEFINE_FWK_MODULE( bRegressionProducer );
-
-// Local Variables:
-// mode:c++
-// indent-tabs-mode:nil
-// tab-width:4
-// c-basic-offset:4
-// End:
-// vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
