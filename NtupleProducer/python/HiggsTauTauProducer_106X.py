@@ -425,13 +425,32 @@ if IsMC:
 else:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 
+## B-regression
+# following https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/BJetRegression#How_to_treat_the_training
+# Y value from json files (could be read directly from there, but this is for another time)
+
+if YEAR == 2018: # just one option for weight file
+    Y_MEAN = 1.0545977354049683
+    Y_STD  = 0.27912887930870056
+    WEIGHT_FILE = "LLRHiggsTauTau/NtupleProducer/data/DNNmodels/breg_training_2018_JECv8.pb"
+elif YEAR == 2017: # Weight file to be checked
+    Y_MEAN = 1.055067777633667
+    Y_STD  = 0.28225210309028625
+    WEIGHT_FILE = "LLRHiggsTauTau/NtupleProducer/data/DNNmodels/breg_training_2017_jecV32.pb"
+elif YEAR == 2016: # weight file marked as recommended
+    Y_MEAN = 1.047176718711853
+    Y_STD  = 0.31976690888404846
+    WEIGHT_FILE = "LLRHiggsTauTau/NtupleProducer/data/DNNmodels/breg_training_2016_JECv11_Oct_2019.pb"
+
 process.bregJets = cms.EDProducer("bRegressionProducer",
-                                              JetTag = cms.InputTag("slimmedJets"),
-                                              rhoFixedGridCollection = cms.InputTag("fixedGridRhoAll"),
-                                              bRegressionWeightfile = cms.FileInPath("LLRHiggsTauTau/NtupleProducer/data/DNNmodels/breg_training_2018_JECv8.pb"),
-                                              pvsrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                              svsrc = cms.InputTag('slimmedSecondaryVertices'),
-                                          )
+                                  JetTag = cms.InputTag("slimmedJets"),
+                                  rhoFixedGridCollection = cms.InputTag("fixedGridRhoAll"),
+                                  bRegressionWeightfile = cms.FileInPath(WEIGHT_FILE),
+                                  pvsrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                  svsrc = cms.InputTag('slimmedSecondaryVertices'),
+                                  y_mean = cms.double(Y_MEAN),
+                                  y_std = cms.double(Y_STD),
+)
 					  
 # Update jet collection
 updateJetCollection(

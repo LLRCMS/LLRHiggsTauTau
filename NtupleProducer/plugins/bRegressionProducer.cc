@@ -57,6 +57,9 @@ private:
     edm::EDGetTokenT<std::vector<reco::Vertex>> srcVtx_;
     edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> srcSV_;  
 
+    double y_mean_;
+    double y_std_;
+
     tensorflow::Session* session;
     std::vector<float> NNvectorVar_; 
 
@@ -115,7 +118,10 @@ bRegressionProducer::bRegressionProducer( const ParameterSet &iConfig ) :
     rhoToken_( consumes<double>(iConfig.getParameter<edm::InputTag>( "rhoFixedGridCollection" ) )),
     bRegressionWeightfile_(iConfig.getParameter<edm::FileInPath>("bRegressionWeightfile")),
     srcVtx_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvsrc"))),
-    srcSV_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<edm::InputTag>("svsrc")))
+    srcSV_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<edm::InputTag>("svsrc"))),
+    y_mean_(iConfig.getParameter<double>("y_mean")),
+    y_std_(iConfig.getParameter<double>("y_std"))
+
 {
     jetToken_= consumes<View<pat::Jet> >(inputTagJets_);
 
@@ -160,7 +166,7 @@ bRegressionProducer::bRegressionProducer( const ParameterSet &iConfig ) :
     Jet_energyRing_dR3_mu_Jet_e = 0.;
     Jet_energyRing_dR4_mu_Jet_e = 0.;
     Jet_numDaughters_pt03 = 0;
-    Jet_chHEF = 0.;//implement from here
+    Jet_chHEF = 0.;
     Jet_chEmEF = 0.;
     Jet_leptonPtRelInv = 0.;
     isEle = 0.;
@@ -169,7 +175,6 @@ bRegressionProducer::bRegressionProducer( const ParameterSet &iConfig ) :
     Jet_mass = 0.;
     Jet_withPtd = 0.;
 
-    //FIXME        produces<vector<flashgg::JetBReg> > ();
     produces<vector<pat::Jet> > ();
 }
 
@@ -187,7 +192,7 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
 
 
     for( unsigned int i = 0 ; i < jets->size() ; i++ ) {
-
+        // Reset all input features
         InitJet();
             
         Ptr<pat::Jet> pjet = jets->ptrAt( i );
@@ -203,8 +208,7 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
         std::vector<float> muEnergies(ncone_boundaries+1,0.); 
         
         float leadTrackPt_ = 0, softLepPt = 0, softLepDr = 0;
-        float sumPtDrSq = 0.;
-        float sumPtSq = 0.;
+
         float softLepPtRel = 0.;
         float softLepPtRelInv=0.;
         float softLepPDGId=0.;
@@ -219,10 +223,6 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
             int PDGID = abs(lPack->pdgId()); 
             float candPt = kcand->pt();
             float candDr   = reco::deltaR(*kcand,fjet);
-
-
-            sumPtDrSq += candPt*candPt*candDr*candDr;
-            sumPtSq += candPt*candPt;
 
             if( candPt > 0.3 ) { ++numDaug03; }
             if(lPack->charge() != 0 && candPt > leadTrackPt_) leadTrackPt_ = candPt;
@@ -331,7 +331,7 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
     
         
 
-        Jet_energyRing_dR0_em_Jet_e   = emEnergies[0]/fjet.energy();//remember to divide by jet energy
+        Jet_energyRing_dR0_em_Jet_e   = emEnergies[0]/fjet.energy();
         Jet_energyRing_dR1_em_Jet_e   = emEnergies[1]/fjet.energy();
         Jet_energyRing_dR2_em_Jet_e   = emEnergies[2]/fjet.energy();
         Jet_energyRing_dR3_em_Jet_e   = emEnergies[3]/fjet.energy();
@@ -426,15 +426,12 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
         bRegNN = EvaluateNN();
         NNvectorVar_.clear();
 
-        float y_mean= 1.0454729795455933;
-        float y_std = 0.3162831664085388;
-
-        fjet.addUserFloat("bRegNNCorr", bRegNN[0]*y_std+y_mean);
-        fjet.addUserFloat("bRegNNResolution",0.5*(bRegNN[2]-bRegNN[1])*y_std);
+        fjet.addUserFloat("bRegNNCorr", bRegNN[0]*y_std_+y_mean_);
+        fjet.addUserFloat("bRegNNResolution",0.5*(bRegNN[2]-bRegNN[1])*y_std_);
 
         if(debug){
-            cout<<"bRegNNCorr = "       << bRegNN[0]*y_std+y_mean << endl;
-            cout<<"bRegNNResolution = " << 0.5*(bRegNN[2]-bRegNN[1])*y_std << endl;
+            cout<<"bRegNNCorr = "       << bRegNN[0]*y_std_+y_mean_ << endl;
+            cout<<"bRegNNResolution = " << 0.5*(bRegNN[2]-bRegNN[1])*y_std_ << endl;
             cout << "===" << endl << endl << "===" << endl;
         }
 
