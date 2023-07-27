@@ -440,9 +440,6 @@ cd $CMSSW_BASE/src
 scram b -j 8
 ```
 
-</details>
-
-
 ### Instructions for 106X
 
 ```
@@ -503,6 +500,82 @@ git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 
 #Add TauPOG corrections (TES and EES)
 git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
+
+cd $CMSSW_BASE/src
+scram b -j 8
+```
+
+</details>
+
+### Instructions for 124X
+
+```
+## IMPORTANT ##
+# Make sure your architecture is slc7_amd64_gcc10
+# (you can set the architecture with: export SCRAM_ARCH=slc7_amd64_gcc10 )
+
+cmsrel CMSSW_12_4_14_patch2
+cd CMSSW_12_4_14_patch2/src
+cmsenv
+
+git cms-init
+
+# EGamma Tools - Electrons Id, Iso and Energy Scale
+# https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018
+
+git cms-addpkg RecoEgamma/EgammaTools  ### essentially just checkout the package from CMSSW
+wget https://raw.githubusercontent.com/cms-sw/cmssw/e988bd296b885193909d05157b51e6f8ba0ba5e9/RecoEgamma/EgammaTools/python/EgammaPostRecoTools.py
+mv EgammaPostRecoTools.py RecoEgamma/EgammaTools/python/
+git clone -b ULSSfiles_correctScaleSysMC https://github.com/jainshilpi/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data/
+git cms-addpkg EgammaAnalysis/ElectronTools
+
+# Jet Tools 
+git cms-addpkg RecoJets/JetProducers
+
+# Z-recoil corrections
+git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/RecoilCorrections
+
+# LLRHiggsTauTau framework
+git clone git@github.com:LLRCMS/LLRHiggsTauTau.git
+cd LLRHiggsTauTau
+git checkout 124X_HH_UL
+cd -
+
+git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
+cd Muon/MuonAnalysisTools
+git checkout master -- interface/MuonEffectiveArea.h
+cd -
+
+git clone -n https://github.com/cms-analysis/EgammaAnalysis-ElectronTools EGamma/EGammaAnalysisTools
+cd EGamma/EGammaAnalysisTools
+git checkout c0db796 -- interface/ElectronEffectiveArea.h
+cd -
+
+# FSR corrections
+git clone -n https://github.com/VBF-HZZ/UFHZZAnalysisRun2
+cd UFHZZAnalysisRun2
+git checkout origin/102X FSRPhotons
+cd -
+
+# bad MET filter fix
+git cms-addpkg RecoMET/METFilters
+
+# SVfit
+git clone https://github.com/LLRCMS/ClassicSVfit.git TauAnalysis/ClassicSVfit -b bbtautau_LegacyRun2
+git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
+
+#Add TauPOG corrections (TES and EES)
+git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
+
+#Re-run DeepTauv2p5
+git cms-addpkg RecoTauTag/RecoTau
+wget https://raw.githubusercontent.com/danielwinterbottom/cmssw/cad1581a0979944bdf7fb85fe9ed1698a1e60590/RecoTauTag/RecoTau/python/tools/runTauIdMVA.py
+mv runTauIdMVA.py RecoTauTag/RecoTau/python/tools/
+
+#Minor modification to DataFormat
+git cms-addpkg DataFormats/Math/
+
+#Add ```<class name="edm::Wrapper<ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > >"/>``` to DataFormats/Math/src/classes_def.xml
 
 cd $CMSSW_BASE/src
 scram b -j 8
