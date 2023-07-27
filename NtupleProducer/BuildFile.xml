@@ -37,6 +37,8 @@
 <use   name="JetMETCorrections/Algorithms"/>
 <use   name="JetMETCorrections/Objects"/>
 
+<use name="PhysicsTools/TensorFlow"/>
+
 <use name="CLHEP"/>
 
 <use name="rootrflx"/>

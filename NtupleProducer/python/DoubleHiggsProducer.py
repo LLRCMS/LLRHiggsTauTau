@@ -25,7 +25,7 @@ if IsMC:
     #process.GlobalTag.globaltag = 'PHYS14_ST_V1::All'
 else :
     process.GlobalTag.globaltag = 'GR_70_V2_AN1::All'   # data in 70X, cf https://twiki.cern.ch/twiki/bin/view/CMS/MiniAOD
-print process.GlobalTag.globaltag
+print (process.GlobalTag.globaltag)
 
 ### ----------------------------------------------------------------------
 ### Standard stuff
@@ -191,7 +191,7 @@ process.puJetIdForPFMVAMEt.rho = cms.InputTag("fixedGridRhoFastjetAll")
 # python trick: loop on all pairs for pair MET computation
 
 if USEPAIRMET:
-   print "Using pair MET"
+   print ("Using pair MET")
 
    # template of unpacker
    UnpackerTemplate = cms.EDProducer ("PairUnpacker",
@@ -214,7 +214,7 @@ if USEPAIRMET:
       MVAPairMET += (cms.InputTag(MVAMETName),)
     
 else:
-   print "Using event MET (same MET for all pairs)"
+   print ("Using event MET (same MET for all pairs)")
    process.pfMVAMEt.minNumLeptons = cms.int32(0) # ONLY FOR DEBUG PURPOSE, OTHERWISE DOES NOT COMPUTE MET AND SVFIT CRASHES DUE TO A SINGULAR MATRIX
    process.METSequence = cms.Sequence(
        process.ak4PFJets         +

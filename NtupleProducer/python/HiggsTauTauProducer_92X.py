@@ -58,7 +58,7 @@ else :
     #process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7' # Run B-G               # FIXME !!!!!!!!
     # process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v16' # Run H                      # FIXME !!!!!!!!
     process.GlobalTag.globaltag = '94X_dataRun2_v6'                    # 2017 Data
-print process.GlobalTag.globaltag
+print (process.GlobalTag.globaltag)
 
 nanosec="25"
 if not Is25ns: nanosec="50"
@@ -819,7 +819,7 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 
 process.METSequence = cms.Sequence()
 if USEPAIRMET:
-    print "Using pair MET (MVA MET)"
+    print ("Using pair MET (MVA MET)")
     from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
     runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
     process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
@@ -867,7 +867,7 @@ if USEPAIRMET:
     #     MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
 
 else:
-    print "Using event pfMET (same MET for all pairs)"
+    print ("Using event pfMET (same MET for all pairs)")
 
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
     runMetCorAndUncFromMiniAOD(
@@ -922,7 +922,7 @@ else:
 ## SV fit
 ## ----------------------------------------------------------------------
 if USECLASSICSVFIT:
-    print "Using CLASSIC_SV_FIT"
+    print ("Using CLASSIC_SV_FIT")
     process.SVllCand = cms.EDProducer("ClassicSVfitInterface",
                                       srcPairs   = cms.InputTag("barellCand"),
                                       srcSig     = cms.InputTag("METSignificance", "METSignificance"),
@@ -932,7 +932,7 @@ if USECLASSICSVFIT:
                                       computeForUpDownTES = cms.bool(COMPUTEUPDOWNSVFIT if IsMC else False)
     )
 else:
-    print "Using STANDALONE_SV_FIT"
+    print ("Using STANDALONE_SV_FIT")
     process.SVllCand = cms.EDProducer("SVfitInterface",
                                       srcPairs   = cms.InputTag("barellCand"),
                                       srcSig     = cms.InputTag("METSignificance", "METSignificance"),

@@ -52,7 +52,7 @@ if IsMC:
     process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1' #MC 25 ns miniAODv2    
 else :
     process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
-print process.GlobalTag.globaltag
+print (process.GlobalTag.globaltag)
 
 nanosec="25"
 if not Is25ns: nanosec="50"
@@ -582,7 +582,7 @@ process.barellCand = cms.EDProducer("CandViewShallowCloneCombiner",
 
 process.METSequence = cms.Sequence()
 if USEPAIRMET:
-    print "Using pair MET (MVA MET)"
+    print ("Using pair MET (MVA MET)")
     from RecoMET.METPUSubtraction.MVAMETConfiguration_cff import runMVAMET
     runMVAMET(process, jetCollectionPF = "patJetsReapplyJEC")
     process.MVAMET.srcLeptons = cms.VInputTag("slimmedMuons", "slimmedElectrons", "slimmedTaus")
@@ -630,7 +630,7 @@ if USEPAIRMET:
     #     MVAPairMET.append(cms.InputTag(MVAMETName, "MVAMET"))
 
 else:
-    print "Using event pfMET (same MET for all pairs)"
+    print ("Using event pfMET (same MET for all pairs)")
 
 ## always compute met significance
 process.load("RecoMET.METProducers.METSignificance_cfi")
