@@ -699,6 +699,8 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Int_t>   _jets_neMult;
   std::vector<Int_t>   _jets_chMult;
   std::vector<Float_t> _jets_QGdiscr;
+  std::vector<Float_t> _jets_bJetRegCorr;
+  std::vector<Float_t> _jets_bJetRegRes;
 
   std::vector<Float_t> _ak8jets_px;
   std::vector<Float_t> _ak8jets_py;
@@ -1263,6 +1265,9 @@ void HTauTauNtuplizer::Initialize(){
   _jets_HadronFlavour.clear();
   _jets_genjetIndex.clear();
   _jets_QGdiscr.clear();
+  _jets_bJetRegCorr.clear();
+  _jets_bJetRegRes.clear();
+
   _numberOfJets=0;
   _bdiscr.clear();
   _bdiscr2.clear();
@@ -1709,6 +1714,8 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("jets_MUF"    , &_jets_MUF);
   myTree->Branch("jets_neMult" , &_jets_neMult);
   myTree->Branch("jets_chMult" , &_jets_chMult);
+  myTree->Branch("jets_bJetRegCorr", &_jets_bJetRegCorr);
+  myTree->Branch("jets_bJetRegRes", &_jets_bJetRegRes);
 
   myTree->Branch("bDiscriminator",&_bdiscr);
   myTree->Branch("bCSVscore",&_bdiscr2);
@@ -2395,6 +2402,8 @@ int HTauTauNtuplizer::FillJet(const edm::View<pat::Jet> *jets, const edm::Event&
     _jets_HadronFlavour.push_back(ijet->hadronFlavour());
     _jets_PUJetID.push_back(ijet->userFloat("pileupJetId:fullDiscriminant"));
     _jets_PUJetID_WP.push_back(ijet->userInt("pileupJetId:fullId"));
+    _jets_bJetRegCorr.push_back(ijet->userFloat("bRegNNCorr"));
+    _jets_bJetRegRes.push_back(ijet->userFloat("bRegNNResolution"));
 
     
     //float vtxPx = ijet->userFloat ("vtxPx");                      //FRA: not anymore available in 2017

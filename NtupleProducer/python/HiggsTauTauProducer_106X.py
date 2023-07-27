@@ -414,10 +414,37 @@ else:
     jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual' ]
 
 
+## B-regression
+# following https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsWG/BJetRegression#How_to_treat_the_training
+# Y value from json files (could be read directly from there, but this is for another time)
+MODEL_DIR = "LLRHiggsTauTau/NtupleProducer/data/DNNmodels/"
+if YEAR == 2018: # just one option for weight file
+    Y_MEAN = 1.0545977354049683
+    Y_STD  = 0.27912887930870056
+    WEIGHT_FILE = "breg_training_2018_JECv8.pb"
+elif YEAR == 2017: # Weight file to be checked
+    Y_MEAN = 1.055067777633667
+    Y_STD  = 0.28225210309028625
+    WEIGHT_FILE = "breg_training_2017_jecV32.pb"
+elif YEAR == 2016: # weight file marked as recommended
+    Y_MEAN = 1.047176718711853
+    Y_STD  = 0.31976690888404846
+    WEIGHT_FILE = "breg_training_2016_JECv11_Oct_2019.pb"
+
+process.bregJets = cms.EDProducer("bRegressionProducer",
+                                  JetTag = cms.InputTag("slimmedJets"),
+                                  rhoFixedGridCollection = cms.InputTag("fixedGridRhoAll"),
+                                  bRegressionWeightfile = cms.FileInPath(MODEL_DIR+WEIGHT_FILE),
+                                  pvsrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                                  svsrc = cms.InputTag('slimmedSecondaryVertices'),
+                                  y_mean = cms.double(Y_MEAN),
+                                  y_std = cms.double(Y_STD),
+)
+
 # Update jet collection
 updateJetCollection(
    process,
-   jetSource = cms.InputTag('slimmedJets'),
+   jetSource = cms.InputTag('bregJets'),
    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
@@ -432,7 +459,9 @@ process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC *
 # Jet Selector after JEC and bTagging
 process.jets = cms.EDFilter("PATJetRefSelector",
                             src = cms.InputTag("selectedUpdatedPatJetsUpdatedJEC"),
+                            #src = cms.InputTag("selectedUpdatedPatJetsTransientCorrectedUpdatedJEC"),
                             cut = cms.string(JETCUT))
+
 
 ##
 ## QG tagging for jets
@@ -805,8 +834,8 @@ process.Candidates = cms.Sequence(
     process.electrons          + process.cleanSoftElectrons +
     process.taus               +
     process.fsrSequence        +
-    process.softLeptons        + process.barellCand +
-    process.jecSequence        + process.jetSequence +
+    process.softLeptons        + process.barellCand         +
+    process.bregJets           + process.jecSequence        + process.jetSequence +
     process.METSequence        +
     process.geninfo            +
     process.SVFit

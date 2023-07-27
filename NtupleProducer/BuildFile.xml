@@ -18,7 +18,7 @@
 <use name="root"/>
 <use name="roofit"/>
 <use name="HLTrigger/HLTcore"/>
-
+<use name="PhysicsTools/TensorFlow"/>
 
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="DataFormats/EgammaCandidates"/>
