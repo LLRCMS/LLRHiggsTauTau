@@ -512,7 +512,7 @@ scram b -j 8
 ```
 ## IMPORTANT ##
 # Make sure your architecture is slc7_amd64_gcc10
-# (you can set the architecture with: export SCRAM_ARCH=slc7_amd64_gcc700 )
+# (you can set the architecture with: export SCRAM_ARCH=slc7_amd64_gcc10 )
 
 cmsrel CMSSW_12_4_14_patch2
 cd CMSSW_12_4_14_patch2/src
@@ -524,11 +524,10 @@ git cms-init
 # https://twiki.cern.ch/twiki/bin/view/CMS/EgammaUL2016To2018
 
 git cms-addpkg RecoEgamma/EgammaTools  ### essentially just checkout the package from CMSSW
-git clone https://github.com/cms-egamma/EgammaPostRecoTools.git
-mv EgammaPostRecoTools/python/EgammaPostRecoTools.py RecoEgamma/EgammaTools/python/.
+wget https://raw.githubusercontent.com/cms-sw/cmssw/e988bd296b885193909d05157b51e6f8ba0ba5e9/RecoEgamma/EgammaTools/python/EgammaPostRecoTools.py
+mv EgammaPostRecoTools.py RecoEgamma/EgammaTools/python/
 git clone -b ULSSfiles_correctScaleSysMC https://github.com/jainshilpi/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data/
 git cms-addpkg EgammaAnalysis/ElectronTools
-Please use this RecoEgamma/EgammaTools/python/EgammaPostRecoTools.py produced by Danny Winterbottom for 12_4_X https://raw.githubusercontent.com/cms-sw/cmssw/e988bd296b885193909d05157b51e6f8ba0ba5e9/RecoEgamma/EgammaTools/python/EgammaPostRecoTools.py
 
 # Jet Tools 
 git cms-addpkg RecoJets/JetProducers
@@ -539,7 +538,7 @@ git clone https://github.com/CMS-HTT/RecoilCorrections.git  HTT-utilities/Recoil
 # LLRHiggsTauTau framework
 git clone git@github.com:LLRCMS/LLRHiggsTauTau.git
 cd LLRHiggsTauTau
-git checkout 106X_HH_UL
+git checkout 124X_HH_UL
 cd -
 
 git clone -n https://github.com/latinos/UserCode-sixie-Muon-MuonAnalysisTools Muon/MuonAnalysisTools
@@ -567,7 +566,11 @@ git clone https://github.com/svfit/SVfitTF TauAnalysis/SVfitTF
 
 #Add TauPOG corrections (TES and EES)
 git clone https://github.com/cms-tau-pog/TauIDSFs TauPOG/TauIDSFs
-Please add this line https://github.com/danielwinterbottom/cmssw/blob/cad1581a0979944bdf7fb85fe9ed1698a1e60590/RecoTauTag/RecoTau/python/tools/runTauIdMVA.py#L621 to RecoTauTag/RecoTau/python/tools/runTauIdMVA.py
+
+#Re-run DeepTauv2p5
+git cms-addpkg RecoTauTag/RecoTau
+wget https://raw.githubusercontent.com/danielwinterbottom/cmssw/cad1581a0979944bdf7fb85fe9ed1698a1e60590/RecoTauTag/RecoTau/python/tools/runTauIdMVA.py
+mv runTauIdMVA.py RecoTauTag/RecoTau/python/tools/
 
 #Minor modification to DataFormat
 git cms-addpkg DataFormats/Math/
