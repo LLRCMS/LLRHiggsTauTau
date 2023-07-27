@@ -574,7 +574,8 @@ mv runTauIdMVA.py RecoTauTag/RecoTau/python/tools/
 
 #Minor modification to DataFormat
 git cms-addpkg DataFormats/Math/
-Add ```<class name="edm::Wrapper<ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > >"/>``` to DataFormats/Math/src/classes_def.xml
+
+#Add ```<class name="edm::Wrapper<ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > >"/>``` to DataFormats/Math/src/classes_def.xml
 
 cd $CMSSW_BASE/src
 scram b -j 8
