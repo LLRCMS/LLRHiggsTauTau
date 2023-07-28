@@ -495,6 +495,62 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(999)
         ),
 
+### === Double muon triggers
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13)
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13)
+        ),
+
     )
 
 #now I create the trigger list for HLTconfig

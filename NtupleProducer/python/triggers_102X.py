@@ -31,6 +31,7 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(13),
         leg2 = cms.int32(999)
         ),
+
 ### === Single electron triggers   -- UPDATED FOR 2018 DATA
     cms.PSet (
         HLT = cms.string("HLT_Ele32_WPTight_Gsf_v"),
@@ -108,6 +109,7 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(13),
         leg2 = cms.int32(15)
         ),
+
 ### === ele tauh triggers  -- UPDATED FOR 2018 DATA
     cms.PSet (
         HLT = cms.string("HLT_Ele24_eta2p1_WPTight_Gsf_LooseChargedIsoPFTauHPS30_eta2p1_CrossL1_v"),
@@ -127,6 +129,7 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(11),
         leg2 = cms.int32(15)
         ),
+
 ### === tauh tauh triggers  -- UPDATED FOR 2018 DATA
     cms.PSet (
         HLT = cms.string("HLT_DoubleMediumChargedIsoPFTauHPS35_Trk1_eta2p1_Reg_v"),
@@ -563,9 +566,19 @@ HLTLIST = cms.VPSet(
         leg1 = cms.int32(999),
         leg2 = cms.int32(999)
         ),
-     )
 
-
+### === Double muon triggers
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"),
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13)
+        ),
+)
+    
 #now I create the trigger list for HLTconfig
 for i in range(len(HLTLIST)):
     tmpl =  str(HLTLIST[i].HLT).replace('cms.string(\'','') ##CMSSW Vaffanculo

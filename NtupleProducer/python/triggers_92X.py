@@ -589,7 +589,25 @@ HLTLIST = cms.VPSet(
         leg2 = cms.int32(999),
         ),
 
-
+### === Double muon triggers
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v"), # unprescaled, included in run >= 299368
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13),
+        ),
+    cms.PSet (
+        HLT = cms.string("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v"), # unprescaled
+        path1 = cms.vstring (""),
+        path2 = cms.vstring (""),
+        path3 = cms.vstring (""),
+        path4 = cms.vstring (""),
+        leg1 = cms.int32(13),
+        leg2 = cms.int32(13),
+        ),
 
 ## === 4 jets (for VBF) # FILTERS TO BE FIXED
     #cms.PSet (
