@@ -9,7 +9,7 @@ import re
 #### Parameters to be changed for each production
 
 datasetsFile = "datasets_UL18.txt"
-tag = "MC_28Feb2022"
+tag = "MC_29July2023"
 isMC = True
 
 PROCESS = [
@@ -37,7 +37,8 @@ if not isMC:
         "DATA_TAU_2018",
         "DATA_ELE_2018",
         "DATA_MU_2018",
-        "DATA_MET_2018"
+        "DATA_MET_2018",
+        "DATA_DOUBLEMU_2018",
     ]
 
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
