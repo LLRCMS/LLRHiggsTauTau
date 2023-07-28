@@ -96,6 +96,8 @@ process.source = cms.Source("PoolSource",
 #        '/store/data/Run2018C/Tau/MINIAOD/UL2018_MiniAODv2_GT36-v1/2830000/03143451-FB26-F24A-B542-4165F66D5416.root'
         #MET dataset#
 #        '/store/data/Run2018D/MET/MINIAOD/UL2018_MiniAODv2_GT36-v1/2820000/10089943-A30E-6446-962D-93332C37EE71.root'
+        #DoubleMuon dataset
+#        '/store/data/Run2018A/DoubleMuon/MINIAOD/UL2018_MiniAODv2-v1/260000/00264E65-8EFD-974C-8A29-866EFA1609D3.root'
         #DY NLO
         '/store/mc/RunIISummer20UL18MiniAODv2/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v16_L1v1-v2/230000/0191D778-A59B-5149-9EA2-1FF39D787429.root'
         #Signal (ggf spin 0, mX=850)
