@@ -44,7 +44,8 @@ if not isMC:
         "DATA_TAU_2018",
         "DATA_ELE_2018",
         "DATA_MU_2018",
-        "DATA_MET_2018"
+        "DATA_MET_2018",
+        "DATA_DOUBLEMU_2018"
     ]
 
 #[OLD] twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis

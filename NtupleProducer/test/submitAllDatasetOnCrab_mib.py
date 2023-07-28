@@ -9,7 +9,7 @@ import re
 #### Parameters to be changed for each production
 
 datasetsFile = "datasets_UL16APV.txt"
-tag = "MC_2016APV_19Mar2022"
+tag = "MC_2016_APV_29July2023"
 isMC = True
 
 PROCESS = [
@@ -38,7 +38,8 @@ if not isMC:
         "DATA_TAU_2016APV",
         "DATA_ELE_2016APV",
         "DATA_MU_2016APV",
-        "DATA_MET_2016APV"
+        "DATA_MET_2016APV",
+        "DATA_DOUBLEMU_2016APV"
     ]
 
 #twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
