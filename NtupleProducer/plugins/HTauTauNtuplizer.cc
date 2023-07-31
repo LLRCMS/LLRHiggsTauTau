@@ -628,6 +628,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_IoEmIoP;
   std::vector<Float_t> _daughters_IoEmIoP_ttH;
   //std::vector<Float_t> _daughters_SCeta; //FRA January2019
+  std::vector<Float_t> _daughters_tkRelIso;
   std::vector<Float_t> _daughters_depositR03_tracker;
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
@@ -746,8 +747,16 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb;
   std::vector<Float_t> _ak8jets_deepDoubleBvLJetTags_probHbb;
   std::vector<Float_t> _ak8jets_deepBoostedJetTags_probHbb;
+
   std::vector<Float_t> _ak8jets_particleNetJetTags_probHbb;
   std::vector<Float_t> _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD;
+
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_probXbb;
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_probXcc;
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_probXqq;
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_probQCD;
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_mass;
+
   std::vector<Int_t>   _ak8jets_nsubjets;
 
   // subjets of ak8 -- store ALL subjets, and link them with an idx to the ak8 jet vectors
@@ -1005,6 +1014,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_IoEmIoP.clear();
   _daughters_IoEmIoP_ttH.clear();
   //_daughters_SCeta.clear(); //FRA January2019
+  _daughters_tkRelIso.clear(); 
   _daughters_depositR03_tracker.clear();  
   _daughters_depositR03_ecal.clear();  
   _daughters_depositR03_hcal.clear();  
@@ -1345,6 +1355,11 @@ void HTauTauNtuplizer::Initialize(){
   _ak8jets_deepBoostedJetTags_probHbb.clear();
   _ak8jets_particleNetJetTags_probHbb.clear();
   _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD.clear();
+  _ak8jets_particleNetMDJetTags_probXbb.clear();
+  _ak8jets_particleNetMDJetTags_probXcc.clear();
+  _ak8jets_particleNetMDJetTags_probXqq.clear();
+  _ak8jets_particleNetMDJetTags_probQCD.clear();
+  _ak8jets_particleNetMDJetTags_mass.clear();
   _ak8jets_nsubjets.clear();
 
   _subjets_px.clear();
@@ -1646,6 +1661,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("combreliso03",& _combreliso03);
+  myTree->Branch("tkRelIso",&_daughters_tkRelIso);
   myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
@@ -1798,6 +1814,13 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("ak8jets_deepBoostedJetTags_probHbb", &_ak8jets_deepBoostedJetTags_probHbb);
   myTree->Branch("ak8jets_particleNetJetTags_probHbb", &_ak8jets_particleNetJetTags_probHbb);
   myTree->Branch("ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD", &_ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD);
+
+  myTree->Branch("ak8jets_particleNetMDJetTags_probXbb", &_ak8jets_particleNetMDJetTags_probXbb);
+  myTree->Branch("ak8jets_particleNetMDJetTags_probXcc", &_ak8jets_particleNetMDJetTags_probXcc);
+  myTree->Branch("ak8jets_particleNetMDJetTags_probXqq", &_ak8jets_particleNetMDJetTags_probXqq);
+  myTree->Branch("ak8jets_particleNetMDJetTags_probQCD", &_ak8jets_particleNetMDJetTags_probQCD);
+  myTree->Branch("ak8jets_particleNetMDJetTags_mass", &_ak8jets_particleNetMDJetTags_mass);
+
   myTree->Branch("ak8jets_nsubjets", &_ak8jets_nsubjets);
 
   myTree->Branch("subjets_px", &_subjets_px);
@@ -2781,6 +2804,15 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_particleNetJetTags_probHbb.push_back(ijet->bDiscriminator("pfParticleNetJetTags:probHbb"));
       _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD.push_back(ijet->bDiscriminator("pfParticleNetDiscriminatorsJetTags:HbbvsQCD"));
 
+      _ak8jets_particleNetMDJetTags_probXbb.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probXbb"));
+      _ak8jets_particleNetMDJetTags_probXcc.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probXcc"));
+      _ak8jets_particleNetMDJetTags_probXqq.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probXqq"));
+      _ak8jets_particleNetMDJetTags_probQCD.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDbb") +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDb")  +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDcc") +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDbc") +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDothers"));
+      _ak8jets_particleNetMDJetTags_mass.push_back(ijet->bDiscriminator("pfParticleNetMassRegressionJetTags:mass"));
       // store subjets for soft drop
       int nsubj = 0;
       //if (ijet->hasSubjets("SoftDrop"))
@@ -3019,7 +3051,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int decay=-1;
     int genmatch = -1;
 
-    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1; //SCeta=-999.; //FRA January2019
+    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,tkRelIso=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1; //SCeta=-999.; //FRA January2019
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
@@ -3055,6 +3087,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       if(userdatahelpers::getUserFloat(cand,"isGlobalMuon"))typeOfMuon |= 1 << 1;
       if(userdatahelpers::getUserFloat(cand,"isTrackerMuon"))typeOfMuon |= 1 << 2;
       depositTracker=userdatahelpers::getUserFloat(cand,"DepositR03TrackerOfficial");
+      tkRelIso = depositTracker / userdatahelpers::getUserFloat(cand,"tunePMuonBestTrackPt");
       depositEcal=userdatahelpers::getUserFloat(cand,"DepositR03ECal");
       depositHcal=userdatahelpers::getUserFloat(cand,"DepositR03Hcal");
 
@@ -3212,6 +3245,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_IoEmIoP.push_back(IoEmIoP);
     _daughters_IoEmIoP_ttH.push_back(IoEmIoP_ttH);
     //_daughters_SCeta.push_back(SCeta); //FRA January2019
+    _daughters_tkRelIso.push_back(tkRelIso);
     _daughters_depositR03_tracker.push_back(depositTracker);
     _daughters_depositR03_ecal.push_back(depositEcal);
     _daughters_depositR03_hcal.push_back(depositHcal);
