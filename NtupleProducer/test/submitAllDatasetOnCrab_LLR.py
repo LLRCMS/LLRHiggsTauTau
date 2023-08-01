@@ -12,29 +12,28 @@ datasetsFile = "datasets_UL18.txt"
 
 nolocFile = "datasets_UL18.noloc.txt"
 
-tag = "MC_Jan2023"
-isMC = False # /!\ Be sure that the IsMC flag in analyzer_LLR.py matches this one!
+tag = "MC_Aug2023"
+isMC = True # /!\ Be sure that the IsMC flag in analyzer_LLR.py matches this one!
 
 PROCESS = [
     "BACKGROUNDS_TT_2018",
     "BACKGROUNDS_WJETS_2018",
     "BACKGROUNDS_DY_NLO_2018",
     "BACKGROUNDS_DY_NLO_PTSLICED_2018",
-    "BACKGROUNDS_DY_2018",
     "BACKGROUNDS_VV_2018",
+    "BACKGROUNDS_VVV_2018",
     "BACKGROUNDS_ST_2018",
     "BACKGROUNDS_EWK_2018",
     "BACKGROUNDS_H_2018",
     "BACKGROUNDS_TTX_2018",
-    "BACKGROUNDS_DY_QQ_HTSLICED_2018"
 
-    "SIGNALS_GF_NONRES_2018",
-    "SIGNALS_VBF_NONRES_2018",
-    "SIGNALS_GF_NLO_NONRES_2018",
-    "SIGNALS_GF_SPIN0_2018",
-    "SIGNALS_GF_SPIN2_2018",
-    "SIGNALS_VBF_SPIN0_2018",
-    "SIGNALS_VBF_SPIN2_2018",
+    # "SIGNALS_GF_NONRES_2018",
+    # "SIGNALS_VBF_NONRES_2018",
+    # "SIGNALS_GF_NLO_NONRES_2018",
+    # "SIGNALS_GF_SPIN0_2018",
+    # "SIGNALS_GF_SPIN2_2018",
+    # "SIGNALS_VBF_SPIN0_2018",
+    # "SIGNALS_VBF_SPIN2_2018",
 ]
 
 if not isMC:
