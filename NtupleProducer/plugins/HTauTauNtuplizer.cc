@@ -126,7 +126,6 @@
    bool writeJets = true;     // Write jets in the tree. 
    bool writeFatJets = true;
    bool writeSoftLep = false;
-   bool writeL1 = true;
    bool DEBUG = false;
    int DETAIL=1;
  }
@@ -169,7 +168,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
   int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
-  void FillL1Obj(const BXVector<l1t::Tau>* taus, const BXVector<l1t::Jet>* jets, const edm::Event& event); // chia
   
   //int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
   static bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
@@ -435,17 +433,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _genjet_e;
   std::vector<Int_t> _genjet_partonFlavour; // from matched pat::Jet
   std::vector<Int_t> _genjet_hadronFlavour; // (eh yes, because it is not accessible easily from gen jets)
-
-  //L1 taus
-  std::vector<Float_t> _L1_tauEt;
-  std::vector<Float_t> _L1_tauEta;
-  std::vector<Float_t> _L1_tauPhi;
-  std::vector<short int> _L1_tauIso;
-
-  //L1 jets
-  std::vector<Float_t> _L1_jetEt;
-  std::vector<Float_t> _L1_jetEta;
-  std::vector<Float_t> _L1_jetPhi;
   
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
@@ -1132,15 +1119,6 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_TauGenDecayMode.clear();
   _genpart_TauGenDetailedDecayMode.clear();
   _genpart_flags.clear();
-
-  _L1_tauEt.clear();
-  _L1_tauEta.clear();
-  _L1_tauPhi.clear();
-  _L1_tauIso.clear();
-
-  _L1_jetEt.clear();
-  _L1_jetEta.clear();
-  _L1_jetPhi.clear();
   
   _genjet_px.clear();
   _genjet_py.clear();
@@ -1478,15 +1456,6 @@ void HTauTauNtuplizer::beginJob(){
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   
-    myTree->Branch("L1_tauEt",&_L1_tauEt);
-    myTree->Branch("L1_tauEta",&_L1_tauEta);
-    myTree->Branch("L1_tauPhi",&_L1_tauPhi);
-    myTree->Branch("L1_tauIso",&_L1_tauIso);
-    myTree->Branch("L1_jetEt",&_L1_jetEt);
-    myTree->Branch("L1_jetEta",&_L1_jetEta);
-    myTree->Branch("L1_jetPhi",&_L1_jetPhi);
-
-
      myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
      if(theisMC){ 
      myTree->Branch("daughters_hasTES",&_daughters_hasTES);
@@ -2184,7 +2153,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     }
   }
   if(writeFatJets) FillFatJet(fatjets, event);
-  if(writeL1 && theisMC) FillL1Obj(L1Tau, L1Jet, event);
 
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
@@ -3746,61 +3714,6 @@ int HTauTauNtuplizer::GetMatchedGen (const reco::Candidate* genL, const edm::Eve
     
     return index;
 }
-
-//Fill L1 objects
-void HTauTauNtuplizer::FillL1Obj(const BXVector<l1t::Tau>* taus, const BXVector<l1t::Jet>* jets, const edm::Event& event){
-
-  for (int ibx = taus->getFirstBX(); ibx <= taus->getLastBX(); ++ibx)
-    {
-      for (BXVector<l1t::Tau>::const_iterator it=taus->begin(ibx); it!=taus->end(ibx); it++)
-  {
-    if (it->et() > 0 && ibx ==0){
-
-      _L1_tauEt .push_back(it->et());
-      _L1_tauEta.push_back(it->eta());
-      _L1_tauPhi.push_back(it->phi());
-      _L1_tauIso.push_back(it->hwIso());
-    }
-  }
-    }
-
-  for (int ibx = jets->getFirstBX(); ibx <= jets->getLastBX(); ++ibx)
-    {
-      for (BXVector<l1t::Jet>::const_iterator it=jets->begin(ibx); it!=jets->end(ibx); it++)
-  {
-    if (it->et() > 0&& ibx ==0){
-      
-      _L1_jetEt .push_back(it->et());
-      _L1_jetEta.push_back(it->eta());
-      _L1_jetPhi.push_back(it->phi());
-     
-    }
-  }
-    }
-}
-
-// not used anymore, all info already stored in genFiller
-// int HTauTauNtuplizer::CreateFlagsWord (const pat::GenericParticle* part)
-// {
-//     int flag = 0;
-//     
-//     if (part->hasUserInt("HMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromH));
-//     if (part->hasUserInt("TopMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTop));
-//     if (part->hasUserInt("TauMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTau));
-//     if (part->hasUserInt("ZMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromZ));
-//     
-//     /*
-//     // H/Z decau --> was changed into a dedicated branch
-//     if (part->hasUserInt("HZDecayMode"))
-//     {
-//         int decayMode = part->userInt ("HZDecayMode");
-//         int bitToUse = genFlagPosMap_.at(decayMode);
-//         flag |= (1 << bitToUse);
-//     }
-//     */
-//     return flag;
-// }
-
 
 void HTauTauNtuplizer::endJob(){
   hCounter->SetBinContent(1,Nevt_Gen);
