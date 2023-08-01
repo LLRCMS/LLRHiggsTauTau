@@ -126,7 +126,6 @@
    bool writeJets = true;     // Write jets in the tree. 
    bool writeFatJets = true;
    bool writeSoftLep = false;
-   bool writeL1 = true;
    bool DEBUG = false;
    int DETAIL=1;
  }
@@ -169,7 +168,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   void FillGenInfo(const edm::Event&);
   void FillGenJetInfo(const edm::Event&);
   int GetMatchedGen (const reco::Candidate* genL, const edm::Event& event); // return the index of the associated gen particle in the filtered gen collection, in not existing return -1
-  void FillL1Obj(const BXVector<l1t::Tau>* taus, const BXVector<l1t::Jet>* jets, const edm::Event& event); // chia
   
   //int CreateFlagsWord (const pat::GenericParticle* part); // build int with each bit containing some boolean flags
   static bool CompareLegs(const reco::Candidate *, const reco::Candidate *);
@@ -435,17 +433,6 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _genjet_e;
   std::vector<Int_t> _genjet_partonFlavour; // from matched pat::Jet
   std::vector<Int_t> _genjet_hadronFlavour; // (eh yes, because it is not accessible easily from gen jets)
-
-  //L1 taus
-  std::vector<Float_t> _L1_tauEt;
-  std::vector<Float_t> _L1_tauEta;
-  std::vector<Float_t> _L1_tauPhi;
-  std::vector<short int> _L1_tauIso;
-
-  //L1 jets
-  std::vector<Float_t> _L1_jetEt;
-  std::vector<Float_t> _L1_jetEta;
-  std::vector<Float_t> _L1_jetPhi;
   
   //std::vector<math::XYZTLorentzVector> _daughter2;
 
@@ -628,6 +615,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _daughters_IoEmIoP;
   std::vector<Float_t> _daughters_IoEmIoP_ttH;
   //std::vector<Float_t> _daughters_SCeta; //FRA January2019
+  std::vector<Float_t> _daughters_tkRelIso;
   std::vector<Float_t> _daughters_depositR03_tracker;
   std::vector<Float_t> _daughters_depositR03_ecal;
   std::vector<Float_t> _daughters_depositR03_hcal;
@@ -746,8 +734,16 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   std::vector<Float_t> _ak8jets_massIndependentDeepDoubleBvLJetTags_probHbb;
   std::vector<Float_t> _ak8jets_deepDoubleBvLJetTags_probHbb;
   std::vector<Float_t> _ak8jets_deepBoostedJetTags_probHbb;
+
   std::vector<Float_t> _ak8jets_particleNetJetTags_probHbb;
   std::vector<Float_t> _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD;
+
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_probXbb;
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_probXcc;
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_probXqq;
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_probQCD;
+  std::vector<Float_t> _ak8jets_particleNetMDJetTags_mass;
+
   std::vector<Int_t>   _ak8jets_nsubjets;
 
   // subjets of ak8 -- store ALL subjets, and link them with an idx to the ak8 jet vectors
@@ -1005,6 +1001,7 @@ void HTauTauNtuplizer::Initialize(){
   _daughters_IoEmIoP.clear();
   _daughters_IoEmIoP_ttH.clear();
   //_daughters_SCeta.clear(); //FRA January2019
+  _daughters_tkRelIso.clear(); 
   _daughters_depositR03_tracker.clear();  
   _daughters_depositR03_ecal.clear();  
   _daughters_depositR03_hcal.clear();  
@@ -1122,15 +1119,6 @@ void HTauTauNtuplizer::Initialize(){
   _genpart_TauGenDecayMode.clear();
   _genpart_TauGenDetailedDecayMode.clear();
   _genpart_flags.clear();
-
-  _L1_tauEt.clear();
-  _L1_tauEta.clear();
-  _L1_tauPhi.clear();
-  _L1_tauIso.clear();
-
-  _L1_jetEt.clear();
-  _L1_jetEta.clear();
-  _L1_jetPhi.clear();
   
   _genjet_px.clear();
   _genjet_py.clear();
@@ -1345,6 +1333,11 @@ void HTauTauNtuplizer::Initialize(){
   _ak8jets_deepBoostedJetTags_probHbb.clear();
   _ak8jets_particleNetJetTags_probHbb.clear();
   _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD.clear();
+  _ak8jets_particleNetMDJetTags_probXbb.clear();
+  _ak8jets_particleNetMDJetTags_probXcc.clear();
+  _ak8jets_particleNetMDJetTags_probXqq.clear();
+  _ak8jets_particleNetMDJetTags_probQCD.clear();
+  _ak8jets_particleNetMDJetTags_mass.clear();
   _ak8jets_nsubjets.clear();
 
   _subjets_px.clear();
@@ -1463,15 +1456,6 @@ void HTauTauNtuplizer::beginJob(){
 
   if(writeSoftLep)myTree->Branch("softLeptons",&_softLeptons);
   
-    myTree->Branch("L1_tauEt",&_L1_tauEt);
-    myTree->Branch("L1_tauEta",&_L1_tauEta);
-    myTree->Branch("L1_tauPhi",&_L1_tauPhi);
-    myTree->Branch("L1_tauIso",&_L1_tauIso);
-    myTree->Branch("L1_jetEt",&_L1_jetEt);
-    myTree->Branch("L1_jetEta",&_L1_jetEta);
-    myTree->Branch("L1_jetPhi",&_L1_jetPhi);
-
-
      myTree->Branch("daughters_highestEt_L1IsoTauMatched", &_daughters_highestEt_L1IsoTauMatched);
      if(theisMC){ 
      myTree->Branch("daughters_hasTES",&_daughters_hasTES);
@@ -1646,6 +1630,7 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("tauID",&_daughters_tauID);
   myTree->Branch("combreliso",& _combreliso);
   myTree->Branch("combreliso03",& _combreliso03);
+  myTree->Branch("tkRelIso",&_daughters_tkRelIso);
   myTree->Branch("daughters_depositR03_tracker",&_daughters_depositR03_tracker);
   myTree->Branch("daughters_depositR03_ecal",&_daughters_depositR03_ecal);
   myTree->Branch("daughters_depositR03_hcal",&_daughters_depositR03_hcal);
@@ -1798,6 +1783,13 @@ void HTauTauNtuplizer::beginJob(){
   myTree->Branch("ak8jets_deepBoostedJetTags_probHbb", &_ak8jets_deepBoostedJetTags_probHbb);
   myTree->Branch("ak8jets_particleNetJetTags_probHbb", &_ak8jets_particleNetJetTags_probHbb);
   myTree->Branch("ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD", &_ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD);
+
+  myTree->Branch("ak8jets_particleNetMDJetTags_probXbb", &_ak8jets_particleNetMDJetTags_probXbb);
+  myTree->Branch("ak8jets_particleNetMDJetTags_probXcc", &_ak8jets_particleNetMDJetTags_probXcc);
+  myTree->Branch("ak8jets_particleNetMDJetTags_probXqq", &_ak8jets_particleNetMDJetTags_probXqq);
+  myTree->Branch("ak8jets_particleNetMDJetTags_probQCD", &_ak8jets_particleNetMDJetTags_probQCD);
+  myTree->Branch("ak8jets_particleNetMDJetTags_mass", &_ak8jets_particleNetMDJetTags_mass);
+
   myTree->Branch("ak8jets_nsubjets", &_ak8jets_nsubjets);
 
   myTree->Branch("subjets_px", &_subjets_px);
@@ -2161,7 +2153,6 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     }
   }
   if(writeFatJets) FillFatJet(fatjets, event);
-  if(writeL1 && theisMC) FillL1Obj(L1Tau, L1Jet, event);
 
   //Loop on pairs
   std::vector<pat::CompositeCandidate> candVector;
@@ -2781,6 +2772,15 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_particleNetJetTags_probHbb.push_back(ijet->bDiscriminator("pfParticleNetJetTags:probHbb"));
       _ak8jets_particleNetDiscriminatorsJetTags_HbbvsQCD.push_back(ijet->bDiscriminator("pfParticleNetDiscriminatorsJetTags:HbbvsQCD"));
 
+      _ak8jets_particleNetMDJetTags_probXbb.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probXbb"));
+      _ak8jets_particleNetMDJetTags_probXcc.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probXcc"));
+      _ak8jets_particleNetMDJetTags_probXqq.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probXqq"));
+      _ak8jets_particleNetMDJetTags_probQCD.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDbb") +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDb")  +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDcc") +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDbc") +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDothers"));
+      _ak8jets_particleNetMDJetTags_mass.push_back(ijet->bDiscriminator("pfParticleNetMassRegressionJetTags:mass"));
       // store subjets for soft drop
       int nsubj = 0;
       //if (ijet->hasSubjets("SoftDrop"))
@@ -3019,7 +3019,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     int decay=-1;
     int genmatch = -1;
 
-    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,depositTracker=-1,depositEcal=-1,depositHcal=-1; //SCeta=-999.; //FRA January2019
+    float ieta=-1,full5x5_ieta=-1,hOverE=-1,etasuperatvtx=-1,phisuperatvtx=-1,IoEmIoP=-999.,IoEmIoP_ttH=-999.,tkRelIso=-1,depositTracker=-1,depositEcal=-1,depositHcal=-1; //SCeta=-999.; //FRA January2019
     int decayModeFindingOldDMs=-1, decayModeFindingNewDMs=-1; // tau 13 TeV ID
     float byCombinedIsolationDeltaBetaCorrRaw3Hits=-1., chargedIsoPtSum=-1., neutralIsoPtSum=-1., puCorrPtSum=-1.; // tau 13 TeV RAW iso info
     int numChargedParticlesSignalCone=-1, numNeutralHadronsSignalCone=-1, numPhotonsSignalCone=-1, numParticlesSignalCone=-1, numChargedParticlesIsoCone=-1, numNeutralHadronsIsoCone=-1, numPhotonsIsoCone=-1, numParticlesIsoCone=-1;
@@ -3055,6 +3055,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
       if(userdatahelpers::getUserFloat(cand,"isGlobalMuon"))typeOfMuon |= 1 << 1;
       if(userdatahelpers::getUserFloat(cand,"isTrackerMuon"))typeOfMuon |= 1 << 2;
       depositTracker=userdatahelpers::getUserFloat(cand,"DepositR03TrackerOfficial");
+      tkRelIso = depositTracker / userdatahelpers::getUserFloat(cand,"tunePMuonBestTrackPt");
       depositEcal=userdatahelpers::getUserFloat(cand,"DepositR03ECal");
       depositHcal=userdatahelpers::getUserFloat(cand,"DepositR03Hcal");
 
@@ -3212,6 +3213,7 @@ void HTauTauNtuplizer::FillSoftLeptons(const edm::View<reco::Candidate> *daus,
     _daughters_IoEmIoP.push_back(IoEmIoP);
     _daughters_IoEmIoP_ttH.push_back(IoEmIoP_ttH);
     //_daughters_SCeta.push_back(SCeta); //FRA January2019
+    _daughters_tkRelIso.push_back(tkRelIso);
     _daughters_depositR03_tracker.push_back(depositTracker);
     _daughters_depositR03_ecal.push_back(depositEcal);
     _daughters_depositR03_hcal.push_back(depositHcal);
@@ -3712,61 +3714,6 @@ int HTauTauNtuplizer::GetMatchedGen (const reco::Candidate* genL, const edm::Eve
     
     return index;
 }
-
-//Fill L1 objects
-void HTauTauNtuplizer::FillL1Obj(const BXVector<l1t::Tau>* taus, const BXVector<l1t::Jet>* jets, const edm::Event& event){
-
-  for (int ibx = taus->getFirstBX(); ibx <= taus->getLastBX(); ++ibx)
-    {
-      for (BXVector<l1t::Tau>::const_iterator it=taus->begin(ibx); it!=taus->end(ibx); it++)
-  {
-    if (it->et() > 0 && ibx ==0){
-
-      _L1_tauEt .push_back(it->et());
-      _L1_tauEta.push_back(it->eta());
-      _L1_tauPhi.push_back(it->phi());
-      _L1_tauIso.push_back(it->hwIso());
-    }
-  }
-    }
-
-  for (int ibx = jets->getFirstBX(); ibx <= jets->getLastBX(); ++ibx)
-    {
-      for (BXVector<l1t::Jet>::const_iterator it=jets->begin(ibx); it!=jets->end(ibx); it++)
-  {
-    if (it->et() > 0&& ibx ==0){
-      
-      _L1_jetEt .push_back(it->et());
-      _L1_jetEta.push_back(it->eta());
-      _L1_jetPhi.push_back(it->phi());
-     
-    }
-  }
-    }
-}
-
-// not used anymore, all info already stored in genFiller
-// int HTauTauNtuplizer::CreateFlagsWord (const pat::GenericParticle* part)
-// {
-//     int flag = 0;
-//     
-//     if (part->hasUserInt("HMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromH));
-//     if (part->hasUserInt("TopMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTop));
-//     if (part->hasUserInt("TauMothIndex"))    flag |= (1 << static_cast<int> (GenFlags::fromTau));
-//     if (part->hasUserInt("ZMothIndex"))      flag |= (1 << static_cast<int> (GenFlags::fromZ));
-//     
-//     /*
-//     // H/Z decau --> was changed into a dedicated branch
-//     if (part->hasUserInt("HZDecayMode"))
-//     {
-//         int decayMode = part->userInt ("HZDecayMode");
-//         int bitToUse = genFlagPosMap_.at(decayMode);
-//         flag |= (1 << bitToUse);
-//     }
-//     */
-//     return flag;
-// }
-
 
 void HTauTauNtuplizer::endJob(){
   hCounter->SetBinContent(1,Nevt_Gen);

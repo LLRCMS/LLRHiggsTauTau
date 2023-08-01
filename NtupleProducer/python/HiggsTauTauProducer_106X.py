@@ -820,6 +820,41 @@ else:
     process.SVFit = cms.Sequence (process.SVllCand)
 
 
+### ParticleNet AK8 mass regression
+from RecoBTag.FeatureTools.pfDeepBoostedJetTagInfos_cfi import pfDeepBoostedJetTagInfos
+process.pfParticleNetAK8JetTagInfos = pfDeepBoostedJetTagInfos.clone(
+    jet_radius = 0.8,
+    min_pt_for_track_properties = 0.95,
+    min_jet_pt = 180,
+    max_jet_eta = 2.5,
+    use_puppiP4 = False,
+    min_puppi_wgt = -1,
+    vertices = "offlineSlimmedPrimaryVertices",
+    secondary_vertices = "slimmedSecondaryVertices",
+    pf_candidates = "packedPFCandidates",
+    jets = "slimmedJetsAK8",
+    puppi_value_map = "",
+    vertex_associator = ""
+)
+
+from RecoBTag.ONNXRuntime.boostedJetONNXJetTagsProducer_cfi import boostedJetONNXJetTagsProducer
+process.pfParticleNetMassRegressionJetTags = boostedJetONNXJetTagsProducer.clone(
+    src = 'pfParticleNetAK8JetTagInfos',
+    preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/preprocess.json',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/particle-net.onnx',
+    flav_names = ["mass"]
+)
+
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import updatedPatJets
+process.jetsAK8PNETUpdated = updatedPatJets.clone(
+    jetSource = "slimmedJetsAK8",
+    addJetCorrFactors = False
+)
+process.jetsAK8PNETUpdated.discriminatorSources.append("pfParticleNetMassRegressionJetTags:mass")
+
+process.HTauTauTree.ak8jetCollection = cms.InputTag("jetsAK8PNETUpdated")
+
+
 #print particles gen level - DEBUG purposes
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.printTree = cms.EDAnalyzer("ParticleListDrawer",
@@ -842,11 +877,18 @@ process.Candidates = cms.Sequence(
     process.nEventsPassTrigger +
     process.egammaPostRecoSeq  +
     process.muons              +
-    process.electrons          + process.cleanSoftElectrons +
+    process.electrons          +
+    process.cleanSoftElectrons +
     process.taus               +
     process.fsrSequence        +
-    process.softLeptons        + process.barellCand         +
-    process.bregJets           + process.jecSequence        + process.jetSequence +
+    process.softLeptons        +
+    process.barellCand         +
+    process.bregJets           +
+    process.jecSequence        +
+    process.jetSequence        +
+    process.pfParticleNetAK8JetTagInfos +
+    process.pfParticleNetMassRegressionJetTags +
+    process.jetsAK8PNETUpdated +
     process.METSequence        +
     process.geninfo            +
     process.SVFit
