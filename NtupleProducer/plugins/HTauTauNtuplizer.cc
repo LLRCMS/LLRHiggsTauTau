@@ -2778,7 +2778,7 @@ void HTauTauNtuplizer::FillFatJet(const edm::View<pat::Jet>* fatjets, const edm:
       _ak8jets_particleNetMDJetTags_probQCD.push_back(ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDbb") +
 						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDb")  +
 						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDcc") +
-						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDbc") +
+						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDc") +
 						      ijet->bDiscriminator("pfMassDecorrelatedParticleNetJetTags:probQCDothers"));
       _ak8jets_particleNetMDJetTags_mass.push_back(ijet->bDiscriminator("pfParticleNetMassRegressionJetTags:mass"));
       // store subjets for soft drop
