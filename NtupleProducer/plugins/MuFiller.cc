@@ -163,7 +163,8 @@ MuFiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     l.addUserFloat("combRelIsoPF",combRelIsoPF);
     l.addUserFloat("combRelIsoPF03",combRelIsoPF03);
     l.addUserFloat("rho",rho);
-    l.addUserFloat("DepositR03TrackerOfficial",l.isolationR03().sumPt);
+    l.addUserFloat("DepositR03TrackerOfficial",l.isolationR03().sumPt);   
+    l.addUserFloat("tunePMuonBestTrackPt",l.tunePMuonBestTrack()->pt()); // for tkRelIso (see nanoAOD implementation: https://github.com/cms-sw/cmssw/blob/CMSSW_10_6_X/PhysicsTools/NanoAOD/python/muons_cff.py#L141)
     l.addUserFloat("DepositR03ECal",l.isolationR03().emEt);
     l.addUserFloat("DepositR03Hcal",l.isolationR03().hadEt);
     //    if(vertexs->size()>0) {
