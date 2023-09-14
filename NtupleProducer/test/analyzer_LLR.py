@@ -11,7 +11,7 @@ YEAR   = 2018
 #YEAR   = 2016
 PERIOD = ''
 #PERIOD = 'postVFP' # use 'postVFP' for 2016 VFP samples, can be left empty if running on 2017 and 2018
-IsMC=False
+IsMC=True
 
 #apply corrections?
 APPLYMUCORR=False
