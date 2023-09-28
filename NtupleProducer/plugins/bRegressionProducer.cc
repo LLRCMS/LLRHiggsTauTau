@@ -156,13 +156,6 @@ void bRegressionProducer::produce( Event &evt, const EventSetup & )
         Ptr<pat::Jet> pjet = jets->ptrAt( i );
         pat::Jet fjet = pat::Jet( *pjet );
 
-        if (fjet.pt()<15. || fabs(fjet.eta())>2.5){ // jet out of range, adding dummy values
-	  fjet.addUserFloat("bRegNNCorr", 1.);
-	  fjet.addUserFloat("bRegNNResolution",1.);  
-	  jetColl->push_back( fjet );
-	  continue;
-	}
-
         std::array<float, 5> cone_boundaries{{ 0.05, 0.1, 0.2, 0.3, 0.4 }}; // hardcoded boundaries: should be made configurable
         size_t ncone_boundaries = cone_boundaries.size();
         std::vector<float> chEnergies(ncone_boundaries+1,0.);
