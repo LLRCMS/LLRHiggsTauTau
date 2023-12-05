@@ -8,7 +8,6 @@ PyFilePath = os.environ['CMSSW_BASE']+"/src/LLRHiggsTauTau/NtupleProducer/"
 
 # Year/Period
 YEAR   = 2018
-#YEAR   = 2016
 PERIOD = ''
 #PERIOD = 'postVFP' # use 'postVFP' for 2016 VFP samples, can be left empty if running on 2017 and 2018
 IsMC=True
