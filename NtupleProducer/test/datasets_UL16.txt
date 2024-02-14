@@ -23,6 +23,9 @@
 /DoubleMuon/Run2016G-UL2016_MiniAODv2-v1/MINIAOD
 /DoubleMuon/Run2016H-UL2016_MiniAODv2-v2/MINIAOD
 
+=== BACKGROUNDS_HH_2016 ===
+/GluGluToHHTo2B2Tau_TuneCP5_PSWeights_node_SM_13TeV-madgraph-pythia8/RunIISummer20UL16MiniAODAPVv2-106X_mcRun2_asymptotic_preVFP_v11-v2/MINIAODSIM
+#/GluGluToHHTo2B2Tau_TuneCP5_PSWeights_node_SM_13TeV-madgraph-pythia8/RunIISummer20UL16MiniAODv2-106X_mcRun2_asymptotic_v17-v1/MINIAODSIM
 
 === BACKGROUNDS_TT_2016 ===
 /TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL16MiniAODv2-106X_mcRun2_asymptotic_v17-v1/MINIAODSIM

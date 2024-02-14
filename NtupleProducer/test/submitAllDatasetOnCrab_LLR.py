@@ -12,7 +12,7 @@ datasetsFile = "datasets_UL18.txt"
 
 nolocFile = "datasets_UL18.noloc.txt"
 
-tag = "MC_Sep2023"
+tag = "MC_Dec2023"
 isMC = True # /!\ Be sure that the IsMC flag in analyzer_LLR.py matches this one!
 
 PROCESS = [
@@ -31,7 +31,6 @@ PROCESS = [
     "BACKGROUNDS_DY_QQ_HTSLICED_2018"
     "BACKGROUNDS_DY_LM_2018"
 
-    # "SIGNALS_GF_NONRES_2018",
     # "SIGNALS_VBF_NONRES_2018",
     # "SIGNALS_GF_NLO_NONRES_2018",
     # "SIGNALS_GF_SPIN0_2018",
@@ -176,7 +175,7 @@ for dtset in dtsetToLaunch:
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
 #    command += " Data.splitting='Automatic'"
     command += " Data.splitting='FileBased'"
-    command += " Data.unitsPerJob=1"
+    command += " Data.unitsPerJob=2"
     command += " Data.totalUnits=-1"
     if ignoreLoc:
         command += " Data.ignoreLocality=True"
