@@ -66,7 +66,6 @@ PublishDataset = False # publish dataset; set to false if producing ntuples
 #### Automated script starting
 
 # dataset block definition
-comment = "#"
 sectionBeginEnd = "==="
 
 if EnrichedToNtuples: PublishDataset = False
@@ -102,20 +101,20 @@ with open(datasetsFile) as fIn:
 
     for line in fIn:
         line = line.strip() # remove newline at the end and leding/trailing whitespaces
-
+        
         if not line: #skip empty lines
             continue
 
-        if comment in line:
+        if "#" in line: #commented line
             continue
-        #print line        
+
         words = line.split()
 
         if len(words) >= 3:
             if words[0] == sectionBeginEnd and words[2] == sectionBeginEnd: 
                 currSection = words[1]
         else:
-            if currSection in PROCESS and line[0] != "#":
+            if currSection in PROCESS:
                 dtsetToLaunch.append(line)
 
 # CREATE CRAB JOBS
