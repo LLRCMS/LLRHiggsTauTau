@@ -12,24 +12,24 @@ datasetsFile = "datasets_UL18.txt"
 
 nolocFile = "datasets_UL18.noloc.txt"
 
-tag = "MC_Dec2023"
+tag = "Sig_HY_UL18_Feb2024"
 isMC = True # /!\ Be sure that the IsMC flag in analyzer_LLR.py matches this one!
 
 PROCESS = [
-    "BACKGROUNDS_TT_2018",
-    "BACKGROUNDS_WJETS_2018",
-    "BACKGROUNDS_DY_NLO_2018",
-    "BACKGROUNDS_DY_NLO_PTSLICED_2018",
-    "BACKGROUNDS_DY_2018",
-    "BACKGROUNDS_VV_2018",
-    "BACKGROUNDS_VVV_2018",
-    "BACKGROUNDS_ST_2018",
-    "BACKGROUNDS_EWK_2018",
-    "BACKGROUNDS_H_2018",
-    "BACKGROUNDS_TTX_2018",
-    "BACKGROUNDS_TTVH_2018",
-    "BACKGROUNDS_DY_QQ_HTSLICED_2018"
-    "BACKGROUNDS_DY_LM_2018"
+    # "BACKGROUNDS_TT_2018",
+    # "BACKGROUNDS_WJETS_2018",
+    # "BACKGROUNDS_DY_NLO_2018",
+    # "BACKGROUNDS_DY_NLO_PTSLICED_2018",
+    # "BACKGROUNDS_DY_2018",
+    # "BACKGROUNDS_VV_2018",
+    # "BACKGROUNDS_VVV_2018",
+    # "BACKGROUNDS_ST_2018",
+    # "BACKGROUNDS_EWK_2018",
+    # "BACKGROUNDS_H_2018",
+    # "BACKGROUNDS_TTX_2018",
+    # "BACKGROUNDS_TTVH_2018",
+    # "BACKGROUNDS_DY_QQ_HTSLICED_2018"
+    # "BACKGROUNDS_DY_LM_2018"
 
     # "SIGNALS_VBF_NONRES_2018",
     # "SIGNALS_GF_NLO_NONRES_2018",
@@ -37,6 +37,7 @@ PROCESS = [
     # "SIGNALS_GF_SPIN2_2018",
     # "SIGNALS_VBF_SPIN0_2018",
     # "SIGNALS_VBF_SPIN2_2018",
+    "SIGNALS_HY_2018",
 ]
 
 if not isMC:
@@ -65,7 +66,6 @@ PublishDataset = False # publish dataset; set to false if producing ntuples
 #### Automated script starting
 
 # dataset block definition
-comment = "#"
 sectionBeginEnd = "==="
 
 if EnrichedToNtuples: PublishDataset = False
@@ -101,20 +101,20 @@ with open(datasetsFile) as fIn:
 
     for line in fIn:
         line = line.strip() # remove newline at the end and leding/trailing whitespaces
-
+        
         if not line: #skip empty lines
             continue
 
-        if comment in line:
+        if "#" in line: #commented line
             continue
-        
-        #print line        
+
         words = line.split()
+
         if len(words) >= 3:
             if words[0] == sectionBeginEnd and words[2] == sectionBeginEnd: 
                 currSection = words[1]
         else:
-            if currSection in PROCESS:                
+            if currSection in PROCESS:
                 dtsetToLaunch.append(line)
 
 # CREATE CRAB JOBS
