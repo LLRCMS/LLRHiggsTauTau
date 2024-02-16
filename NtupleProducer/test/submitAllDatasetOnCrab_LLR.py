@@ -8,59 +8,63 @@ import re
 ###################################################################
 #### Parameters to be changed for each production
 
-datasetsFile = "datasets_UL18.txt"
+YEAR = "18"
+PERIOD = '' # 'APV' # can be left empty if running on 2017 and 2018
 
-nolocFile = "datasets_UL18.noloc.txt"
+PREFIX = "Sig"
+assert PREFIX in ("Sig", "MC", "Data")
+TAG = "Feb2024"
 
-tag = "Sig_HY_UL18_Feb2024"
-isMC = True # /!\ Be sure that the IsMC flag in analyzer_LLR.py matches this one!
+datasetsFile = "datasets_UL" + YEAR + PERIOD + ".txt"
+nolocFile = "datasets_UL" + YEAR + ".noloc.txt"
+tag = PREFIX + "_UL" + YEAR + "_" + TAG
+
+if YEAR == "16":
+    lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
+
+elif YEAR == "17":
+    lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt'
+
+elif YEAR == "18":
+    lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
+    
+# /!\ Be sure that the IsMC flag in analyzer_LLR.py matches this one!
+isMC = True if PREFIX in ("Sig", "MC") else False 
 
 PROCESS = [
-    # "BACKGROUNDS_TT_2018",
-    # "BACKGROUNDS_WJETS_2018",
-    # "BACKGROUNDS_DY_NLO_2018",
-    # "BACKGROUNDS_DY_NLO_PTSLICED_2018",
-    # "BACKGROUNDS_DY_2018",
-    # "BACKGROUNDS_VV_2018",
-    # "BACKGROUNDS_VVV_2018",
-    # "BACKGROUNDS_ST_2018",
-    # "BACKGROUNDS_EWK_2018",
-    # "BACKGROUNDS_H_2018",
-    # "BACKGROUNDS_TTX_2018",
-    # "BACKGROUNDS_TTVH_2018",
-    # "BACKGROUNDS_DY_QQ_HTSLICED_2018"
-    # "BACKGROUNDS_DY_LM_2018"
+    # "BACKGROUNDS_TT_20" + YEAR,
+    # "BACKGROUNDS_WJETS_20" + YEAR,
+    # "BACKGROUNDS_DY_NLO_20" + YEAR,
+    # "BACKGROUNDS_DY_NLO_PTSLICED_20" + YEAR,
+    # "BACKGROUNDS_DY_20" + YEAR,
+    # "BACKGROUNDS_VV_20" + YEAR,
+    # "BACKGROUNDS_VVV_20" + YEAR,
+    # "BACKGROUNDS_ST_20" + YEAR,
+    # "BACKGROUNDS_EWK_20" + YEAR,
+    # "BACKGROUNDS_H_20" + YEAR,
+    # "BACKGROUNDS_TTX_20" + YEAR,
+    # "BACKGROUNDS_TTVH_20" + YEAR,
+    # "BACKGROUNDS_DY_QQ_HTSLICED_20" + YEAR
+    # "BACKGROUNDS_DY_LM_20" + YEAR
 
-    # "SIGNALS_VBF_NONRES_2018",
-    # "SIGNALS_GF_NLO_NONRES_2018",
-    # "SIGNALS_GF_SPIN0_2018",
-    # "SIGNALS_GF_SPIN2_2018",
-    # "SIGNALS_VBF_SPIN0_2018",
-    # "SIGNALS_VBF_SPIN2_2018",
-    "SIGNALS_HY_2018",
+    "SIGNALS_GF_SPIN0_20" + YEAR,
+    "SIGNALS_GF_SPIN2_20" + YEAR,
+    # "SIGNALS_HY_20" + YEAR,
 ]
 
 if not isMC:
-    tag = tag.replace("MC","Data")
-
     PROCESS = [
-        "DATA_TAU_2018",
-        "DATA_ELE_2018",
-        "DATA_MU_2018",
-        "DATA_MET_2018",
-        "DATA_DOUBLEMU_2018"
+        "DATA_TAU_20" + YEAR,
+        "DATA_ELE_20" + YEAR,
+        "DATA_MU_20" + YEAR,
+        "DATA_MET_20" + YEAR,
+        "DATA_DOUBLEMU_20" + YEAR
     ]
-
-#[OLD] twiki page with JSON files info https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmV2015Analysis
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Legacy_2016/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt'
-#lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt'
-lumiMaskFileName = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
 
 FastJobs = False # controls number of jobs - true if skipping SVfit, false if computing it (jobs will be smaller)
 VeryLong = False # controls time for each job - set to true if jobs contain many real lepton pairs --> request for more grid time
 EnrichedToNtuples = False # use only False! Do not create ntuples on CRAB because it is very slow, use tier3
 PublishDataset = False # publish dataset; set to false if producing ntuples
-
 
 ###################################################################
 #### Automated script starting
@@ -171,7 +175,7 @@ for dtset in dtsetToLaunch:
     command += " General.requestName=%s" % (shortName + "_" + str(counter))
     command += " General.workArea=%s" % crabJobsFolder
     command += " Data.inputDataset=%s" % dtset
-    command += " Data.outLFNDirBase=/store/user/bfontana/HHNtuples_res/UL18/%s/%s" % (tag, str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
+    command += " Data.outLFNDirBase=/store/user/bfontana/HHNtuples_res/UL" + YEAR + "/%s/%s" % (tag, str(counter)+"_"+dtsetNames) # change to where you want to stage you ntuples
     command += " Data.outputDatasetTag=%s" % (shortName + "_" + tag + "_" + str(counter))
 #    command += " Data.splitting='Automatic'"
     command += " Data.splitting='FileBased'"
