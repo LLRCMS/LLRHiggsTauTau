@@ -42,7 +42,7 @@ Is25ns=True
 HLTProcessName='HLT' #Different names possible, check e.g. at https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD.
 if not IsMC:
     HLTProcessName='HLT' #It always 'HLT' for real data
-print "HLTProcessName: ",HLTProcessName
+print("HLTProcessName: ", HLTProcessName)
 
 #relaxed sets for testing purposes
 TAUDISCRIMINATOR="byIsolationMVA3oldDMwoLTraw"
@@ -60,28 +60,28 @@ STORE_ENRICHEMENT_ONLY=True # When True and DO_ENRICHED=True only collection add
 # ------------------------
 
 is106X = True if 'CMSSW_10_6' in os.environ['CMSSW_VERSION'] else False
-print "is106X:" , is106X
+print("is106X:", is106X)
 is102X = True if 'CMSSW_10_2' in os.environ['CMSSW_VERSION'] else False
-print "is102X:" , is102X
+print("is102X:", is102X)
 is94X = True if 'CMSSW_9' in os.environ['CMSSW_VERSION'] else False# True to run in 92X (2017), False to run in 80X (2016) or 76X (2015)
-print "is94X: " , is94X
+print("is94X: ", is94X)
 is80X = True if 'CMSSW_8' in os.environ['CMSSW_VERSION'] else False# True to run in 80X (2016), False to run in 76X (2015)
-print "is80X: " , is80X
+print("is80X: ", is80X)
 
 ##
 ## Standard sequence
 ##
 
 if is106X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_106X.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer_106X.py").read())
 elif is102X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_102X.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer_102X.py").read())
 elif is94X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_94X.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer_94X.py").read())
 elif is80X:
-    execfile(PyFilePath+"python/HiggsTauTauProducer_80X.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer_80X.py").read())
 else :
-    execfile(PyFilePath+"python/HiggsTauTauProducer.py")
+    exec(open(PyFilePath+"python/HiggsTauTauProducer.py").read())
 
 ### ----------------------------------------------------------------------
 ### Source, better to use sample to run on batch
@@ -115,13 +115,8 @@ process.maxEvents.input = -1 #10000
 # JSON mask for data --> defined in the lumiMask file
 # from JSON file
 if not IsMC:
-  if YEAR == 2016:
-    execfile(PyFilePath+"python/lumiMask_2016.py")
-  if YEAR == 2017:
-    execfile(PyFilePath+"python/lumiMask_2017.py")
-  if YEAR == 2018:
-    execfile(PyFilePath+"python/lumiMask_2018.py")
-  process.source.lumisToProcess = LUMIMASK
+    exec(open(PyFilePath+"python/lumiMask_" + str(YEAR) + ".py").read())
+    process.source.lumisToProcess = LUMIMASK
 
 ##
 ## Output file
