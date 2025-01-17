@@ -797,6 +797,7 @@ class HTauTauNtuplizer : public edm::EDAnalyzer {
   unsigned _MC_pdf_first_idx;
   unsigned _MC_pdf_last_idx;
   std::vector<unsigned> _MC_QCDscale_indices = std::vector<unsigned>(7, 0);
+  int empty_lheweights = 0;
 };
 
 const int HTauTauNtuplizer::ntauIds; // definition of static member
@@ -2129,6 +2130,10 @@ void HTauTauNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& e
     if (lheeventinfo.isValid()) {
       _nup=lheeventinfo->hepeup().NUP;
       auto lheweights = lheeventinfo->weights();
+      if(lheweights.size() == 0) { // skip rare cases where LHE weights are empty for individual events
+        empty_lheweights++;
+        return;
+      }
       for (unsigned pdf_idx = _MC_pdf_first_idx; pdf_idx <= _MC_pdf_first_idx+_MC_pdf_last_idx; ++pdf_idx) {
         if (pdf_idx != _MC_pdf_first_idx) {
           _MC_pdf[pdf_idx-_MC_pdf_first_idx] = st_mult * lheweights[pdf_idx].wgt;
@@ -3827,7 +3832,7 @@ void HTauTauNtuplizer::endJob(){
     for(int i=1;i<=ntauIds;i++){
     hTauIDs->GetXaxis()->SetBinLabel(i,tauIDStrings[i-1].Data());
   }
-
+  if(empty_lheweights > 0) std::cout<<"Skipped events due to empty lhe weights: "<<empty_lheweights<<std::endl;
 }
 
 
